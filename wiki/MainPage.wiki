@@ -1,0 +1,15 @@
+#summary Auremo Wiki
+
+= Introduction =
+
+Auremo is a simple to use, graphical standalone client for Music Player Daemon that runs on Windows .NET 4.0. As of version 0.1.0 it supports the most essential MPD features: playlist creation using a drag & drop interface and simple playback control.
+
+Auremo was first written to fulfill the author's own needs for a straightforward MPD client for Windows. If other people find it useful, more features can be easily added in later versions. As is, Auremo should be stable enough for general use and have enough features for real use.
+
+= Feedback =
+
+User feedback is encouraged! If you like Auremo, have bugs to report or would like to suggest new features, please e-mail auremompd@gmail.com.
+
+= Participate =
+
+Help is welcome. The GUI needs attention from an expert artist, preferably one with XAML skills. Someone with experience on Windows installers might have something to say about the current state of the installer. You can e-mail auremompd@gmail.com if you would like to contribute.
