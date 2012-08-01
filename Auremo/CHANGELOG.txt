@@ -1,0 +1,7 @@
+Version history and change log
+==============================
+
+Auremo 0.1.0
+------------
+ * Initial version.
+ * Released 30th July 2012.
