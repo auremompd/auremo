@@ -1,17 +1,19 @@
-#summary Auremo Wiki
-
 = Introduction =
 
-Auremo is a simple to use, graphical standalone client for Music Player Daemon that runs on Windows .NET 4.0. As of version 0.1.0 it supports the most essential MPD features: playlist creation using a drag & drop interface and simple playback control.
+Auremo is a simple graphical standalone client for Music Player Daemon. It runs on Windows Vista and 7.
 
-Auremo was first written to fulfill the author's own needs for a straightforward MPD client for Windows. If other people find it useful, more features can be easily added in later versions. As is, Auremo should be stable enough for general use and have enough features for real use.
+Auremo's design philosophy is to provide a straightforward MPD client that has enough features to satisfy most users, yet is very easy to install and run. It is mainly targeted at desktop and laptop computers that have pointing device suitable to drag and drop.
 
-The UpcomingFeatures page lists changes planned for the next release.
+To run Auremo you need a running MPD server running on either the local computer or a remote one. Nothing else is required -- Auremo is a single executable and only depends on things that come preinstalled on any Windows computer.
 
-= Feedback =
+Auremo was first written to fulfill the author's own needs for a Windows MPD client. If other people find it useful, more features will be added.
 
-User feedback is encouraged! If you like Auremo, have bugs to report or would like to suggest new features, please e-mail auremompd@gmail.com.
+The CurrentFeatures page explains what Auremo can do right now. The UpcomingFeatures page lists changes planned for the next release.
 
-= Participate =
+== Feedback ==
 
-Help is welcome. The GUI needs attention from an expert artist, preferably one with XAML skills. Someone with experience on Windows installers might have something to say about the current state of the installer. You can e-mail auremompd@gmail.com if you would like to contribute.
+User feedback is encouraged! If you like Auremo, have bugs to report or would like to suggest new features, please e-mail the author.
+
+Help is particularly welcome. The GUI needs attention from an expert artist, preferably one with WPF/XAML skills. Someone with experience on Windows installers might have something to say about the present (sorry) state of the installer.
+
+You can reach the author by [mailto:auremo@gmail.com e-mail].
