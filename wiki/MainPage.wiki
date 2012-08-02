@@ -6,6 +6,8 @@ Auremo is a simple to use, graphical standalone client for Music Player Daemon t
 
 Auremo was first written to fulfill the author's own needs for a straightforward MPD client for Windows. If other people find it useful, more features can be easily added in later versions. As is, Auremo should be stable enough for general use and have enough features for real use.
 
+The UpcomingFeatures page lists changes planned for the next release.
+
 = Feedback =
 
 User feedback is encouraged! If you like Auremo, have bugs to report or would like to suggest new features, please e-mail auremompd@gmail.com.
