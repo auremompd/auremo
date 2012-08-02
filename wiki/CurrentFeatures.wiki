@@ -1,0 +1,23 @@
+= Auremo Features =
+
+Version 0.1.0 support the following features.
+
+  * Connection to a local or remote MPD server.
+      * The server cannot be password protected at the moment.
+      * Automatically reconnect to the server after a configurable time when connection to the server has been lost.
+  * Music database browsing.
+      * Selecting artists from a list brings up the albums by those artists; selecting albums brings up their song lists.
+  * Playlist construction and manipulation.
+      * Artists, albums or songs can be dragged from the database views into any position on the playlist view, one or several at a time.
+      * Songs can additionally be queued into the playlist by double-clicking them in the songs view.
+      * The playlist can be edited by dragging songs into new positions, either individually or in groups.
+      * Songs can be removed from the playlist by selecting and pressing delete.
+  * Playback control.
+      * Skip, play, pause, stop and next buttons.
+      * Random and repeat buttons.
+      * Volume control slider. The slider can be made read-only from settings (useful for users who use an external volume control).
+      * Jump to any song on the playlist by double-clicking it.
+
+----
+
+More features are planned. The UpcomingFeatures page lists changes being implemented for the next release.
