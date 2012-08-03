@@ -1,4 +1,4 @@
-#summary One-sentence summary of this page.
+#summary Features planned for the next release
 
 = Partial to-do list for version 0.2.0 =
 
