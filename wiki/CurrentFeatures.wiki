@@ -1,3 +1,5 @@
+#summary Features available in the current release
+
 = Auremo Features =
 
 Version 0.1.0 supports the following features.
