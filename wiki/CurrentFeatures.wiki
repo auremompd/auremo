@@ -14,7 +14,7 @@ Version 0.1.0 supports the following features.
       * Songs can be removed from the playlist by selecting and pressing delete.
   * Playback control.
       * Skip, play, pause, stop and next buttons.
-          * Play, pause and stop buttons highlight according to the server's status.
+          * Play, pause and stop buttons highlight according to the server's state.
       * Random and repeat buttons.
           * These highlight according to the server's settings as well.
       * Volume control slider. The slider can be made read-only from settings (useful for users who use an external volume control).
