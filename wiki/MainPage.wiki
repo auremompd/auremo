@@ -1,3 +1,5 @@
+#summary Welcome to Auremo
+
 = Auremo =
 
 Auremo is a simple graphical standalone client for Music Player Daemon. It runs on Windows Vista and 7.
