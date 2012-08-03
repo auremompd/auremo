@@ -1,6 +1,6 @@
 = Auremo Features =
 
-Version 0.1.0 support the following features.
+Version 0.1.0 supports the following features.
 
   * Connection to a local or remote MPD server.
       * The server cannot be password protected at the moment.
