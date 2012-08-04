@@ -9,6 +9,9 @@
     <Window.Resources>
         <l:IntToTimecodeConverter x:Key="IntToTimecodeConverter"/>
     </Window.Resources>
+    <Window.ToolTip>
+        <ToolTip Name="m_MousePointerHint" HasDropShadow="False" BorderThickness="0" Foreground="Black" Background="{StaticResource HighlightMaskHeavy}" IsHitTestVisible="False"/>
+    </Window.ToolTip>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="500*"/>
@@ -101,7 +104,7 @@
                 </Grid>
             </TabItem>
             <TabItem Header="About" Style="{StaticResource TabItemStyle}">
-                <Border Grid.Row="0" Width="550" BorderThickness="0" Background="{StaticResource HighlightMaskHeavy}" BorderBrush="Black" Margin="3">
+                <Border Grid.Row="0" Width="550" BorderThickness="0" Background="{StaticResource HighlightMaskMedium}" BorderBrush="Black" Margin="3">
                     <ScrollViewer>
                         <TextBlock Name="m_AboutBox" Margin="15,5,0,5"/>
                     </ScrollViewer>
@@ -256,7 +259,7 @@
                 </DockPanel>
             </DockPanel>
         </Border>
-        <Border Grid.Row="2" >
+        <Border Grid.Row="2">
             <StatusBar Margin="2,2,2,2">
                 <StatusBarItem HorizontalAlignment="Left">
                     <Label Name="m_PlayStatusMessage" Content="{Binding Path=PlayStatusDescription}"/>
