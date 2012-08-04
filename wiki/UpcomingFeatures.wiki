@@ -4,15 +4,14 @@
 
 == Committed features ==
 
-These features are already available in SVN.
+These features are already available in SVN in the 0.2-dev branch.
 
--
+  * Add a tooltip on the mouse cursor when dragging entries describing the contents of the drag.
 
 == Features to add ==
 
 These features will be added before the release.
 
-  * Add a tooltip on the mouse cursor when dragging entries describing the contents of the drag.
-  * Improve the !ListView header color scheme. This will require a large overhaul of the style settings or alternatively using to !GridView controls instead of !ListViews.
+  * Improve the !ListView header color scheme. This will require a large overhaul of the style settings or alternatively using to !DataGrid controls instead of !ListViews.
   * Add a directory tree view of the music database, allow drag/drop to the playlist. Make this an alternative to the current artist/album/song list views, probably by adding a tab control to contain the alternatives.
   * See if it would be possible to improve the installer at least a little bit (install under Program Files at the very least).
