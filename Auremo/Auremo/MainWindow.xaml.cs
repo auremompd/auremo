@@ -25,6 +25,7 @@ using System.Text.RegularExpressions;
 using System.Windows.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -468,6 +469,7 @@ namespace Auremo
                     (Math.Abs(dragDistance.X) > SystemParameters.MinimumHorizontalDragDistance ||
                     Math.Abs(dragDistance.Y) > SystemParameters.MinimumVerticalDragDistance))
                 {
+                    m_MousePointerHint.Content = DragDropPayloadDescription();
                     DragDropEffects mode = sender == m_PlaylistView ? DragDropEffects.Move : DragDropEffects.Copy;
                     string data = GetDragDropDataString(sender);
                     DragDrop.DoDragDrop((DependencyObject)sender, data, mode);
@@ -476,13 +478,58 @@ namespace Auremo
             }
         }
 
+        private string DragDropPayloadDescription()
+        {
+            if (m_DragDropPayload == null || m_DragDropPayload.Count == 0)
+            {
+                return "";
+            }
+            else if (m_DragDropPayload[0] is string)
+            {
+                if (m_DragDropPayload.Count == 1)
+                    return "Adding " + (string)m_DragDropPayload[0];
+                else
+                    return "Adding " + m_DragDropPayload.Count + " artists";
+            }
+            else if (m_DragDropPayload[0] is AlbumMetadata)
+            {
+                if (m_DragDropPayload.Count == 1)
+                    return "Adding " + ((AlbumMetadata)m_DragDropPayload[0]).Title;
+                else
+                    return "Adding " + m_DragDropPayload.Count + " albums";
+            }
+            else if (m_DragDropPayload[0] is SongMetadata)
+            {
+                if (m_DragDropPayload.Count == 1)
+                    return "Adding " + ((SongMetadata)m_DragDropPayload[0]).Title;
+                else
+                    return "Adding " + m_DragDropPayload.Count + " songs";
+            }
+            else if (m_DragDropPayload[0] is PlaylistItem)
+            {
+                if (m_DragDropPayload.Count == 1)
+                    return "Moving " + ((PlaylistItem)m_DragDropPayload[0]).Song.Title;
+                else
+                    return "Moving " + m_DragDropPayload.Count + " songs";
+            }
+
+            return "";
+        }
+
         private void OnPlaylistViewDragOver(object sender, DragEventArgs e)
         {
             if (m_DragDropPayload != null && !m_PlaylistView.Items.IsEmpty)
             {
+                Point mousePosition = e.GetPosition(m_PlaylistView);
+
+                m_MousePointerHint.Placement = PlacementMode.Relative;
+                m_MousePointerHint.PlacementTarget = m_PlaylistView;
+                m_MousePointerHint.HorizontalOffset = mousePosition.X + 10;
+                m_MousePointerHint.VerticalOffset = mousePosition.Y - 6;
+
                 int targetRow = DropTargetRowIndex(e);
                 ListViewItem item = null;
-
+                
                 if (targetRow >= 0)
                 {
                     item = m_PlaylistView.ItemContainerGenerator.ContainerFromIndex(targetRow) as ListViewItem;
@@ -516,16 +563,19 @@ namespace Auremo
                 m_DropPositionIndicator.Y1 += 2;
                 m_DropPositionIndicator.Y2 = m_DropPositionIndicator.Y1;
                 m_DropPositionIndicator.Visibility = Visibility.Visible;
+                m_MousePointerHint.IsOpen = true;
             }
             else
             {
                 m_DropPositionIndicator.Visibility = Visibility.Hidden;
+                m_MousePointerHint.IsOpen = false;
             }
         }
 
         private void OnPlaylistViewDragLeave(object sender, DragEventArgs e)
         {
             m_DropPositionIndicator.Visibility = Visibility.Hidden;
+            m_MousePointerHint.IsOpen = false;
         }
 
         private void OnPlaylistViewDrop(object sender, DragEventArgs e)
@@ -620,6 +670,7 @@ namespace Auremo
             }
 
             m_DropPositionIndicator.Visibility = Visibility.Hidden;
+            m_MousePointerHint.IsOpen = false;
         }
 
         #endregion

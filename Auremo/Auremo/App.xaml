@@ -18,8 +18,9 @@
         <SolidColorBrush x:Key="SelectionBrush" Color="{StaticResource SelectionColor}"/>
         <SolidColorBrush x:Key="TextBrush" Color="{StaticResource TextColor}"/>
         <SolidColorBrush x:Key="HighlightMaskLight" Color="#00FFFFFF"/>
-        <SolidColorBrush x:Key="HighlightMaskHeavy" Color="#30FFFFFF"/>
-
+        <SolidColorBrush x:Key="HighlightMaskMedium" Color="#30FFFFFF"/>
+        <SolidColorBrush x:Key="HighlightMaskHeavy" Color="#60FFFFFF"/>
+        
         <LinearGradientBrush x:Key="BackgroundGradient" StartPoint="0,0.2" EndPoint="0,0.8">
             <LinearGradientBrush.GradientStops>
                 <GradientStop Offset="0" Color="{StaticResource BackgroundTopColor}"/>
@@ -61,7 +62,7 @@
                 </Trigger>
                 <Trigger Property="ItemsControl.AlternationIndex" Value="1">
                     <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
-                    <Setter Property="Background" Value="{StaticResource HighlightMaskHeavy}"/>
+                    <Setter Property="Background" Value="{StaticResource HighlightMaskMedium}"/>
                 </Trigger>
                 <Trigger Property="IsSelected" Value="true">
                     <Setter Property="Background" Value="{StaticResource SelectionBrush}"/>
