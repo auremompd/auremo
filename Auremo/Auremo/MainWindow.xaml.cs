@@ -305,7 +305,8 @@ namespace Auremo
                     OnDeleteFromPlaylist();
                 }
             }
-            else if (e.Key == Key.Space)
+
+            if (e.Key == Key.Space)
             {
                 if (m_ServerStatus != null && m_ServerStatus.OK)
                 {
