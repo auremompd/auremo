@@ -1,16 +1,23 @@
-﻿<Window x:Class="Auremo.MainWindow"
+﻿<!-- Caution! In some versions of Visual Studio specifying '*' as the width
+     of a DataGridTextColumn messes up the designer window. The resulting
+     exectable works just fine though. '*' needs to be the width of some
+     columns here, so if you want to use the designer, do a search for
+     DataGridTextColumn and remove the stars temporarily. -->
+    
+<Window x:Class="Auremo.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:l="clr-namespace:Auremo"
         Title="Auremo MPD Client"
         MinWidth="720" MinHeight="540"
-        KeyDown="OnKeyDown"
+        Background="{StaticResource BackgroundBrush}"
+        PreviewKeyDown="OnKeyDown"
         Closing="OnExit">
     <Window.Resources>
         <l:IntToTimecodeConverter x:Key="IntToTimecodeConverter"/>
     </Window.Resources>
     <Window.ToolTip>
-        <ToolTip Name="m_MousePointerHint" HasDropShadow="False" BorderThickness="0" Foreground="Black" Background="{StaticResource HighlightMaskHeavy}" IsHitTestVisible="False"/>
+        <ToolTip Name="m_MousePointerHint" HasDropShadow="False" BorderThickness="0" Foreground="{StaticResource TextBrush}" Background="{StaticResource ToolTipBackgroundBrush}" IsHitTestVisible="False"/>
     </Window.ToolTip>
     <Grid>
         <Grid.RowDefinitions>
@@ -31,39 +38,70 @@
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
-                        <ListView Name="m_ArtistsView" ItemsSource="{Binding Path=Artists}" Style="{StaticResource ListViewStyle}" ItemContainerStyle="{StaticResource ListViewItemStyle}" SelectionChanged="OnSelectedArtistsChanged" PreviewMouseDown="OnPreviewMouseDown" MouseMove="OnMouseMove">
-                            <ListView.View>
-                                <GridView >
-                                    <GridViewColumn Header="Artist" DisplayMemberBinding="{Binding}" HeaderContainerStyle="{StaticResource ListViewHeaderStyle}" Width="320"/>
-                                </GridView>
-                            </ListView.View>
-                        </ListView>
-                        <ListView Name="m_AlbumsBySelectedArtistsView" Grid.Row="1" ItemsSource="{Binding Path=AlbumsBySelectedArtists}" Style="{StaticResource ListViewStyle}" ItemContainerStyle="{StaticResource ListViewItemStyle}" SelectionChanged="OnSelectedAlbumsChanged" PreviewMouseDown="OnPreviewMouseDown" MouseMove="OnMouseMove">
-                            <ListView.View>
-                                <GridView >
-                                    <GridViewColumn Header="Year" Width="100" DisplayMemberBinding="{Binding Path=PrintableYear}" HeaderContainerStyle="{StaticResource ListViewHeaderStyle}" />
-                                    <GridViewColumn Header="Title" Width="230" DisplayMemberBinding="{Binding Path=Title}" HeaderContainerStyle="{StaticResource ListViewHeaderStyle}" />
-                                </GridView>
-                            </ListView.View>
-                        </ListView>
-                        <ListView Name="m_SongsOnSelectedAlbumsView" Grid.Row="2" ItemsSource="{Binding Path=SongsOnSelectedAlbums}" Style="{StaticResource ListViewStyle}" ItemContainerStyle="{StaticResource ListViewItemStyle}" MouseDoubleClick="OnSongsOnAlbumsViewDoubleClicked" PreviewMouseDown="OnPreviewMouseDown" MouseMove="OnMouseMove">
-                            <ListView.View>
-                                <GridView >
-                                    <GridViewColumn Header="Track#" Width="60" DisplayMemberBinding="{Binding Track}" HeaderContainerStyle="{StaticResource ListViewHeaderStyle}"/>
-                                    <GridViewColumn Header="Title" Width="270" DisplayMemberBinding="{Binding Title}" HeaderContainerStyle="{StaticResource ListViewHeaderStyle}"/>
-                                </GridView>
-                            </ListView.View>
-                        </ListView>
+                        <DataGrid Name="m_ArtistsView"
+                                  Style="{StaticResource DataGridStyle}"
+                                  ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
+                                  RowStyle="{StaticResource DataGridRowStyle}"
+                                  CellStyle="{StaticResource LibraryCellStyle}"
+                                  ItemsSource="{Binding Path=Artists}"
+                                  SelectionChanged="OnSelectedArtistsChanged"
+                                  PreviewMouseDown="OnPreviewMouseDown"
+                                  MouseMove="OnMouseMove">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Artist" Width="250*" Binding="{Binding}" CanUserResize="True"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <DataGrid Name="m_AlbumsBySelectedArtistsView"
+                                  Style="{StaticResource DataGridStyle}"
+                                  ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
+                                  RowStyle="{StaticResource DataGridRowStyle}"
+                                  CellStyle="{StaticResource LibraryCellStyle}"
+                                  Grid.Row="1"
+                                  ItemsSource="{Binding Path=AlbumsBySelectedArtists}"
+                                  SelectionChanged="OnSelectedAlbumsChanged"
+                                  PreviewMouseDown="OnPreviewMouseDown"
+                                  MouseMove="OnMouseMove">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Year" MinWidth="50" MaxWidth="50" Binding="{Binding Path=PrintableYear}"/>
+                                <DataGridTextColumn Header="Title" Width="200*" Binding="{Binding Path=Title}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <DataGrid Name="m_SongsOnSelectedAlbumsView"
+                                  Style="{StaticResource DataGridStyle}"
+                                  ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
+                                  RowStyle="{StaticResource DataGridRowStyle}"
+                                  CellStyle="{StaticResource LibraryCellStyle}"
+                                  Grid.Row="2"
+                                  ItemsSource="{Binding Path=SongsOnSelectedAlbums}"
+                                  MouseDoubleClick="OnSongsOnAlbumsViewDoubleClicked"
+                                  PreviewMouseDown="OnPreviewMouseDown"
+                                  MouseMove="OnMouseMove">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Track#" MinWidth="50" MaxWidth="50" Binding="{Binding Track}"/>
+                                <DataGridTextColumn Header="Title" Width="200*" Binding="{Binding Title}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
                     </Grid>
-                    <ListView Name="m_PlaylistView" Grid.Column="1" ItemsSource="{Binding Path=Items}" Style="{StaticResource ListViewStyle}" ItemContainerStyle="{StaticResource PlaylistItemStyle}" AllowDrop="True" MouseDoubleClick="OnPlaylistViewDoubleClicked" PreviewMouseDown="OnPreviewMouseDown" MouseMove="OnMouseMove" DragOver="OnPlaylistViewDragOver" DragLeave="OnPlaylistViewDragLeave" Drop="OnPlaylistViewDrop">
-                        <ListView.View>
-                            <GridView>
-                                <GridViewColumn Width="100" Header="Artist" DisplayMemberBinding="{Binding Path=Song.Artist}" HeaderContainerStyle="{StaticResource ListViewHeaderStyle}"/>
-                                <GridViewColumn Width="100" Header="Album" DisplayMemberBinding="{Binding Path=Song.Album}" HeaderContainerStyle="{StaticResource ListViewHeaderStyle}"/>
-                                <GridViewColumn Width="100" Header="Title" DisplayMemberBinding="{Binding Path=Song.Title}" HeaderContainerStyle="{StaticResource ListViewHeaderStyle}"/>
-                            </GridView>
-                        </ListView.View>
-                    </ListView>
+                    <DataGrid Name="m_PlaylistView"
+                              Style="{StaticResource DataGridStyle}"
+                              ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
+                              RowStyle="{StaticResource DataGridRowStyle}"
+                              CellStyle="{StaticResource PlaylistCellStyle}"
+                              Grid.Column="1"
+                              ItemsSource="{Binding Path=Items}"
+                              AllowDrop="True"
+                              MouseDoubleClick="OnPlaylistViewDoubleClicked"
+                              PreviewMouseDown="OnPreviewMouseDown"
+                              MouseMove="OnMouseMove"
+                              DragOver="OnPlaylistViewDragOver"
+                              DragLeave="OnPlaylistViewDragLeave"
+                              Drop="OnPlaylistViewDrop">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Artist" Width="Auto" Binding="{Binding Path=Song.Artist}"/>
+                            <DataGridTextColumn Header="Album" Width="Auto" Binding="{Binding Path=Song.Album}"/>
+                            <DataGridTextColumn Header="Title" Width="150*" Binding="{Binding Path=Song.Title}"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
                     <Line Name="m_DropPositionIndicator" Grid.Column="1" X1="5" X2="320" Y1="50" Y2="50" IsHitTestVisible="False" Visibility="Hidden" StrokeThickness="2" Stroke="{StaticResource DropPositionIndicatorBrush}"/>
                 </Grid>
             </TabItem>
@@ -104,7 +142,7 @@
                 </Grid>
             </TabItem>
             <TabItem Header="About" Style="{StaticResource TabItemStyle}">
-                <Border Grid.Row="0" Width="550" BorderThickness="0" Background="{StaticResource HighlightMaskMedium}" BorderBrush="Black" Margin="3">
+                <Border Grid.Row="0" Width="550" BorderThickness="0" Background="{StaticResource ToolTipBackgroundBrush}" BorderBrush="{StaticResource BorderBrush}" Margin="3">
                     <ScrollViewer>
                         <TextBlock Name="m_AboutBox" Margin="15,5,0,5"/>
                     </ScrollViewer>
@@ -114,7 +152,7 @@
                 <ListBox Name="m_LogLines"/>
             </TabItem>
         </TabControl>
-        <Border Grid.Row="1" Background="{StaticResource BackgroundGradient}">
+        <Border Grid.Row="1">
             <DockPanel Name="m_PlaybackControls" Margin="5,0">
                 <DockPanel.Resources>
                     <Thickness x:Key="PassiveImageMargin">5</Thickness>

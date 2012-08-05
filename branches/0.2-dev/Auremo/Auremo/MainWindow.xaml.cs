@@ -227,26 +227,8 @@ namespace Auremo
             m_PropertyUpdateInProgress = false;
         }
 
-        //int m_SongIndexMarkedAsPlaying = -1;
-
         private void OnCurrentSongIndexChanged()
         {
-            /*
-            if (m_SongIndexMarkedAsPlaying >= 0 && m_SongIndexMarkedAsPlaying < m_PlaylistView.Items.Count)
-            {
-                PlaylistItem item = m_PlaylistView.Items[m_SongIndexMarkedAsPlaying] as PlaylistItem;
-                item.IsPlaying = false;
-                m_SongIndexMarkedAsPlaying = -1;
-            }
-
-            if (m_ServerStatus.OK && m_ServerStatus.CurrentSongIndex >= 0 && m_ServerStatus.CurrentSongIndex < m_PlaylistView.Items.Count)
-            {
-                m_SongIndexMarkedAsPlaying = m_ServerStatus.CurrentSongIndex;
-                PlaylistItem item = m_PlaylistView.Items[m_SongIndexMarkedAsPlaying] as PlaylistItem;
-                item.IsPlaying = true;
-            }
-             */
-
             UpdateSongOnStatusBar();
         }
 
@@ -392,11 +374,11 @@ namespace Auremo
 
         private void OnSongsOnAlbumsViewDoubleClicked(object sender, MouseButtonEventArgs e)
         {
-            ListViewItem row = ListViewItemBeingClicked(m_SongsOnSelectedAlbumsView, e);
+            DataGridRow row = DataGridRowBeingClicked(m_SongsOnSelectedAlbumsView, e);
 
             if (row != null)
             {
-                SongMetadata song = row.Content as SongMetadata;
+                SongMetadata song = row.Item as SongMetadata;
                 Protocol.Add(m_Connection, song.Path);
                 Update();
             }
@@ -404,11 +386,11 @@ namespace Auremo
 
         private void OnPlaylistViewDoubleClicked(object sender, MouseButtonEventArgs e)
         {
-            ListViewItem row = ListViewItemBeingClicked(m_PlaylistView, e);
+            DataGridRow row = DataGridRowBeingClicked(m_PlaylistView, e);
 
             if (row != null)
             {
-                PlaylistItem item = row.Content as PlaylistItem;
+                PlaylistItem item = row.Item as PlaylistItem;
                 Protocol.PlayId(m_Connection, item.Id);
                 Update();
             }
@@ -426,8 +408,8 @@ namespace Auremo
                 return;
             }
 
-            ListView dragSource = (ListView)sender;
-            ListViewItem row = ListViewItemBeingClicked(dragSource, e);
+            DataGrid dragSource = (DataGrid)sender;
+            DataGridRow row = DataGridRowBeingClicked(dragSource, e);
 
             if (row != null && row.IsSelected)
             {
@@ -528,16 +510,16 @@ namespace Auremo
                 m_MousePointerHint.VerticalOffset = mousePosition.Y - 6;
 
                 int targetRow = DropTargetRowIndex(e);
-                ListViewItem item = null;
+                DataGridRow row = null;
                 
                 if (targetRow >= 0)
                 {
-                    item = m_PlaylistView.ItemContainerGenerator.ContainerFromIndex(targetRow) as ListViewItem;
+                    row = m_PlaylistView.ItemContainerGenerator.ContainerFromIndex(targetRow) as DataGridRow;
                 }
 
-                if (item == null)
+                if (row == null)
                 {
-                    ListViewItem lastItem = m_PlaylistView.ItemContainerGenerator.ContainerFromIndex(m_PlaylistView.Items.Count - 1) as ListViewItem;
+                    DataGridRow lastItem = m_PlaylistView.ItemContainerGenerator.ContainerFromIndex(m_PlaylistView.Items.Count - 1) as DataGridRow;
 
                     if (lastItem == null)
                     {
@@ -552,15 +534,15 @@ namespace Auremo
                 }
                 else
                 {
-                    Rect bounds = VisualTreeHelper.GetDescendantBounds(item);
-                    GeneralTransform transform = item.TransformToAncestor(m_PlaylistView);
+                    Rect bounds = VisualTreeHelper.GetDescendantBounds(row);
+                    GeneralTransform transform = row.TransformToAncestor(m_PlaylistView);
                     Point topOfItem = transform.Transform(bounds.TopLeft);
                     m_DropPositionIndicator.Y1 = topOfItem.Y;
                 }
 
-                m_DropPositionIndicator.X1 = +10;
+                m_DropPositionIndicator.X1 = 10;
                 m_DropPositionIndicator.X2 = m_PlaylistView.ActualWidth - 20;
-                m_DropPositionIndicator.Y1 += 2;
+                m_DropPositionIndicator.Y1 += 3;
                 m_DropPositionIndicator.Y2 = m_DropPositionIndicator.Y1;
                 m_DropPositionIndicator.Visibility = Visibility.Visible;
                 m_MousePointerHint.IsOpen = true;
@@ -898,9 +880,9 @@ namespace Auremo
 
         #region Miscellaneous helper functions
 
-        private ListViewItem ListViewItemBeingClicked(ListView list, MouseButtonEventArgs e)
+        private DataGridRow DataGridRowBeingClicked(DataGrid grid, MouseButtonEventArgs e)
         {
-            HitTestResult hit = VisualTreeHelper.HitTest(list, e.GetPosition(list));
+            HitTestResult hit = VisualTreeHelper.HitTest(grid, e.GetPosition(grid));
 
             if (hit == null)
             {
@@ -911,9 +893,9 @@ namespace Auremo
 
             while (component != null)
             {
-                if (component is ListViewItem)
+                if (component is DataGridRow)
                 {
-                    return (ListViewItem)component;
+                    return (DataGridRow)component;
                 }
                 else
                 {
@@ -928,13 +910,13 @@ namespace Auremo
         {
             for (int i = 0; i < m_PlaylistView.Items.Count; ++i)
             {
-                ListViewItem item = m_PlaylistView.ItemContainerGenerator.ContainerFromIndex(i) as ListViewItem;
+                DataGridRow row = m_PlaylistView.ItemContainerGenerator.ContainerFromIndex(i) as DataGridRow;
 
-                if (item != null)
+                if (row != null)
                 {
-                    Point pt = e.GetPosition(item);
-                    double yCoord = item.TranslatePoint(pt, item).Y;
-                    double halfHeight = item.ActualHeight / 2;
+                    Point pt = e.GetPosition(row);
+                    double yCoord = row.TranslatePoint(pt, row).Y;
+                    double halfHeight = row.ActualHeight / 2;
 
                     if (yCoord < halfHeight)
                     {
