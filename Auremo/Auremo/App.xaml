@@ -7,73 +7,156 @@
         <!-- Hey! You! Think this style sucks? It does! If you'd like
              to contribute, please contact me and help me improve it! -->
 
-        <Color x:Key="BackgroundTopColor">#FFAFCCDC</Color>
-        <Color x:Key="BackgroundBottomColor">#FFDDF5EE</Color>
-        <Color x:Key="ActiveColor">#FF964CE9</Color>
-        <Color x:Key="SelectionColor">#FF8EC2FF</Color>
-        <Color x:Key="TextColor">#FF000000</Color>
+        <SolidColorBrush x:Key="ActiveBrush" Color="#FFE030A0"/>
+        <SolidColorBrush x:Key="BorderBrush" Color="#FF507090"/>
+        <SolidColorBrush x:Key="TextBrush" Color="#FF205080"/>
+        <SolidColorBrush x:Key="ToolTipBackgroundBrush" Color="#A07090B0"/>
 
-        <SolidColorBrush x:Key="BackgroundTopBrush" Color="{StaticResource BackgroundTopColor}"/>
-        <SolidColorBrush x:Key="ActiveBrush" Color="{StaticResource ActiveColor}"/>
-        <SolidColorBrush x:Key="SelectionBrush" Color="{StaticResource SelectionColor}"/>
-        <SolidColorBrush x:Key="TextBrush" Color="{StaticResource TextColor}"/>
-        <SolidColorBrush x:Key="HighlightMaskLight" Color="#00FFFFFF"/>
-        <SolidColorBrush x:Key="HighlightMaskMedium" Color="#30FFFFFF"/>
-        <SolidColorBrush x:Key="HighlightMaskHeavy" Color="#60FFFFFF"/>
-        
-        <LinearGradientBrush x:Key="BackgroundGradient" StartPoint="0,0.2" EndPoint="0,0.8">
+        <LinearGradientBrush x:Key="BackgroundBrush" StartPoint=".4,0" EndPoint=".6,1">
             <LinearGradientBrush.GradientStops>
-                <GradientStop Offset="0" Color="{StaticResource BackgroundTopColor}"/>
-                <GradientStop Offset="1" Color="{StaticResource BackgroundBottomColor}"/>
+                <GradientStop Offset="0" Color="#FFD0D4D8"/>
+                <GradientStop Offset="1" Color="#FFD0D8E0"/>
+            </LinearGradientBrush.GradientStops>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="PassiveHeaderBrush" StartPoint="0,0" EndPoint="0,1">
+            <LinearGradientBrush.GradientStops>
+                <GradientStop Offset="0" Color="#FFB0B8C0"/>
+                <GradientStop Offset="1" Color="#FFD0D4D8"/>
+            </LinearGradientBrush.GradientStops>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="ActiveHeaderBrush" StartPoint="0,0" EndPoint="0,1">
+            <LinearGradientBrush.GradientStops>
+                <GradientStop Offset="0" Color="#FFC0C8D0"/>
+                <GradientStop Offset="1" Color="#FFD0D4D8"/>
+            </LinearGradientBrush.GradientStops>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="ItemBrush" StartPoint="0,.4" EndPoint="1,.6">
+            <LinearGradientBrush.GradientStops>
+                <GradientStop Offset="0" Color="#FFD0D0D0"/>
+                <GradientStop Offset="1" Color="#FFC0D0E0"/>
+            </LinearGradientBrush.GradientStops>
+        </LinearGradientBrush>
+        
+        <LinearGradientBrush x:Key="AlternateBrush" StartPoint="0,.4" EndPoint="1,.6">
+            <LinearGradientBrush.GradientStops>
+                <GradientStop Offset="0" Color="#FFC0C0C0"/>
+                <GradientStop Offset="1" Color="#FFB0C0D0"/>
+            </LinearGradientBrush.GradientStops>
+        </LinearGradientBrush>
+        
+        <LinearGradientBrush x:Key="SelectionBrush" StartPoint="0,.4" EndPoint="1,.6">
+            <LinearGradientBrush.GradientStops>
+                <GradientStop Offset="0" Color="#FFA0B0C0"/>
+                <GradientStop Offset="1" Color="#FFB0D0F0"/>
             </LinearGradientBrush.GradientStops>
         </LinearGradientBrush>
 
         <LinearGradientBrush x:Key="DropPositionIndicatorBrush" StartPoint="0,0" EndPoint="1,0">
             <LinearGradientBrush.GradientStops>
-                <GradientStop Color="{StaticResource BackgroundTopColor}" Offset="0"/>
-                <GradientStop Color="{StaticResource ActiveColor}" Offset="0.5"/>
-                <GradientStop Color="{StaticResource BackgroundTopColor}" Offset="1"/>
+                <GradientStop Color="#FFA0B0C0" Offset="0"/>
+                <GradientStop Color="#FFD0D4D8" Offset="0.5"/>
+                <GradientStop Color="#FFA0B0C0" Offset="1"/>
             </LinearGradientBrush.GradientStops>
         </LinearGradientBrush>
 
         <Style x:Key="TabControlStyle" TargetType="{x:Type TabControl}">
-            <Setter Property="Background" Value="{StaticResource BackgroundGradient}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
         </Style>
 
         <Style x:Key="TabItemStyle" TargetType="{x:Type TabItem}">
+            <Setter Property="Background" Value="{StaticResource PassiveHeaderBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+            <Setter Property="Height" Value="25"/>
             <Setter Property="Width" Value="80"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type TabItem}">
+                        <Border Name="Border"
+                                Background="{StaticResource PassiveHeaderBrush}"
+                                BorderBrush="{StaticResource BorderBrush}" 
+                                BorderThickness="1,1,1,1"
+                                CornerRadius="2,2,0,0"
+                                Margin="0,0,-1,0">
+                            <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center" ContentSource="Header"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Panel.ZIndex" Value="100"/>
+                                <Setter TargetName="Border" Property="Background" Value="{StaticResource ActiveHeaderBrush}"/>
+                                <Setter TargetName="Border" Property="BorderThickness" Value="1,1,1,0" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
-        <Style x:Key="ListViewStyle" TargetType="{x:Type ListView}">
+        <Style x:Key="DataGridStyle" TargetType="{x:Type DataGrid}">
             <Setter Property="AlternationCount" Value="2"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Margin" Value="2"/>
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+            <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="CanUserDeleteRows" Value="False"/>
+            <Setter Property="CanUserReorderColumns" Value="False"/>
+            <Setter Property="CanUserResizeRows" Value="False"/>
+            <Setter Property="CanUserSortColumns" Value="False"/>
+            <Setter Property="HorizontalGridLinesBrush" Value="Transparent"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="RowHeaderWidth" Value="0"/>
+            <Setter Property="SelectionMode" Value="Extended"/>
+            <Setter Property="SelectionUnit" Value="FullRow"/>
+            <Setter Property="VerticalGridLinesBrush" Value="Transparent"/>
         </Style>
-
-        <Style x:Key="ListViewHeaderStyle" TargetType="{x:Type GridViewColumnHeader}">
+        
+        <Style x:Key="DataGridColumnHeaderStyle" TargetType="{x:Type DataGridColumnHeader}">
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Background" Value="{StaticResource PassiveHeaderBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="5"/>
             <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
         </Style>
 
-        <Style x:Key="ListViewItemStyle" TargetType="{x:Type ListViewItem}">
+        <Style x:Key="DataGridRowStyle" TargetType="{x:Type DataGridRow}">
+            <Setter Property="Background" Value="{StaticResource ItemBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
             <Style.Triggers>
-                <Trigger Property="ItemsControl.AlternationIndex" Value="0">
-                    <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
-                    <Setter Property="Background" Value="{StaticResource HighlightMaskLight}"/>
-                </Trigger>
                 <Trigger Property="ItemsControl.AlternationIndex" Value="1">
-                    <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
-                    <Setter Property="Background" Value="{StaticResource HighlightMaskMedium}"/>
+                    <Setter Property="Background" Value="{StaticResource AlternateItemBrush}"/>
                 </Trigger>
                 <Trigger Property="IsSelected" Value="true">
                     <Setter Property="Background" Value="{StaticResource SelectionBrush}"/>
+                    <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
 
-        <Style x:Key="PlaylistItemStyle" TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource ListViewItemStyle}">
+        <Style x:Key="LibraryCellStyle" TargetType="{x:Type DataGridCell}">
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+            <Setter Property="Margin" Value="3,0,0,0"/>            
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="BorderThickness" Value="0"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="False">
+                    <Setter Property="Background" Value="Transparent"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="PlaylistCellStyle" TargetType="{x:Type DataGridCell}" BasedOn="{StaticResource LibraryCellStyle}">
             <Style.Triggers>
                 <DataTrigger Binding="{Binding Path=IsPlaying}" Value="true">
-                    <Setter Property="Background" Value="{StaticResource ActiveBrush}"/>
+                    <Setter Property="Foreground" Value="{StaticResource ActiveBrush}"/>
                 </DataTrigger>
             </Style.Triggers>
         </Style>
