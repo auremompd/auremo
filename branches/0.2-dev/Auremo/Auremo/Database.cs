@@ -43,6 +43,8 @@ namespace Auremo
             m_SongPathsByAlbum.Clear();
             m_SongInfo.Clear();
 
+            m_Artists.Clear();
+
             if (connection.Status == ServerConnection.State.Connected)
             {
                 PopulateSongInfo(connection);
