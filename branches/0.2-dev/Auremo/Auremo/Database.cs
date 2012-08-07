@@ -19,7 +19,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
 using System.Text;
 
@@ -31,6 +30,13 @@ namespace Auremo
         private IDictionary<string, ISet<AlbumMetadata>> m_AlbumsByArtist = new SortedDictionary<string, ISet<AlbumMetadata>>();
         private IDictionary<AlbumMetadata, ISet<string>> m_SongPathsByAlbum = new SortedDictionary<AlbumMetadata, ISet<string>>();
         private IDictionary<string, SongMetadata> m_SongInfo = new SortedDictionary<string, SongMetadata>();
+        private IList<string> m_Artists = new ObservableCollection<string>();
+        private IList<AlbumMetadata> m_AlbumsBySelectedArtists = new ObservableCollection<AlbumMetadata>();
+        private IList<SongMetadata> m_SongsOnSelectedAlbums = new ObservableCollection<SongMetadata>();
+
+        private IList<ITreeViewModel> m_DirectoryTree = new ObservableCollection<ITreeViewModel>();
+        private ITreeViewModel m_DirectoryTreeRoot = null;
+
 
         public Database()
         {
@@ -51,12 +57,12 @@ namespace Auremo
                 PopulateArtists();
                 PopulateAlbumsByArtist();
                 PopulateSongPathsByAlbum();
+                PopulateDirectoryTree();
             }
 
             return true;
         }
 
-        private IList<string> m_Artists = new ObservableCollection<string>();
         public IList<string> Artists
         {
             get
@@ -78,7 +84,6 @@ namespace Auremo
             }
         }
 
-        private IList<AlbumMetadata> m_AlbumsBySelectedArtists = new ObservableCollection<AlbumMetadata>();
         public IList<AlbumMetadata> AlbumsBySelectedArtists
         {
             get
@@ -100,12 +105,19 @@ namespace Auremo
             }
         }
 
-        private IList<SongMetadata> m_SongsOnSelectedAlbums = new ObservableCollection<SongMetadata>();
         public IList<SongMetadata> SongsOnSelectedAlbums
         {
             get
             {
                 return m_SongsOnSelectedAlbums;
+            }
+        }
+
+        public IList<ITreeViewModel> DirectoryTree
+        {
+            get
+            {
+                return m_DirectoryTree;
             }
         }
 
@@ -264,6 +276,46 @@ namespace Auremo
                 }
 
                 m_SongPathsByAlbum[album].Add(song.Path);
+            }
+        }
+
+        private void PopulateDirectoryTree()
+        {
+            m_DirectoryTree.Clear();
+            m_DirectoryTreeRoot = new DirectoryTreeViewModel("/", null);
+            IDictionary<string, ITreeViewModel> directoryLookup = new SortedDictionary<string, ITreeViewModel>();
+            directoryLookup[m_DirectoryTreeRoot.DisplayString] = m_DirectoryTreeRoot;
+
+            foreach (KeyValuePair<string, SongMetadata> entry in m_SongInfo)
+            {
+                Tuple<string, string> directoryAndFile = Utils.SplitPath(entry.Key);
+                ITreeViewModel parent = FindDirectoryViewModel(directoryAndFile.Item1, directoryLookup);
+                SongMetadataTreeViewModel leaf = new SongMetadataTreeViewModel(entry.Value, parent);
+                parent.AddChild(leaf);
+            }
+
+            m_DirectoryTree.Add(m_DirectoryTreeRoot);
+            m_DirectoryTreeRoot.IsExpanded = true;
+        }
+
+        private ITreeViewModel FindDirectoryViewModel(string path, IDictionary<string, ITreeViewModel> lookup)
+        {
+            if (path == "")
+            {
+                return m_DirectoryTreeRoot;
+            }
+            else if (lookup.ContainsKey(path))
+            {
+                return lookup[path];
+            }
+            else
+            {
+                Tuple<string, string> parentAndSelf = Utils.SplitPath(path);
+                ITreeViewModel parent = FindDirectoryViewModel(parentAndSelf.Item1, lookup);
+                ITreeViewModel self = new DirectoryTreeViewModel(parentAndSelf.Item2, parent);
+                parent.AddChild(self);
+                lookup[path] = self;
+                return self;
             }
         }
     }
