@@ -94,12 +94,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="DirectoryTreeViewModel.cs" />
+    <Compile Include="ITreeViewModel.cs" />
     <Compile Include="Protocol.cs" />
     <Compile Include="ServerConnection.cs" />
     <Compile Include="ServerResponse.cs" />
     <Compile Include="ServerResponseLine.cs" />
     <Compile Include="ServerStatus.cs" />
     <Compile Include="SongMetadata.cs" />
+    <Compile Include="SongMetadataTreeViewModel.cs" />
     <Compile Include="Utils.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
