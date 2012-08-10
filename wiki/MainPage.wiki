@@ -16,7 +16,7 @@ Auremo is written from scratch in C#. The user interface is implemented in WPF/X
 
 Auremo's first version (0.1.0) has just been released and needs testing from interested users. It should now be stable enough and have sufficient features for actual use.
 
-Auremo was written to fulfill the author's own need for a Windows MPD client. If other people find it useful, more features will be added. The CurrentFeatures page explains what Auremo can do right now. The UpcomingFeatures page lists changes planned for the next release.
+Auremo was written to fulfill the author's own need for a Windows MPD client. If other people find it useful, more features will be added. The CurrentFeatures page explains what Auremo can do right now. The UpcomingFeatures page lists changes planned for the next release. There is also a rough list of possible future ideas for later releases on the RoadMap page.
 
 == Feedback ==
 
