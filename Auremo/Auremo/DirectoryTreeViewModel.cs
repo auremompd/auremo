@@ -11,7 +11,7 @@ namespace Auremo
     /// Wraps a directory (aka folder) name so that it can be consumed by a
     /// TreeView[Item].
     /// </summary>
-    class DirectoryTreeViewModel : ITreeViewModel, INotifyPropertyChanged
+    public class DirectoryTreeViewModel : ITreeViewModel, INotifyPropertyChanged, IComparable
     {
         #region INotifyPropertyChanged implementation
 
@@ -27,16 +27,20 @@ namespace Auremo
 
         #endregion
 
-        string m_DirectoryName = "";
-        ITreeViewModel m_Parent = null;
-        IList<ITreeViewModel> m_Children = new ObservableCollection<ITreeViewModel>();
-        bool m_IsSelected = false;
-        bool m_IsExpanded = false;
+        private string m_DirectoryName = "";
+        private ITreeViewModel m_Parent = null;
+        private IList<ITreeViewModel> m_Children = new ObservableCollection<ITreeViewModel>();
+        private bool m_IsSelected = false;
+        private bool m_IsExpanded = false;
+        private bool m_IsMultiSelected = false;
+        private TreeViewMultiSelection m_MultiSelection = null;
 
-        public DirectoryTreeViewModel(string name, ITreeViewModel parent)
+        public DirectoryTreeViewModel(string name, ITreeViewModel parent, TreeViewMultiSelection multiSelection)
         {
             m_DirectoryName = name;
             m_Parent = parent;
+            m_MultiSelection = multiSelection;
+            HierarchyID = -1;
         }
 
         public string DisplayString
@@ -47,6 +51,19 @@ namespace Auremo
             }
         }
 
+        public void AddChild(ITreeViewModel child)
+        {
+            m_Children.Add(child);
+            NotifyPropertyChanged("Children");
+        }
+
+        public ITreeViewModel Parent
+        {
+            get            {
+                return m_Parent;
+            }
+        }
+        
         public IList<ITreeViewModel> Children
         {
             get
@@ -93,17 +110,62 @@ namespace Auremo
             }
         }
 
-        public void AddChild(ITreeViewModel child)
+        public bool IsMultiSelected
         {
-            m_Children.Add(child);
-            NotifyPropertyChanged("Children");
+            get
+            {
+                return m_IsMultiSelected;
+            }
+            set
+            {
+                if (value != m_IsMultiSelected)
+                {
+                    if (value)
+                    {
+                        m_MultiSelection.Add(this);
+                    }
+                    else
+                    {
+                        m_MultiSelection.Remove(this);
+                    }
+
+                    m_IsMultiSelected = value;
+                    NotifyPropertyChanged("IsMultiSelected");
+                }
+            }
+        }
+
+        public TreeViewMultiSelection MultiSelection
+        {
+            get
+            {
+                return m_MultiSelection;
+            }
+        }
+
+        public int HierarchyID
+        {
+            get;
+            set;
+        }
+            
+        public int CompareTo(object o)
+        {
+            if (o is ITreeViewModel)
+            {
+                return HierarchyID - ((ITreeViewModel)o).HierarchyID;
+            }
+            else
+            {
+                throw new Exception("DirectoryTreeViewModel: attempt to compare to an incompatible object");
+            }
         }
 
         public override string ToString()
         {
             if (m_Parent == null)
             {
-                return m_DirectoryName;
+                return "";
             }
             else
             {

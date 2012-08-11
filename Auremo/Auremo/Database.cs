@@ -24,7 +24,7 @@ using System.Text;
 
 namespace Auremo
 {
-    class Database
+    public class Database
     {
         private ISet<string> m_ArtistInfo = new SortedSet<string>();
         private IDictionary<string, ISet<AlbumMetadata>> m_AlbumsByArtist = new SortedDictionary<string, ISet<AlbumMetadata>>();
@@ -36,7 +36,6 @@ namespace Auremo
 
         private IList<ITreeViewModel> m_DirectoryTree = new ObservableCollection<ITreeViewModel>();
         private ITreeViewModel m_DirectoryTreeRoot = null;
-
 
         public Database()
         {
@@ -118,6 +117,14 @@ namespace Auremo
             get
             {
                 return m_DirectoryTree;
+            }
+        }
+
+        public ISet<SongMetadataTreeViewModel> DirectoryTreeMultiSelection
+        {
+            get
+            {
+                return m_DirectoryTreeRoot.MultiSelection.Songs;
             }
         }
 
@@ -281,24 +288,27 @@ namespace Auremo
 
         private void PopulateDirectoryTree()
         {
+            TreeViewMultiSelection multiSelection = new TreeViewMultiSelection();   
             m_DirectoryTree.Clear();
-            m_DirectoryTreeRoot = new DirectoryTreeViewModel("/", null);
+            m_DirectoryTreeRoot = new DirectoryTreeViewModel("/", null, multiSelection);
             IDictionary<string, ITreeViewModel> directoryLookup = new SortedDictionary<string, ITreeViewModel>();
             directoryLookup[m_DirectoryTreeRoot.DisplayString] = m_DirectoryTreeRoot;
 
             foreach (KeyValuePair<string, SongMetadata> entry in m_SongInfo)
             {
                 Tuple<string, string> directoryAndFile = Utils.SplitPath(entry.Key);
-                ITreeViewModel parent = FindDirectoryViewModel(directoryAndFile.Item1, directoryLookup);
-                SongMetadataTreeViewModel leaf = new SongMetadataTreeViewModel(entry.Value, parent);
+                ITreeViewModel parent = FindDirectoryViewModel(directoryAndFile.Item1, directoryLookup, multiSelection);
+                SongMetadataTreeViewModel leaf = new SongMetadataTreeViewModel(directoryAndFile.Item2, entry.Value, parent, multiSelection);
                 parent.AddChild(leaf);
             }
+
+            AssignTreeViewModelHierarchyIDs(m_DirectoryTreeRoot, 0);
 
             m_DirectoryTree.Add(m_DirectoryTreeRoot);
             m_DirectoryTreeRoot.IsExpanded = true;
         }
 
-        private ITreeViewModel FindDirectoryViewModel(string path, IDictionary<string, ITreeViewModel> lookup)
+        private ITreeViewModel FindDirectoryViewModel(string path, IDictionary<string, ITreeViewModel> lookup, TreeViewMultiSelection multiSelection)
         {
             if (path == "")
             {
@@ -311,12 +321,25 @@ namespace Auremo
             else
             {
                 Tuple<string, string> parentAndSelf = Utils.SplitPath(path);
-                ITreeViewModel parent = FindDirectoryViewModel(parentAndSelf.Item1, lookup);
-                ITreeViewModel self = new DirectoryTreeViewModel(parentAndSelf.Item2, parent);
+                ITreeViewModel parent = FindDirectoryViewModel(parentAndSelf.Item1, lookup, multiSelection);
+                ITreeViewModel self = new DirectoryTreeViewModel(parentAndSelf.Item2, parent, multiSelection);
                 parent.AddChild(self);
                 lookup[path] = self;
                 return self;
             }
+        }
+
+        int AssignTreeViewModelHierarchyIDs(ITreeViewModel node, int nodeID)
+        {
+            node.HierarchyID = nodeID;
+            int nextNodeID = nodeID + 1;
+
+            foreach (ITreeViewModel child in node.Children)
+            {
+                nextNodeID = AssignTreeViewModelHierarchyIDs(child, nextNodeID);
+            }
+
+            return nextNodeID;
         }
     }
 }
