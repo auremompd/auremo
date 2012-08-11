@@ -24,7 +24,7 @@ using System.Text;
 
 namespace Auremo
 {
-    class Playlist : INotifyPropertyChanged
+    public class Playlist : INotifyPropertyChanged
     {
         #region INotifyPropertyChanged
 

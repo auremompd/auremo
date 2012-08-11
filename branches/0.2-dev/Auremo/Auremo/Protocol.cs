@@ -22,7 +22,7 @@ using System.Text;
 
 namespace Auremo
 {
-    class Protocol
+    public class Protocol
     {
         #region Admin commands (reference order)
 
