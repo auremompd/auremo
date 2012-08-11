@@ -51,7 +51,7 @@
                                           PreviewMouseDown="OnPreviewMouseDown"
                                           MouseMove="OnMouseMove">
                                     <DataGrid.Columns>
-                                        <DataGridTextColumn Header="Artist" Width="250" Binding="{Binding}" CanUserResize="True"/>
+                                        <DataGridTextColumn Header="Artist" Width="250*" Binding="{Binding}" CanUserResize="True"/>
                                     </DataGrid.Columns>
                                 </DataGrid>
                                 <DataGrid Name="m_AlbumsBySelectedArtistsView"
@@ -67,7 +67,7 @@
                                           MouseMove="OnMouseMove">
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="Year" MinWidth="50" MaxWidth="50" Binding="{Binding Path=PrintableYear}"/>
-                                        <DataGridTextColumn Header="Title" Width="200" Binding="{Binding Path=Title}"/>
+                                        <DataGridTextColumn Header="Title" Width="200*" Binding="{Binding Path=Title}"/>
                                     </DataGrid.Columns>
                                 </DataGrid>
                                 <DataGrid Name="m_SongsOnSelectedAlbumsView"
@@ -83,7 +83,7 @@
                                           MouseMove="OnMouseMove">
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="Track#" MinWidth="50" MaxWidth="50" Binding="{Binding Track}"/>
-                                        <DataGridTextColumn Header="Title" Width="200" Binding="{Binding Title}"/>
+                                        <DataGridTextColumn Header="Title" Width="200*" Binding="{Binding Title}"/>
                                     </DataGrid.Columns>
                                 </DataGrid>
                             </Grid>
@@ -124,7 +124,7 @@
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Artist" Width="Auto" Binding="{Binding Path=Song.Artist}"/>
                                     <DataGridTextColumn Header="Album" Width="Auto" Binding="{Binding Path=Song.Album}"/>
-                                    <DataGridTextColumn Header="Title" Width="150" Binding="{Binding Path=Song.Title}"/>
+                                    <DataGridTextColumn Header="Title" Width="150*" Binding="{Binding Path=Song.Title}"/>
                                 </DataGrid.Columns>
                             </DataGrid>
                         </Border>
