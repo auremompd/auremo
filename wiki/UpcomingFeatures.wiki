@@ -8,10 +8,11 @@ These features are already available in SVN in the 0.2-dev branch. All or some o
 
   * Add a tooltip on the mouse cursor when dragging entries describing the contents of the drag.
   * Improve the color scheme, especially the library and playlist headers. this involves getting rid of the !ListView control in favor of the heavier !DataGrid control.
+  * Add another way of choosing item to add to the playlist. The second way is a directory tree, implemented as a !TreeView. Multi-selection with a mouse is supported and single songs can be queued to the playlist.
 
 == Features to add ==
 
 These features will be added before the release.
 
-  * Add another way of choosing item to add to the playlist. The second way will be a directory tree, implemented as a !TreeView. Dragging directories and files will be supported, as well as selecting multiple things at once. This will take a lot of effort as WPF's !TreeView does not support multiselect in any way.
+  * Add drag & drop from the directory tree into the playlist.
   * See if it would be possible to improve the installer at least a little bit (install under Program Files at the very least). NSIS promising for implementing this. A raw executable file will still be available as before.
