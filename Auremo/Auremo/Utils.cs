@@ -22,7 +22,7 @@ using System.Text;
 
 namespace Auremo
 {
-    class Utils
+    public class Utils
     {
         public static int? StringToInt(string s)
         {

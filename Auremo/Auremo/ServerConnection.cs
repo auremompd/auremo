@@ -26,7 +26,7 @@ using System.Text;
 
 namespace Auremo
 {
-    class ServerConnection : INotifyPropertyChanged
+    public class ServerConnection : INotifyPropertyChanged
     {
         #region NotifyPropertyChanged implementation
 
