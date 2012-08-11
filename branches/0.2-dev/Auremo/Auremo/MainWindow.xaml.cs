@@ -94,6 +94,7 @@ namespace Auremo
             m_ArtistsView.DataContext = m_Database;
             m_AlbumsBySelectedArtistsView.DataContext = m_Database;
             m_SongsOnSelectedAlbumsView.DataContext = m_Database;
+            m_DirectoryTree.DataContext = m_Database;
             m_PlaylistView.DataContext = m_Playlist;
             m_PlaybackControls.DataContext = m_ServerStatus;
             m_PlayStatusMessage.DataContext = m_Playlist;
@@ -135,6 +136,10 @@ namespace Auremo
         private void DoPostConnectInit()
         {
             m_Database.Refresh(m_Connection);
+
+            m_LogActive = true;
+            LogResponse(Protocol.ListAllInfo(m_Connection));
+
             UpdateTopLevelSelection();
             SetTimerInterval(Settings.Default.ViewUpdateInterval); // Normal operation.
         }
@@ -154,7 +159,6 @@ namespace Auremo
         {
             m_Database.OnSelectedArtistsChanged(m_ArtistsView.SelectedItems);
         }
-
 
         #endregion
 
@@ -382,6 +386,58 @@ namespace Auremo
                 SongMetadata song = row.Item as SongMetadata;
                 Protocol.Add(m_Connection, song.Path);
                 Update();
+            }
+        }
+
+        private void OnTreeViewClick(object sender, MouseButtonEventArgs e)
+        {
+            TreeViewItem item = TreeViewItemBeingClicked(sender as TreeView, e);
+
+            if (item != null && item.Header is ITreeViewModel)
+            {
+                ITreeViewModel node = item.Header as ITreeViewModel;
+                e.Handled = true;
+
+                if (Keyboard.Modifiers == ModifierKeys.Control)
+                {
+                    node.IsMultiSelected = !node.IsMultiSelected;
+                    node.MultiSelection.Pivot = node.IsMultiSelected ? node : null;
+                }
+                else if (Keyboard.Modifiers == ModifierKeys.Shift)
+                {
+                    node.MultiSelection.Clear();
+                    node.MultiSelection.SelectRange(node);
+                }
+                else
+                {
+                    node.MultiSelection.Clear();
+                    node.IsMultiSelected = true;
+                    node.MultiSelection.Pivot = node;
+
+                    if (e.ClickCount == 2)
+                    {
+                        if (node is DirectoryTreeViewModel)
+                        {
+                            node.IsExpanded = !node.IsExpanded;
+                        }
+                        else if (node is SongMetadataTreeViewModel)
+                        {
+                            SongMetadataTreeViewModel songNode = node as SongMetadataTreeViewModel;
+                            Protocol.Add(m_Connection, songNode.Song.Path);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void OnTreeViewSelectionChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            // Cancel the selection. Use the multiselection system instead.
+            ITreeViewModel node = e.NewValue as ITreeViewModel;
+
+            if (node != null)
+            {
+                node.IsSelected = false;
             }
         }
 
@@ -885,22 +941,47 @@ namespace Auremo
         {
             HitTestResult hit = VisualTreeHelper.HitTest(grid, e.GetPosition(grid));
 
-            if (hit == null)
+            if (hit != null)
             {
-                return null;
+                DependencyObject component = (DependencyObject)hit.VisualHit;
+
+                while (component != null)
+                {
+                    if (component is DataGridRow)
+                    {
+                        return (DataGridRow)component;
+                    }
+                    else
+                    {
+                        component = VisualTreeHelper.GetParent(component);
+                    }
+                }
             }
 
-            DependencyObject component = (DependencyObject)hit.VisualHit;
+            return null;
+        }
 
-            while (component != null)
+        private TreeViewItem TreeViewItemBeingClicked(TreeView tree, MouseButtonEventArgs e)
+        {
+            HitTestResult hit = VisualTreeHelper.HitTest(tree, e.GetPosition(tree));
+
+            if (hit != null)
             {
-                if (component is DataGridRow)
+                DependencyObject component = (DependencyObject)hit.VisualHit;
+
+                if (component is TextBlock) // Don't return hits to the expander arrow.
                 {
-                    return (DataGridRow)component;
-                }
-                else
-                {
-                    component = VisualTreeHelper.GetParent(component);
+                    while (component != null)
+                    {
+                        if (component is TreeViewItem)
+                        {
+                            return (TreeViewItem)component;
+                        }
+                        else
+                        {
+                            component = VisualTreeHelper.GetParent(component);
+                        }
+                    }
                 }
             }
 
@@ -942,7 +1023,7 @@ namespace Auremo
 
             throw new Exception("GetDragDropDataString: unknown drag source.");
         }
-
+        
         bool m_LogActive = true;
 
         private void LogMessage(string message)
