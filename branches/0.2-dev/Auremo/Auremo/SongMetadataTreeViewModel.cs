@@ -9,7 +9,7 @@ namespace Auremo
     /// <summary>
     /// Wraps a SongMetadata object so that it can be consumed by a TreeView[Item].
     /// </summary>
-    class SongMetadataTreeViewModel : ITreeViewModel, INotifyPropertyChanged
+    public class SongMetadataTreeViewModel : ITreeViewModel, INotifyPropertyChanged, IComparable
     {
         #region INotifyPropertyChanged implementation
 
@@ -25,27 +25,41 @@ namespace Auremo
 
         #endregion
 
-        private SongMetadata m_Song;
-        private ITreeViewModel m_Parent;
+        private string m_Filename = "";
+        private SongMetadata m_Song = null;
+        private ITreeViewModel m_Parent = null;
         private bool m_IsSelected = false;
+        private bool m_IsMultiSelected = false;
+        private TreeViewMultiSelection m_MultiSelection = null;
 
-        public SongMetadataTreeViewModel(SongMetadata song, ITreeViewModel parent)
+        public SongMetadataTreeViewModel(string filename, SongMetadata song, ITreeViewModel parent, TreeViewMultiSelection multiSelection)
         {
+            m_Filename = filename;
             m_Song = song;
             m_Parent = parent;
+            m_MultiSelection = multiSelection;
+            HierarchyID = -1;
         }
 
         public string DisplayString
         {
             get
             {
-                return m_Song.Title;
+                return m_Filename;
             }
         }
 
         public void AddChild(ITreeViewModel child)
         {
             throw new Exception("Attempt to add a child to a SongMetadataTreeViewModel.");
+        }
+
+        public ITreeViewModel Parent
+        {
+            get
+            {
+                return m_Parent;
+            }
         }
 
         public IList<ITreeViewModel> Children
@@ -84,9 +98,60 @@ namespace Auremo
             }
         }
 
+        public bool IsMultiSelected
+        {
+            get
+            {
+                return m_IsMultiSelected;
+            }
+            set
+            {
+                if (value != m_IsMultiSelected)
+                {
+                    if (value)
+                    {
+                        m_MultiSelection.Add(this);
+                    }
+                    else
+                    {
+                        m_MultiSelection.Remove(this);
+                    }
+
+                    m_IsMultiSelected = value;
+                    NotifyPropertyChanged("IsMultiSelected");
+                }
+            }
+        }
+
+        public TreeViewMultiSelection MultiSelection
+        {
+            get
+            {
+                return m_MultiSelection;
+            }
+        }
+
+        public int HierarchyID
+        {
+            get;
+            set;
+        }
+
+        public int CompareTo(object o)
+        {
+            if (o is ITreeViewModel)
+            {
+                return HierarchyID - ((ITreeViewModel)o).HierarchyID;
+            }
+            else
+            {
+                throw new Exception("SongMetadataTreeViewModel: attempt to compare to an incompatible object");
+            }
+        }
+
         public override string ToString()
         {
-            return m_Parent.ToString() + m_Song.Title;
+            return m_Parent.ToString() + "/" + m_Filename;
         }
     }
 }
