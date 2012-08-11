@@ -25,84 +25,111 @@
             <RowDefinition Height="70"/>
             <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
-        <TabControl Name="m_Tabs" Style="{StaticResource TabControlStyle}">
+        <TabControl Name="m_Tabs" Style="{StaticResource TabControlStyle}" Margin="4">
             <TabItem Name="m_MusicTab" Header="Music" Style="{StaticResource TabItemStyle}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Grid>
+                    <TabControl Style="{StaticResource TabControlStyle}" TabStripPlacement="Bottom">
+                        <TabItem Name="m_ByArtistTab" Header="By Artist" Style="{StaticResource BottomTabItemStyle}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <DataGrid Name="m_ArtistsView"
+                                          Style="{StaticResource DataGridStyle}"
+                                          ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
+                                          RowStyle="{StaticResource DataGridRowStyle}"
+                                          CellStyle="{StaticResource LibraryCellStyle}"
+                                          Margin="0,0,0,3"
+                                          ItemsSource="{Binding Path=Artists}"
+                                          SelectionChanged="OnSelectedArtistsChanged"
+                                          PreviewMouseDown="OnPreviewMouseDown"
+                                          MouseMove="OnMouseMove">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Artist" Width="250" Binding="{Binding}" CanUserResize="True"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                                <DataGrid Name="m_AlbumsBySelectedArtistsView"
+                                          Style="{StaticResource DataGridStyle}"
+                                          ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
+                                          RowStyle="{StaticResource DataGridRowStyle}"
+                                          CellStyle="{StaticResource LibraryCellStyle}"
+                                          Grid.Row="1"
+                                          Margin="0,1,0,1"
+                                          ItemsSource="{Binding Path=AlbumsBySelectedArtists}"
+                                          SelectionChanged="OnSelectedAlbumsChanged"
+                                          PreviewMouseDown="OnPreviewMouseDown"
+                                          MouseMove="OnMouseMove">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Year" MinWidth="50" MaxWidth="50" Binding="{Binding Path=PrintableYear}"/>
+                                        <DataGridTextColumn Header="Title" Width="200" Binding="{Binding Path=Title}"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                                <DataGrid Name="m_SongsOnSelectedAlbumsView"
+                                          Style="{StaticResource DataGridStyle}"
+                                          ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
+                                          RowStyle="{StaticResource DataGridRowStyle}"
+                                          CellStyle="{StaticResource LibraryCellStyle}"
+                                          Grid.Row="2"
+                                          Margin="0,3,0,0"
+                                          ItemsSource="{Binding Path=SongsOnSelectedAlbums}"
+                                          MouseDoubleClick="OnSongsOnAlbumsViewDoubleClicked"
+                                          PreviewMouseDown="OnPreviewMouseDown"
+                                          MouseMove="OnMouseMove">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Track#" MinWidth="50" MaxWidth="50" Binding="{Binding Track}"/>
+                                        <DataGridTextColumn Header="Title" Width="200" Binding="{Binding Title}"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Grid>
+                        </TabItem>
+                        <TabItem Name="m_ByDirectoryTab" Header="By File" Style="{StaticResource BottomTabItemStyle}">
+                            <TreeView Name="m_DirectoryTree" ItemsSource="{Binding DirectoryTree}" Style="{StaticResource TreeViewStyle}" ItemContainerStyle="{StaticResource TreeViewContainerStyle}" PreviewMouseLeftButtonDown="OnTreeViewClick" SelectedItemChanged="OnTreeViewSelectionChanged">
+                                <TreeView.Resources>
+                                    <HierarchicalDataTemplate DataType="{x:Type l:DirectoryTreeViewModel}" ItemsSource="{Binding Children}">
+                                        <TextBlock Text="{Binding DisplayString}"/>
+                                    </HierarchicalDataTemplate>
+                                    <HierarchicalDataTemplate DataType="{x:Type l:SongMetadataTreeViewModel}" ItemsSource="{Binding Children}">
+                                        <TextBlock Text="{Binding DisplayString}"/>
+                                    </HierarchicalDataTemplate>
+                                </TreeView.Resources>
+                            </TreeView>
+                        </TabItem>
+                    </TabControl>
+                    <Grid Grid.Column="1">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="27"/>
                         </Grid.RowDefinitions>
-                        <DataGrid Name="m_ArtistsView"
-                                  Style="{StaticResource DataGridStyle}"
-                                  ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
-                                  RowStyle="{StaticResource DataGridRowStyle}"
-                                  CellStyle="{StaticResource LibraryCellStyle}"
-                                  ItemsSource="{Binding Path=Artists}"
-                                  SelectionChanged="OnSelectedArtistsChanged"
-                                  PreviewMouseDown="OnPreviewMouseDown"
-                                  MouseMove="OnMouseMove">
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="Artist" Width="250*" Binding="{Binding}" CanUserResize="True"/>
-                            </DataGrid.Columns>
-                        </DataGrid>
-                        <DataGrid Name="m_AlbumsBySelectedArtistsView"
-                                  Style="{StaticResource DataGridStyle}"
-                                  ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
-                                  RowStyle="{StaticResource DataGridRowStyle}"
-                                  CellStyle="{StaticResource LibraryCellStyle}"
-                                  Grid.Row="1"
-                                  ItemsSource="{Binding Path=AlbumsBySelectedArtists}"
-                                  SelectionChanged="OnSelectedAlbumsChanged"
-                                  PreviewMouseDown="OnPreviewMouseDown"
-                                  MouseMove="OnMouseMove">
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="Year" MinWidth="50" MaxWidth="50" Binding="{Binding Path=PrintableYear}"/>
-                                <DataGridTextColumn Header="Title" Width="200*" Binding="{Binding Path=Title}"/>
-                            </DataGrid.Columns>
-                        </DataGrid>
-                        <DataGrid Name="m_SongsOnSelectedAlbumsView"
-                                  Style="{StaticResource DataGridStyle}"
-                                  ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
-                                  RowStyle="{StaticResource DataGridRowStyle}"
-                                  CellStyle="{StaticResource LibraryCellStyle}"
-                                  Grid.Row="2"
-                                  ItemsSource="{Binding Path=SongsOnSelectedAlbums}"
-                                  MouseDoubleClick="OnSongsOnAlbumsViewDoubleClicked"
-                                  PreviewMouseDown="OnPreviewMouseDown"
-                                  MouseMove="OnMouseMove">
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="Track#" MinWidth="50" MaxWidth="50" Binding="{Binding Track}"/>
-                                <DataGridTextColumn Header="Title" Width="200*" Binding="{Binding Title}"/>
-                            </DataGrid.Columns>
-                        </DataGrid>
+                        <Border BorderThickness="1" BorderBrush="{StaticResource BorderBrush}" Margin="4,0,0,0">
+                            <DataGrid Name="m_PlaylistView"
+                                      Style="{StaticResource DataGridStyle}"
+                                      ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
+                                      RowStyle="{StaticResource DataGridRowStyle}"
+                                      CellStyle="{StaticResource PlaylistCellStyle}"
+                                      Margin="4"
+                                      ItemsSource="{Binding Path=Items}"
+                                      AllowDrop="True"
+                                      MouseDoubleClick="OnPlaylistViewDoubleClicked"
+                                      PreviewMouseDown="OnPreviewMouseDown"
+                                      MouseMove="OnMouseMove"
+                                      DragOver="OnPlaylistViewDragOver"
+                                      DragLeave="OnPlaylistViewDragLeave"
+                                      Drop="OnPlaylistViewDrop">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Artist" Width="Auto" Binding="{Binding Path=Song.Artist}"/>
+                                    <DataGridTextColumn Header="Album" Width="Auto" Binding="{Binding Path=Song.Album}"/>
+                                    <DataGridTextColumn Header="Title" Width="150" Binding="{Binding Path=Song.Title}"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Border>
+                        <Line Name="m_DropPositionIndicator" Grid.Column="1" X1="5" X2="320" Y1="50" Y2="50" IsHitTestVisible="False" Visibility="Hidden" StrokeThickness="2" Stroke="{StaticResource DropPositionIndicatorBrush}"/>
                     </Grid>
-                    <DataGrid Name="m_PlaylistView"
-                              Style="{StaticResource DataGridStyle}"
-                              ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
-                              RowStyle="{StaticResource DataGridRowStyle}"
-                              CellStyle="{StaticResource PlaylistCellStyle}"
-                              Grid.Column="1"
-                              ItemsSource="{Binding Path=Items}"
-                              AllowDrop="True"
-                              MouseDoubleClick="OnPlaylistViewDoubleClicked"
-                              PreviewMouseDown="OnPreviewMouseDown"
-                              MouseMove="OnMouseMove"
-                              DragOver="OnPlaylistViewDragOver"
-                              DragLeave="OnPlaylistViewDragLeave"
-                              Drop="OnPlaylistViewDrop">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="Artist" Width="Auto" Binding="{Binding Path=Song.Artist}"/>
-                            <DataGridTextColumn Header="Album" Width="Auto" Binding="{Binding Path=Song.Album}"/>
-                            <DataGridTextColumn Header="Title" Width="150*" Binding="{Binding Path=Song.Title}"/>
-                        </DataGrid.Columns>
-                    </DataGrid>
-                    <Line Name="m_DropPositionIndicator" Grid.Column="1" X1="5" X2="320" Y1="50" Y2="50" IsHitTestVisible="False" Visibility="Hidden" StrokeThickness="2" Stroke="{StaticResource DropPositionIndicatorBrush}"/>
                 </Grid>
             </TabItem>
             <TabItem Name="m_SettingsTab" Header="Settings" Style="{StaticResource TabItemStyle}">
@@ -148,7 +175,7 @@
                     </ScrollViewer>
                 </Border>
             </TabItem>
-            <TabItem Header="Log" Style="{StaticResource TabItemStyle}" Visibility="Hidden">
+            <TabItem Header="Log" Style="{StaticResource TabItemStyle}" Visibility="Visible">
                 <ListBox Name="m_LogLines"/>
             </TabItem>
         </TabControl>
