@@ -23,7 +23,7 @@ using System.Text;
 
 namespace Auremo
 {
-    class ServerStatus : INotifyPropertyChanged
+    public class ServerStatus : INotifyPropertyChanged
     {
         #region INotifyPropertyChanged implementation
 
@@ -39,6 +39,17 @@ namespace Auremo
 
         #endregion
 
+        private bool m_OK = false;
+        private int? m_Volume = null;
+        private int m_PlaylistVersion = -1;
+        private int m_CurrentSongIndex = -1;
+        private int m_PlayPosition = 0;
+        private int m_SongLength = 0;
+        private bool m_Random = false;
+        private bool m_Repeat = false;
+        private string m_State = "";
+
+        
         public ServerStatus()
         {
             Reset();
@@ -78,7 +89,7 @@ namespace Auremo
                     {
                         if (m_State != line.Value)
                         {
-                            StateInternal = line.Value;
+                            State = line.Value;
                         }
                     }
                     else if (line.Name == "volume")
@@ -87,17 +98,17 @@ namespace Auremo
 
                         if (volume == null || volume.Value < 0 || volume > 100)
                         {
-                            VolumeInternal = null;
+                            Volume = null;
                         }
                         else
                         {
-                            VolumeInternal = volume;
+                            Volume = volume;
                         }
                     }
                     else if (line.Name == "playlist")
                     {
                         int? version = Utils.StringToInt(line.Value);
-                        PlaylistVersionInternal = version.HasValue ? version.Value : -1;
+                        PlaylistVersion = version.HasValue ? version.Value : -1;
                     }
                     else if (line.Name == "song")
                     {
@@ -122,24 +133,34 @@ namespace Auremo
                     }
                     else if (line.Name == "random")
                     {
-                        RandomInternal = line.Value == "1";
+                        Random = line.Value == "1";
                     }
                     else if (line.Name == "repeat")
                     {
-                        RepeatInternal = line.Value == "1";
+                        Repeat = line.Value == "1";
                     }
                 }
 
-                CurrentSongIndexInternal = currentSongIndex;
-                PlayPositionInternal = playPosition;
-                SongLengthlInternal = songLength;
+                CurrentSongIndex = currentSongIndex;
+                PlayPosition = playPosition;
+                SongLength = songLength;
             }
         }
 
-        private bool m_OK = false;
         public bool OK
         {
-            get { return m_OK; }
+            get
+            {
+                return m_OK;
+            }
+            private set
+            {
+                if (m_OK != value)
+                {
+                    m_OK = value;
+                    NotifyPropertyChanged("OK");
+                }
+            }
         }
 
         public bool IsPlaying
@@ -157,84 +178,13 @@ namespace Auremo
             get { return m_State == "stop"; }
         }
 
-        private int? m_Volume = null;
         public int? Volume
         {
-            get { return m_Volume; }
-        }
-
-        private int m_PlaylistVersion = -1;
-        public int PlaylistVersion
-        {
-            get { return m_PlaylistVersion; }
-        }
-
-        private int m_CurrentSongIndex = -1;
-        public int CurrentSongIndex
-        {
-            get { return m_CurrentSongIndex; }
-        }
-
-        private int m_PlayPosition = 0;
-        public int PlayPosition
-        {
-            get { return m_PlayPosition; }
-        }
-
-        private int m_SongLength = 0;
-        public int SongLength
-        {
-            get { return m_SongLength; }
-        }
-
-        private bool m_Random = false;
-        public bool Random
-        {
-            get { return m_Random; }
-        }
-
-        private bool m_Repeat = false;
-        public bool Repeat
-        {
-            get { return m_Repeat; }
-        }
-
-        private string m_State = "";
-        public string State
-        {
-            get { return m_State; }
-        }
-
-        private void Reset()
-        {
-            OKInternal = false;
-            VolumeInternal = null;
-            PlaylistVersionInternal = -1;
-            CurrentSongIndexInternal = -1;
-            PlayPositionInternal = 0;
-            SongLengthlInternal = 1;
-            RandomInternal = false;
-            RepeatInternal = false;
-            StateInternal = "";
-        }
-
-        #region XInternal properties, for keeping setters private.
-
-        private bool OKInternal
-        {
-            set
+            get
             {
-                if (m_OK != value)
-                {
-                    m_OK = value;
-                    NotifyPropertyChanged("OK");
-                }
+                return m_Volume;
             }
-        }
-
-        private int? VolumeInternal
-        {
-            set
+            private set
             {
                 if (m_Volume != value)
                 {
@@ -244,9 +194,13 @@ namespace Auremo
             }
         }
 
-        private int PlaylistVersionInternal
+        public int PlaylistVersion
         {
-            set
+            get
+            {
+                return m_PlaylistVersion;
+            }
+            private set
             {
                 if (m_PlaylistVersion != value)
                 {
@@ -256,9 +210,13 @@ namespace Auremo
             }
         }
 
-        private int CurrentSongIndexInternal
+        public int CurrentSongIndex
         {
-            set
+            get
+            {
+                return m_CurrentSongIndex;
+            }
+            private set
             {
                 if (m_CurrentSongIndex != value)
                 {
@@ -268,9 +226,13 @@ namespace Auremo
             }
         }
 
-        private int PlayPositionInternal
+        public int PlayPosition
         {
-            set
+            get
+            {
+                return m_PlayPosition;
+            }
+            private set
             {
                 if (m_PlayPosition != value)
                 {
@@ -280,9 +242,13 @@ namespace Auremo
             }
         }
 
-        private int SongLengthlInternal
+        public int SongLength
         {
-            set
+            get
+            {
+                return m_SongLength;
+            }
+            private set
             {
                 if (m_SongLength != value)
                 {
@@ -292,9 +258,13 @@ namespace Auremo
             }
         }
 
-        private bool RandomInternal
+        public bool Random
         {
-            set
+            get
+            {
+                return m_Random;
+            }
+            private set
             {
                 if (m_Random != value)
                 {
@@ -304,9 +274,13 @@ namespace Auremo
             }
         }
 
-        private bool RepeatInternal
+        public bool Repeat
         {
-            set
+            get
+            {
+                return m_Repeat;
+            }
+            private set
             {
                 if (m_Repeat != value)
                 {
@@ -316,9 +290,13 @@ namespace Auremo
             }
         }
 
-        private string StateInternal
+        public string State
         {
-            set
+            get
+            {
+                return m_State;
+            }
+            private set
             {
                 if (m_State != value)
                 {
@@ -331,6 +309,17 @@ namespace Auremo
             }
         }
 
-        #endregion
+        private void Reset()
+        {
+            OK = false;
+            Volume = null;
+            PlaylistVersion = -1;
+            CurrentSongIndex = -1;
+            PlayPosition = 0;
+            SongLength = 1;
+            Random = false;
+            Repeat = false;
+            State = "";
+        }
     }
 }
