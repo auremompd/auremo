@@ -137,6 +137,14 @@ namespace Auremo
             set;
         }
 
+        public SongMetadata Song
+        {
+            get
+            {
+                return m_Song;
+            }
+        }
+
         public int CompareTo(object o)
         {
             if (o is ITreeViewModel)
