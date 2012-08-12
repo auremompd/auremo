@@ -33,7 +33,7 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <TabControl Style="{StaticResource TabControlStyle}" TabStripPlacement="Bottom">
-                        <TabItem Name="m_ByArtistTab" Header="By Artist" Style="{StaticResource BottomTabItemStyle}">
+                        <TabItem Header="Artist list" Style="{StaticResource BottomTabItemStyle}" Width="120">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="*"/>
@@ -48,8 +48,8 @@
                                           Margin="0,0,0,3"
                                           ItemsSource="{Binding Path=Artists}"
                                           SelectionChanged="OnSelectedArtistsChanged"
-                                          PreviewMouseDown="OnDataGridPreviewMouseDown"
-                                          MouseMove="OnMouseMove">
+                                          PreviewMouseDown="OnDataGridMouseDown"
+                                          MouseMove="OnMouseMoveDragDrop">
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="Artist" Width="250*" Binding="{Binding}" CanUserResize="True"/>
                                     </DataGrid.Columns>
@@ -63,8 +63,8 @@
                                           Margin="0,1,0,1"
                                           ItemsSource="{Binding Path=AlbumsBySelectedArtists}"
                                           SelectionChanged="OnSelectedAlbumsChanged"
-                                          PreviewMouseDown="OnDataGridPreviewMouseDown"
-                                          MouseMove="OnMouseMove">
+                                          PreviewMouseDown="OnDataGridMouseDown"
+                                          MouseMove="OnMouseMoveDragDrop">
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="Year" MinWidth="50" MaxWidth="50" Binding="{Binding Path=PrintableYear}"/>
                                         <DataGridTextColumn Header="Title" Width="200*" Binding="{Binding Path=Title}"/>
@@ -79,8 +79,8 @@
                                           Margin="0,3,0,0"
                                           ItemsSource="{Binding Path=SongsOnSelectedAlbums}"
                                           MouseDoubleClick="OnSongsOnAlbumsViewDoubleClicked"
-                                          PreviewMouseDown="OnDataGridPreviewMouseDown"
-                                          MouseMove="OnMouseMove">
+                                          PreviewMouseDown="OnDataGridMouseDown"
+                                          MouseMove="OnMouseMoveDragDrop">
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="Track#" MinWidth="50" MaxWidth="50" Binding="{Binding Track}"/>
                                         <DataGridTextColumn Header="Title" Width="200*" Binding="{Binding Title}"/>
@@ -88,8 +88,8 @@
                                 </DataGrid>
                             </Grid>
                         </TabItem>
-                        <TabItem Name="m_ByDirectoryTab" Header="By File" Style="{StaticResource BottomTabItemStyle}">
-                            <TreeView Name="m_DirectoryTree" ItemsSource="{Binding DirectoryTree}" Style="{StaticResource TreeViewStyle}" ItemContainerStyle="{StaticResource TreeViewContainerStyle}" PreviewMouseLeftButtonDown="OnTreeViewMouseDown" SelectedItemChanged="OnTreeViewSelectionChanged">
+                        <TabItem Header="Directory tree" Style="{StaticResource BottomTabItemStyle}" Width="120">
+                            <TreeView Name="m_DirectoryTree" ItemsSource="{Binding DirectoryTree}" Style="{StaticResource TreeViewStyle}" ItemContainerStyle="{StaticResource TreeViewContainerStyle}" PreviewMouseLeftButtonDown="OnTreeViewMouseDown" MouseMove="OnMouseMoveDragDrop" MouseUp="OnTreeViewMouseUp" SelectedItemChanged="OnTreeViewSelectionChanged">
                                 <TreeView.Resources>
                                     <HierarchicalDataTemplate DataType="{x:Type l:DirectoryTreeViewModel}" ItemsSource="{Binding Children}">
                                         <TextBlock Text="{Binding DisplayString}"/>
@@ -116,8 +116,8 @@
                                       ItemsSource="{Binding Path=Items}"
                                       AllowDrop="True"
                                       MouseDoubleClick="OnPlaylistViewDoubleClicked"
-                                      PreviewMouseDown="OnDataGridPreviewMouseDown"
-                                      MouseMove="OnMouseMove"
+                                      PreviewMouseDown="OnDataGridMouseDown"
+                                      MouseMove="OnMouseMoveDragDrop"
                                       DragOver="OnPlaylistViewDragOver"
                                       DragLeave="OnPlaylistViewDragLeave"
                                       Drop="OnPlaylistViewDrop">

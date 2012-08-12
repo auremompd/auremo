@@ -45,6 +45,7 @@ namespace Auremo
         private Database m_Database = new Database();
         private Playlist m_Playlist = null;
         private DispatcherTimer m_Timer = null;
+        private Object m_DragSource = null;
         private IList<object> m_DragDropPayload = null;
         private Nullable<Point> m_DragStartPosition = null;
         private bool m_PropertyUpdateInProgress = false;
@@ -412,25 +413,30 @@ namespace Auremo
             if (item != null && item.Header is ITreeViewModel)
             {
                 ITreeViewModel node = item.Header as ITreeViewModel;
-                e.Handled = true;
-
+                
                 if (Keyboard.Modifiers == ModifierKeys.Control)
                 {
                     node.IsMultiSelected = !node.IsMultiSelected;
                     node.MultiSelection.Pivot = node.IsMultiSelected ? node : null;
+                    e.Handled = true;
                 }
                 else if (Keyboard.Modifiers == ModifierKeys.Shift)
                 {
                     node.MultiSelection.Clear();
                     node.MultiSelection.SelectRange(node);
+                    e.Handled = true;
                 }
-                else
+                else if (Keyboard.Modifiers == ModifierKeys.None)
                 {
-                    node.MultiSelection.Clear();
                     node.IsMultiSelected = true;
                     node.MultiSelection.Pivot = node;
 
-                    if (e.ClickCount == 2)
+                    if (e.ClickCount == 1)
+                    {
+                        m_DragSource = sender;
+                        m_DragStartPosition = e.GetPosition(null);
+                    }
+                    else if (e.ClickCount == 2)
                     {
                         if (node is DirectoryTreeViewModel)
                         {
@@ -442,6 +448,22 @@ namespace Auremo
                             Protocol.Add(m_Connection, songNode.Song.Path);
                         }
                     }
+                }
+            }
+        }
+
+        private void OnTreeViewMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ClickCount == 1 && Keyboard.Modifiers == ModifierKeys.None)
+            {
+                TreeViewItem item = TreeViewItemBeingClicked(sender as TreeView, e);
+
+                if (item != null && item.Header is ITreeViewModel)
+                {
+                    ITreeViewModel node = item.Header as ITreeViewModel;
+                    node.MultiSelection.Clear();
+                    node.IsMultiSelected = true;
+                    node.MultiSelection.Pivot = node;
                 }
             }
         }
@@ -461,7 +483,7 @@ namespace Auremo
 
         #region List drag & Drop
 
-        private void OnDataGridPreviewMouseDown(object sender, MouseButtonEventArgs e)
+        private void OnDataGridMouseDown(object sender, MouseButtonEventArgs e)
         {
             if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0 || (Keyboard.Modifiers & ModifierKeys.Shift) != 0 || e.ClickCount > 1)
             {
@@ -469,42 +491,25 @@ namespace Auremo
                 return;
             }
 
-            DataGrid dragSource = (DataGrid)sender;
-            DataGridRow row = DataGridRowBeingClicked(dragSource, e);
+            DataGridRow row = DataGridRowBeingClicked((DataGrid)sender, e);
 
             if (row != null && row.IsSelected)
             {
+                m_DragSource = sender;
                 m_DragStartPosition = e.GetPosition(null);
-
-                // Using an internal m_DragDropPayload is cheating, but the
-                // the standard (through clipboard?) system is pure evil and
-                // since we don't need drag & drop across application borders,
-                // this will do for now.
-                m_DragDropPayload = new List<object>();
-
-                foreach (object o in dragSource.SelectedItems)
-                {
-                    m_DragDropPayload.Add(o);
-
-                    if (o is PlaylistItem)
-                    {
-                        PlaylistItem item = (PlaylistItem)o;
-                        int index = m_PlaylistView.Items.IndexOf(item);
-                    }
-                }
-
                 // Again, don't mess up multi-select.
                 e.Handled = true;
             }
             else
             {
+                m_DragSource = null;
                 m_DragStartPosition = null;
             }
         }
 
-        private void OnMouseMove(object sender, MouseEventArgs e)
+        private void OnMouseMoveDragDrop(object sender, MouseEventArgs e)
         {
-            if (m_DragStartPosition.HasValue)
+            if (m_DragStartPosition.HasValue && m_DragSource != null)
             {
                 Vector dragDistance = e.GetPosition(null) - m_DragStartPosition.Value;
 
@@ -512,6 +517,39 @@ namespace Auremo
                     (Math.Abs(dragDistance.X) > SystemParameters.MinimumHorizontalDragDistance ||
                     Math.Abs(dragDistance.Y) > SystemParameters.MinimumVerticalDragDistance))
                 {
+                    // Using an internal m_DragDropPayload is cheating, but the
+                    // the standard (through clipboard?) system is pure evil and
+                    // since we don't need drag & drop across application borders,
+                    // this will do for now.
+                    m_DragDropPayload = new List<object>();
+
+                    if (m_DragSource is DataGrid)
+                    {
+                        DataGrid source = m_DragSource as DataGrid;
+
+                        foreach (object o in source.SelectedItems)
+                        {
+                            m_DragDropPayload.Add(o);
+                        }
+                    }
+                    else if (m_DragSource is TreeView)
+                    {
+                        ISet<SongMetadataTreeViewModel> selection = null;
+
+                        if (m_DragSource == m_DirectoryTree)
+                        {
+                            selection = m_Database.DirectoryTreeMultiSelection;
+                        }
+
+                        if (selection != null)
+                        {
+                            foreach (SongMetadataTreeViewModel node in selection)
+                            {
+                                m_DragDropPayload.Add(node.Song);
+                            }
+                        }
+                    }
+
                     m_MousePointerHint.Content = DragDropPayloadDescription();
                     DragDropEffects mode = sender == m_PlaylistView ? DragDropEffects.Move : DragDropEffects.Copy;
                     string data = GetDragDropDataString(sender);
@@ -1013,13 +1051,22 @@ namespace Auremo
         private string GetDragDropDataString(object dragSource)
         {
             if (dragSource == m_ArtistsView)
+            {
                 return AddArtists;
+            }
             else if (dragSource == m_AlbumsBySelectedArtistsView)
+            {
                 return AddAlbums;
-            else if (dragSource == m_SongsOnSelectedAlbumsView)
+            }
+            else if (dragSource == m_SongsOnSelectedAlbumsView ||
+                dragSource == m_DirectoryTree)
+            {
                 return AddSongs;
+            }
             else if (dragSource == m_PlaylistView)
+            {
                 return MovePlaylistItems;
+            }
 
             throw new Exception("GetDragDropDataString: unknown drag source.");
         }
