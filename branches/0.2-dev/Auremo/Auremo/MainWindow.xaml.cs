@@ -389,7 +389,23 @@ namespace Auremo
             }
         }
 
-        private void OnTreeViewClick(object sender, MouseButtonEventArgs e)
+        private void OnPlaylistViewDoubleClicked(object sender, MouseButtonEventArgs e)
+        {
+            DataGridRow row = DataGridRowBeingClicked(m_PlaylistView, e);
+
+            if (row != null)
+            {
+                PlaylistItem item = row.Item as PlaylistItem;
+                Protocol.PlayId(m_Connection, item.Id);
+                Update();
+            }
+        }
+
+        #endregion
+
+        #region TreeView handling (browsing, drag & drop)
+
+        private void OnTreeViewMouseDown(object sender, MouseButtonEventArgs e)
         {
             TreeViewItem item = TreeViewItemBeingClicked(sender as TreeView, e);
 
@@ -441,23 +457,11 @@ namespace Auremo
             }
         }
 
-        private void OnPlaylistViewDoubleClicked(object sender, MouseButtonEventArgs e)
-        {
-            DataGridRow row = DataGridRowBeingClicked(m_PlaylistView, e);
-
-            if (row != null)
-            {
-                PlaylistItem item = row.Item as PlaylistItem;
-                Protocol.PlayId(m_Connection, item.Id);
-                Update();
-            }
-        }
-
         #endregion
 
-        #region Drag & Drop
+        #region List drag & Drop
 
-        private void OnPreviewMouseDown(object sender, MouseButtonEventArgs e)
+        private void OnDataGridPreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
             if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0 || (Keyboard.Modifiers & ModifierKeys.Shift) != 0 || e.ClickCount > 1)
             {
