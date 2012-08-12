@@ -48,7 +48,7 @@
                                           Margin="0,0,0,3"
                                           ItemsSource="{Binding Path=Artists}"
                                           SelectionChanged="OnSelectedArtistsChanged"
-                                          PreviewMouseDown="OnPreviewMouseDown"
+                                          PreviewMouseDown="OnDataGridPreviewMouseDown"
                                           MouseMove="OnMouseMove">
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="Artist" Width="250*" Binding="{Binding}" CanUserResize="True"/>
@@ -63,7 +63,7 @@
                                           Margin="0,1,0,1"
                                           ItemsSource="{Binding Path=AlbumsBySelectedArtists}"
                                           SelectionChanged="OnSelectedAlbumsChanged"
-                                          PreviewMouseDown="OnPreviewMouseDown"
+                                          PreviewMouseDown="OnDataGridPreviewMouseDown"
                                           MouseMove="OnMouseMove">
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="Year" MinWidth="50" MaxWidth="50" Binding="{Binding Path=PrintableYear}"/>
@@ -79,7 +79,7 @@
                                           Margin="0,3,0,0"
                                           ItemsSource="{Binding Path=SongsOnSelectedAlbums}"
                                           MouseDoubleClick="OnSongsOnAlbumsViewDoubleClicked"
-                                          PreviewMouseDown="OnPreviewMouseDown"
+                                          PreviewMouseDown="OnDataGridPreviewMouseDown"
                                           MouseMove="OnMouseMove">
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="Track#" MinWidth="50" MaxWidth="50" Binding="{Binding Track}"/>
@@ -89,7 +89,7 @@
                             </Grid>
                         </TabItem>
                         <TabItem Name="m_ByDirectoryTab" Header="By File" Style="{StaticResource BottomTabItemStyle}">
-                            <TreeView Name="m_DirectoryTree" ItemsSource="{Binding DirectoryTree}" Style="{StaticResource TreeViewStyle}" ItemContainerStyle="{StaticResource TreeViewContainerStyle}" PreviewMouseLeftButtonDown="OnTreeViewClick" SelectedItemChanged="OnTreeViewSelectionChanged">
+                            <TreeView Name="m_DirectoryTree" ItemsSource="{Binding DirectoryTree}" Style="{StaticResource TreeViewStyle}" ItemContainerStyle="{StaticResource TreeViewContainerStyle}" PreviewMouseLeftButtonDown="OnTreeViewMouseDown" SelectedItemChanged="OnTreeViewSelectionChanged">
                                 <TreeView.Resources>
                                     <HierarchicalDataTemplate DataType="{x:Type l:DirectoryTreeViewModel}" ItemsSource="{Binding Children}">
                                         <TextBlock Text="{Binding DisplayString}"/>
@@ -116,7 +116,7 @@
                                       ItemsSource="{Binding Path=Items}"
                                       AllowDrop="True"
                                       MouseDoubleClick="OnPlaylistViewDoubleClicked"
-                                      PreviewMouseDown="OnPreviewMouseDown"
+                                      PreviewMouseDown="OnDataGridPreviewMouseDown"
                                       MouseMove="OnMouseMove"
                                       DragOver="OnPlaylistViewDragOver"
                                       DragLeave="OnPlaylistViewDragLeave"
