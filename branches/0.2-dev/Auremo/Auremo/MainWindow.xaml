@@ -175,7 +175,7 @@
                     </ScrollViewer>
                 </Border>
             </TabItem>
-            <TabItem Header="Log" Style="{StaticResource TabItemStyle}" Visibility="Visible">
+            <TabItem Header="Log" Style="{StaticResource TabItemStyle}" Visibility="Hidden">
                 <ListBox Name="m_LogLines"/>
             </TabItem>
         </TabControl>

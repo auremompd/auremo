@@ -137,10 +137,6 @@ namespace Auremo
         private void DoPostConnectInit()
         {
             m_Database.Refresh(m_Connection);
-
-            m_LogActive = true;
-            LogResponse(Protocol.ListAllInfo(m_Connection));
-
             UpdateTopLevelSelection();
             SetTimerInterval(Settings.Default.ViewUpdateInterval); // Normal operation.
         }
@@ -209,8 +205,6 @@ namespace Auremo
         private void OnServerStatusPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             m_PropertyUpdateInProgress = true;
-
-            LogMessage("property changed: " + e.PropertyName);
 
             if (e.PropertyName == "CurrentSongIndex")
             {
@@ -1071,7 +1065,7 @@ namespace Auremo
             throw new Exception("GetDragDropDataString: unknown drag source.");
         }
         
-        bool m_LogActive = true;
+        bool m_LogActive = false;
 
         private void LogMessage(string message)
         {
