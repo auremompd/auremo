@@ -6,12 +6,14 @@ This is a list of features that are planned for future releases but not the curr
 
 === Important features ===
   * Add support for saving and loading playlists. A clear playlist button would also be useful.
+  * Add music database refresh command and database reload without exiting.
   * Add more ways to browse the music collection. At least:
       * Artist/album/song as a tree view.
       * Genre/album/song as a tree view.
       * Genre/album/song as a three list hierarchy.
   * Add support for password protected MPD servers.
-  * Improve the look & feel. The color scheme is off and practically all of the controls need customization. The goal is to Auremo very aesthetic.
+  * Music database refresh
+  * Improve the look & feel. The color scheme is off and practically all of the controls need customization. The goal is to make Auremo very aesthetic. Help from an expert artist would help here.
 
 === Nice to have features ===
   * Create a cool custom control for the volume knob. A slider is typical but not very pretty, plus it takes a lot of space.
