@@ -422,10 +422,13 @@ namespace Auremo
                 }
                 else if (Keyboard.Modifiers == ModifierKeys.None)
                 {
-                    node.IsMultiSelected = true;
-                    node.MultiSelection.Pivot = node;
-
-                    if (e.ClickCount == 1)
+                    if (!node.IsMultiSelected)
+                    {
+                        node.MultiSelection.Clear();
+                        node.IsMultiSelected = true;
+                        node.MultiSelection.Pivot = node;
+                    }
+                    else if (e.ClickCount == 1)
                     {
                         m_DragSource = sender;
                         m_DragStartPosition = e.GetPosition(null);
@@ -442,13 +445,15 @@ namespace Auremo
                             Protocol.Add(m_Connection, songNode.Song.Path);
                         }
                     }
+
+                    e.Handled = true;
                 }
             }
         }
 
         private void OnTreeViewMouseUp(object sender, MouseButtonEventArgs e)
         {
-            if (e.ClickCount == 1 && Keyboard.Modifiers == ModifierKeys.None)
+            if (Keyboard.Modifiers == ModifierKeys.None)
             {
                 TreeViewItem item = TreeViewItemBeingClicked(sender as TreeView, e);
 
