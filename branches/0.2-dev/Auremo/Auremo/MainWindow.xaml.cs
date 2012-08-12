@@ -827,10 +827,6 @@ namespace Auremo
 
         #endregion
 
-        #region Status bar
-
-        #endregion
-
         #endregion
 
         #region Settings and settings tab
