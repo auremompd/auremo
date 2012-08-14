@@ -407,26 +407,16 @@ namespace Auremo
             if (item != null && item.Header is ITreeViewModel)
             {
                 ITreeViewModel node = item.Header as ITreeViewModel;
-                
-                if (Keyboard.Modifiers == ModifierKeys.Control)
+
+                if (Keyboard.Modifiers == ModifierKeys.None)
                 {
-                    node.IsMultiSelected = !node.IsMultiSelected;
-                    node.MultiSelection.Pivot = node.IsMultiSelected ? node : null;
-                    e.Handled = true;
-                }
-                else if (Keyboard.Modifiers == ModifierKeys.Shift)
-                {
-                    node.MultiSelection.Clear();
-                    node.MultiSelection.SelectRange(node);
-                    e.Handled = true;
-                }
-                else if (Keyboard.Modifiers == ModifierKeys.None)
-                {
+                    node.MultiSelection.Current = node;
+                    node.MultiSelection.Pivot = node;
+
                     if (!node.IsMultiSelected)
                     {
                         node.MultiSelection.Clear();
                         node.IsMultiSelected = true;
-                        node.MultiSelection.Pivot = node;
                     }
                     else if (e.ClickCount == 1)
                     {
@@ -445,9 +435,30 @@ namespace Auremo
                             Protocol.Add(m_Connection, songNode.Song.Path);
                         }
                     }
-
-                    e.Handled = true;
                 }
+                else if (Keyboard.Modifiers == ModifierKeys.Control)
+                {
+                    node.MultiSelection.Current = node;
+                    node.IsMultiSelected = !node.IsMultiSelected;
+                    node.MultiSelection.Pivot = node.IsMultiSelected ? node : null;
+                }
+                else if (Keyboard.Modifiers == ModifierKeys.Shift)
+                {
+                    node.MultiSelection.Current = node;
+                    node.MultiSelection.Clear();
+
+                    if (node.MultiSelection.Pivot == null)
+                    {
+                        node.IsMultiSelected = true;
+                        node.MultiSelection.Pivot = node;
+                    }
+                    else
+                    {
+                        node.MultiSelection.SelectRange(node);
+                    }
+                }
+
+                e.Handled = true;
             }
         }
 
@@ -463,6 +474,58 @@ namespace Auremo
                     node.MultiSelection.Clear();
                     node.IsMultiSelected = true;
                     node.MultiSelection.Pivot = node;
+                }
+            }
+        }
+
+        private void OnDirectoryTreeKeyDown(object sender, KeyEventArgs e)
+        {
+            OnTreeViewKeyDown(sender, e, m_Database.DirectoryTreeMultiSelection);
+        }
+
+        private void OnTreeViewKeyDown(object sender, KeyEventArgs e, TreeViewMultiSelection multiSelection)
+        {
+            e.Handled = true;
+
+            if (Keyboard.Modifiers == ModifierKeys.None || Keyboard.Modifiers == ModifierKeys.Shift)
+            {
+                bool reselect = false;
+
+                if (e.Key == Key.Up && EnsureTreeViewHasCurrentNode(multiSelection))
+                {
+                    multiSelection.Current = multiSelection.Previous;
+                    reselect = true;
+                }
+                else if (e.Key == Key.Down && EnsureTreeViewHasCurrentNode(multiSelection))
+                {
+                    multiSelection.Current = multiSelection.Next;
+                    reselect = true;
+                }
+
+                if (reselect)
+                {
+
+                    if (Keyboard.Modifiers == ModifierKeys.None)
+                    {
+                        multiSelection.Clear();
+                        multiSelection.Current.IsMultiSelected = true;
+
+                        if (multiSelection.Pivot == null)
+                        {
+                            multiSelection.Pivot = multiSelection.Current;
+                        }
+                    }
+                    else if (Keyboard.Modifiers == ModifierKeys.Shift)
+                    {
+                        if (multiSelection.Pivot == null)
+                        {
+                            multiSelection.SelectRange(multiSelection.Current);
+                        }
+                        else
+                        {
+                            multiSelection.Pivot = multiSelection.Current;
+                        }
+                    }
                 }
             }
         }
@@ -537,7 +600,7 @@ namespace Auremo
 
                         if (m_DragSource == m_DirectoryTree)
                         {
-                            selection = m_Database.DirectoryTreeMultiSelection;
+                            selection = m_Database.DirectoryTreeSelectedSongs;
                         }
 
                         if (selection != null)
@@ -1069,7 +1132,18 @@ namespace Auremo
 
             throw new Exception("GetDragDropDataString: unknown drag source.");
         }
-        
+
+        private bool EnsureTreeViewHasCurrentNode(TreeViewMultiSelection multiSelection)
+        {
+            if (multiSelection.Current == null)
+            {
+                multiSelection.Current = multiSelection.FirstNode;
+                return multiSelection.Current != null;
+            }
+
+            return true;
+        }
+
         bool m_LogActive = false;
 
         private void LogMessage(string message)
