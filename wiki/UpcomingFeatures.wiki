@@ -13,6 +13,9 @@ These features are already available in SVN in the 0.2-dev branch. All or some o
 
 == Features to add ==
 
-These features will be added before the release.
+These issues will be addressed before the release.
 
+  * Fix unselection with ctrl+mouse in data grids.
+  * Add keyboard support in tree views.
+  * Enable queuing music using the keyboard.
   * Test and debug some more.
