@@ -484,7 +484,7 @@ namespace Auremo
 
         private void OnDataGridMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0 || (Keyboard.Modifiers & ModifierKeys.Shift) != 0 || e.ClickCount > 1)
+            if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0 || (Keyboard.Modifiers & ModifierKeys.Control) != 0 || e.ClickCount > 1)
             {
                 // Don't mess up multi-select or multiple-click.
                 return;
