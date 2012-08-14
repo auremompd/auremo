@@ -614,7 +614,7 @@ namespace Auremo
 
                     m_MousePointerHint.Content = DragDropPayloadDescription();
                     DragDropEffects mode = sender == m_PlaylistView ? DragDropEffects.Move : DragDropEffects.Copy;
-                    string data = GetDragDropDataString(sender);
+                    string data = GetDragDropDataString(m_DragSource);
                     DragDrop.DoDragDrop((DependencyObject)sender, data, mode);
                     m_DragStartPosition = null;
                 }
