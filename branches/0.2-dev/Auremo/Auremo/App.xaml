@@ -214,6 +214,7 @@
             <Style.Triggers>
                 <Trigger Property="IsSelected" Value="True">
                     <Setter Property="Background" Value="{StaticResource SelectionBrush}"/>
+                    <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
                 </Trigger>
                 <DataTrigger Binding="{Binding IsMultiSelected}" Value="True">
                     <Setter Property="Background" Value="{StaticResource SelectionBrush}"/>
