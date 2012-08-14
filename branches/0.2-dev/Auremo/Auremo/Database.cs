@@ -120,7 +120,16 @@ namespace Auremo
             }
         }
 
-        public ISet<SongMetadataTreeViewModel> DirectoryTreeMultiSelection
+        public TreeViewMultiSelection DirectoryTreeMultiSelection
+        {
+            get
+            {
+                return m_DirectoryTreeRoot.MultiSelection;
+            }
+        }
+
+
+        public ISet<SongMetadataTreeViewModel> DirectoryTreeSelectedSongs
         {
             get
             {
@@ -288,7 +297,7 @@ namespace Auremo
 
         private void PopulateDirectoryTree()
         {
-            TreeViewMultiSelection multiSelection = new TreeViewMultiSelection();   
+            TreeViewMultiSelection multiSelection = new TreeViewMultiSelection(m_DirectoryTree);   
             m_DirectoryTree.Clear();
             m_DirectoryTreeRoot = new DirectoryTreeViewModel("/", null, multiSelection);
             IDictionary<string, ITreeViewModel> directoryLookup = new SortedDictionary<string, ITreeViewModel>();
