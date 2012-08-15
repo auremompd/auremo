@@ -501,6 +501,27 @@ namespace Auremo
                     multiSelection.Current = multiSelection.Next;
                     currentChanged = true;
                 }
+                else if (e.Key == Key.Enter)
+                {
+                    if (multiSelection.Members.Count > 1)
+                    {
+                        foreach (SongMetadataTreeViewModel leaf in multiSelection.Songs)
+                        {
+                            Protocol.Add(m_Connection, leaf.Song.Path);
+                        }
+                    }
+                    else if (multiSelection.Current != null)
+                    {
+                        if (multiSelection.Current is SongMetadataTreeViewModel)
+                        {
+                            Protocol.Add(m_Connection, ((SongMetadataTreeViewModel)multiSelection.Current).Song.Path);
+                        }
+                        else
+                        {
+                            multiSelection.Current.IsExpanded = !multiSelection.Current.IsExpanded;
+                        }
+                    }
+                }
 
                 if (currentChanged)
                 {
