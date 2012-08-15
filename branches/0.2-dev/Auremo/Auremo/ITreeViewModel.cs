@@ -16,5 +16,6 @@ namespace Auremo
         bool IsMultiSelected { get; set; }
         TreeViewMultiSelection MultiSelection { get; }
         int HierarchyID { get; set; }
+        void OnAncestorCollapsed();
     }
 }

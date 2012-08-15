@@ -59,7 +59,8 @@ namespace Auremo
 
         public ITreeViewModel Parent
         {
-            get            {
+            get
+            {
                 return m_Parent;
             }
         }
@@ -100,9 +101,19 @@ namespace Auremo
                 {
                     m_IsExpanded = value;
 
-                    if (m_IsExpanded && m_Parent != null)
+                    if (m_IsExpanded)
                     {
-                        m_Parent.IsExpanded = true;
+                        if (m_Parent != null)
+                        {
+                            m_Parent.IsExpanded = true;
+                        }
+                    }
+                    else
+                    {
+                        foreach (ITreeViewModel child in Children)
+                        {
+                            OnAncestorCollapsed();
+                        }
                     }
 
                     NotifyPropertyChanged("IsExpanded");
@@ -147,6 +158,16 @@ namespace Auremo
         {
             get;
             set;
+        }
+
+        public void OnAncestorCollapsed()
+        {
+            IsMultiSelected = false;
+
+            foreach (ITreeViewModel child in Children)
+            {
+                child.OnAncestorCollapsed();
+            }
         }
             
         public int CompareTo(object o)
