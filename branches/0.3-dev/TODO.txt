@@ -1,0 +1,30 @@
+TO-DO
+=====
+
+Features and bug fixes:
+   * Fix deselection of selected list items with Ctrl down.
+
+For later releases:
+   * Support database refresh ("update" + "listallinfo").
+   * Add playlist scrolling during drag&drop.
+   * Restyle the playback control buttons so that it's the backround
+     that highlights according to server status. (This requires
+	 serious XAML skills and likely a professional graphics artist.)
+   * Restyle the abomination that is the current slider (see above item).
+   * Saving, loading and clearing the playlist.
+   * Add resizable (or auto-resizing?) list views for artist/album/song selection.
+   * Add new options for music categorization -- genre/album/song, directory tree...
+   * Album art? (Low priority feature.)
+   * Lyrics? (Low priority feature.)
+
+Code quality improvements:
+   * Split the properties and ObservableCollections from
+     Database into a separate class (DatabaseViews?).
+   * Find a cleaner way to implement half-public properties than
+     the *Internal solution used in the ServerStatus class.
+   * Consider moving parts of the drag&drop logic into the
+     Database(View?) and Playlist classes. It might turn into
+     even more of a mess though.
+   * Read and analyze the server responses using a proper lexer/parser.
+     The current ad-hoc solution works, but an orthodox approach would
+     be preferable.
