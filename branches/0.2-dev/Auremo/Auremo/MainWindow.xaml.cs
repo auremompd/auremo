@@ -206,17 +206,9 @@ namespace Auremo
         {
             m_PropertyUpdateInProgress = true;
 
-            if (e.PropertyName == "CurrentSongIndex")
-            {
-                OnCurrentSongIndexChanged();
-            }
-            else if (e.PropertyName == "PlayPosition")
+            if (e.PropertyName == "PlayPosition")
             {
                 OnPlayPositionChanged();
-            }
-            else if (e.PropertyName == "State")
-            {
-                OnPlayStateChanged();
             }
             else if (e.PropertyName == "Volume")
             {
@@ -224,11 +216,6 @@ namespace Auremo
             }
 
             m_PropertyUpdateInProgress = false;
-        }
-
-        private void OnCurrentSongIndexChanged()
-        {
-            UpdateSongOnStatusBar();
         }
 
         private void OnPlayPositionChanged()
@@ -242,53 +229,10 @@ namespace Auremo
             }
         }
 
-        private void OnPlayStateChanged()
-        {
-            UpdateSongOnStatusBar();
-        }
-
         private void OnVolumeChanged()
         {
             m_VolumeControl.IsEnabled = m_ServerStatus.Volume.HasValue && Settings.Default.EnableVolumeControl;
             m_VolumeControl.Value = m_ServerStatus.Volume.HasValue ? m_ServerStatus.Volume.Value : 0;
-        }
-
-        private void UpdateSongOnStatusBar()
-        {
-            if (m_Connection.Status == ServerConnection.State.Connected)
-            {
-                if ((m_ServerStatus.IsPlaying || m_ServerStatus.IsPaused) &&
-                    m_ServerStatus.CurrentSongIndex >= 0 &&
-                    m_ServerStatus.CurrentSongIndex < m_Playlist.Items.Count)
-                {
-                    /*
-                    string state = m_ServerStatus.IsPlaying ? "Playing: " : "Paused - ";
-                    SongMetadata currentSong = m_Playlist.Items[m_ServerStatus.CurrentSongIndex].Song;
-                    string message = state + currentSong.Title + " by " + currentSong.Artist + " (" + currentSong.Album;
-
-                    if (currentSong.Year.HasValue)
-                    {
-                        message += ", " + currentSong.Year.Value;
-                    }
-
-                    message += ").";
-                    m_PlayStatusMessage.Content = message;
-                     */
-                }
-                /*
-            else if (m_ServerStatus.IsStopped)
-            {
-                m_PlayStatusMessage.Content = "Stopped.";
-            }
-            else
-            {
-                m_PlayStatusMessage.Content = "";
-            }*/
-            }
-            else
-            {
-                //m_PlayStatusMessage.Content = "";
-            }
         }
 
         #endregion
