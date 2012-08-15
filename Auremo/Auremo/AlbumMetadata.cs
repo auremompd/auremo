@@ -22,7 +22,7 @@ using System.Text;
 
 namespace Auremo
 {
-    class AlbumMetadata : IComparable
+    public class AlbumMetadata : IComparable
     {
         public AlbumMetadata()
         {

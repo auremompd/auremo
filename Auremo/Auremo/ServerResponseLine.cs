@@ -22,7 +22,7 @@ using System.Text;
 
 namespace Auremo
 {
-    class ServerResponseLine
+    public class ServerResponseLine
     {
         private string m_RawLine = "";
         int m_NameValueBorder = -1;

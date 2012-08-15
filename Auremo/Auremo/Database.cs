@@ -19,18 +19,23 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
 using System.Text;
 
 namespace Auremo
 {
-    class Database
+    public class Database
     {
         private ISet<string> m_ArtistInfo = new SortedSet<string>();
         private IDictionary<string, ISet<AlbumMetadata>> m_AlbumsByArtist = new SortedDictionary<string, ISet<AlbumMetadata>>();
         private IDictionary<AlbumMetadata, ISet<string>> m_SongPathsByAlbum = new SortedDictionary<AlbumMetadata, ISet<string>>();
         private IDictionary<string, SongMetadata> m_SongInfo = new SortedDictionary<string, SongMetadata>();
+        private IList<string> m_Artists = new ObservableCollection<string>();
+        private IList<AlbumMetadata> m_AlbumsBySelectedArtists = new ObservableCollection<AlbumMetadata>();
+        private IList<SongMetadata> m_SongsOnSelectedAlbums = new ObservableCollection<SongMetadata>();
+
+        private IList<ITreeViewModel> m_DirectoryTree = new ObservableCollection<ITreeViewModel>();
+        private ITreeViewModel m_DirectoryTreeRoot = null;
 
         public Database()
         {
@@ -43,18 +48,20 @@ namespace Auremo
             m_SongPathsByAlbum.Clear();
             m_SongInfo.Clear();
 
+            m_Artists.Clear();
+
             if (connection.Status == ServerConnection.State.Connected)
             {
                 PopulateSongInfo(connection);
                 PopulateArtists();
                 PopulateAlbumsByArtist();
                 PopulateSongPathsByAlbum();
+                PopulateDirectoryTree();
             }
 
             return true;
         }
 
-        private IList<string> m_Artists = new ObservableCollection<string>();
         public IList<string> Artists
         {
             get
@@ -66,17 +73,22 @@ namespace Auremo
         public void OnSelectedArtistsChanged(IList selection)
         {
             m_AlbumsBySelectedArtists.Clear();
+            ISet<string> sortedArtists = new SortedSet<string>();
 
             foreach (object o in selection)
             {
-                foreach (AlbumMetadata album in m_AlbumsByArtist[o as string])
+                sortedArtists.Add(o as string);
+            }
+
+            foreach (string artist in sortedArtists)
+            {
+                foreach (AlbumMetadata album in m_AlbumsByArtist[artist])
                 {
                     m_AlbumsBySelectedArtists.Add(album);
                 }
             }
         }
 
-        private IList<AlbumMetadata> m_AlbumsBySelectedArtists = new ObservableCollection<AlbumMetadata>();
         public IList<AlbumMetadata> AlbumsBySelectedArtists
         {
             get
@@ -88,22 +100,52 @@ namespace Auremo
         public void OnSelectedAlbumsChanged(IList selection)
         {
             m_SongsOnSelectedAlbums.Clear();
+            ISet<AlbumMetadata> sortedAlbums = new SortedSet<AlbumMetadata>();
 
             foreach (object o in selection)
             {
-                foreach (string song in m_SongPathsByAlbum[o as AlbumMetadata])
+                sortedAlbums.Add(o as AlbumMetadata);
+            }
+
+            foreach (AlbumMetadata album in sortedAlbums)
+            {
+                foreach (string song in m_SongPathsByAlbum[album])
                 {
                     m_SongsOnSelectedAlbums.Add(m_SongInfo[song]);
                 }
             }
         }
 
-        private IList<SongMetadata> m_SongsOnSelectedAlbums = new ObservableCollection<SongMetadata>();
         public IList<SongMetadata> SongsOnSelectedAlbums
         {
             get
             {
                 return m_SongsOnSelectedAlbums;
+            }
+        }
+
+        public IList<ITreeViewModel> DirectoryTree
+        {
+            get
+            {
+                return m_DirectoryTree;
+            }
+        }
+
+        public TreeViewMultiSelection DirectoryTreeMultiSelection
+        {
+            get
+            {
+                return m_DirectoryTreeRoot.MultiSelection;
+            }
+        }
+
+
+        public ISet<SongMetadataTreeViewModel> DirectoryTreeSelectedSongs
+        {
+            get
+            {
+                return m_DirectoryTreeRoot.MultiSelection.Songs;
             }
         }
 
@@ -263,6 +305,62 @@ namespace Auremo
 
                 m_SongPathsByAlbum[album].Add(song.Path);
             }
+        }
+
+        private void PopulateDirectoryTree()
+        {
+            TreeViewMultiSelection multiSelection = new TreeViewMultiSelection(m_DirectoryTree);   
+            m_DirectoryTree.Clear();
+            m_DirectoryTreeRoot = new DirectoryTreeViewModel("/", null, multiSelection);
+            IDictionary<string, ITreeViewModel> directoryLookup = new SortedDictionary<string, ITreeViewModel>();
+            directoryLookup[m_DirectoryTreeRoot.DisplayString] = m_DirectoryTreeRoot;
+
+            foreach (KeyValuePair<string, SongMetadata> entry in m_SongInfo)
+            {
+                Tuple<string, string> directoryAndFile = Utils.SplitPath(entry.Key);
+                ITreeViewModel parent = FindDirectoryViewModel(directoryAndFile.Item1, directoryLookup, multiSelection);
+                SongMetadataTreeViewModel leaf = new SongMetadataTreeViewModel(directoryAndFile.Item2, entry.Value, parent, multiSelection);
+                parent.AddChild(leaf);
+            }
+
+            AssignTreeViewModelHierarchyIDs(m_DirectoryTreeRoot, 0);
+
+            m_DirectoryTree.Add(m_DirectoryTreeRoot);
+            m_DirectoryTreeRoot.IsExpanded = true;
+        }
+
+        private ITreeViewModel FindDirectoryViewModel(string path, IDictionary<string, ITreeViewModel> lookup, TreeViewMultiSelection multiSelection)
+        {
+            if (path == "")
+            {
+                return m_DirectoryTreeRoot;
+            }
+            else if (lookup.ContainsKey(path))
+            {
+                return lookup[path];
+            }
+            else
+            {
+                Tuple<string, string> parentAndSelf = Utils.SplitPath(path);
+                ITreeViewModel parent = FindDirectoryViewModel(parentAndSelf.Item1, lookup, multiSelection);
+                ITreeViewModel self = new DirectoryTreeViewModel(parentAndSelf.Item2, parent, multiSelection);
+                parent.AddChild(self);
+                lookup[path] = self;
+                return self;
+            }
+        }
+
+        int AssignTreeViewModelHierarchyIDs(ITreeViewModel node, int nodeID)
+        {
+            node.HierarchyID = nodeID;
+            int nextNodeID = nodeID + 1;
+
+            foreach (ITreeViewModel child in node.Children)
+            {
+                nextNodeID = AssignTreeViewModelHierarchyIDs(child, nextNodeID);
+            }
+
+            return nextNodeID;
         }
     }
 }

@@ -25,6 +25,7 @@ using System.Text.RegularExpressions;
 using System.Windows.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -44,6 +45,7 @@ namespace Auremo
         private Database m_Database = new Database();
         private Playlist m_Playlist = null;
         private DispatcherTimer m_Timer = null;
+        private Object m_DragSource = null;
         private IList<object> m_DragDropPayload = null;
         private Nullable<Point> m_DragStartPosition = null;
         private bool m_PropertyUpdateInProgress = false;
@@ -93,6 +95,7 @@ namespace Auremo
             m_ArtistsView.DataContext = m_Database;
             m_AlbumsBySelectedArtistsView.DataContext = m_Database;
             m_SongsOnSelectedAlbumsView.DataContext = m_Database;
+            m_DirectoryTree.DataContext = m_Database;
             m_PlaylistView.DataContext = m_Playlist;
             m_PlaybackControls.DataContext = m_ServerStatus;
             m_PlayStatusMessage.DataContext = m_Playlist;
@@ -154,7 +157,6 @@ namespace Auremo
             m_Database.OnSelectedArtistsChanged(m_ArtistsView.SelectedItems);
         }
 
-
         #endregion
 
         #region Updating logic and helpers
@@ -204,19 +206,9 @@ namespace Auremo
         {
             m_PropertyUpdateInProgress = true;
 
-            LogMessage("property changed: " + e.PropertyName);
-
-            if (e.PropertyName == "CurrentSongIndex")
-            {
-                OnCurrentSongIndexChanged();
-            }
-            else if (e.PropertyName == "PlayPosition")
+            if (e.PropertyName == "PlayPosition")
             {
                 OnPlayPositionChanged();
-            }
-            else if (e.PropertyName == "State")
-            {
-                OnPlayStateChanged();
             }
             else if (e.PropertyName == "Volume")
             {
@@ -224,29 +216,6 @@ namespace Auremo
             }
 
             m_PropertyUpdateInProgress = false;
-        }
-
-        //int m_SongIndexMarkedAsPlaying = -1;
-
-        private void OnCurrentSongIndexChanged()
-        {
-            /*
-            if (m_SongIndexMarkedAsPlaying >= 0 && m_SongIndexMarkedAsPlaying < m_PlaylistView.Items.Count)
-            {
-                PlaylistItem item = m_PlaylistView.Items[m_SongIndexMarkedAsPlaying] as PlaylistItem;
-                item.IsPlaying = false;
-                m_SongIndexMarkedAsPlaying = -1;
-            }
-
-            if (m_ServerStatus.OK && m_ServerStatus.CurrentSongIndex >= 0 && m_ServerStatus.CurrentSongIndex < m_PlaylistView.Items.Count)
-            {
-                m_SongIndexMarkedAsPlaying = m_ServerStatus.CurrentSongIndex;
-                PlaylistItem item = m_PlaylistView.Items[m_SongIndexMarkedAsPlaying] as PlaylistItem;
-                item.IsPlaying = true;
-            }
-             */
-
-            UpdateSongOnStatusBar();
         }
 
         private void OnPlayPositionChanged()
@@ -260,53 +229,10 @@ namespace Auremo
             }
         }
 
-        private void OnPlayStateChanged()
-        {
-            UpdateSongOnStatusBar();
-        }
-
         private void OnVolumeChanged()
         {
             m_VolumeControl.IsEnabled = m_ServerStatus.Volume.HasValue && Settings.Default.EnableVolumeControl;
             m_VolumeControl.Value = m_ServerStatus.Volume.HasValue ? m_ServerStatus.Volume.Value : 0;
-        }
-
-        private void UpdateSongOnStatusBar()
-        {
-            if (m_Connection.Status == ServerConnection.State.Connected)
-            {
-                if ((m_ServerStatus.IsPlaying || m_ServerStatus.IsPaused) &&
-                    m_ServerStatus.CurrentSongIndex >= 0 &&
-                    m_ServerStatus.CurrentSongIndex < m_Playlist.Items.Count)
-                {
-                    /*
-                    string state = m_ServerStatus.IsPlaying ? "Playing: " : "Paused - ";
-                    SongMetadata currentSong = m_Playlist.Items[m_ServerStatus.CurrentSongIndex].Song;
-                    string message = state + currentSong.Title + " by " + currentSong.Artist + " (" + currentSong.Album;
-
-                    if (currentSong.Year.HasValue)
-                    {
-                        message += ", " + currentSong.Year.Value;
-                    }
-
-                    message += ").";
-                    m_PlayStatusMessage.Content = message;
-                     */
-                }
-                /*
-            else if (m_ServerStatus.IsStopped)
-            {
-                m_PlayStatusMessage.Content = "Stopped.";
-            }
-            else
-            {
-                m_PlayStatusMessage.Content = "";
-            }*/
-            }
-            else
-            {
-                //m_PlayStatusMessage.Content = "";
-            }
         }
 
         #endregion
@@ -322,7 +248,8 @@ namespace Auremo
                     OnDeleteFromPlaylist();
                 }
             }
-            else if (e.Key == Key.Space)
+
+            if (e.Key == Key.Space)
             {
                 if (m_ServerStatus != null && m_ServerStatus.OK)
                 {
@@ -364,6 +291,52 @@ namespace Auremo
 
         #region Simple (non-drag-drop) list view operations
 
+        private void OnArtistViewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                foreach (AlbumMetadata album in m_Database.AlbumsBySelectedArtists)
+                {
+                    foreach (SongMetadata song in m_Database.Songs(album))
+                    {
+                        Protocol.Add(m_Connection, song.Path);
+                    }
+                }
+
+                e.Handled = true;
+            }
+        }
+
+        private void OnAlbumViewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                foreach (SongMetadata song in m_Database.SongsOnSelectedAlbums)
+                {
+                    Protocol.Add(m_Connection, song.Path);
+                }
+
+                e.Handled = true;
+            }
+        }
+
+        private void OnSongViewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                foreach (object o in m_SongsOnSelectedAlbumsView.SelectedItems)
+                {
+                    if (o is SongMetadata)
+                    {
+                        SongMetadata song = o as SongMetadata;
+                        Protocol.Add(m_Connection, song.Path);
+                    }
+                }
+
+                e.Handled = true;
+            }
+        }
+
         private void OnDeleteFromPlaylist()
         {
             foreach (object obj in m_PlaylistView.SelectedItems)
@@ -391,23 +364,43 @@ namespace Auremo
 
         private void OnSongsOnAlbumsViewDoubleClicked(object sender, MouseButtonEventArgs e)
         {
-            ListViewItem row = ListViewItemBeingClicked(m_SongsOnSelectedAlbumsView, e);
+            DataGridRow row = DataGridRowBeingClicked(m_SongsOnSelectedAlbumsView, e);
 
             if (row != null)
             {
-                SongMetadata song = row.Content as SongMetadata;
+                SongMetadata song = row.Item as SongMetadata;
                 Protocol.Add(m_Connection, song.Path);
                 Update();
             }
         }
 
+        private void OnPlaylistViewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                if (m_PlaylistView.SelectedItems.Count == 1)
+                {
+                    object o = m_PlaylistView.SelectedItems[0];
+                    
+                    if (o is PlaylistItem)
+                    {
+                        PlaylistItem item = o as PlaylistItem;
+                        Protocol.PlayId(m_Connection, item.Id);
+                        Update();
+                    }
+                }
+
+                e.Handled = true;
+            }
+        }
+
         private void OnPlaylistViewDoubleClicked(object sender, MouseButtonEventArgs e)
         {
-            ListViewItem row = ListViewItemBeingClicked(m_PlaylistView, e);
+            DataGridRow row = DataGridRowBeingClicked(m_PlaylistView, e);
 
             if (row != null)
             {
-                PlaylistItem item = row.Content as PlaylistItem;
+                PlaylistItem item = row.Item as PlaylistItem;
                 Protocol.PlayId(m_Connection, item.Id);
                 Update();
             }
@@ -415,52 +408,210 @@ namespace Auremo
 
         #endregion
 
-        #region Drag & Drop
+        #region TreeView handling (browsing, drag & drop)
 
-        private void OnPreviewMouseDown(object sender, MouseButtonEventArgs e)
+        private void OnTreeViewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0 || (Keyboard.Modifiers & ModifierKeys.Shift) != 0 || e.ClickCount > 1)
+            TreeViewItem item = TreeViewItemBeingClicked(sender as TreeView, e);
+
+            if (item != null && item.Header is ITreeViewModel)
+            {
+                ITreeViewModel node = item.Header as ITreeViewModel;
+
+                if (Keyboard.Modifiers == ModifierKeys.None)
+                {
+                    node.MultiSelection.Current = node;
+                    node.MultiSelection.Pivot = node;
+
+                    if (!node.IsMultiSelected)
+                    {
+                        node.MultiSelection.Clear();
+                        node.IsMultiSelected = true;
+                    }
+                    else if (e.ClickCount == 1)
+                    {
+                        m_DragSource = sender;
+                        m_DragStartPosition = e.GetPosition(null);
+                    }
+                    else if (e.ClickCount == 2)
+                    {
+                        if (node is DirectoryTreeViewModel)
+                        {
+                            node.IsExpanded = !node.IsExpanded;
+                        }
+                        else if (node is SongMetadataTreeViewModel)
+                        {
+                            SongMetadataTreeViewModel songNode = node as SongMetadataTreeViewModel;
+                            Protocol.Add(m_Connection, songNode.Song.Path);
+                        }
+                    }
+                }
+                else if (Keyboard.Modifiers == ModifierKeys.Control)
+                {
+                    node.MultiSelection.Current = node;
+                    node.IsMultiSelected = !node.IsMultiSelected;
+                    node.MultiSelection.Pivot = node.IsMultiSelected ? node : null;
+                }
+                else if (Keyboard.Modifiers == ModifierKeys.Shift)
+                {
+                    node.MultiSelection.Current = node;
+                    node.MultiSelection.Clear();
+
+                    if (node.MultiSelection.Pivot == null)
+                    {
+                        node.IsMultiSelected = true;
+                        node.MultiSelection.Pivot = node;
+                    }
+                    else
+                    {
+                        node.MultiSelection.SelectRange(node);
+                    }
+                }
+
+                e.Handled = true;
+            }
+        }
+
+        private void OnTreeViewMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (Keyboard.Modifiers == ModifierKeys.None)
+            {
+                TreeViewItem item = TreeViewItemBeingClicked(sender as TreeView, e);
+
+                if (item != null && item.Header is ITreeViewModel)
+                {
+                    ITreeViewModel node = item.Header as ITreeViewModel;
+                    node.MultiSelection.Clear();
+                    node.IsMultiSelected = true;
+                    node.MultiSelection.Pivot = node;
+                }
+            }
+        }
+
+        private void OnDirectoryTreeKeyDown(object sender, KeyEventArgs e)
+        {
+            OnTreeViewKeyDown((TreeView)sender, e, m_Database.DirectoryTreeMultiSelection);
+        }
+
+        private void OnTreeViewKeyDown(TreeView sender, KeyEventArgs e, TreeViewMultiSelection multiSelection)
+        {
+            e.Handled = true;
+
+            if (Keyboard.Modifiers == ModifierKeys.None || Keyboard.Modifiers == ModifierKeys.Shift)
+            {
+                bool currentChanged = false;
+
+                if (e.Key == Key.Up && EnsureTreeViewHasCurrentNode(multiSelection))
+                {
+                    multiSelection.Current = multiSelection.Previous;
+                    currentChanged = true;
+                }
+                else if (e.Key == Key.Down && EnsureTreeViewHasCurrentNode(multiSelection))
+                {
+                    multiSelection.Current = multiSelection.Next;
+                    currentChanged = true;
+                }
+                else if (e.Key == Key.Enter)
+                {
+                    if (multiSelection.Members.Count > 1)
+                    {
+                        foreach (SongMetadataTreeViewModel leaf in multiSelection.Songs)
+                        {
+                            Protocol.Add(m_Connection, leaf.Song.Path);
+                        }
+
+                        Update();
+                    }
+                    else if (multiSelection.Current != null)
+                    {
+                        if (multiSelection.Current is SongMetadataTreeViewModel)
+                        {
+                            Protocol.Add(m_Connection, ((SongMetadataTreeViewModel)multiSelection.Current).Song.Path);
+                        }
+                        else
+                        {
+                            multiSelection.Current.IsExpanded = !multiSelection.Current.IsExpanded;
+                        }
+
+                        Update();
+                    }
+                }
+
+                if (currentChanged)
+                {
+                    TreeViewItem item = GetTreeViewItem(m_DirectoryTree, multiSelection.Current);
+
+                    if (item != null)
+                    {
+                        item.BringIntoView();
+                    }
+
+                    if (Keyboard.Modifiers == ModifierKeys.None)
+                    {
+                        multiSelection.Clear();
+                        multiSelection.Current.IsMultiSelected = true;
+                        multiSelection.Pivot = multiSelection.Current;
+                    }
+                    else if (Keyboard.Modifiers == ModifierKeys.Shift)
+                    {
+                        if (multiSelection.Pivot == null)
+                        {
+                            multiSelection.Clear();
+                            multiSelection.Current.IsMultiSelected = true;
+                            multiSelection.Pivot = multiSelection.Current;
+                        }
+                        else
+                        {
+                            multiSelection.Clear();
+                            multiSelection.SelectRange(multiSelection.Current);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void OnTreeViewSelectionChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            // Cancel the selection. Use the multiselection system instead.
+            ITreeViewModel node = e.NewValue as ITreeViewModel;
+
+            if (node != null)
+            {
+                node.IsSelected = false;
+            }
+        }
+
+        #endregion
+
+        #region List drag & Drop
+
+        private void OnDataGridMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0 || (Keyboard.Modifiers & ModifierKeys.Control) != 0 || e.ClickCount > 1)
             {
                 // Don't mess up multi-select or multiple-click.
                 return;
             }
 
-            ListView dragSource = (ListView)sender;
-            ListViewItem row = ListViewItemBeingClicked(dragSource, e);
+            DataGridRow row = DataGridRowBeingClicked((DataGrid)sender, e);
 
             if (row != null && row.IsSelected)
             {
+                m_DragSource = sender;
                 m_DragStartPosition = e.GetPosition(null);
-
-                // Using an internal m_DragDropPayload is cheating, but the
-                // the standard (through clipboard?) system is pure evil and
-                // since we don't need drag & drop across application borders,
-                // this will do for now.
-                m_DragDropPayload = new List<object>();
-
-                foreach (object o in dragSource.SelectedItems)
-                {
-                    m_DragDropPayload.Add(o);
-
-                    if (o is PlaylistItem)
-                    {
-                        PlaylistItem item = (PlaylistItem)o;
-                        int index = m_PlaylistView.Items.IndexOf(item);
-                    }
-                }
-
                 // Again, don't mess up multi-select.
                 e.Handled = true;
             }
             else
             {
+                m_DragSource = null;
                 m_DragStartPosition = null;
             }
         }
 
-        private void OnMouseMove(object sender, MouseEventArgs e)
+        private void OnMouseMoveDragDrop(object sender, MouseEventArgs e)
         {
-            if (m_DragStartPosition.HasValue)
+            if (m_DragStartPosition.HasValue && m_DragSource != null)
             {
                 Vector dragDistance = e.GetPosition(null) - m_DragStartPosition.Value;
 
@@ -468,29 +619,108 @@ namespace Auremo
                     (Math.Abs(dragDistance.X) > SystemParameters.MinimumHorizontalDragDistance ||
                     Math.Abs(dragDistance.Y) > SystemParameters.MinimumVerticalDragDistance))
                 {
+                    // Using an internal m_DragDropPayload is cheating, but the
+                    // the standard (through clipboard?) system is pure evil and
+                    // since we don't need drag & drop across application borders,
+                    // this will do for now.
+                    m_DragDropPayload = new List<object>();
+
+                    if (m_DragSource is DataGrid)
+                    {
+                        DataGrid source = m_DragSource as DataGrid;
+
+                        foreach (object o in source.SelectedItems)
+                        {
+                            m_DragDropPayload.Add(o);
+                        }
+                    }
+                    else if (m_DragSource is TreeView)
+                    {
+                        ISet<SongMetadataTreeViewModel> selection = null;
+
+                        if (m_DragSource == m_DirectoryTree)
+                        {
+                            selection = m_Database.DirectoryTreeSelectedSongs;
+                        }
+
+                        if (selection != null)
+                        {
+                            foreach (SongMetadataTreeViewModel node in selection)
+                            {
+                                m_DragDropPayload.Add(node.Song);
+                            }
+                        }
+                    }
+
+                    m_MousePointerHint.Content = DragDropPayloadDescription();
                     DragDropEffects mode = sender == m_PlaylistView ? DragDropEffects.Move : DragDropEffects.Copy;
-                    string data = GetDragDropDataString(sender);
+                    string data = GetDragDropDataString(m_DragSource);
                     DragDrop.DoDragDrop((DependencyObject)sender, data, mode);
                     m_DragStartPosition = null;
                 }
             }
         }
 
+        private string DragDropPayloadDescription()
+        {
+            if (m_DragDropPayload == null || m_DragDropPayload.Count == 0)
+            {
+                return "";
+            }
+            else if (m_DragDropPayload[0] is string)
+            {
+                if (m_DragDropPayload.Count == 1)
+                    return "Adding " + (string)m_DragDropPayload[0];
+                else
+                    return "Adding " + m_DragDropPayload.Count + " artists";
+            }
+            else if (m_DragDropPayload[0] is AlbumMetadata)
+            {
+                if (m_DragDropPayload.Count == 1)
+                    return "Adding " + ((AlbumMetadata)m_DragDropPayload[0]).Title;
+                else
+                    return "Adding " + m_DragDropPayload.Count + " albums";
+            }
+            else if (m_DragDropPayload[0] is SongMetadata)
+            {
+                if (m_DragDropPayload.Count == 1)
+                    return "Adding " + ((SongMetadata)m_DragDropPayload[0]).Title;
+                else
+                    return "Adding " + m_DragDropPayload.Count + " songs";
+            }
+            else if (m_DragDropPayload[0] is PlaylistItem)
+            {
+                if (m_DragDropPayload.Count == 1)
+                    return "Moving " + ((PlaylistItem)m_DragDropPayload[0]).Song.Title;
+                else
+                    return "Moving " + m_DragDropPayload.Count + " songs";
+            }
+
+            return "";
+        }
+
         private void OnPlaylistViewDragOver(object sender, DragEventArgs e)
         {
             if (m_DragDropPayload != null && !m_PlaylistView.Items.IsEmpty)
             {
-                int targetRow = DropTargetRowIndex(e);
-                ListViewItem item = null;
+                Point mousePosition = e.GetPosition(m_PlaylistView);
 
+                m_MousePointerHint.Placement = PlacementMode.Relative;
+                m_MousePointerHint.PlacementTarget = m_PlaylistView;
+                m_MousePointerHint.HorizontalOffset = mousePosition.X + 10;
+                m_MousePointerHint.VerticalOffset = mousePosition.Y - 6;
+
+                int targetRow = DropTargetRowIndex(e);
+                DataGridRow row = null;
+                
                 if (targetRow >= 0)
                 {
-                    item = m_PlaylistView.ItemContainerGenerator.ContainerFromIndex(targetRow) as ListViewItem;
+                    row = m_PlaylistView.ItemContainerGenerator.ContainerFromIndex(targetRow) as DataGridRow;
                 }
 
-                if (item == null)
+                if (row == null)
                 {
-                    ListViewItem lastItem = m_PlaylistView.ItemContainerGenerator.ContainerFromIndex(m_PlaylistView.Items.Count - 1) as ListViewItem;
+                    DataGridRow lastItem = m_PlaylistView.ItemContainerGenerator.ContainerFromIndex(m_PlaylistView.Items.Count - 1) as DataGridRow;
 
                     if (lastItem == null)
                     {
@@ -505,27 +735,30 @@ namespace Auremo
                 }
                 else
                 {
-                    Rect bounds = VisualTreeHelper.GetDescendantBounds(item);
-                    GeneralTransform transform = item.TransformToAncestor(m_PlaylistView);
+                    Rect bounds = VisualTreeHelper.GetDescendantBounds(row);
+                    GeneralTransform transform = row.TransformToAncestor(m_PlaylistView);
                     Point topOfItem = transform.Transform(bounds.TopLeft);
                     m_DropPositionIndicator.Y1 = topOfItem.Y;
                 }
 
-                m_DropPositionIndicator.X1 = +10;
+                m_DropPositionIndicator.X1 = 10;
                 m_DropPositionIndicator.X2 = m_PlaylistView.ActualWidth - 20;
-                m_DropPositionIndicator.Y1 += 2;
+                m_DropPositionIndicator.Y1 += 3;
                 m_DropPositionIndicator.Y2 = m_DropPositionIndicator.Y1;
                 m_DropPositionIndicator.Visibility = Visibility.Visible;
+                m_MousePointerHint.IsOpen = true;
             }
             else
             {
                 m_DropPositionIndicator.Visibility = Visibility.Hidden;
+                m_MousePointerHint.IsOpen = false;
             }
         }
 
         private void OnPlaylistViewDragLeave(object sender, DragEventArgs e)
         {
             m_DropPositionIndicator.Visibility = Visibility.Hidden;
+            m_MousePointerHint.IsOpen = false;
         }
 
         private void OnPlaylistViewDrop(object sender, DragEventArgs e)
@@ -620,6 +853,7 @@ namespace Auremo
             }
 
             m_DropPositionIndicator.Visibility = Visibility.Hidden;
+            m_MousePointerHint.IsOpen = false;
         }
 
         #endregion
@@ -737,10 +971,6 @@ namespace Auremo
 
         #endregion
 
-        #region Status bar
-
-        #endregion
-
         #endregion
 
         #region Settings and settings tab
@@ -847,26 +1077,51 @@ namespace Auremo
 
         #region Miscellaneous helper functions
 
-        private ListViewItem ListViewItemBeingClicked(ListView list, MouseButtonEventArgs e)
+        private DataGridRow DataGridRowBeingClicked(DataGrid grid, MouseButtonEventArgs e)
         {
-            HitTestResult hit = VisualTreeHelper.HitTest(list, e.GetPosition(list));
+            HitTestResult hit = VisualTreeHelper.HitTest(grid, e.GetPosition(grid));
 
-            if (hit == null)
+            if (hit != null)
             {
-                return null;
+                DependencyObject component = (DependencyObject)hit.VisualHit;
+
+                while (component != null)
+                {
+                    if (component is DataGridRow)
+                    {
+                        return (DataGridRow)component;
+                    }
+                    else
+                    {
+                        component = VisualTreeHelper.GetParent(component);
+                    }
+                }
             }
 
-            DependencyObject component = (DependencyObject)hit.VisualHit;
+            return null;
+        }
 
-            while (component != null)
+        private TreeViewItem TreeViewItemBeingClicked(TreeView tree, MouseButtonEventArgs e)
+        {
+            HitTestResult hit = VisualTreeHelper.HitTest(tree, e.GetPosition(tree));
+
+            if (hit != null)
             {
-                if (component is ListViewItem)
+                DependencyObject component = (DependencyObject)hit.VisualHit;
+
+                if (component is TextBlock) // Don't return hits to the expander arrow.
                 {
-                    return (ListViewItem)component;
-                }
-                else
-                {
-                    component = VisualTreeHelper.GetParent(component);
+                    while (component != null)
+                    {
+                        if (component is TreeViewItem)
+                        {
+                            return (TreeViewItem)component;
+                        }
+                        else
+                        {
+                            component = VisualTreeHelper.GetParent(component);
+                        }
+                    }
                 }
             }
 
@@ -877,13 +1132,13 @@ namespace Auremo
         {
             for (int i = 0; i < m_PlaylistView.Items.Count; ++i)
             {
-                ListViewItem item = m_PlaylistView.ItemContainerGenerator.ContainerFromIndex(i) as ListViewItem;
+                DataGridRow row = m_PlaylistView.ItemContainerGenerator.ContainerFromIndex(i) as DataGridRow;
 
-                if (item != null)
+                if (row != null)
                 {
-                    Point pt = e.GetPosition(item);
-                    double yCoord = item.TranslatePoint(pt, item).Y;
-                    double halfHeight = item.ActualHeight / 2;
+                    Point pt = e.GetPosition(row);
+                    double yCoord = row.TranslatePoint(pt, row).Y;
+                    double halfHeight = row.ActualHeight / 2;
 
                     if (yCoord < halfHeight)
                     {
@@ -898,18 +1153,68 @@ namespace Auremo
         private string GetDragDropDataString(object dragSource)
         {
             if (dragSource == m_ArtistsView)
+            {
                 return AddArtists;
+            }
             else if (dragSource == m_AlbumsBySelectedArtistsView)
+            {
                 return AddAlbums;
-            else if (dragSource == m_SongsOnSelectedAlbumsView)
+            }
+            else if (dragSource == m_SongsOnSelectedAlbumsView ||
+                dragSource == m_DirectoryTree)
+            {
                 return AddSongs;
+            }
             else if (dragSource == m_PlaylistView)
+            {
                 return MovePlaylistItems;
+            }
 
             throw new Exception("GetDragDropDataString: unknown drag source.");
         }
 
-        bool m_LogActive = true;
+        private bool EnsureTreeViewHasCurrentNode(TreeViewMultiSelection multiSelection)
+        {
+            if (multiSelection.Current == null)
+            {
+                multiSelection.Current = multiSelection.FirstNode;
+                return multiSelection.Current != null;
+            }
+
+            return true;
+        }
+
+        // nodeContainer must be either a TreeView or a TreeViewItem.
+        private TreeViewItem GetTreeViewItem(ItemsControl nodeContainer, ITreeViewModel node)
+        {
+            if (nodeContainer == null || node == null)
+            {
+                return null;
+            }
+            else
+            {
+                TreeViewItem nodeWithHighestLowerID = null;
+                TreeViewItem item = null;
+                int i = 0;
+
+                do
+                {
+                    nodeWithHighestLowerID = item;
+                    item = nodeContainer.ItemContainerGenerator.ContainerFromIndex(i++) as TreeViewItem;
+                } while (item != null && ((ITreeViewModel)item.Header).HierarchyID < node.HierarchyID);
+
+                if (item != null && ((ITreeViewModel)item.Header).HierarchyID == node.HierarchyID)
+                {
+                    return item;
+                }
+                else
+                {
+                    return GetTreeViewItem(nodeWithHighestLowerID, node);
+                }
+            }
+        }
+
+        bool m_LogActive = false;
 
         private void LogMessage(string message)
         {

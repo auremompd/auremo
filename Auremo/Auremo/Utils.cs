@@ -22,7 +22,7 @@ using System.Text;
 
 namespace Auremo
 {
-    class Utils
+    public class Utils
     {
         public static int? StringToInt(string s)
         {
@@ -77,6 +77,20 @@ namespace Auremo
                 result += secs;
 
             return result;
+        }
+
+        public static Tuple<string, string> SplitPath(string path)
+        {
+            int limit = path.LastIndexOf('/');
+
+            if (limit == -1)
+            {
+                return new Tuple<string, string>("", path);
+            }
+            else
+            {
+                return new Tuple<string, string>(path.Substring(0, limit), path.Substring(limit + 1));
+            }
         }
     }
 }
