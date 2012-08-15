@@ -94,7 +94,6 @@ namespace Auremo
             }
             set
             {
-                throw new Exception("Attempt to expand a SongMetadataTreeViewModel.");
             }
         }
 
@@ -135,6 +134,11 @@ namespace Auremo
         {
             get;
             set;
+        }
+
+        public void OnAncestorCollapsed()
+        {
+            IsMultiSelected = false;
         }
 
         public SongMetadata Song
