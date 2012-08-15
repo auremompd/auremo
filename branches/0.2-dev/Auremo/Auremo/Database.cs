@@ -73,10 +73,16 @@ namespace Auremo
         public void OnSelectedArtistsChanged(IList selection)
         {
             m_AlbumsBySelectedArtists.Clear();
+            ISet<string> sortedArtists = new SortedSet<string>();
 
             foreach (object o in selection)
             {
-                foreach (AlbumMetadata album in m_AlbumsByArtist[o as string])
+                sortedArtists.Add(o as string);
+            }
+
+            foreach (string artist in sortedArtists)
+            {
+                foreach (AlbumMetadata album in m_AlbumsByArtist[artist])
                 {
                     m_AlbumsBySelectedArtists.Add(album);
                 }
@@ -94,10 +100,16 @@ namespace Auremo
         public void OnSelectedAlbumsChanged(IList selection)
         {
             m_SongsOnSelectedAlbums.Clear();
+            ISet<AlbumMetadata> sortedAlbums = new SortedSet<AlbumMetadata>();
 
             foreach (object o in selection)
             {
-                foreach (string song in m_SongPathsByAlbum[o as AlbumMetadata])
+                sortedAlbums.Add(o as AlbumMetadata);
+            }
+
+            foreach (AlbumMetadata album in sortedAlbums)
+            {
+                foreach (string song in m_SongPathsByAlbum[album])
                 {
                     m_SongsOnSelectedAlbums.Add(m_SongInfo[song]);
                 }
