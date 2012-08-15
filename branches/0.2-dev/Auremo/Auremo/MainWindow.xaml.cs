@@ -490,10 +490,10 @@ namespace Auremo
 
         private void OnDirectoryTreeKeyDown(object sender, KeyEventArgs e)
         {
-            OnTreeViewKeyDown(sender, e, m_Database.DirectoryTreeMultiSelection);
+            OnTreeViewKeyDown((TreeView)sender, e, m_Database.DirectoryTreeMultiSelection);
         }
 
-        private void OnTreeViewKeyDown(object sender, KeyEventArgs e, TreeViewMultiSelection multiSelection)
+        private void OnTreeViewKeyDown(TreeView sender, KeyEventArgs e, TreeViewMultiSelection multiSelection)
         {
             e.Handled = true;
 
@@ -539,6 +539,13 @@ namespace Auremo
 
                 if (currentChanged)
                 {
+                    TreeViewItem item = GetTreeViewItem(m_DirectoryTree, multiSelection.Current);
+
+                    if (item != null)
+                    {
+                        item.BringIntoView();
+                    }
+
                     if (Keyboard.Modifiers == ModifierKeys.None)
                     {
                         multiSelection.Clear();
@@ -1175,6 +1182,36 @@ namespace Auremo
             }
 
             return true;
+        }
+
+        // nodeContainer must be either a TreeView or a TreeViewItem.
+        private TreeViewItem GetTreeViewItem(ItemsControl nodeContainer, ITreeViewModel node)
+        {
+            if (nodeContainer == null || node == null)
+            {
+                return null;
+            }
+            else
+            {
+                TreeViewItem nodeWithHighestLowerID = null;
+                TreeViewItem item = null;
+                int i = 0;
+
+                do
+                {
+                    nodeWithHighestLowerID = item;
+                    item = nodeContainer.ItemContainerGenerator.ContainerFromIndex(i++) as TreeViewItem;
+                } while (item != null && ((ITreeViewModel)item.Header).HierarchyID < node.HierarchyID);
+
+                if (item != null && ((ITreeViewModel)item.Header).HierarchyID == node.HierarchyID)
+                {
+                    return item;
+                }
+                else
+                {
+                    return GetTreeViewItem(nodeWithHighestLowerID, node);
+                }
+            }
         }
 
         bool m_LogActive = false;
