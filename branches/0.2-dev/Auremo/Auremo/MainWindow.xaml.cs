@@ -575,6 +575,8 @@ namespace Auremo
                         {
                             Protocol.Add(m_Connection, leaf.Song.Path);
                         }
+
+                        Update();
                     }
                     else if (multiSelection.Current != null)
                     {
@@ -586,6 +588,8 @@ namespace Auremo
                         {
                             multiSelection.Current.IsExpanded = !multiSelection.Current.IsExpanded;
                         }
+
+                        Update();
                     }
                 }
 
