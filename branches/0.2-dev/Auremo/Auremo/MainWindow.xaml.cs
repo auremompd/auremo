@@ -489,41 +489,39 @@ namespace Auremo
 
             if (Keyboard.Modifiers == ModifierKeys.None || Keyboard.Modifiers == ModifierKeys.Shift)
             {
-                bool reselect = false;
+                bool currentChanged = false;
 
                 if (e.Key == Key.Up && EnsureTreeViewHasCurrentNode(multiSelection))
                 {
                     multiSelection.Current = multiSelection.Previous;
-                    reselect = true;
+                    currentChanged = true;
                 }
                 else if (e.Key == Key.Down && EnsureTreeViewHasCurrentNode(multiSelection))
                 {
                     multiSelection.Current = multiSelection.Next;
-                    reselect = true;
+                    currentChanged = true;
                 }
 
-                if (reselect)
+                if (currentChanged)
                 {
-
                     if (Keyboard.Modifiers == ModifierKeys.None)
                     {
                         multiSelection.Clear();
                         multiSelection.Current.IsMultiSelected = true;
-
-                        if (multiSelection.Pivot == null)
-                        {
-                            multiSelection.Pivot = multiSelection.Current;
-                        }
+                        multiSelection.Pivot = multiSelection.Current;
                     }
                     else if (Keyboard.Modifiers == ModifierKeys.Shift)
                     {
                         if (multiSelection.Pivot == null)
                         {
-                            multiSelection.SelectRange(multiSelection.Current);
+                            multiSelection.Clear();
+                            multiSelection.Current.IsMultiSelected = true;
+                            multiSelection.Pivot = multiSelection.Current;
                         }
                         else
                         {
-                            multiSelection.Pivot = multiSelection.Current;
+                            multiSelection.Clear();
+                            multiSelection.SelectRange(multiSelection.Current);
                         }
                     }
                 }
