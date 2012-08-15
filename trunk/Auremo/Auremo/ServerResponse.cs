@@ -22,7 +22,7 @@ using System.Text;
 
 namespace Auremo
 {
-    class ServerResponse
+    public class ServerResponse
     {
         private IList<ServerResponseLine> m_ResponseLines = null;
         private ServerResponseLine m_Status = null;
