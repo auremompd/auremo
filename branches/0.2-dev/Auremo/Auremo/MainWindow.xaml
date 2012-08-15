@@ -48,6 +48,7 @@
                                           Margin="0,0,0,3"
                                           ItemsSource="{Binding Path=Artists}"
                                           SelectionChanged="OnSelectedArtistsChanged"
+                                          PreviewKeyDown="OnArtistViewKeyDown"
                                           PreviewMouseDown="OnDataGridMouseDown"
                                           MouseMove="OnMouseMoveDragDrop">
                                     <DataGrid.Columns>
@@ -63,6 +64,7 @@
                                           Margin="0,1,0,1"
                                           ItemsSource="{Binding Path=AlbumsBySelectedArtists}"
                                           SelectionChanged="OnSelectedAlbumsChanged"
+                                          PreviewKeyDown="OnAlbumViewKeyDown"
                                           PreviewMouseDown="OnDataGridMouseDown"
                                           MouseMove="OnMouseMoveDragDrop">
                                     <DataGrid.Columns>
@@ -78,6 +80,7 @@
                                           Grid.Row="2"
                                           Margin="0,3,0,0"
                                           ItemsSource="{Binding Path=SongsOnSelectedAlbums}"
+                                          PreviewKeyDown="OnSongViewKeyDown"
                                           MouseDoubleClick="OnSongsOnAlbumsViewDoubleClicked"
                                           PreviewMouseDown="OnDataGridMouseDown"
                                           MouseMove="OnMouseMoveDragDrop">
@@ -115,6 +118,7 @@
                                       Margin="4"
                                       ItemsSource="{Binding Path=Items}"
                                       AllowDrop="True"
+                                      PreviewKeyDown="OnPlaylistViewKeyDown"
                                       MouseDoubleClick="OnPlaylistViewDoubleClicked"
                                       PreviewMouseDown="OnDataGridMouseDown"
                                       MouseMove="OnMouseMoveDragDrop"

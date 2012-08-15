@@ -347,6 +347,52 @@ namespace Auremo
 
         #region Simple (non-drag-drop) list view operations
 
+        private void OnArtistViewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                foreach (AlbumMetadata album in m_Database.AlbumsBySelectedArtists)
+                {
+                    foreach (SongMetadata song in m_Database.Songs(album))
+                    {
+                        Protocol.Add(m_Connection, song.Path);
+                    }
+                }
+
+                e.Handled = true;
+            }
+        }
+
+        private void OnAlbumViewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                foreach (SongMetadata song in m_Database.SongsOnSelectedAlbums)
+                {
+                    Protocol.Add(m_Connection, song.Path);
+                }
+
+                e.Handled = true;
+            }
+        }
+
+        private void OnSongViewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                foreach (object o in m_SongsOnSelectedAlbumsView.SelectedItems)
+                {
+                    if (o is SongMetadata)
+                    {
+                        SongMetadata song = o as SongMetadata;
+                        Protocol.Add(m_Connection, song.Path);
+                    }
+                }
+
+                e.Handled = true;
+            }
+        }
+
         private void OnDeleteFromPlaylist()
         {
             foreach (object obj in m_PlaylistView.SelectedItems)
@@ -381,6 +427,26 @@ namespace Auremo
                 SongMetadata song = row.Item as SongMetadata;
                 Protocol.Add(m_Connection, song.Path);
                 Update();
+            }
+        }
+
+        private void OnPlaylistViewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                if (m_PlaylistView.SelectedItems.Count == 1)
+                {
+                    object o = m_PlaylistView.SelectedItems[0];
+                    
+                    if (o is PlaylistItem)
+                    {
+                        PlaylistItem item = o as PlaylistItem;
+                        Protocol.PlayId(m_Connection, item.Id);
+                        Update();
+                    }
+                }
+
+                e.Handled = true;
             }
         }
 
