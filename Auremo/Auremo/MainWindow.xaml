@@ -17,7 +17,7 @@
         <l:IntToTimecodeConverter x:Key="IntToTimecodeConverter"/>
     </Window.Resources>
     <Window.ToolTip>
-        <ToolTip Name="m_MousePointerHint" HasDropShadow="False" BorderThickness="0" Foreground="{StaticResource TextBrush}" Background="{StaticResource ToolTipBackgroundBrush}" IsHitTestVisible="False"/>
+        <ToolTip Name="m_MousePointerHint" HasDropShadow="False" BorderThickness="0" Foreground="{StaticResource TextBrush}" Background="{StaticResource ToolTipBackgroundBrush}" IsOpen="False" Visibility="Hidden" IsHitTestVisible="False"/>
     </Window.ToolTip>
     <Grid>
         <Grid.RowDefinitions>
