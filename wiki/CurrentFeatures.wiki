@@ -10,7 +10,7 @@ Version 0.2.0 supports the following features.
   * Music database browsing.
       * The music collection can be viewed in multiple different ways:
           * A list of artists, of the albums by selected artists and of songs on the selected albums.
-      * A tree view of the file system containing the music collection.
+          * A tree view of the file system containing the music collection.
   * Playlist construction and manipulation.
       * Elements (individual songs, albums, directories etc) in the music can be sent to the playlist.
       * Songs on the playlist can be reordered or removed.
