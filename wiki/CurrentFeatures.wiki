@@ -14,7 +14,6 @@ Version 0.2.0 supports the following features.
   * Playlist construction and manipulation.
       * Elements (individual songs, albums, directories etc) in the music can be sent to the playlist.
       * Songs on the playlist can be reordered or removed.
-delete.
   * Playback control.
       * Skip, play, pause, stop and next buttons.
       * Random and repeat buttons.
