@@ -2,21 +2,18 @@
 
 = Introduction =
 
-This is a list of features that are planned for future releases but not the current development branch. Suggestions are welcome! If there is something you want added to the list, please [mailto:auremompd@gmail.com e-mail] the author.
+This is a list of features that are planned for future releases but are not yet in any development branch. Suggestions are welcome! If there is something you want added to the list, please [mailto:auremompd@gmail.com e-mail] the author.
 
 === Important features ===
-  * Add support for saving and loading playlists. A clear playlist button would also be useful.
-  * Add music database refresh command and database reload without exiting.
-  * Add more ways to browse the music collection. At least:
-      * Artist/album/song as a tree view.
-      * Genre/album/song as a tree view.
-      * Genre/album/song as a three list hierarchy.
+
+  * Add more ways to browse the music collection.
   * Add support for password protected MPD servers.
-  * Music database refresh
+  * Music database refresh.
   * Improve the look & feel. The color scheme is off and practically all of the controls need customization. The goal is to make Auremo very aesthetic. Help from an expert artist would help here.
 
 === Nice to have features ===
+
   * Create a cool custom control for the volume knob. A slider is typical but not very pretty, plus it takes a lot of space.
-  * Add settings for hiding individual music collection tabs and, if possible, disabling the data model behind them entirely. This would make the GUI quicker and less cluttered.
+  * Add settings for hiding individual music collection tabs and, if feasible, disabling the data model behind them entirely. This would make the GUI quicker and less cluttered.
   * Album art, supposing that it can be incorporated in the GUI in a meaningful way. This should probably be an opt-in feature because it can be heavy and not useful for all users.
   * Lyrics. This must definitely be an opt-in feature.
