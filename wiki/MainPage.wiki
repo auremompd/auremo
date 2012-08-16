@@ -2,26 +2,26 @@
 
 = Auremo =
 
-Auremo is a simple graphical standalone client for Music Player Daemon. It runs on Windows Vista and 7.
+Auremo is a simple graphical standalone client for Music Player Daemon. It runs on Windows Vista, 7 and 8.
 
 == Design ==
 
-Auremo's design philosophy is to provide a straightforward MPD client that has enough features to satisfy most users, yet is very easy to install and run. It is mainly targeted at desktop and laptop computers that have a pointing device suitable for drag and drop.
+Auremo's design philosophy is to provide a straightforward MPD client that has enough features to satisfy most users, yet is very easy to install and run. It is designed mainly for desktop and laptop computers that have a pointing device suitable for drag and drop.
 
-To run the software you need a MPD server running on either the local computer or a remote one. Nothing else is required -- Auremo is a single executable and only depends on things that come preinstalled on any Windows computer.
+To run the software you need a MPD server running on either the local computer or a remote one. Nothing else is required -- Auremo is a single executable and only depends on things that come preinstalled on any modern Windows computer.
 
 Auremo is written from scratch in C#. The user interface is implemented in WPF/XAML. The project can be compiled with e.g. Visual C# 2010 Express, which is available free of charge.
 
 == Project status ==
 
-The release of Auremo's second version (0.2.0) is imminent. All the planned features have been completed and a pre-release version of the executable is already available in the downloads section. The software will undergo some further testing and debugging before the actual release. There will hopefully be a proper installer this time as well.
+Auremo's newest version (0.2.0) was released on 16th August, 2012 (ChangeLog). See the CurrentFeatures page for a brief explanation of what Auremo can currently do.
 
-Auremo was written to fulfill the author's own need for a Windows MPD client. If other people find it useful, more features will be added. The CurrentFeatures page explains what Auremo can do right now. The UpcomingFeatures page lists changes planned for the next release. There is also a rough list of possible future ideas for later releases on the RoadMap page.
+Version 0.3 is in early stages of planning and development. The UpcomingFeatures page lists some of the planned additions. There is also a RoadMap of the long-term plans for Auremo.
 
 == Feedback ==
 
 User feedback is encouraged! If you like Auremo, have bugs to report or would like to suggest new features, or you just like conversation, please e-mail the author.
 
-Help is particularly welcome. The GUI needs attention from an expert artist, preferably one with WPF/XAML skills. Someone with experience on Windows installers might have something to say about the present (sorry) state of the installer package too.
+Help is particularly welcome. The GUI needs attention from an expert artist (preferably one with WPF/XAML skills). Or, if you are good at drawing, there are textures that need creating.
 
 You can reach the author by [mailto:auremompd@gmail.com e-mail].
