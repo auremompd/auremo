@@ -1,21 +1,18 @@
 #summary Features planned for the next release
 
-= Partial to-do list for version 0.2.0 =
+= Partial to-do list for version 0.3.0 =
 
 == Committed features ==
 
 These features are already available in SVN in the 0.2-dev branch. All or some of them may also be available as a preview release in the downloads section.
 
-  * Add a tooltip on the mouse cursor when dragging entries describing the contents of the drag.
-  * Improve the color scheme, especially the library and playlist headers. this involves getting rid of the !ListView control in favor of the heavier !DataGrid control.
-  * Add another way of choosing item to add to the playlist. The second way is a directory tree, implemented as a !TreeView. Multi-selection with a mouse and drag&drop to the playlist are supported.
-  * Add a proper installer. It is still relatively simple, but actually installs under Program Files like it's supposed to.
+  * No changes made yet.
 
 == Features to add ==
 
-These issues will be addressed before the release.
+These features will be added before the release.
 
-  * Fix unselection with ctrl+mouse in data grids.
-  * Add keyboard support in tree views.
-  * Enable queuing music using the keyboard.
-  * Test and debug some more.
+  * Add support for saving and loading playlists.
+  * Add more music collection browsing modes (artist/album/song tree, genre/album/song tree, genre/album/song as lists).
+  * Add a page for MPD server administration. At least rescanning the music collection (and reloading it in the client) needs to be supported.
+  * An effort to vastly improve Auremo's visual style is underway. It may or may not the included in 0.3.0. In either case the style will be changed in a single revision instead of gradually. Help is welcome.
