@@ -45,18 +45,16 @@ namespace Auremo
         #endregion
 
         private string m_DirectoryName = "";
-        private ITreeViewModel m_Parent = null;
         private IList<ITreeViewModel> m_Children = new ObservableCollection<ITreeViewModel>();
         private bool m_IsSelected = false;
         private bool m_IsExpanded = false;
         private bool m_IsMultiSelected = false;
-        private TreeViewMultiSelection m_MultiSelection = null;
 
         public DirectoryTreeViewModel(string name, ITreeViewModel parent, TreeViewMultiSelection multiSelection)
         {
             m_DirectoryName = name;
-            m_Parent = parent;
-            m_MultiSelection = multiSelection;
+            Parent = parent;
+            MultiSelection = multiSelection;
             HierarchyID = -1;
         }
 
@@ -76,10 +74,8 @@ namespace Auremo
 
         public ITreeViewModel Parent
         {
-            get
-            {
-                return m_Parent;
-            }
+            get;
+            private set;
         }
         
         public IList<ITreeViewModel> Children
@@ -120,9 +116,9 @@ namespace Auremo
 
                     if (m_IsExpanded)
                     {
-                        if (m_Parent != null)
+                        if (Parent != null)
                         {
-                            m_Parent.IsExpanded = true;
+                            Parent.IsExpanded = true;
                         }
                     }
                     else
@@ -150,11 +146,11 @@ namespace Auremo
                 {
                     if (value)
                     {
-                        m_MultiSelection.Add(this);
+                        MultiSelection.Add(this);
                     }
                     else
                     {
-                        m_MultiSelection.Remove(this);
+                        MultiSelection.Remove(this);
                     }
 
                     m_IsMultiSelected = value;
@@ -165,10 +161,8 @@ namespace Auremo
 
         public TreeViewMultiSelection MultiSelection
         {
-            get
-            {
-                return m_MultiSelection;
-            }
+            get;
+            private set;
         }
 
         public int HierarchyID
@@ -201,13 +195,13 @@ namespace Auremo
 
         public override string ToString()
         {
-            if (m_Parent == null)
+            if (Parent == null)
             {
                 return "";
             }
             else
             {
-                return m_Parent.ToString() + "/" + m_DirectoryName;
+                return Parent.ToString() + "/" + m_DirectoryName;
             }
         }
     }
