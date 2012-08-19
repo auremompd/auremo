@@ -43,18 +43,15 @@ namespace Auremo
         #endregion
 
         private string m_Filename = "";
-        private SongMetadata m_Song = null;
-        private ITreeViewModel m_Parent = null;
         private bool m_IsSelected = false;
         private bool m_IsMultiSelected = false;
-        private TreeViewMultiSelection m_MultiSelection = null;
 
         public SongMetadataTreeViewModel(string filename, SongMetadata song, ITreeViewModel parent, TreeViewMultiSelection multiSelection)
         {
             m_Filename = filename;
-            m_Song = song;
-            m_Parent = parent;
-            m_MultiSelection = multiSelection;
+            Song = song;
+            Parent = parent;
+            MultiSelection = multiSelection;
             HierarchyID = -1;
         }
 
@@ -73,10 +70,8 @@ namespace Auremo
 
         public ITreeViewModel Parent
         {
-            get
-            {
-                return m_Parent;
-            }
+            get;
+            private set;
         }
 
         public IList<ITreeViewModel> Children
@@ -126,11 +121,11 @@ namespace Auremo
                 {
                     if (value)
                     {
-                        m_MultiSelection.Add(this);
+                        MultiSelection.Add(this);
                     }
                     else
                     {
-                        m_MultiSelection.Remove(this);
+                        MultiSelection.Remove(this);
                     }
 
                     m_IsMultiSelected = value;
@@ -141,10 +136,8 @@ namespace Auremo
 
         public TreeViewMultiSelection MultiSelection
         {
-            get
-            {
-                return m_MultiSelection;
-            }
+            get;
+            private set;
         }
 
         public int HierarchyID
@@ -160,10 +153,8 @@ namespace Auremo
 
         public SongMetadata Song
         {
-            get
-            {
-                return m_Song;
-            }
+            get;
+            private set;
         }
 
         public int CompareTo(object o)
@@ -180,7 +171,7 @@ namespace Auremo
 
         public override string ToString()
         {
-            return m_Parent.ToString() + "/" + m_Filename;
+            return Parent.ToString() + "/" + m_Filename;
         }
     }
 }
