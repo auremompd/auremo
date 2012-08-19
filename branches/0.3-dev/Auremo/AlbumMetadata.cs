@@ -30,37 +30,34 @@ namespace Auremo
 
         public AlbumMetadata(string artist, string albumTitle, int? year)
         {
-            m_Artist = artist;
-            m_AlbumTitle = albumTitle;
-            m_Year = year;
+            Artist = artist;
+            Title = albumTitle;
+            Year = year;
         }
 
-        private string m_Artist = null;
         public string Artist
         {
-            get { return m_Artist; }
-            set { m_Artist = value; }
+            get;
+            set;
         }
 
-        private string m_AlbumTitle = null;
         public string Title
         {
-            get { return m_AlbumTitle; }
-            set { m_AlbumTitle = value; }
+            get;
+            set;
         }
 
-        private int? m_Year = null;
         public int? Year
         {
-            get { return m_Year; }
-            set { m_Year = value; }
+            get;
+            set;
         }
 
         public string PrintableYear
         {
             get
             {
-                return m_Year != null ? m_Year.ToString() : "N/A";
+                return Year != null ? Year.ToString() : "N/A";
             }
         }
 
