@@ -43,6 +43,7 @@ namespace Auremo
         ServerConnection m_Connection = null;
         ServerStatus m_ServerStatus = null;
         Database m_Database = null;
+        PlaylistItem m_ItemMarkedAsCurrent = null;
 
         public Playlist(ServerConnection connection, ServerStatus serverStatus, Database database)
         {
@@ -50,25 +51,21 @@ namespace Auremo
             m_ServerStatus = serverStatus;
             m_Database = database;
 
+            Items = new ObservableCollection<PlaylistItem>();
+
             m_ServerStatus.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(OnServerStatusPropertyChanged);
         }
 
-        private IList<PlaylistItem> m_Items = new ObservableCollection<PlaylistItem>();
         public IList<PlaylistItem> Items
         {
-            get
-            {
-                return m_Items;
-            }
+            get;
+            private set;
         }
 
-        private string m_PlayStatusDescription = "";
         public string PlayStatusDescription
         {
-            get
-            {
-                return m_PlayStatusDescription;
-            }
+            get; 
+            private set;
         }
 
         private void OnServerStatusPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -85,7 +82,7 @@ namespace Auremo
 
         private void UpdateItems()
         {
-            m_Items.Clear();
+            Items.Clear();
             m_ItemMarkedAsCurrent = null;
 
             if (!m_ServerStatus.OK)
@@ -104,7 +101,7 @@ namespace Auremo
                 {
                     if (item.IsValid)
                     {
-                        m_Items.Add(item);
+                        Items.Add(item);
                     }
 
                     item = new PlaylistItem();
@@ -119,22 +116,20 @@ namespace Auremo
 
             if (item.IsValid)
             {
-                m_Items.Add(item);
+                Items.Add(item);
             }
 
             UpdateCurrentSong();
         }
-
-        PlaylistItem m_ItemMarkedAsCurrent = null;
 
         private void UpdateCurrentSong()
         {
             PlaylistItem itemToMarkCurrent = null;
 
             if (m_ServerStatus.OK && (m_ServerStatus.IsPaused || m_ServerStatus.IsPlaying) &&
-                m_ServerStatus.CurrentSongIndex >= 0 && m_ServerStatus.CurrentSongIndex < m_Items.Count)
+                m_ServerStatus.CurrentSongIndex >= 0 && m_ServerStatus.CurrentSongIndex < Items.Count)
             {
-                itemToMarkCurrent = m_Items[m_ServerStatus.CurrentSongIndex];
+                itemToMarkCurrent = Items[m_ServerStatus.CurrentSongIndex];
             }
 
             if (itemToMarkCurrent != m_ItemMarkedAsCurrent)
@@ -154,26 +149,26 @@ namespace Auremo
 
             if (!m_ServerStatus.OK)
             {
-                m_PlayStatusDescription = "";
+                PlayStatusDescription = "";
             }
             else if (m_ItemMarkedAsCurrent == null || (m_ServerStatus.IsPaused && m_ServerStatus.IsPlaying))
             {
-                m_PlayStatusDescription = "Stopped.";
+                PlayStatusDescription = "Stopped.";
             }
             else
             {
-                m_PlayStatusDescription =
-                    (m_ServerStatus.IsPlaying ? "Playing " : "Paused - ") +
-                    m_ItemMarkedAsCurrent.Song.Artist + ": " +
-                    m_ItemMarkedAsCurrent.Song.Title + " (" +
-                    m_ItemMarkedAsCurrent.Song.Album;
+                PlayStatusDescription =
+                     (m_ServerStatus.IsPlaying ? "Playing " : "Paused - ") +
+                      m_ItemMarkedAsCurrent.Song.Artist + ": " +
+                      m_ItemMarkedAsCurrent.Song.Title + " (" +
+                      m_ItemMarkedAsCurrent.Song.Album;
 
                 if (m_ItemMarkedAsCurrent.Song.Year.HasValue)
                 {
-                    m_PlayStatusDescription += ", " + m_ItemMarkedAsCurrent.Song.Year.Value;
+                    PlayStatusDescription += ", " + m_ItemMarkedAsCurrent.Song.Year.Value;
                 }
 
-                m_PlayStatusDescription += ").";
+                PlayStatusDescription += ").";
             }
 
             NotifyPropertyChanged("PlayStatusDescription");
