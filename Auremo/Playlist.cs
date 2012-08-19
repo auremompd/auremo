@@ -95,7 +95,7 @@ namespace Auremo
 
             PlaylistItem item = new PlaylistItem();
 
-            foreach (ServerResponseLine line in response.Lines)
+            foreach (ServerResponseLine line in response.ResponseLines)
             {
                 if (line.Name == "file")
                 {

@@ -202,7 +202,7 @@ namespace Auremo
             {
                 SongMetadata song = new SongMetadata();
 
-                foreach (ServerResponseLine line in response.Lines)
+                foreach (ServerResponseLine line in response.ResponseLines)
                 {
                     if (line.Name == "file")
                     {

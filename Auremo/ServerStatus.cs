@@ -83,7 +83,7 @@ namespace Auremo
                 int playPosition = 0;
                 int songLength = 1;
 
-                foreach (ServerResponseLine line in statusResponse.Lines)
+                foreach (ServerResponseLine line in statusResponse.ResponseLines)
                 {
                     if (line.Name == "state")
                     {
