@@ -1228,7 +1228,7 @@ namespace Auremo
         {
             if (m_LogActive)
             {
-                foreach (ServerResponseLine line in response.Lines)
+                foreach (ServerResponseLine line in response.ResponseLines)
                 {
                     m_LogLines.Items.Add(line.Full);
                 }
