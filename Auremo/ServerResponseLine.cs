@@ -24,21 +24,18 @@ namespace Auremo
 {
     public class ServerResponseLine
     {
-        private string m_RawLine = "";
         int m_NameValueBorder = -1;
 
         public ServerResponseLine(string line)
         {
-            m_RawLine = line;
-            m_NameValueBorder = m_RawLine.IndexOf(':');
+            Full = line;
+            m_NameValueBorder = Full.IndexOf(':');
         }
 
         public string Full
         {
-            get
-            {
-                return m_RawLine;
-            }
+            get;
+            private set;
         }
 
         public string Name
@@ -47,7 +44,7 @@ namespace Auremo
             {
                 if (m_NameValueBorder >= 0)
                 {
-                    return m_RawLine.Substring(0, m_NameValueBorder);
+                    return Full.Substring(0, m_NameValueBorder);
                 }
                 else
                 {
@@ -60,9 +57,9 @@ namespace Auremo
         {
             get
             {
-                if (m_NameValueBorder >= 0 && m_RawLine.Length > m_NameValueBorder + 2)
+                if (m_NameValueBorder >= 0 && Full.Length > m_NameValueBorder + 2)
                 {
-                    return m_RawLine.Substring(m_NameValueBorder + 2);
+                    return Full.Substring(m_NameValueBorder + 2);
                 }
                 else
                 {
