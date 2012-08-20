@@ -28,7 +28,7 @@ namespace Auremo
     /// Wraps a directory (aka folder) name so that it can be consumed by a
     /// TreeView[Item].
     /// </summary>
-    public class DirectoryTreeViewModel : ITreeViewModel, INotifyPropertyChanged, IComparable
+    public class DirectoryTreeViewModel : ITreeViewNode, INotifyPropertyChanged, IComparable
     {
         #region INotifyPropertyChanged implementation
 
@@ -45,12 +45,12 @@ namespace Auremo
         #endregion
 
         private string m_DirectoryName = "";
-        private IList<ITreeViewModel> m_Children = new ObservableCollection<ITreeViewModel>();
+        private IList<ITreeViewNode> m_Children = new ObservableCollection<ITreeViewNode>();
         private bool m_IsSelected = false;
         private bool m_IsExpanded = false;
         private bool m_IsMultiSelected = false;
 
-        public DirectoryTreeViewModel(string name, ITreeViewModel parent, TreeViewMultiSelection multiSelection)
+        public DirectoryTreeViewModel(string name, ITreeViewNode parent, TreeViewMultiSelection multiSelection)
         {
             m_DirectoryName = name;
             Parent = parent;
@@ -66,19 +66,19 @@ namespace Auremo
             }
         }
 
-        public void AddChild(ITreeViewModel child)
+        public void AddChild(ITreeViewNode child)
         {
             m_Children.Add(child);
             NotifyPropertyChanged("Children");
         }
 
-        public ITreeViewModel Parent
+        public ITreeViewNode Parent
         {
             get;
             private set;
         }
         
-        public IList<ITreeViewModel> Children
+        public IList<ITreeViewNode> Children
         {
             get
             {
@@ -123,7 +123,7 @@ namespace Auremo
                     }
                     else
                     {
-                        foreach (ITreeViewModel child in Children)
+                        foreach (ITreeViewNode child in Children)
                         {
                             OnAncestorCollapsed();
                         }
@@ -175,7 +175,7 @@ namespace Auremo
         {
             IsMultiSelected = false;
 
-            foreach (ITreeViewModel child in Children)
+            foreach (ITreeViewNode child in Children)
             {
                 child.OnAncestorCollapsed();
             }
@@ -183,9 +183,9 @@ namespace Auremo
             
         public int CompareTo(object o)
         {
-            if (o is ITreeViewModel)
+            if (o is ITreeViewNode)
             {
-                return HierarchyID - ((ITreeViewModel)o).HierarchyID;
+                return HierarchyID - ((ITreeViewNode)o).HierarchyID;
             }
             else
             {

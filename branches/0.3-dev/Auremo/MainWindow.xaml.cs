@@ -414,9 +414,9 @@ namespace Auremo
         {
             TreeViewItem item = TreeViewItemBeingClicked(sender as TreeView, e);
 
-            if (item != null && item.Header is ITreeViewModel)
+            if (item != null && item.Header is ITreeViewNode)
             {
-                ITreeViewModel node = item.Header as ITreeViewModel;
+                ITreeViewNode node = item.Header as ITreeViewNode;
 
                 if (Keyboard.Modifiers == ModifierKeys.None)
                 {
@@ -478,9 +478,9 @@ namespace Auremo
             {
                 TreeViewItem item = TreeViewItemBeingClicked(sender as TreeView, e);
 
-                if (item != null && item.Header is ITreeViewModel)
+                if (item != null && item.Header is ITreeViewNode)
                 {
-                    ITreeViewModel node = item.Header as ITreeViewModel;
+                    ITreeViewNode node = item.Header as ITreeViewNode;
                     node.MultiSelection.Clear();
                     node.IsMultiSelected = true;
                     node.MultiSelection.Pivot = node;
@@ -573,7 +573,7 @@ namespace Auremo
         private void OnTreeViewSelectionChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             // Cancel the selection. Use the multiselection system instead.
-            ITreeViewModel node = e.NewValue as ITreeViewModel;
+            ITreeViewNode node = e.NewValue as ITreeViewNode;
 
             if (node != null)
             {
@@ -1185,7 +1185,7 @@ namespace Auremo
         }
 
         // nodeContainer must be either a TreeView or a TreeViewItem.
-        private TreeViewItem GetTreeViewItem(ItemsControl nodeContainer, ITreeViewModel node)
+        private TreeViewItem GetTreeViewItem(ItemsControl nodeContainer, ITreeViewNode node)
         {
             if (nodeContainer == null || node == null)
             {
@@ -1201,9 +1201,9 @@ namespace Auremo
                 {
                     nodeWithHighestLowerID = item;
                     item = nodeContainer.ItemContainerGenerator.ContainerFromIndex(i++) as TreeViewItem;
-                } while (item != null && ((ITreeViewModel)item.Header).HierarchyID < node.HierarchyID);
+                } while (item != null && ((ITreeViewNode)item.Header).HierarchyID < node.HierarchyID);
 
-                if (item != null && ((ITreeViewModel)item.Header).HierarchyID == node.HierarchyID)
+                if (item != null && ((ITreeViewNode)item.Header).HierarchyID == node.HierarchyID)
                 {
                     return item;
                 }

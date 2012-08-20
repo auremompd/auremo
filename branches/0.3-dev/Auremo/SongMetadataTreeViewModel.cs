@@ -26,7 +26,7 @@ namespace Auremo
     /// <summary>
     /// Wraps a SongMetadata object so that it can be consumed by a TreeView[Item].
     /// </summary>
-    public class SongMetadataTreeViewModel : ITreeViewModel, INotifyPropertyChanged, IComparable
+    public class SongMetadataTreeViewModel : ITreeViewNode, INotifyPropertyChanged, IComparable
     {
         #region INotifyPropertyChanged implementation
 
@@ -46,7 +46,7 @@ namespace Auremo
         private bool m_IsSelected = false;
         private bool m_IsMultiSelected = false;
 
-        public SongMetadataTreeViewModel(string filename, SongMetadata song, ITreeViewModel parent, TreeViewMultiSelection multiSelection)
+        public SongMetadataTreeViewModel(string filename, SongMetadata song, ITreeViewNode parent, TreeViewMultiSelection multiSelection)
         {
             m_Filename = filename;
             Song = song;
@@ -63,22 +63,22 @@ namespace Auremo
             }
         }
 
-        public void AddChild(ITreeViewModel child)
+        public void AddChild(ITreeViewNode child)
         {
             throw new Exception("Attempt to add a child to a SongMetadataTreeViewModel.");
         }
 
-        public ITreeViewModel Parent
+        public ITreeViewNode Parent
         {
             get;
             private set;
         }
 
-        public IList<ITreeViewModel> Children
+        public IList<ITreeViewNode> Children
         {
             get
             {
-                return new List<ITreeViewModel>(); // Can't have child nodes.
+                return new List<ITreeViewNode>(); // Can't have child nodes.
             }
         }
 
@@ -159,9 +159,9 @@ namespace Auremo
 
         public int CompareTo(object o)
         {
-            if (o is ITreeViewModel)
+            if (o is ITreeViewNode)
             {
-                return HierarchyID - ((ITreeViewModel)o).HierarchyID;
+                return HierarchyID - ((ITreeViewNode)o).HierarchyID;
             }
             else
             {
