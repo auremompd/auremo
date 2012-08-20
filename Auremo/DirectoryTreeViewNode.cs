@@ -125,7 +125,7 @@ namespace Auremo
                     {
                         foreach (ITreeViewNode child in Children)
                         {
-                            OnAncestorCollapsed();
+                            child.OnAncestorCollapsed();
                         }
                     }
 
