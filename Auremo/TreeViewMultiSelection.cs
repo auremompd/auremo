@@ -151,11 +151,11 @@ namespace Auremo
             private set;
         }
 
-        public ISet<SongMetadataTreeViewModel> Songs
+        public ISet<SongMetadataTreeViewNode> Songs
         {
             get
             {
-                ISet<SongMetadataTreeViewModel> result = new SortedSet<SongMetadataTreeViewModel>();
+                ISet<SongMetadataTreeViewNode> result = new SortedSet<SongMetadataTreeViewNode>();
 
                 foreach (ITreeViewNode node in Members)
                 {
@@ -166,11 +166,11 @@ namespace Auremo
             }
         }
         
-        private void InsertSongs(ITreeViewNode node, ISet<SongMetadataTreeViewModel> songs)
+        private void InsertSongs(ITreeViewNode node, ISet<SongMetadataTreeViewNode> songs)
         {
-            if (node is SongMetadataTreeViewModel)
+            if (node is SongMetadataTreeViewNode)
             {
-                songs.Add(node as SongMetadataTreeViewModel);
+                songs.Add(node as SongMetadataTreeViewNode);
             }
             else
             {

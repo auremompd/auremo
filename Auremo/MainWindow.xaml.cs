@@ -439,9 +439,9 @@ namespace Auremo
                         {
                             node.IsExpanded = !node.IsExpanded;
                         }
-                        else if (node is SongMetadataTreeViewModel)
+                        else if (node is SongMetadataTreeViewNode)
                         {
-                            SongMetadataTreeViewModel songNode = node as SongMetadataTreeViewModel;
+                            SongMetadataTreeViewNode songNode = node as SongMetadataTreeViewNode;
                             Protocol.Add(m_Connection, songNode.Song.Path);
                         }
                     }
@@ -515,7 +515,7 @@ namespace Auremo
                 {
                     if (multiSelection.Members.Count > 1)
                     {
-                        foreach (SongMetadataTreeViewModel leaf in multiSelection.Songs)
+                        foreach (SongMetadataTreeViewNode leaf in multiSelection.Songs)
                         {
                             Protocol.Add(m_Connection, leaf.Song.Path);
                         }
@@ -524,9 +524,9 @@ namespace Auremo
                     }
                     else if (multiSelection.Current != null)
                     {
-                        if (multiSelection.Current is SongMetadataTreeViewModel)
+                        if (multiSelection.Current is SongMetadataTreeViewNode)
                         {
-                            Protocol.Add(m_Connection, ((SongMetadataTreeViewModel)multiSelection.Current).Song.Path);
+                            Protocol.Add(m_Connection, ((SongMetadataTreeViewNode)multiSelection.Current).Song.Path);
                         }
                         else
                         {
@@ -636,7 +636,7 @@ namespace Auremo
                     }
                     else if (m_DragSource is TreeView)
                     {
-                        ISet<SongMetadataTreeViewModel> selection = null;
+                        ISet<SongMetadataTreeViewNode> selection = null;
 
                         if (m_DragSource == m_DirectoryTree)
                         {
@@ -645,7 +645,7 @@ namespace Auremo
 
                         if (selection != null)
                         {
-                            foreach (SongMetadataTreeViewModel node in selection)
+                            foreach (SongMetadataTreeViewNode node in selection)
                             {
                                 m_DragDropPayload.Add(node.Song);
                             }

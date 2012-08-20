@@ -141,7 +141,7 @@ namespace Auremo
         }
 
 
-        public ISet<SongMetadataTreeViewModel> DirectoryTreeSelectedSongs
+        public ISet<SongMetadataTreeViewNode> DirectoryTreeSelectedSongs
         {
             get
             {
@@ -319,7 +319,7 @@ namespace Auremo
             {
                 Tuple<string, string> directoryAndFile = Utils.SplitPath(entry.Key);
                 ITreeViewNode parent = FindDirectoryViewModel(directoryAndFile.Item1, directoryLookup, multiSelection);
-                SongMetadataTreeViewModel leaf = new SongMetadataTreeViewModel(directoryAndFile.Item2, entry.Value, parent, multiSelection);
+                SongMetadataTreeViewNode leaf = new SongMetadataTreeViewNode(directoryAndFile.Item2, entry.Value, parent, multiSelection);
                 parent.AddChild(leaf);
             }
 
