@@ -318,18 +318,18 @@ namespace Auremo
             foreach (KeyValuePair<string, SongMetadata> entry in m_SongInfo)
             {
                 Tuple<string, string> directoryAndFile = Utils.SplitPath(entry.Key);
-                ITreeViewNode parent = FindDirectoryViewModel(directoryAndFile.Item1, directoryLookup, multiSelection);
+                ITreeViewNode parent = FindDirectoryNode(directoryAndFile.Item1, directoryLookup, multiSelection);
                 SongMetadataTreeViewNode leaf = new SongMetadataTreeViewNode(directoryAndFile.Item2, entry.Value, parent, multiSelection);
                 parent.AddChild(leaf);
             }
 
-            AssignTreeViewModelHierarchyIDs(m_DirectoryTreeRoot, 0);
+            AssignTreeViewNodeIDs(m_DirectoryTreeRoot, 0);
 
             m_DirectoryTree.Add(m_DirectoryTreeRoot);
             m_DirectoryTreeRoot.IsExpanded = true;
         }
 
-        private ITreeViewNode FindDirectoryViewModel(string path, IDictionary<string, ITreeViewNode> lookup, TreeViewMultiSelection multiSelection)
+        private ITreeViewNode FindDirectoryNode(string path, IDictionary<string, ITreeViewNode> lookup, TreeViewMultiSelection multiSelection)
         {
             if (path == "")
             {
@@ -342,7 +342,7 @@ namespace Auremo
             else
             {
                 Tuple<string, string> parentAndSelf = Utils.SplitPath(path);
-                ITreeViewNode parent = FindDirectoryViewModel(parentAndSelf.Item1, lookup, multiSelection);
+                ITreeViewNode parent = FindDirectoryNode(parentAndSelf.Item1, lookup, multiSelection);
                 ITreeViewNode self = new DirectoryTreeViewNode(parentAndSelf.Item2, parent, multiSelection);
                 parent.AddChild(self);
                 lookup[path] = self;
@@ -350,14 +350,14 @@ namespace Auremo
             }
         }
 
-        int AssignTreeViewModelHierarchyIDs(ITreeViewNode node, int nodeID)
+        int AssignTreeViewNodeIDs(ITreeViewNode node, int nodeID)
         {
             node.ID = nodeID;
             int nextNodeID = nodeID + 1;
 
             foreach (ITreeViewNode child in node.Children)
             {
-                nextNodeID = AssignTreeViewModelHierarchyIDs(child, nextNodeID);
+                nextNodeID = AssignTreeViewNodeIDs(child, nextNodeID);
             }
 
             return nextNodeID;

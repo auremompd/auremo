@@ -65,7 +65,7 @@ namespace Auremo
 
         public void AddChild(ITreeViewNode child)
         {
-            throw new Exception("Attempt to add a child to a SongMetadataTreeViewModel.");
+            throw new Exception("Attempt to add a child to a SongMetadataTreeViewNode.");
         }
 
         public ITreeViewNode Parent
@@ -165,7 +165,7 @@ namespace Auremo
             }
             else
             {
-                throw new Exception("SongMetadataTreeViewModel: attempt to compare to an incompatible object");
+                throw new Exception("SongMetadataTreeViewNode: attempt to compare to an incompatible object");
             }
         }
 

@@ -189,7 +189,7 @@ namespace Auremo
             }
             else
             {
-                throw new Exception("DirectoryTreeViewModel: attempt to compare to an incompatible object");
+                throw new Exception("DirectoryTreeViewNode: attempt to compare to an incompatible object");
             }
         }
 
