@@ -24,15 +24,15 @@ namespace Auremo
 {
     public class TreeViewMultiSelection
     {
-        private IList<ITreeViewModel> m_RootLevelNodes = null;
-        private ISet<ITreeViewModel> m_Members = new SortedSet<ITreeViewModel>();
+        private IList<ITreeViewNode> m_RootLevelNodes = null;
 
-        public TreeViewMultiSelection(IList<ITreeViewModel> rootLevelNodes)
+        public TreeViewMultiSelection(IList<ITreeViewNode> rootLevelNodes)
         {
             m_RootLevelNodes = rootLevelNodes;
+            Members = new SortedSet<ITreeViewNode>();
         }
 
-        public ITreeViewModel FirstNode
+        public ITreeViewNode FirstNode
         {
             get
             {
@@ -49,27 +49,27 @@ namespace Auremo
 
         public void Clear()
         {
-            while (m_Members.Count > 0)
+            while (Members.Count > 0)
             {
-                m_Members.First().IsMultiSelected = false;
+                Members.First().IsMultiSelected = false;
             }
         }
 
-        public void Add(ITreeViewModel node)
+        public void Add(ITreeViewNode node)
         {
-            m_Members.Add(node);
+            Members.Add(node);
         }
 
-        public void Remove(ITreeViewModel node)
+        public void Remove(ITreeViewNode node)
         {
-            m_Members.Remove(node);
+            Members.Remove(node);
         }
 
-        public void SelectRange(ITreeViewModel toNode)
+        public void SelectRange(ITreeViewNode toNode)
         {
             if (Pivot != null)
             {
-                ITreeViewModel root = Pivot;
+                ITreeViewNode root = Pivot;
 
                 while (root.Parent != null)
                 {
@@ -80,7 +80,7 @@ namespace Auremo
             }
         }
 
-        private void SelectVisibleWithinRange(ITreeViewModel node, int minID, int maxID)
+        private void SelectVisibleWithinRange(ITreeViewNode node, int minID, int maxID)
         {
             // TODO: there is plenty left to optimize here.
             if (node.HierarchyID >= minID && node.HierarchyID <= maxID)
@@ -90,7 +90,7 @@ namespace Auremo
 
             if (node.IsExpanded)
             {
-                foreach (ITreeViewModel child in node.Children)
+                foreach (ITreeViewNode child in node.Children)
                 {
                     SelectVisibleWithinRange(child, minID, maxID);
 
@@ -103,19 +103,19 @@ namespace Auremo
         }
 
         // Start point of range selection (mouse or key with shift down).
-        public ITreeViewModel Pivot
+        public ITreeViewNode Pivot
         {
             get;
             set;
         }
 
-        public ITreeViewModel Current
+        public ITreeViewNode Current
         {
             get;
             set;
         }
 
-        public ITreeViewModel Previous
+        public ITreeViewNode Previous
         {
             get
             {
@@ -130,7 +130,7 @@ namespace Auremo
             }
         }
 
-        public ITreeViewModel Next
+        public ITreeViewNode Next
         {
             get
             {
@@ -145,12 +145,10 @@ namespace Auremo
             }
         }
 
-        public ISet<ITreeViewModel> Members
+        public ISet<ITreeViewNode> Members
         {
-            get
-            {
-                return m_Members;
-            }
+            get;
+            private set;
         }
 
         public ISet<SongMetadataTreeViewModel> Songs
@@ -159,7 +157,7 @@ namespace Auremo
             {
                 ISet<SongMetadataTreeViewModel> result = new SortedSet<SongMetadataTreeViewModel>();
 
-                foreach (ITreeViewModel node in m_Members)
+                foreach (ITreeViewNode node in Members)
                 {
                     InsertSongs(node, result);
                 }
@@ -168,7 +166,7 @@ namespace Auremo
             }
         }
         
-        private void InsertSongs(ITreeViewModel node, ISet<SongMetadataTreeViewModel> songs)
+        private void InsertSongs(ITreeViewNode node, ISet<SongMetadataTreeViewModel> songs)
         {
             if (node is SongMetadataTreeViewModel)
             {
@@ -176,14 +174,14 @@ namespace Auremo
             }
             else
             {
-                foreach (ITreeViewModel child in node.Children)
+                foreach (ITreeViewNode child in node.Children)
                 {
                     InsertSongs(child, songs);
                 }
             }
         }
 
-        private ITreeViewModel GetPredecessor(ITreeViewModel current, IList<ITreeViewModel> search, ITreeViewModel dfault)
+        private ITreeViewNode GetPredecessor(ITreeViewNode current, IList<ITreeViewNode> search, ITreeViewNode dfault)
         {
             if (search == null || search.Count == 0)
             {
@@ -191,9 +189,9 @@ namespace Auremo
             }
             else
             {
-                ITreeViewModel best = dfault;
+                ITreeViewNode best = dfault;
 
-                foreach (ITreeViewModel node in search)
+                foreach (ITreeViewNode node in search)
                 {
                     if (node.HierarchyID < current.HierarchyID)
                     {
@@ -216,7 +214,7 @@ namespace Auremo
             }            
         }
 
-        private ITreeViewModel GetSuccessor(ITreeViewModel current, IList<ITreeViewModel> search, ITreeViewModel dfault)
+        private ITreeViewNode GetSuccessor(ITreeViewNode current, IList<ITreeViewNode> search, ITreeViewNode dfault)
         {
             if (search == null || search.Count == 0)
             {
@@ -224,10 +222,10 @@ namespace Auremo
             }
             else
             {
-                ITreeViewModel bestBefore = null;
-                ITreeViewModel bestAfter = dfault;
+                ITreeViewNode bestBefore = null;
+                ITreeViewNode bestAfter = dfault;
 
-                foreach (ITreeViewModel node in search)
+                foreach (ITreeViewNode node in search)
                 {
                     if (node == current)
                     {

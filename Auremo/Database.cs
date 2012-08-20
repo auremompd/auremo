@@ -34,8 +34,8 @@ namespace Auremo
         private IList<AlbumMetadata> m_AlbumsBySelectedArtists = new ObservableCollection<AlbumMetadata>();
         private IList<SongMetadata> m_SongsOnSelectedAlbums = new ObservableCollection<SongMetadata>();
 
-        private IList<ITreeViewModel> m_DirectoryTree = new ObservableCollection<ITreeViewModel>();
-        private ITreeViewModel m_DirectoryTreeRoot = null;
+        private IList<ITreeViewNode> m_DirectoryTree = new ObservableCollection<ITreeViewNode>();
+        private ITreeViewNode m_DirectoryTreeRoot = null;
 
         public Database()
         {
@@ -124,7 +124,7 @@ namespace Auremo
             }
         }
 
-        public IList<ITreeViewModel> DirectoryTree
+        public IList<ITreeViewNode> DirectoryTree
         {
             get
             {
@@ -312,13 +312,13 @@ namespace Auremo
             TreeViewMultiSelection multiSelection = new TreeViewMultiSelection(m_DirectoryTree);   
             m_DirectoryTree.Clear();
             m_DirectoryTreeRoot = new DirectoryTreeViewModel("/", null, multiSelection);
-            IDictionary<string, ITreeViewModel> directoryLookup = new SortedDictionary<string, ITreeViewModel>();
+            IDictionary<string, ITreeViewNode> directoryLookup = new SortedDictionary<string, ITreeViewNode>();
             directoryLookup[m_DirectoryTreeRoot.DisplayString] = m_DirectoryTreeRoot;
 
             foreach (KeyValuePair<string, SongMetadata> entry in m_SongInfo)
             {
                 Tuple<string, string> directoryAndFile = Utils.SplitPath(entry.Key);
-                ITreeViewModel parent = FindDirectoryViewModel(directoryAndFile.Item1, directoryLookup, multiSelection);
+                ITreeViewNode parent = FindDirectoryViewModel(directoryAndFile.Item1, directoryLookup, multiSelection);
                 SongMetadataTreeViewModel leaf = new SongMetadataTreeViewModel(directoryAndFile.Item2, entry.Value, parent, multiSelection);
                 parent.AddChild(leaf);
             }
@@ -329,7 +329,7 @@ namespace Auremo
             m_DirectoryTreeRoot.IsExpanded = true;
         }
 
-        private ITreeViewModel FindDirectoryViewModel(string path, IDictionary<string, ITreeViewModel> lookup, TreeViewMultiSelection multiSelection)
+        private ITreeViewNode FindDirectoryViewModel(string path, IDictionary<string, ITreeViewNode> lookup, TreeViewMultiSelection multiSelection)
         {
             if (path == "")
             {
@@ -342,20 +342,20 @@ namespace Auremo
             else
             {
                 Tuple<string, string> parentAndSelf = Utils.SplitPath(path);
-                ITreeViewModel parent = FindDirectoryViewModel(parentAndSelf.Item1, lookup, multiSelection);
-                ITreeViewModel self = new DirectoryTreeViewModel(parentAndSelf.Item2, parent, multiSelection);
+                ITreeViewNode parent = FindDirectoryViewModel(parentAndSelf.Item1, lookup, multiSelection);
+                ITreeViewNode self = new DirectoryTreeViewModel(parentAndSelf.Item2, parent, multiSelection);
                 parent.AddChild(self);
                 lookup[path] = self;
                 return self;
             }
         }
 
-        int AssignTreeViewModelHierarchyIDs(ITreeViewModel node, int nodeID)
+        int AssignTreeViewModelHierarchyIDs(ITreeViewNode node, int nodeID)
         {
             node.HierarchyID = nodeID;
             int nextNodeID = nodeID + 1;
 
-            foreach (ITreeViewModel child in node.Children)
+            foreach (ITreeViewNode child in node.Children)
             {
                 nextNodeID = AssignTreeViewModelHierarchyIDs(child, nextNodeID);
             }

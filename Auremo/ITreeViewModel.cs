@@ -22,12 +22,12 @@ using System.Text;
 
 namespace Auremo
 {
-    public interface ITreeViewModel : IComparable
+    public interface ITreeViewNode : IComparable
     {
         string DisplayString { get; }
-        void AddChild(ITreeViewModel child);
-        ITreeViewModel Parent { get; }
-        IList<ITreeViewModel> Children { get; }
+        void AddChild(ITreeViewNode child);
+        ITreeViewNode Parent { get; }
+        IList<ITreeViewNode> Children { get; }
         bool IsSelected { get; set; }
         bool IsExpanded { get; set; }
         bool IsMultiSelected { get; set; }
