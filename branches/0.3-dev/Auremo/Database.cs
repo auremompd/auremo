@@ -352,7 +352,7 @@ namespace Auremo
 
         int AssignTreeViewModelHierarchyIDs(ITreeViewNode node, int nodeID)
         {
-            node.HierarchyID = nodeID;
+            node.ID = nodeID;
             int nextNodeID = nodeID + 1;
 
             foreach (ITreeViewNode child in node.Children)

@@ -1201,9 +1201,9 @@ namespace Auremo
                 {
                     nodeWithHighestLowerID = item;
                     item = nodeContainer.ItemContainerGenerator.ContainerFromIndex(i++) as TreeViewItem;
-                } while (item != null && ((ITreeViewNode)item.Header).HierarchyID < node.HierarchyID);
+                } while (item != null && ((ITreeViewNode)item.Header).ID < node.ID);
 
-                if (item != null && ((ITreeViewNode)item.Header).HierarchyID == node.HierarchyID)
+                if (item != null && ((ITreeViewNode)item.Header).ID == node.ID)
                 {
                     return item;
                 }

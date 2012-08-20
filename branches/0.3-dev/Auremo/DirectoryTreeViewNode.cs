@@ -55,7 +55,7 @@ namespace Auremo
             m_DirectoryName = name;
             Parent = parent;
             MultiSelection = multiSelection;
-            HierarchyID = -1;
+            ID = -1;
         }
 
         public string DisplayString
@@ -165,7 +165,7 @@ namespace Auremo
             private set;
         }
 
-        public int HierarchyID
+        public int ID
         {
             get;
             set;
@@ -185,7 +185,7 @@ namespace Auremo
         {
             if (o is ITreeViewNode)
             {
-                return HierarchyID - ((ITreeViewNode)o).HierarchyID;
+                return ID - ((ITreeViewNode)o).ID;
             }
             else
             {

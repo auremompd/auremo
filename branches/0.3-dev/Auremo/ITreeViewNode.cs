@@ -32,7 +32,7 @@ namespace Auremo
         bool IsExpanded { get; set; }
         bool IsMultiSelected { get; set; }
         TreeViewMultiSelection MultiSelection { get; }
-        int HierarchyID { get; set; }
+        int ID { get; set; }
         void OnAncestorCollapsed();
     }
 }
