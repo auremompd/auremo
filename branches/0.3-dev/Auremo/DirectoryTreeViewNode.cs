@@ -28,7 +28,7 @@ namespace Auremo
     /// Wraps a directory (aka folder) name so that it can be consumed by a
     /// TreeView[Item].
     /// </summary>
-    public class DirectoryTreeViewModel : ITreeViewNode, INotifyPropertyChanged, IComparable
+    public class DirectoryTreeViewNode : ITreeViewNode, INotifyPropertyChanged, IComparable
     {
         #region INotifyPropertyChanged implementation
 
@@ -50,7 +50,7 @@ namespace Auremo
         private bool m_IsExpanded = false;
         private bool m_IsMultiSelected = false;
 
-        public DirectoryTreeViewModel(string name, ITreeViewNode parent, TreeViewMultiSelection multiSelection)
+        public DirectoryTreeViewNode(string name, ITreeViewNode parent, TreeViewMultiSelection multiSelection)
         {
             m_DirectoryName = name;
             Parent = parent;

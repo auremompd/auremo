@@ -435,7 +435,7 @@ namespace Auremo
                     }
                     else if (e.ClickCount == 2)
                     {
-                        if (node is DirectoryTreeViewModel)
+                        if (node is DirectoryTreeViewNode)
                         {
                             node.IsExpanded = !node.IsExpanded;
                         }
