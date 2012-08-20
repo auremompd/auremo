@@ -46,12 +46,12 @@ namespace Auremo
         private bool m_IsSelected = false;
         private bool m_IsMultiSelected = false;
 
-        public SongMetadataTreeViewNode(string filename, SongMetadata song, ITreeViewNode parent, TreeViewMultiSelection multiSelection)
+        public SongMetadataTreeViewNode(string filename, SongMetadata song, ITreeViewNode parent, TreeViewController controller)
         {
             m_Filename = filename;
             Song = song;
             Parent = parent;
-            MultiSelection = multiSelection;
+            Controller = controller;
             ID = -1;
         }
 
@@ -121,11 +121,11 @@ namespace Auremo
                 {
                     if (value)
                     {
-                        MultiSelection.Add(this);
+                        Controller.MultiSelection.Add(this);
                     }
                     else
                     {
-                        MultiSelection.Remove(this);
+                        Controller.MultiSelection.Remove(this);
                     }
 
                     m_IsMultiSelected = value;
@@ -134,7 +134,7 @@ namespace Auremo
             }
         }
 
-        public TreeViewMultiSelection MultiSelection
+        public TreeViewController Controller
         {
             get;
             private set;

@@ -132,11 +132,11 @@ namespace Auremo
             }
         }
 
-        public TreeViewMultiSelection DirectoryTreeMultiSelection
+        public TreeViewController DirectoryTreeController
         {
             get
             {
-                return m_DirectoryTreeRoot.MultiSelection;
+                return m_DirectoryTreeRoot.Controller;
             }
         }
 
@@ -145,7 +145,7 @@ namespace Auremo
         {
             get
             {
-                return m_DirectoryTreeRoot.MultiSelection.Songs;
+                return m_DirectoryTreeRoot.Controller.Songs;
             }
         }
 
@@ -309,17 +309,17 @@ namespace Auremo
 
         private void PopulateDirectoryTree()
         {
-            TreeViewMultiSelection multiSelection = new TreeViewMultiSelection(m_DirectoryTree);   
+            TreeViewController controller = new TreeViewController(m_DirectoryTree);   
             m_DirectoryTree.Clear();
-            m_DirectoryTreeRoot = new DirectoryTreeViewNode("/", null, multiSelection);
+            m_DirectoryTreeRoot = new DirectoryTreeViewNode("/", null, controller);
             IDictionary<string, ITreeViewNode> directoryLookup = new SortedDictionary<string, ITreeViewNode>();
             directoryLookup[m_DirectoryTreeRoot.DisplayString] = m_DirectoryTreeRoot;
 
             foreach (KeyValuePair<string, SongMetadata> entry in m_SongInfo)
             {
                 Tuple<string, string> directoryAndFile = Utils.SplitPath(entry.Key);
-                ITreeViewNode parent = FindDirectoryNode(directoryAndFile.Item1, directoryLookup, multiSelection);
-                SongMetadataTreeViewNode leaf = new SongMetadataTreeViewNode(directoryAndFile.Item2, entry.Value, parent, multiSelection);
+                ITreeViewNode parent = FindDirectoryNode(directoryAndFile.Item1, directoryLookup, controller);
+                SongMetadataTreeViewNode leaf = new SongMetadataTreeViewNode(directoryAndFile.Item2, entry.Value, parent, controller);
                 parent.AddChild(leaf);
             }
 
@@ -329,7 +329,7 @@ namespace Auremo
             m_DirectoryTreeRoot.IsExpanded = true;
         }
 
-        private ITreeViewNode FindDirectoryNode(string path, IDictionary<string, ITreeViewNode> lookup, TreeViewMultiSelection multiSelection)
+        private ITreeViewNode FindDirectoryNode(string path, IDictionary<string, ITreeViewNode> lookup, TreeViewController controller)
         {
             if (path == "")
             {
@@ -342,8 +342,8 @@ namespace Auremo
             else
             {
                 Tuple<string, string> parentAndSelf = Utils.SplitPath(path);
-                ITreeViewNode parent = FindDirectoryNode(parentAndSelf.Item1, lookup, multiSelection);
-                ITreeViewNode self = new DirectoryTreeViewNode(parentAndSelf.Item2, parent, multiSelection);
+                ITreeViewNode parent = FindDirectoryNode(parentAndSelf.Item1, lookup, controller);
+                ITreeViewNode self = new DirectoryTreeViewNode(parentAndSelf.Item2, parent, controller);
                 parent.AddChild(self);
                 lookup[path] = self;
                 return self;

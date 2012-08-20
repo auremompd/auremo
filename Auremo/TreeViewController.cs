@@ -22,14 +22,14 @@ using System.Text;
 
 namespace Auremo
 {
-    public class TreeViewMultiSelection
+    public class TreeViewController
     {
         private IList<ITreeViewNode> m_RootLevelNodes = null;
 
-        public TreeViewMultiSelection(IList<ITreeViewNode> rootLevelNodes)
+        public TreeViewController(IList<ITreeViewNode> rootLevelNodes)
         {
             m_RootLevelNodes = rootLevelNodes;
-            Members = new SortedSet<ITreeViewNode>();
+            MultiSelection = new SortedSet<ITreeViewNode>();
         }
 
         public ITreeViewNode FirstNode
@@ -49,20 +49,10 @@ namespace Auremo
 
         public void Clear()
         {
-            while (Members.Count > 0)
+            while (MultiSelection.Count > 0)
             {
-                Members.First().IsMultiSelected = false;
+                MultiSelection.First().IsMultiSelected = false;
             }
-        }
-
-        public void Add(ITreeViewNode node)
-        {
-            Members.Add(node);
-        }
-
-        public void Remove(ITreeViewNode node)
-        {
-            Members.Remove(node);
         }
 
         public void SelectRange(ITreeViewNode toNode)
@@ -145,7 +135,7 @@ namespace Auremo
             }
         }
 
-        public ISet<ITreeViewNode> Members
+        public ISet<ITreeViewNode> MultiSelection
         {
             get;
             private set;
@@ -157,7 +147,7 @@ namespace Auremo
             {
                 ISet<SongMetadataTreeViewNode> result = new SortedSet<SongMetadataTreeViewNode>();
 
-                foreach (ITreeViewNode node in Members)
+                foreach (ITreeViewNode node in MultiSelection)
                 {
                     InsertSongs(node, result);
                 }

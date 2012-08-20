@@ -31,7 +31,7 @@ namespace Auremo
         bool IsSelected { get; set; }
         bool IsExpanded { get; set; }
         bool IsMultiSelected { get; set; }
-        TreeViewMultiSelection MultiSelection { get; }
+        TreeViewController Controller { get; }
         int ID { get; set; }
         void OnAncestorCollapsed();
     }

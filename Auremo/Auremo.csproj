@@ -103,7 +103,7 @@
     <Compile Include="ServerStatus.cs" />
     <Compile Include="SongMetadata.cs" />
     <Compile Include="SongMetadataTreeViewNode.cs" />
-    <Compile Include="TreeViewMultiSelection.cs" />
+    <Compile Include="TreeViewController.cs" />
     <Compile Include="Utils.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

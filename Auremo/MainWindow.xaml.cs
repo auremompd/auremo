@@ -420,12 +420,12 @@ namespace Auremo
 
                 if (Keyboard.Modifiers == ModifierKeys.None)
                 {
-                    node.MultiSelection.Current = node;
-                    node.MultiSelection.Pivot = node;
+                    node.Controller.Current = node;
+                    node.Controller.Pivot = node;
 
                     if (!node.IsMultiSelected)
                     {
-                        node.MultiSelection.Clear();
+                        node.Controller.Clear();
                         node.IsMultiSelected = true;
                     }
                     else if (e.ClickCount == 1)
@@ -448,23 +448,23 @@ namespace Auremo
                 }
                 else if (Keyboard.Modifiers == ModifierKeys.Control)
                 {
-                    node.MultiSelection.Current = node;
+                    node.Controller.Current = node;
                     node.IsMultiSelected = !node.IsMultiSelected;
-                    node.MultiSelection.Pivot = node.IsMultiSelected ? node : null;
+                    node.Controller.Pivot = node.IsMultiSelected ? node : null;
                 }
                 else if (Keyboard.Modifiers == ModifierKeys.Shift)
                 {
-                    node.MultiSelection.Current = node;
-                    node.MultiSelection.Clear();
+                    node.Controller.Current = node;
+                    node.Controller.Clear();
 
-                    if (node.MultiSelection.Pivot == null)
+                    if (node.Controller.Pivot == null)
                     {
                         node.IsMultiSelected = true;
-                        node.MultiSelection.Pivot = node;
+                        node.Controller.Pivot = node;
                     }
                     else
                     {
-                        node.MultiSelection.SelectRange(node);
+                        node.Controller.SelectRange(node);
                     }
                 }
 
@@ -481,19 +481,19 @@ namespace Auremo
                 if (item != null && item.Header is ITreeViewNode)
                 {
                     ITreeViewNode node = item.Header as ITreeViewNode;
-                    node.MultiSelection.Clear();
+                    node.Controller.Clear();
                     node.IsMultiSelected = true;
-                    node.MultiSelection.Pivot = node;
+                    node.Controller.Pivot = node;
                 }
             }
         }
 
         private void OnDirectoryTreeKeyDown(object sender, KeyEventArgs e)
         {
-            OnTreeViewKeyDown((TreeView)sender, e, m_Database.DirectoryTreeMultiSelection);
+            OnTreeViewKeyDown((TreeView)sender, e, m_Database.DirectoryTreeController);
         }
 
-        private void OnTreeViewKeyDown(TreeView sender, KeyEventArgs e, TreeViewMultiSelection multiSelection)
+        private void OnTreeViewKeyDown(TreeView sender, KeyEventArgs e, TreeViewController controller)
         {
             e.Handled = true;
 
@@ -501,36 +501,36 @@ namespace Auremo
             {
                 bool currentChanged = false;
 
-                if (e.Key == Key.Up && EnsureTreeViewHasCurrentNode(multiSelection))
+                if (e.Key == Key.Up && EnsureTreeViewHasCurrentNode(controller))
                 {
-                    multiSelection.Current = multiSelection.Previous;
+                    controller.Current = controller.Previous;
                     currentChanged = true;
                 }
-                else if (e.Key == Key.Down && EnsureTreeViewHasCurrentNode(multiSelection))
+                else if (e.Key == Key.Down && EnsureTreeViewHasCurrentNode(controller))
                 {
-                    multiSelection.Current = multiSelection.Next;
+                    controller.Current = controller.Next;
                     currentChanged = true;
                 }
                 else if (e.Key == Key.Enter)
                 {
-                    if (multiSelection.Members.Count > 1)
+                    if (controller.MultiSelection.Count > 1)
                     {
-                        foreach (SongMetadataTreeViewNode leaf in multiSelection.Songs)
+                        foreach (SongMetadataTreeViewNode leaf in controller.Songs)
                         {
                             Protocol.Add(m_Connection, leaf.Song.Path);
                         }
 
                         Update();
                     }
-                    else if (multiSelection.Current != null)
+                    else if (controller.Current != null)
                     {
-                        if (multiSelection.Current is SongMetadataTreeViewNode)
+                        if (controller.Current is SongMetadataTreeViewNode)
                         {
-                            Protocol.Add(m_Connection, ((SongMetadataTreeViewNode)multiSelection.Current).Song.Path);
+                            Protocol.Add(m_Connection, ((SongMetadataTreeViewNode)controller.Current).Song.Path);
                         }
                         else
                         {
-                            multiSelection.Current.IsExpanded = !multiSelection.Current.IsExpanded;
+                            controller.Current.IsExpanded = !controller.Current.IsExpanded;
                         }
 
                         Update();
@@ -539,7 +539,7 @@ namespace Auremo
 
                 if (currentChanged)
                 {
-                    TreeViewItem item = GetTreeViewItem(m_DirectoryTree, multiSelection.Current);
+                    TreeViewItem item = GetTreeViewItem(m_DirectoryTree, controller.Current);
 
                     if (item != null)
                     {
@@ -548,22 +548,22 @@ namespace Auremo
 
                     if (Keyboard.Modifiers == ModifierKeys.None)
                     {
-                        multiSelection.Clear();
-                        multiSelection.Current.IsMultiSelected = true;
-                        multiSelection.Pivot = multiSelection.Current;
+                        controller.Clear();
+                        controller.Current.IsMultiSelected = true;
+                        controller.Pivot = controller.Current;
                     }
                     else if (Keyboard.Modifiers == ModifierKeys.Shift)
                     {
-                        if (multiSelection.Pivot == null)
+                        if (controller.Pivot == null)
                         {
-                            multiSelection.Clear();
-                            multiSelection.Current.IsMultiSelected = true;
-                            multiSelection.Pivot = multiSelection.Current;
+                            controller.Clear();
+                            controller.Current.IsMultiSelected = true;
+                            controller.Pivot = controller.Current;
                         }
                         else
                         {
-                            multiSelection.Clear();
-                            multiSelection.SelectRange(multiSelection.Current);
+                            controller.Clear();
+                            controller.SelectRange(controller.Current);
                         }
                     }
                 }
@@ -572,7 +572,7 @@ namespace Auremo
 
         private void OnTreeViewSelectionChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-            // Cancel the selection. Use the multiselection system instead.
+            // Cancel the selection. Use the controller multiselection system instead.
             ITreeViewNode node = e.NewValue as ITreeViewNode;
 
             if (node != null)
@@ -1173,12 +1173,12 @@ namespace Auremo
             throw new Exception("GetDragDropDataString: unknown drag source.");
         }
 
-        private bool EnsureTreeViewHasCurrentNode(TreeViewMultiSelection multiSelection)
+        private bool EnsureTreeViewHasCurrentNode(TreeViewController controller)
         {
-            if (multiSelection.Current == null)
+            if (controller.Current == null)
             {
-                multiSelection.Current = multiSelection.FirstNode;
-                return multiSelection.Current != null;
+                controller.Current = controller.FirstNode;
+                return controller.Current != null;
             }
 
             return true;
