@@ -76,14 +76,14 @@ namespace Auremo
                     root = root.Parent;
                 }
 
-                SelectVisibleWithinRange(root, Math.Min(Pivot.HierarchyID, toNode.HierarchyID), Math.Max(Pivot.HierarchyID, toNode.HierarchyID));
+                SelectVisibleWithinRange(root, Math.Min(Pivot.ID, toNode.ID), Math.Max(Pivot.ID, toNode.ID));
             }
         }
 
         private void SelectVisibleWithinRange(ITreeViewNode node, int minID, int maxID)
         {
             // TODO: there is plenty left to optimize here.
-            if (node.HierarchyID >= minID && node.HierarchyID <= maxID)
+            if (node.ID >= minID && node.ID <= maxID)
             {
                 node.IsMultiSelected = true;
             }
@@ -94,7 +94,7 @@ namespace Auremo
                 {
                     SelectVisibleWithinRange(child, minID, maxID);
 
-                    if (child.HierarchyID > maxID)
+                    if (child.ID > maxID)
                     {
                         return;
                     }
@@ -193,7 +193,7 @@ namespace Auremo
 
                 foreach (ITreeViewNode node in search)
                 {
-                    if (node.HierarchyID < current.HierarchyID)
+                    if (node.ID < current.ID)
                     {
                         best = node;
                     }
@@ -203,7 +203,7 @@ namespace Auremo
                     }
                 }
 
-                if (best.HierarchyID < current.HierarchyID - 1 && best.IsExpanded)
+                if (best.ID < current.ID - 1 && best.IsExpanded)
                 {
                     return GetPredecessor(current, best.Children, best);
                 }
@@ -234,11 +234,11 @@ namespace Auremo
                             return GetSuccessor(current, node.Children, bestAfter);
                         }
                     }
-                    else if (node.HierarchyID == current.HierarchyID + 1)
+                    else if (node.ID == current.ID + 1)
                     {
                         return node;
                     }
-                    else if (node.HierarchyID > current.HierarchyID)
+                    else if (node.ID > current.ID)
                     {
                         bestAfter = node;
                         break;
@@ -253,7 +253,7 @@ namespace Auremo
                 {
                     return GetSuccessor(current, bestBefore.Children, bestAfter);
                 }
-                else if (bestAfter.HierarchyID <= current.HierarchyID)
+                else if (bestAfter.ID <= current.ID)
                 {
                     return current;
                 }
