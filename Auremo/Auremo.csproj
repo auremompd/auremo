@@ -94,7 +94,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="DirectoryTreeViewModel.cs" />
+    <Compile Include="DirectoryTreeViewNode.cs" />
     <Compile Include="ITreeViewNode.cs" />
     <Compile Include="Protocol.cs" />
     <Compile Include="ServerConnection.cs" />

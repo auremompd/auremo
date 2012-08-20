@@ -311,7 +311,7 @@ namespace Auremo
         {
             TreeViewMultiSelection multiSelection = new TreeViewMultiSelection(m_DirectoryTree);   
             m_DirectoryTree.Clear();
-            m_DirectoryTreeRoot = new DirectoryTreeViewModel("/", null, multiSelection);
+            m_DirectoryTreeRoot = new DirectoryTreeViewNode("/", null, multiSelection);
             IDictionary<string, ITreeViewNode> directoryLookup = new SortedDictionary<string, ITreeViewNode>();
             directoryLookup[m_DirectoryTreeRoot.DisplayString] = m_DirectoryTreeRoot;
 
@@ -343,7 +343,7 @@ namespace Auremo
             {
                 Tuple<string, string> parentAndSelf = Utils.SplitPath(path);
                 ITreeViewNode parent = FindDirectoryViewModel(parentAndSelf.Item1, lookup, multiSelection);
-                ITreeViewNode self = new DirectoryTreeViewModel(parentAndSelf.Item2, parent, multiSelection);
+                ITreeViewNode self = new DirectoryTreeViewNode(parentAndSelf.Item2, parent, multiSelection);
                 parent.AddChild(self);
                 lookup[path] = self;
                 return self;
