@@ -26,7 +26,7 @@ namespace Auremo
     /// <summary>
     /// Wraps a SongMetadata object so that it can be consumed by a TreeView[Item].
     /// </summary>
-    public class SongMetadataTreeViewModel : ITreeViewNode, INotifyPropertyChanged, IComparable
+    public class SongMetadataTreeViewNode : ITreeViewNode, INotifyPropertyChanged, IComparable
     {
         #region INotifyPropertyChanged implementation
 
@@ -46,7 +46,7 @@ namespace Auremo
         private bool m_IsSelected = false;
         private bool m_IsMultiSelected = false;
 
-        public SongMetadataTreeViewModel(string filename, SongMetadata song, ITreeViewNode parent, TreeViewMultiSelection multiSelection)
+        public SongMetadataTreeViewNode(string filename, SongMetadata song, ITreeViewNode parent, TreeViewMultiSelection multiSelection)
         {
             m_Filename = filename;
             Song = song;

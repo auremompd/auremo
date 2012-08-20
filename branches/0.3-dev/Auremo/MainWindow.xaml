@@ -97,7 +97,7 @@
                                     <HierarchicalDataTemplate DataType="{x:Type l:DirectoryTreeViewNode}" ItemsSource="{Binding Children}">
                                         <TextBlock Text="{Binding DisplayString}"/>
                                     </HierarchicalDataTemplate>
-                                    <HierarchicalDataTemplate DataType="{x:Type l:SongMetadataTreeViewModel}" ItemsSource="{Binding Children}">
+                                    <HierarchicalDataTemplate DataType="{x:Type l:SongMetadataTreeViewNode}" ItemsSource="{Binding Children}">
                                         <TextBlock Text="{Binding DisplayString}"/>
                                     </HierarchicalDataTemplate>
                                 </TreeView.Resources>
