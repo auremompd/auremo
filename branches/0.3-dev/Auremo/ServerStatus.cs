@@ -48,7 +48,6 @@ namespace Auremo
         private bool m_Random = false;
         private bool m_Repeat = false;
         private string m_State = "";
-
         
         public ServerStatus()
         {
