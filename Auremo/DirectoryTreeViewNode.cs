@@ -28,168 +28,20 @@ namespace Auremo
     /// Wraps a directory (aka folder) name so that it can be consumed by a
     /// TreeView[Item].
     /// </summary>
-    public class DirectoryTreeViewNode : ITreeViewNode, INotifyPropertyChanged, IComparable
+    public class DirectoryTreeViewNode : TreeViewNode
     {
-        #region INotifyPropertyChanged implementation
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void NotifyPropertyChanged(string info)
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(info));
-            }
-        }
-
-        #endregion
-
         private string m_DirectoryName = "";
-        private IList<ITreeViewNode> m_Children = new ObservableCollection<ITreeViewNode>();
-        private bool m_IsSelected = false;
-        private bool m_IsExpanded = false;
-        private bool m_IsMultiSelected = false;
 
-        public DirectoryTreeViewNode(string name, ITreeViewNode parent, TreeViewController controller)
+        public DirectoryTreeViewNode(string name, TreeViewNode parent, TreeViewController controller) : base(parent, controller)
         {
             m_DirectoryName = name;
-            Parent = parent;
-            Controller = controller;
-            ID = -1;
         }
 
-        public string DisplayString
+        public override string DisplayString
         {
             get
             {
                 return m_DirectoryName;
-            }
-        }
-
-        public void AddChild(ITreeViewNode child)
-        {
-            m_Children.Add(child);
-            NotifyPropertyChanged("Children");
-        }
-
-        public ITreeViewNode Parent
-        {
-            get;
-            private set;
-        }
-        
-        public IList<ITreeViewNode> Children
-        {
-            get
-            {
-                return m_Children;
-            }
-        }
-
-        public bool IsSelected
-        {
-            get
-            {
-                return m_IsSelected;
-            }
-            set
-            {
-                if (value != m_IsSelected)
-                {
-                    m_IsSelected = value;
-                    NotifyPropertyChanged("IsSelected");
-                }
-            }
-        }
-
-        public bool IsExpanded
-        {
-            get
-            {
-                return m_IsExpanded;
-            }
-            set
-            {
-                if (value != m_IsExpanded)
-                {
-                    m_IsExpanded = value;
-
-                    if (m_IsExpanded)
-                    {
-                        if (Parent != null)
-                        {
-                            Parent.IsExpanded = true;
-                        }
-                    }
-                    else
-                    {
-                        foreach (ITreeViewNode child in Children)
-                        {
-                            child.OnAncestorCollapsed();
-                        }
-                    }
-
-                    NotifyPropertyChanged("IsExpanded");
-                }
-            }
-        }
-
-        public bool IsMultiSelected
-        {
-            get
-            {
-                return m_IsMultiSelected;
-            }
-            set
-            {
-                if (value != m_IsMultiSelected)
-                {
-                    if (value)
-                    {
-                        Controller.MultiSelection.Add(this);
-                    }
-                    else
-                    {
-                        Controller.MultiSelection.Remove(this);
-                    }
-
-                    m_IsMultiSelected = value;
-                    NotifyPropertyChanged("IsMultiSelected");
-                }
-            }
-        }
-
-        public TreeViewController Controller
-        {
-            get;
-            private set;
-        }
-
-        public int ID
-        {
-            get;
-            set;
-        }
-
-        public void OnAncestorCollapsed()
-        {
-            IsMultiSelected = false;
-
-            foreach (ITreeViewNode child in Children)
-            {
-                child.OnAncestorCollapsed();
-            }
-        }
-            
-        public int CompareTo(object o)
-        {
-            if (o is ITreeViewNode)
-            {
-                return ID - ((ITreeViewNode)o).ID;
-            }
-            else
-            {
-                throw new Exception("DirectoryTreeViewNode: attempt to compare to an incompatible object");
             }
         }
 

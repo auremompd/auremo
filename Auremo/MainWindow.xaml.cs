@@ -414,9 +414,9 @@ namespace Auremo
         {
             TreeViewItem item = TreeViewItemBeingClicked(sender as TreeView, e);
 
-            if (item != null && item.Header is ITreeViewNode)
+            if (item != null && item.Header is TreeViewNode)
             {
-                ITreeViewNode node = item.Header as ITreeViewNode;
+                TreeViewNode node = item.Header as TreeViewNode;
 
                 if (Keyboard.Modifiers == ModifierKeys.None)
                 {
@@ -478,9 +478,9 @@ namespace Auremo
             {
                 TreeViewItem item = TreeViewItemBeingClicked(sender as TreeView, e);
 
-                if (item != null && item.Header is ITreeViewNode)
+                if (item != null && item.Header is TreeViewNode)
                 {
-                    ITreeViewNode node = item.Header as ITreeViewNode;
+                    TreeViewNode node = item.Header as TreeViewNode;
                     node.Controller.Clear();
                     node.IsMultiSelected = true;
                     node.Controller.Pivot = node;
@@ -573,7 +573,7 @@ namespace Auremo
         private void OnTreeViewSelectionChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             // Cancel the selection. Use the controller multiselection system instead.
-            ITreeViewNode node = e.NewValue as ITreeViewNode;
+            TreeViewNode node = e.NewValue as TreeViewNode;
 
             if (node != null)
             {
@@ -1185,7 +1185,7 @@ namespace Auremo
         }
 
         // nodeContainer must be either a TreeView or a TreeViewItem.
-        private TreeViewItem GetTreeViewItem(ItemsControl nodeContainer, ITreeViewNode node)
+        private TreeViewItem GetTreeViewItem(ItemsControl nodeContainer, TreeViewNode node)
         {
             if (nodeContainer == null || node == null)
             {
@@ -1201,9 +1201,9 @@ namespace Auremo
                 {
                     nodeWithHighestLowerID = item;
                     item = nodeContainer.ItemContainerGenerator.ContainerFromIndex(i++) as TreeViewItem;
-                } while (item != null && ((ITreeViewNode)item.Header).ID < node.ID);
+                } while (item != null && ((TreeViewNode)item.Header).ID < node.ID);
 
-                if (item != null && ((ITreeViewNode)item.Header).ID == node.ID)
+                if (item != null && ((TreeViewNode)item.Header).ID == node.ID)
                 {
                     return item;
                 }

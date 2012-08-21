@@ -95,7 +95,6 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="DirectoryTreeViewNode.cs" />
-    <Compile Include="ITreeViewNode.cs" />
     <Compile Include="Protocol.cs" />
     <Compile Include="ServerConnection.cs" />
     <Compile Include="ServerResponse.cs" />
@@ -104,6 +103,7 @@
     <Compile Include="SongMetadata.cs" />
     <Compile Include="SongMetadataTreeViewNode.cs" />
     <Compile Include="TreeViewController.cs" />
+    <Compile Include="TreeViewNode.cs" />
     <Compile Include="Utils.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

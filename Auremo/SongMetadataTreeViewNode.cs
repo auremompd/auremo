@@ -26,129 +26,16 @@ namespace Auremo
     /// <summary>
     /// Wraps a SongMetadata object so that it can be consumed by a TreeView[Item].
     /// </summary>
-    public class SongMetadataTreeViewNode : ITreeViewNode, INotifyPropertyChanged, IComparable
+    public class SongMetadataTreeViewNode : TreeViewNode
     {
-        #region INotifyPropertyChanged implementation
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void NotifyPropertyChanged(string info)
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(info));
-            }
-        }
-
-        #endregion
-
         private string m_Filename = "";
-        private bool m_IsSelected = false;
-        private bool m_IsMultiSelected = false;
+        private bool m_ParentIsDirectory = false;
 
-        public SongMetadataTreeViewNode(string filename, SongMetadata song, ITreeViewNode parent, TreeViewController controller)
+        public SongMetadataTreeViewNode(string filename, SongMetadata song, TreeViewNode parent, TreeViewController controller) : base(parent, controller)
         {
             m_Filename = filename;
+            m_ParentIsDirectory = Parent == null || Parent is DirectoryTreeViewNode;
             Song = song;
-            Parent = parent;
-            Controller = controller;
-            ID = -1;
-        }
-
-        public string DisplayString
-        {
-            get
-            {
-                return m_Filename;
-            }
-        }
-
-        public void AddChild(ITreeViewNode child)
-        {
-            throw new Exception("Attempt to add a child to a SongMetadataTreeViewNode.");
-        }
-
-        public ITreeViewNode Parent
-        {
-            get;
-            private set;
-        }
-
-        public IList<ITreeViewNode> Children
-        {
-            get
-            {
-                return new List<ITreeViewNode>(); // Can't have child nodes.
-            }
-        }
-
-        public bool IsSelected
-        {
-            get
-            {
-                return m_IsSelected;
-            }
-            set
-            {
-                if (value != m_IsSelected)
-                {
-                    m_IsSelected = value;
-                    NotifyPropertyChanged("IsSelected");
-                }
-            }
-        }
-
-        public bool IsExpanded
-        {
-            get
-            {
-                return false; // A song is a leaf node in any tree.
-            }
-            set
-            {
-            }
-        }
-
-        public bool IsMultiSelected
-        {
-            get
-            {
-                return m_IsMultiSelected;
-            }
-            set
-            {
-                if (value != m_IsMultiSelected)
-                {
-                    if (value)
-                    {
-                        Controller.MultiSelection.Add(this);
-                    }
-                    else
-                    {
-                        Controller.MultiSelection.Remove(this);
-                    }
-
-                    m_IsMultiSelected = value;
-                    NotifyPropertyChanged("IsMultiSelected");
-                }
-            }
-        }
-
-        public TreeViewController Controller
-        {
-            get;
-            private set;
-        }
-
-        public int ID
-        {
-            get;
-            set;
-        }
-
-        public void OnAncestorCollapsed()
-        {
-            IsMultiSelected = false;
         }
 
         public SongMetadata Song
@@ -157,21 +44,22 @@ namespace Auremo
             private set;
         }
 
-        public int CompareTo(object o)
+        public override string DisplayString
         {
-            if (o is ITreeViewNode)
+            get
             {
-                return ID - ((ITreeViewNode)o).ID;
+                return m_ParentIsDirectory ? m_Filename : Song.Title;
             }
-            else
-            {
-                throw new Exception("SongMetadataTreeViewNode: attempt to compare to an incompatible object");
-            }
+        }
+
+        public override void AddChild(TreeViewNode child)
+        {
+            throw new Exception("Attempt to add a child to a SongMetadataTreeViewNode.");
         }
 
         public override string ToString()
         {
-            return Parent.ToString() + "/" + m_Filename;
+            return Parent.ToString() + "/" + DisplayString;
         }
     }
 }
