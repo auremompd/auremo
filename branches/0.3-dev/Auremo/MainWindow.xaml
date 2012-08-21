@@ -94,10 +94,7 @@
                         <TabItem Header="Directory tree" Style="{StaticResource BottomTabItemStyle}" Width="120">
                             <TreeView Name="m_DirectoryTree" ItemsSource="{Binding DirectoryTree}" Style="{StaticResource TreeViewStyle}" ItemContainerStyle="{StaticResource TreeViewContainerStyle}" PreviewMouseLeftButtonDown="OnTreeViewMouseDown" MouseMove="OnMouseMoveDragDrop" MouseUp="OnTreeViewMouseUp" PreviewKeyDown="OnDirectoryTreeKeyDown" SelectedItemChanged="OnTreeViewSelectionChanged">
                                 <TreeView.Resources>
-                                    <HierarchicalDataTemplate DataType="{x:Type l:DirectoryTreeViewNode}" ItemsSource="{Binding Children}">
-                                        <TextBlock Text="{Binding DisplayString}"/>
-                                    </HierarchicalDataTemplate>
-                                    <HierarchicalDataTemplate DataType="{x:Type l:SongMetadataTreeViewNode}" ItemsSource="{Binding Children}">
+                                    <HierarchicalDataTemplate DataType="{x:Type l:TreeViewNode}" ItemsSource="{Binding Children}">
                                         <TextBlock Text="{Binding DisplayString}"/>
                                     </HierarchicalDataTemplate>
                                 </TreeView.Resources>
