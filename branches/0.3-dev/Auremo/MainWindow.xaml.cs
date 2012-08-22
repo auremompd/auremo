@@ -92,10 +92,7 @@ namespace Auremo
 
         private void SetUpDataBindings()
         {
-            m_ArtistsView.DataContext = m_Database;
-            m_AlbumsBySelectedArtistsView.DataContext = m_Database;
-            m_SongsOnSelectedAlbumsView.DataContext = m_Database;
-            m_DirectoryTree.DataContext = m_Database;
+            m_CollectionBrowsingModes.DataContext = m_Database;
             m_PlaylistView.DataContext = m_Playlist;
             m_PlaybackControls.DataContext = m_ServerStatus;
             m_PlayStatusMessage.DataContext = m_Playlist;
@@ -493,6 +490,11 @@ namespace Auremo
             OnTreeViewKeyDown((TreeView)sender, e, m_Database.DirectoryTreeController);
         }
 
+        private void OnArtistTreeKeyDown(object sender, KeyEventArgs e)
+        {
+            OnTreeViewKeyDown((TreeView)sender, e, m_Database.ArtistTreeController);
+        }
+
         private void OnTreeViewKeyDown(TreeView sender, KeyEventArgs e, TreeViewController controller)
         {
             e.Handled = true;
@@ -641,6 +643,10 @@ namespace Auremo
                         if (m_DragSource == m_DirectoryTree)
                         {
                             selection = m_Database.DirectoryTreeSelectedSongs;
+                        }
+                        else if (m_DragSource == m_ArtistTree)
+                        {
+                            selection = m_Database.ArtistTreeSelectedSongs;
                         }
 
                         if (selection != null)
@@ -1160,8 +1166,7 @@ namespace Auremo
             {
                 return AddAlbums;
             }
-            else if (dragSource == m_SongsOnSelectedAlbumsView ||
-                dragSource == m_DirectoryTree)
+            else if (dragSource is TreeView)
             {
                 return AddSongs;
             }

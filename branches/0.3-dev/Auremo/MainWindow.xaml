@@ -32,8 +32,17 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <TabControl Style="{StaticResource TabControlStyle}" TabStripPlacement="Bottom">
-                        <TabItem Header="Artist list" Style="{StaticResource BottomTabItemStyle}" Width="120">
+                    <TabControl Name="m_CollectionBrowsingModes" Style="{StaticResource TabControlStyle}" TabStripPlacement="Bottom">
+                        <TabItem Header="Filesystem" Style="{StaticResource BottomTabItemStyle}" Width="80">
+                            <TreeView Name="m_DirectoryTree" ItemsSource="{Binding DirectoryTree}" Style="{StaticResource TreeViewStyle}" ItemContainerStyle="{StaticResource TreeViewContainerStyle}" PreviewMouseLeftButtonDown="OnTreeViewMouseDown" MouseMove="OnMouseMoveDragDrop" MouseUp="OnTreeViewMouseUp" PreviewKeyDown="OnDirectoryTreeKeyDown" SelectedItemChanged="OnTreeViewSelectionChanged">
+                                <TreeView.Resources>
+                                    <HierarchicalDataTemplate DataType="{x:Type l:TreeViewNode}" ItemsSource="{Binding Children}">
+                                        <TextBlock Text="{Binding DisplayString}"/>
+                                    </HierarchicalDataTemplate>
+                                </TreeView.Resources>
+                            </TreeView>
+                        </TabItem>
+                        <TabItem Header="Artist list" Style="{StaticResource BottomTabItemStyle}" Width="80">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="*"/>
@@ -91,8 +100,8 @@
                                 </DataGrid>
                             </Grid>
                         </TabItem>
-                        <TabItem Header="Directory tree" Style="{StaticResource BottomTabItemStyle}" Width="120">
-                            <TreeView Name="m_DirectoryTree" ItemsSource="{Binding DirectoryTree}" Style="{StaticResource TreeViewStyle}" ItemContainerStyle="{StaticResource TreeViewContainerStyle}" PreviewMouseLeftButtonDown="OnTreeViewMouseDown" MouseMove="OnMouseMoveDragDrop" MouseUp="OnTreeViewMouseUp" PreviewKeyDown="OnDirectoryTreeKeyDown" SelectedItemChanged="OnTreeViewSelectionChanged">
+                        <TabItem Header="Artist tree" Style="{StaticResource BottomTabItemStyle}" Width="80">
+                            <TreeView Name="m_ArtistTree" ItemsSource="{Binding ArtistTree}" Style="{StaticResource TreeViewStyle}" ItemContainerStyle="{StaticResource TreeViewContainerStyle}" PreviewMouseLeftButtonDown="OnTreeViewMouseDown" MouseMove="OnMouseMoveDragDrop" MouseUp="OnTreeViewMouseUp" PreviewKeyDown="OnArtistTreeKeyDown" SelectedItemChanged="OnTreeViewSelectionChanged">
                                 <TreeView.Resources>
                                     <HierarchicalDataTemplate DataType="{x:Type l:TreeViewNode}" ItemsSource="{Binding Children}">
                                         <TextBlock Text="{Binding DisplayString}"/>

@@ -26,24 +26,23 @@ namespace Auremo
 {
     public class Database
     {
-        private ISet<string> m_ArtistInfo = new SortedSet<string>();
+        private IList<string> m_Artists = new ObservableCollection<string>();
         private IDictionary<string, ISet<AlbumMetadata>> m_AlbumsByArtist = new SortedDictionary<string, ISet<AlbumMetadata>>();
         private IDictionary<AlbumMetadata, ISet<string>> m_SongPathsByAlbum = new SortedDictionary<AlbumMetadata, ISet<string>>();
         private IDictionary<string, SongMetadata> m_SongInfo = new SortedDictionary<string, SongMetadata>();
-        private IList<string> m_Artists = new ObservableCollection<string>();
         private IList<AlbumMetadata> m_AlbumsBySelectedArtists = new ObservableCollection<AlbumMetadata>();
         private IList<SongMetadata> m_SongsOnSelectedAlbums = new ObservableCollection<SongMetadata>();
-
         private IList<TreeViewNode> m_DirectoryTree = new ObservableCollection<TreeViewNode>();
         private TreeViewNode m_DirectoryTreeRoot = null;
+        private TreeViewController m_ArtistTreeController = null;
 
         public Database()
         {
+            ArtistTree = new ObservableCollection<TreeViewNode>();
         }
 
         public bool Refresh(ServerConnection connection)
         {
-            m_ArtistInfo.Clear();
             m_AlbumsByArtist.Clear();
             m_SongPathsByAlbum.Clear();
             m_SongInfo.Clear();
@@ -57,6 +56,7 @@ namespace Auremo
                 PopulateAlbumsByArtist();
                 PopulateSongPathsByAlbum();
                 PopulateDirectoryTree();
+                PopulateArtistTree();
             }
 
             return true;
@@ -140,12 +140,33 @@ namespace Auremo
             }
         }
 
-
         public ISet<SongMetadataTreeViewNode> DirectoryTreeSelectedSongs
         {
             get
             {
                 return m_DirectoryTreeRoot.Controller.Songs;
+            }
+        }
+
+        public IList<TreeViewNode> ArtistTree
+        {
+            get;
+            private set;
+        }
+
+        public TreeViewController ArtistTreeController
+        {
+            get
+            {
+                return m_ArtistTreeController;
+            }
+        }
+
+        public ISet<SongMetadataTreeViewNode> ArtistTreeSelectedSongs
+        {
+            get
+            {
+                return m_ArtistTreeController.Songs;
             }
         }
 
@@ -350,7 +371,39 @@ namespace Auremo
             }
         }
 
-        int AssignTreeViewNodeIDs(TreeViewNode node, int nodeID)
+        private void PopulateArtistTree()
+        {
+            m_ArtistTreeController = new TreeViewController(ArtistTree);
+            ArtistTree.Clear();
+
+            foreach (string artist in m_Artists)
+            {
+                ArtistTreeViewNode artistNode = new ArtistTreeViewNode(artist, null, m_ArtistTreeController);
+
+                foreach (AlbumMetadata album in Albums(artist))
+                {
+                    AlbumMetadataTreeViewNode albumNode = new AlbumMetadataTreeViewNode(album, artistNode, m_ArtistTreeController);
+                    artistNode.AddChild(albumNode);
+
+                    foreach (SongMetadata song in Songs(album))
+                    {
+                        SongMetadataTreeViewNode songNode = new SongMetadataTreeViewNode("", song, albumNode, m_ArtistTreeController);
+                        albumNode.AddChild(songNode);
+                    }
+                }
+
+                ArtistTree.Add(artistNode); // Insert now that branch is fully populated.
+            }
+
+            int id = 0;
+
+            foreach (TreeViewNode baseNode in ArtistTree)
+            {
+                id = AssignTreeViewNodeIDs(baseNode, id);
+            }
+        }
+
+        private int AssignTreeViewNodeIDs(TreeViewNode node, int nodeID)
         {
             node.ID = nodeID;
             int nextNodeID = nodeID + 1;

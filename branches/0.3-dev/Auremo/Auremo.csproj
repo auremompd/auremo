@@ -94,6 +94,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AlbumMetadataTreeViewNode.cs" />
+    <Compile Include="ArtistTreeViewNode.cs" />
     <Compile Include="DirectoryTreeViewNode.cs" />
     <Compile Include="Protocol.cs" />
     <Compile Include="ServerConnection.cs" />
