@@ -1,6 +1,14 @@
 Version history and change log
 ==============================
 
+Auremo 0.2.1
+------------
+
+ * Fix crash with some music collections with incomplete tags.
+ * Fix a bug that caused a tree view node be be unselected when being
+   collapsed.
+ * Released 26th August 2012.
+
 Auremo 0.2.0
 ------------
  
@@ -13,8 +21,11 @@ Auremo 0.2.0
    the playlist to describe the drag operation.
  * Fix a bug that caused the space bar to only work outside the
    music tab.
+ * Released 16th August 2012.
+
 
 Auremo 0.1.0
 ------------
+
  * Initial version.
  * Released 30th July 2012.
