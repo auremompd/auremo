@@ -2,6 +2,13 @@
 
 = Version history =
 
+== Auremo 0.2.1 ==
+
+ * Fix crash with some music collections with incomplete tags.
+ * Fix a bug that caused a tree view node be be unselected when being
+   collapsed.
+ * Released 26th August 2012.
+
 == Auremo 0.2.0 ==
 
  * Add tabs for selecting a way to view the music collection.
