@@ -4,7 +4,7 @@
 
 Auremo is a simple graphical standalone client for Music Player Daemon. It runs on Windows Vista, 7 and 8.
 
-== Design ==-
+== Design ==
 
 Auremo's design philosophy is to provide a straightforward MPD client that has enough features to satisfy most users, yet is very easy to install and run. It is designed mainly for desktop and laptop computers that have a pointing device suitable for drag and drop.
 
