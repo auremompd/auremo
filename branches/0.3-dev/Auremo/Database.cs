@@ -340,8 +340,7 @@ namespace Auremo
 
             foreach (SongMetadata song in m_SongInfo.Values)
             {
-                if (song.Genre != null) // TODO: remove after merging default values!
-                   uniqueGenres.Add(song.Genre);
+                uniqueGenres.Add(song.Genre);
             }
 
             foreach (string genre in uniqueGenres)
@@ -378,20 +377,17 @@ namespace Auremo
         {
             foreach (SongMetadata song in m_SongInfo.Values)
             {
-                if (song.Genre != null) // TODO: remove unnecessary null check.
+                if (!m_AlbumsByGenre.ContainsKey(song.Genre))
                 {
-                    if (!m_AlbumsByGenre.ContainsKey(song.Genre))
-                    {
-                        m_AlbumsByGenre[song.Genre] = new SortedSet<AlbumMetadata>();
-                    }
-
-                    AlbumMetadata album = new AlbumMetadata();
-                    album.Artist = song.Artist;
-                    album.Title = song.Album;
-                    album.Year = song.Year;
-
-                    m_AlbumsByGenre[song.Genre].Add(album);
+                    m_AlbumsByGenre[song.Genre] = new SortedSet<AlbumMetadata>();
                 }
+
+                AlbumMetadata album = new AlbumMetadata();
+                album.Artist = song.Artist;
+                album.Title = song.Album;
+                album.Year = song.Year;
+
+                m_AlbumsByGenre[song.Genre].Add(album);
             }
 
         }
