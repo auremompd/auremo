@@ -31,7 +31,7 @@ namespace Auremo
         private IDictionary<AlbumMetadata, ISet<string>> m_SongPathsByAlbum = new SortedDictionary<AlbumMetadata, ISet<string>>();
         private IDictionary<string, SongMetadata> m_SongInfo = new SortedDictionary<string, SongMetadata>();
         private IList<AlbumMetadata> m_AlbumsBySelectedArtists = new ObservableCollection<AlbumMetadata>();
-        private IList<SongMetadata> m_SongsOnSelectedAlbums = new ObservableCollection<SongMetadata>();
+        private IList<SongMetadata> m_SongsOnSelectedArtistAlbums = new ObservableCollection<SongMetadata>();
         private IList<TreeViewNode> m_DirectoryTree = new ObservableCollection<TreeViewNode>();
         private TreeViewNode m_DirectoryTreeRoot = null;
         private TreeViewController m_ArtistTreeController = null;
@@ -97,9 +97,9 @@ namespace Auremo
             }
         }
 
-        public void OnSelectedAlbumsChanged(IList selection)
+        public void OnSelectedArtistAlbumsChanged(IList selection)
         {
-            m_SongsOnSelectedAlbums.Clear();
+            m_SongsOnSelectedArtistAlbums.Clear();
             ISet<AlbumMetadata> sortedAlbums = new SortedSet<AlbumMetadata>();
 
             foreach (object o in selection)
@@ -111,16 +111,16 @@ namespace Auremo
             {
                 foreach (string song in m_SongPathsByAlbum[album])
                 {
-                    m_SongsOnSelectedAlbums.Add(m_SongInfo[song]);
+                    m_SongsOnSelectedArtistAlbums.Add(m_SongInfo[song]);
                 }
             }
         }
 
-        public IList<SongMetadata> SongsOnSelectedAlbums
+        public IList<SongMetadata> SongsOnSelectedArtistAlbums
         {
             get
             {
-                return m_SongsOnSelectedAlbums;
+                return m_SongsOnSelectedArtistAlbums;
             }
         }
 
@@ -170,7 +170,7 @@ namespace Auremo
             }
         }
 
-        public ISet<AlbumMetadata> Albums(string byArtist)
+        public ISet<AlbumMetadata> ArtistAlbums(string byArtist)
         {
             ISet<AlbumMetadata> result = new SortedSet<AlbumMetadata>();
 
@@ -380,7 +380,7 @@ namespace Auremo
             {
                 ArtistTreeViewNode artistNode = new ArtistTreeViewNode(artist, null, m_ArtistTreeController);
 
-                foreach (AlbumMetadata album in Albums(artist))
+                foreach (AlbumMetadata album in ArtistAlbums(artist))
                 {
                     AlbumMetadataTreeViewNode albumNode = new AlbumMetadataTreeViewNode(album, artistNode, m_ArtistTreeController);
                     artistNode.AddChild(albumNode);
