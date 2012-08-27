@@ -26,6 +26,7 @@ namespace Auremo
     {
         public AlbumMetadata()
         {
+            Title = "Unknown Album";
         }
 
         public AlbumMetadata(string artist, string albumTitle, int? year)

@@ -27,13 +27,14 @@ namespace Auremo
         public SongMetadata()
         {
             Path = null;
-            Title = null;
-            Artist = null;
-            Album = null;
-            Genre = null;
             Length = null;
             Track = null;
             Year = null;
+
+            Artist = "Unknown Artist";
+            Genre = "No Genre";
+            Album = "Unknown Album";
+            Title = "Unknown Title";
         }
 
         public string Path
