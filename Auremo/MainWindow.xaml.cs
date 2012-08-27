@@ -308,7 +308,7 @@ namespace Auremo
         {
             if (e.Key == Key.Enter)
             {
-                foreach (SongMetadata song in m_Database.SongsOnSelectedAlbums)
+                foreach (SongMetadata song in m_Database.SongsOnSelectedArtistAlbums)
                 {
                     Protocol.Add(m_Connection, song.Path);
                 }
@@ -356,7 +356,7 @@ namespace Auremo
 
         private void OnSelectedAlbumsChanged(object sender, SelectionChangedEventArgs e)
         {
-            m_Database.OnSelectedAlbumsChanged(m_AlbumsBySelectedArtistsView.SelectedItems);
+            m_Database.OnSelectedArtistAlbumsChanged(m_AlbumsBySelectedArtistsView.SelectedItems);
         }
 
         private void OnSongsOnAlbumsViewDoubleClicked(object sender, MouseButtonEventArgs e)
@@ -779,7 +779,7 @@ namespace Auremo
                     foreach (object o in m_DragDropPayload)
                     {
                         string artist = (string)o;
-                        ISet<AlbumMetadata> albums = m_Database.Albums(artist);
+                        ISet<AlbumMetadata> albums = m_Database.ArtistAlbums(artist);
 
                         foreach (AlbumMetadata album in albums)
                         {
