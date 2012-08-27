@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -44,6 +45,20 @@ namespace Auremo
                     ResponseLines.Add(new ServerResponseLine(line));
                 }
             }
+        }
+
+        // For debugging only.
+        public static ServerResponse FromFile(string filename)
+        {
+            IEnumerable<string> contents = File.ReadLines(filename, Encoding.UTF8);
+            IList<string> lines = new List<string>();
+
+            foreach (string line in contents)
+            {
+                lines.Add(line);
+            }
+
+            return new ServerResponse(lines);
         }
 
         public IList<ServerResponseLine> ResponseLines
