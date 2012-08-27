@@ -26,6 +26,10 @@ namespace Auremo
     {
         public SongMetadata()
         {
+            Artist = "Unknown Artist";
+            Genre = "No Genre";
+            Album = "Unknown Album";
+            Title = "Unknown Title";
         }
 
         private string m_Path = null;
