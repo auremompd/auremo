@@ -7,6 +7,7 @@
 These features are already available in SVN in the 0.2-dev branch. All or some of them may also be available as a preview release in the downloads section.
 
   * Add an artist/album/song tree view of the music collection.
+  * Add a genre/album/song tree view of the music collection.
 
 == Features to add ==
 
