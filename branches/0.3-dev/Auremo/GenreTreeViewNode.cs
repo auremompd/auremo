@@ -22,23 +22,14 @@ using System.Text;
 
 namespace Auremo
 {
-    public class AlbumMetadataTreeViewNode : TreeViewNode
+    public class GenreTreeViewNode : TreeViewNode
     {
-        private string m_DisplayString = null;
-
-        public AlbumMetadataTreeViewNode(AlbumMetadata album, TreeViewNode parent, TreeViewController controller) :
-            this(album, parent, controller, album.Title)
+        public GenreTreeViewNode(string genre, TreeViewNode parent, TreeViewController controller) : base(parent, controller)
         {
+            Genre = genre;
         }
 
-        public AlbumMetadataTreeViewNode(AlbumMetadata album, TreeViewNode parent, TreeViewController controller, string displayString) :            
-            base(parent, controller)
-        {
-            Album = album;
-            m_DisplayString = displayString;
-        }
-
-        public AlbumMetadata Album
+        public string Genre
         {
             get;
             private set;
@@ -48,13 +39,13 @@ namespace Auremo
         {
             get
             {
-                return m_DisplayString;
+                return Genre;
             }
         }
 
         public override string ToString()
         {
-            return Parent.ToString() + "/" + Album.Title;
+            return Genre;
         }
     }
 }

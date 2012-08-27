@@ -495,6 +495,11 @@ namespace Auremo
             OnTreeViewKeyDown((TreeView)sender, e, m_Database.ArtistTreeController);
         }
 
+        private void OnGenreTreeKeyDown(object sender, KeyEventArgs e)
+        {
+            OnTreeViewKeyDown((TreeView)sender, e, m_Database.GenreTreeController);
+        }
+
         private void OnTreeViewKeyDown(TreeView sender, KeyEventArgs e, TreeViewController controller)
         {
             e.Handled = true;
@@ -647,6 +652,10 @@ namespace Auremo
                         else if (m_DragSource == m_ArtistTree)
                         {
                             selection = m_Database.ArtistTreeSelectedSongs;
+                        }
+                        else if (m_DragSource == m_GenreTree)
+                        {
+                            selection = m_Database.GenreTreeSelectedSongs;
                         }
 
                         if (selection != null)

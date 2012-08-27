@@ -109,6 +109,15 @@
                                 </TreeView.Resources>
                             </TreeView>
                         </TabItem>
+                        <TabItem Header="Genre tree" Style="{StaticResource BottomTabItemStyle}" Width="80">
+                            <TreeView Name="m_GenreTree" ItemsSource="{Binding GenreTree}" Style="{StaticResource TreeViewStyle}" ItemContainerStyle="{StaticResource TreeViewContainerStyle}" PreviewMouseLeftButtonDown="OnTreeViewMouseDown" MouseMove="OnMouseMoveDragDrop" MouseUp="OnTreeViewMouseUp" PreviewKeyDown="OnGenreTreeKeyDown" SelectedItemChanged="OnTreeViewSelectionChanged">
+                                <TreeView.Resources>
+                                    <HierarchicalDataTemplate DataType="{x:Type l:TreeViewNode}" ItemsSource="{Binding Children}">
+                                        <TextBlock Text="{Binding DisplayString}"/>
+                                    </HierarchicalDataTemplate>
+                                </TreeView.Resources>
+                            </TreeView>
+                        </TabItem>
                     </TabControl>
                     <Grid Grid.Column="1">
                         <Grid.RowDefinitions>
