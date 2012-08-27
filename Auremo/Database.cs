@@ -27,7 +27,9 @@ namespace Auremo
     public class Database
     {
         private IList<string> m_Artists = new ObservableCollection<string>();
+        private IList<string> m_Genres = new ObservableCollection<string>();
         private IDictionary<string, ISet<AlbumMetadata>> m_AlbumsByArtist = new SortedDictionary<string, ISet<AlbumMetadata>>();
+        private IDictionary<string, ISet<AlbumMetadata>> m_AlbumsByGenre = new SortedDictionary<string, ISet<AlbumMetadata>>();
         private IDictionary<AlbumMetadata, ISet<string>> m_SongPathsByAlbum = new SortedDictionary<AlbumMetadata, ISet<string>>();
         private IDictionary<string, SongMetadata> m_SongInfo = new SortedDictionary<string, SongMetadata>();
         private IList<AlbumMetadata> m_AlbumsBySelectedArtists = new ObservableCollection<AlbumMetadata>();
@@ -39,24 +41,34 @@ namespace Auremo
         public Database()
         {
             ArtistTree = new ObservableCollection<TreeViewNode>();
+            GenreTree = new ObservableCollection<TreeViewNode>();
         }
 
         public bool Refresh(ServerConnection connection)
         {
             m_AlbumsByArtist.Clear();
+            m_AlbumsByGenre.Clear();
             m_SongPathsByAlbum.Clear();
             m_SongInfo.Clear();
 
             m_Artists.Clear();
+            m_Genres.Clear();
 
             if (connection.Status == ServerConnection.State.Connected)
             {
                 PopulateSongInfo(connection);
+                
                 PopulateArtists();
+                PopulateGenres();
+
                 PopulateAlbumsByArtist();
+                PopulateAlbumsByGenre();
+
                 PopulateSongPathsByAlbum();
+                
                 PopulateDirectoryTree();
                 PopulateArtistTree();
+                PopulateGenreTree();
             }
 
             return true;
@@ -170,13 +182,48 @@ namespace Auremo
             }
         }
 
-        public ISet<AlbumMetadata> ArtistAlbums(string byArtist)
+        public IList<TreeViewNode> GenreTree
+        {
+            get;
+            private set;
+        }
+
+        public TreeViewController GenreTreeController
+        {
+            get;
+            private set;
+        }
+
+        public ISet<SongMetadataTreeViewNode> GenreTreeSelectedSongs
+        {
+            get
+            {
+                return GenreTreeController.Songs;
+            }
+        }
+
+        public ISet<AlbumMetadata> ArtistAlbums(string artist)
         {
             ISet<AlbumMetadata> result = new SortedSet<AlbumMetadata>();
 
-            if (m_AlbumsByArtist.ContainsKey(byArtist))
+            if (m_AlbumsByArtist.ContainsKey(artist))
             {
-                foreach (AlbumMetadata album in m_AlbumsByArtist[byArtist])
+                foreach (AlbumMetadata album in m_AlbumsByArtist[artist])
+                {
+                    result.Add(album);
+                }
+            }
+
+            return result;
+        }
+
+        public ISet<AlbumMetadata> GenreAlbums(string genre)
+        {
+            ISet<AlbumMetadata> result = new SortedSet<AlbumMetadata>();
+
+            if (m_AlbumsByGenre.ContainsKey(genre))
+            {
+                foreach (AlbumMetadata album in m_AlbumsByGenre[genre])
                 {
                     result.Add(album);
                 }
@@ -287,6 +334,22 @@ namespace Auremo
             }
         }
 
+        private void PopulateGenres()
+        {
+            ISet<string> uniqueGenres = new SortedSet<string>();
+
+            foreach (SongMetadata song in m_SongInfo.Values)
+            {
+                if (song.Genre != null) // TODO: remove after merging default values!
+                   uniqueGenres.Add(song.Genre);
+            }
+
+            foreach (string genre in uniqueGenres)
+            {
+                m_Genres.Add(genre);
+            }
+        }
+
         private void PopulateAlbumsByArtist()
         {
             foreach (SongMetadata song in m_SongInfo.Values)
@@ -309,6 +372,28 @@ namespace Auremo
 
                 m_AlbumsByArtist[song.Artist].Add(album);
             }
+        }
+
+        private void PopulateAlbumsByGenre()
+        {
+            foreach (SongMetadata song in m_SongInfo.Values)
+            {
+                if (song.Genre != null) // TODO: remove unnecessary null check.
+                {
+                    if (!m_AlbumsByGenre.ContainsKey(song.Genre))
+                    {
+                        m_AlbumsByGenre[song.Genre] = new SortedSet<AlbumMetadata>();
+                    }
+
+                    AlbumMetadata album = new AlbumMetadata();
+                    album.Artist = song.Artist;
+                    album.Title = song.Album;
+                    album.Year = song.Year;
+
+                    m_AlbumsByGenre[song.Genre].Add(album);
+                }
+            }
+
         }
 
         private void PopulateSongPathsByAlbum()
@@ -402,6 +487,40 @@ namespace Auremo
                 id = AssignTreeViewNodeIDs(baseNode, id);
             }
         }
+
+        private void PopulateGenreTree()
+        {
+            GenreTreeController = new TreeViewController(GenreTree);
+            GenreTree.Clear();
+
+            foreach (string genre in m_Genres)
+            {
+                GenreTreeViewNode genreNode = new GenreTreeViewNode(genre, null, GenreTreeController);
+
+                foreach (AlbumMetadata album in GenreAlbums(genre))
+                {
+                    string albumNodeString = album.Artist + ": " + album.Title;
+                    AlbumMetadataTreeViewNode albumNode = new AlbumMetadataTreeViewNode(album, genreNode, GenreTreeController, albumNodeString);
+                    genreNode.AddChild(albumNode);
+
+                    foreach (SongMetadata song in Songs(album))
+                    {
+                        SongMetadataTreeViewNode songNode = new SongMetadataTreeViewNode("", song, albumNode, GenreTreeController);
+                        albumNode.AddChild(songNode);
+                    }
+                }
+                
+                GenreTree.Add(genreNode);
+            }
+
+            int id = 0;
+
+            foreach (TreeViewNode baseNode in GenreTree)
+            {
+                id = AssignTreeViewNodeIDs(baseNode, id);
+            }
+        }
+
 
         private int AssignTreeViewNodeIDs(TreeViewNode node, int nodeID)
         {
