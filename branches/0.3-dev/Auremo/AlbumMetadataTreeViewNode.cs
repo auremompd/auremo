@@ -27,15 +27,18 @@ namespace Auremo
         private string m_DisplayString = null;
 
         public AlbumMetadataTreeViewNode(AlbumMetadata album, TreeViewNode parent, TreeViewController controller) :
-            this(album, parent, controller, album.Title)
-        {
-        }
-
-        public AlbumMetadataTreeViewNode(AlbumMetadata album, TreeViewNode parent, TreeViewController controller, string displayString) :            
             base(parent, controller)
         {
             Album = album;
-            m_DisplayString = displayString;
+
+            if (parent is ArtistTreeViewNode)
+            {
+                m_DisplayString = Album.Title;
+            }
+            else
+            {
+                m_DisplayString = Album.Artist + ": " + Album.Title;
+            }
         }
 
         public AlbumMetadata Album

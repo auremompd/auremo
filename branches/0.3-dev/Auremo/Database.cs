@@ -495,8 +495,7 @@ namespace Auremo
 
                 foreach (AlbumMetadata album in GenreAlbums(genre))
                 {
-                    string albumNodeString = album.Artist + ": " + album.Title;
-                    AlbumMetadataTreeViewNode albumNode = new AlbumMetadataTreeViewNode(album, genreNode, GenreTreeController, albumNodeString);
+                    AlbumMetadataTreeViewNode albumNode = new AlbumMetadataTreeViewNode(album, genreNode, GenreTreeController);
                     genreNode.AddChild(albumNode);
 
                     foreach (SongMetadata song in Songs(album))
