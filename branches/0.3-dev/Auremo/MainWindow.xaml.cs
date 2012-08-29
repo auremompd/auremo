@@ -43,6 +43,7 @@ namespace Auremo
         private ServerConnection m_Connection = new ServerConnection();
         private ServerStatus m_ServerStatus = new ServerStatus();
         private Database m_Database = new Database();
+        private DatabaseView m_DatabaseView = null;
         private Playlist m_Playlist = null;
         private DispatcherTimer m_Timer = null;
         private Object m_DragSource = null;
@@ -52,6 +53,7 @@ namespace Auremo
         private bool m_OnlineMode = true;
 
         private const string AddArtists = "add_artists";
+        private const string AddGenres = "add_genres";
         private const string AddAlbums = "add_albums";
         private const string AddSongs = "add_songs";
         private const string MovePlaylistItems = "move_playlist_items";
@@ -87,12 +89,15 @@ namespace Auremo
 
         private void InitializeComplexObjects()
         {
+            m_DatabaseView = new DatabaseView(m_Database);
             m_Playlist = new Playlist(m_Connection, m_ServerStatus, m_Database);
         }
 
         private void SetUpDataBindings()
         {
             m_CollectionBrowsingModes.DataContext = m_Database;
+            m_AlbumsOfSelectedGenresView.DataContext = m_DatabaseView;
+            m_SongsOnSelectedGenreAlbumsView.DataContext = m_DatabaseView;
             m_PlaylistView.DataContext = m_Playlist;
             m_PlaybackControls.DataContext = m_ServerStatus;
             m_PlayStatusMessage.DataContext = m_Playlist;
@@ -304,11 +309,40 @@ namespace Auremo
             }
         }
 
+        private void OnGenreViewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                foreach (AlbumMetadata album in m_DatabaseView.AlbumsOfSelectedGenres)
+                {
+                    foreach (SongMetadata song in m_Database.Songs(album))
+                    {
+                        Protocol.Add(m_Connection, song.Path);
+                    }
+                }
+
+                e.Handled = true;
+            }
+        }
+
         private void OnAlbumViewKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
             {
                 foreach (SongMetadata song in m_Database.SongsOnSelectedArtistAlbums)
+                {
+                    Protocol.Add(m_Connection, song.Path);
+                }
+
+                e.Handled = true;
+            }
+        }
+
+        private void OnGenreAlbumsViewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                foreach (SongMetadata song in m_DatabaseView.SongsOnSelectedAlbumsOfSelectedGenres)
                 {
                     Protocol.Add(m_Connection, song.Path);
                 }
@@ -354,14 +388,36 @@ namespace Auremo
             m_Database.OnSelectedArtistsChanged(m_ArtistsView.SelectedItems);
         }
 
+        private void OnSelectedGenresChanged(object sender, SelectionChangedEventArgs e)
+        {
+            m_DatabaseView.OnSelectedGenresChanged(m_GenresView.SelectedItems);
+        }
+
         private void OnSelectedAlbumsChanged(object sender, SelectionChangedEventArgs e)
         {
             m_Database.OnSelectedArtistAlbumsChanged(m_AlbumsBySelectedArtistsView.SelectedItems);
         }
 
+        private void OnSelectedGenreAlbumsChanged(object sender, SelectionChangedEventArgs e)
+        {
+            m_DatabaseView.OnSelectedAlbumsOfSelectedGenresChanged(m_AlbumsOfSelectedGenresView.SelectedItems);
+        }
+        
         private void OnSongsOnAlbumsViewDoubleClicked(object sender, MouseButtonEventArgs e)
         {
             DataGridRow row = DataGridRowBeingClicked(m_SongsOnSelectedAlbumsView, e);
+
+            if (row != null)
+            {
+                SongMetadata song = row.Item as SongMetadata;
+                Protocol.Add(m_Connection, song.Path);
+                Update();
+            }
+        }
+
+        private void OnSongsOnSelectedAlbumsOfSelectedGenresViewDoubleClicked(object sender, MouseButtonEventArgs e)
+        {
+            DataGridRow row = DataGridRowBeingClicked(sender as DataGrid, e);
 
             if (row != null)
             {
@@ -801,6 +857,24 @@ namespace Auremo
                         }
                     }
                 }
+                else if (data == AddGenres)
+                {
+                    foreach (object o in m_DragDropPayload)
+                    {
+                        string genre = (string)o;
+                        ISet<AlbumMetadata> albums = m_Database.AlbumsByGenre(genre);
+
+                        foreach (AlbumMetadata album in albums)
+                        {
+                            ISet<SongMetadata> songs = m_Database.Songs(album);
+
+                            foreach (SongMetadata song in songs)
+                            {
+                                Protocol.AddId(m_Connection, song.Path, targetRow++);
+                            }
+                        }
+                    }
+                }
                 else if (data == AddAlbums)
                 {
                     foreach (object o in m_DragDropPayload)
@@ -1171,9 +1245,17 @@ namespace Auremo
             {
                 return AddArtists;
             }
-            else if (dragSource == m_AlbumsBySelectedArtistsView)
+            else if (dragSource == m_GenresView)
+            {
+                return AddGenres;
+            }
+            else if (dragSource == m_AlbumsBySelectedArtistsView || dragSource == m_AlbumsOfSelectedGenresView)
             {
                 return AddAlbums;
+            }
+            else if (dragSource == m_SongsOnSelectedAlbumsView || dragSource == m_SongsOnSelectedGenreAlbumsView)
+            {
+                return AddSongs;
             }
             else if (dragSource is TreeView)
             {

@@ -82,6 +82,14 @@ namespace Auremo
             }
         }
 
+        public IList<string> Genres
+        {
+            get
+            {
+                return m_Genres;
+            }
+        }
+
         public void OnSelectedArtistsChanged(IList selection)
         {
             m_AlbumsBySelectedArtists.Clear();
@@ -217,7 +225,7 @@ namespace Auremo
             return result;
         }
 
-        public ISet<AlbumMetadata> GenreAlbums(string genre)
+        public ISet<AlbumMetadata> AlbumsByGenre(string genre)
         {
             ISet<AlbumMetadata> result = new SortedSet<AlbumMetadata>();
 
@@ -493,7 +501,7 @@ namespace Auremo
             {
                 GenreTreeViewNode genreNode = new GenreTreeViewNode(genre, null, GenreTreeController);
 
-                foreach (AlbumMetadata album in GenreAlbums(genre))
+                foreach (AlbumMetadata album in AlbumsByGenre(genre))
                 {
                     AlbumMetadataTreeViewNode albumNode = new AlbumMetadataTreeViewNode(album, genreNode, GenreTreeController);
                     genreNode.AddChild(albumNode);
@@ -515,7 +523,6 @@ namespace Auremo
                 id = AssignTreeViewNodeIDs(baseNode, id);
             }
         }
-
 
         private int AssignTreeViewNodeIDs(TreeViewNode node, int nodeID)
         {

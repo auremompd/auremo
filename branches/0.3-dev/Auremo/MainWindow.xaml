@@ -33,15 +33,6 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <TabControl Name="m_CollectionBrowsingModes" Style="{StaticResource TabControlStyle}" TabStripPlacement="Bottom">
-                        <TabItem Header="Filesystem" Style="{StaticResource BottomTabItemStyle}" Width="80">
-                            <TreeView Name="m_DirectoryTree" ItemsSource="{Binding DirectoryTree}" Style="{StaticResource TreeViewStyle}" ItemContainerStyle="{StaticResource TreeViewContainerStyle}" PreviewMouseLeftButtonDown="OnTreeViewMouseDown" MouseMove="OnMouseMoveDragDrop" MouseUp="OnTreeViewMouseUp" PreviewKeyDown="OnDirectoryTreeKeyDown" SelectedItemChanged="OnTreeViewSelectionChanged">
-                                <TreeView.Resources>
-                                    <HierarchicalDataTemplate DataType="{x:Type l:TreeViewNode}" ItemsSource="{Binding Children}">
-                                        <TextBlock Text="{Binding DisplayString}"/>
-                                    </HierarchicalDataTemplate>
-                                </TreeView.Resources>
-                            </TreeView>
-                        </TabItem>
                         <TabItem Header="Artist list" Style="{StaticResource BottomTabItemStyle}" Width="80">
                             <Grid>
                                 <Grid.RowDefinitions>
@@ -88,7 +79,7 @@
                                           CellStyle="{StaticResource LibraryCellStyle}"
                                           Grid.Row="2"
                                           Margin="0,3,0,0"
-                                          ItemsSource="{Binding Path=SongsOnSelectedAlbums}"
+                                          ItemsSource="{Binding Path=SongsOnSelectedArtistAlbums}"
                                           PreviewKeyDown="OnSongViewKeyDown"
                                           MouseDoubleClick="OnSongsOnAlbumsViewDoubleClicked"
                                           PreviewMouseDown="OnDataGridMouseDown"
@@ -109,8 +100,76 @@
                                 </TreeView.Resources>
                             </TreeView>
                         </TabItem>
+                        <TabItem Header="Genre list" Style="{StaticResource BottomTabItemStyle}" Width="80">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <DataGrid Name="m_GenresView"
+                                          Style="{StaticResource DataGridStyle}"
+                                          ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
+                                          RowStyle="{StaticResource DataGridRowStyle}"
+                                          CellStyle="{StaticResource LibraryCellStyle}"
+                                          Margin="0,0,0,3"
+                                          ItemsSource="{Binding Path=Genres}"
+                                          SelectionChanged="OnSelectedGenresChanged"
+                                          PreviewKeyDown="OnGenreViewKeyDown"
+                                          PreviewMouseDown="OnDataGridMouseDown"
+                                          MouseMove="OnMouseMoveDragDrop">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Genre" Width="250*" Binding="{Binding}" CanUserResize="True"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                                <DataGrid Name="m_AlbumsOfSelectedGenresView"
+                                          Style="{StaticResource DataGridStyle}"
+                                          ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
+                                          RowStyle="{StaticResource DataGridRowStyle}"
+                                          CellStyle="{StaticResource LibraryCellStyle}"
+                                          Grid.Row="1"
+                                          Margin="0,1,0,1"
+                                          ItemsSource="{Binding Path=AlbumsOfSelectedGenres}"
+                                          SelectionChanged="OnSelectedGenreAlbumsChanged"
+                                          PreviewKeyDown="OnGenreAlbumsViewKeyDown"
+                                          PreviewMouseDown="OnDataGridMouseDown"
+                                          MouseMove="OnMouseMoveDragDrop">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Artist" Width="Auto" Binding="{Binding Path=Artist}"/>
+                                        <DataGridTextColumn Header="Year" MinWidth="50" MaxWidth="50" Binding="{Binding Path=PrintableYear}"/>
+                                        <DataGridTextColumn Header="Title" Width="100*" Binding="{Binding Path=Title}"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                                <DataGrid Name="m_SongsOnSelectedGenreAlbumsView"
+                                          Style="{StaticResource DataGridStyle}"
+                                          ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
+                                          RowStyle="{StaticResource DataGridRowStyle}"
+                                          CellStyle="{StaticResource LibraryCellStyle}"
+                                          Grid.Row="2"
+                                          Margin="0,3,0,0"
+                                          ItemsSource="{Binding Path=SongsOnSelectedAlbumsOfSelectedGenres}"
+                                          PreviewKeyDown="OnSongViewKeyDown"
+                                          MouseDoubleClick="OnSongsOnSelectedAlbumsOfSelectedGenresViewDoubleClicked"
+                                          PreviewMouseDown="OnDataGridMouseDown"
+                                          MouseMove="OnMouseMoveDragDrop">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Track#" MinWidth="50" MaxWidth="50" Binding="{Binding Track}"/>
+                                        <DataGridTextColumn Header="Title" Width="200*" Binding="{Binding Title}"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Grid>
+                        </TabItem>
                         <TabItem Header="Genre tree" Style="{StaticResource BottomTabItemStyle}" Width="80">
                             <TreeView Name="m_GenreTree" ItemsSource="{Binding GenreTree}" Style="{StaticResource TreeViewStyle}" ItemContainerStyle="{StaticResource TreeViewContainerStyle}" PreviewMouseLeftButtonDown="OnTreeViewMouseDown" MouseMove="OnMouseMoveDragDrop" MouseUp="OnTreeViewMouseUp" PreviewKeyDown="OnGenreTreeKeyDown" SelectedItemChanged="OnTreeViewSelectionChanged">
+                                <TreeView.Resources>
+                                    <HierarchicalDataTemplate DataType="{x:Type l:TreeViewNode}" ItemsSource="{Binding Children}">
+                                        <TextBlock Text="{Binding DisplayString}"/>
+                                    </HierarchicalDataTemplate>
+                                </TreeView.Resources>
+                            </TreeView>
+                        </TabItem>
+                        <TabItem Header="Filesystem" Style="{StaticResource BottomTabItemStyle}" Width="80">
+                            <TreeView Name="m_DirectoryTree" ItemsSource="{Binding DirectoryTree}" Style="{StaticResource TreeViewStyle}" ItemContainerStyle="{StaticResource TreeViewContainerStyle}" PreviewMouseLeftButtonDown="OnTreeViewMouseDown" MouseMove="OnMouseMoveDragDrop" MouseUp="OnTreeViewMouseUp" PreviewKeyDown="OnDirectoryTreeKeyDown" SelectedItemChanged="OnTreeViewSelectionChanged">
                                 <TreeView.Resources>
                                     <HierarchicalDataTemplate DataType="{x:Type l:TreeViewNode}" ItemsSource="{Binding Children}">
                                         <TextBlock Text="{Binding DisplayString}"/>
