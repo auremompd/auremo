@@ -8,12 +8,12 @@ These features are already available in SVN in the 0.3-dev branch. All or some o
 
   * Add an artist/album/song tree view of the music collection.
   * Add a genre/album/song tree view of the music collection.
+  * Add a genre/album/song list view of the music collection.
 
 == Features to add ==
 
 These features will be added before the release.
 
   * Add support for saving and loading playlists.
-  * Add more music collection browsing modes (at least genre/album/song as lists).
   * Add a page for MPD server administration. At least rescanning the music collection (and reloading it in the client) needs to be supported. Support password-protected servers.
-  * An effort to vastly improve Auremo's visual style is underway. It may or may not the included in 0.3.0. In either case the style will be changed in a single revision instead of gradually. Help is welcome.
+  * Refactor music collection view code.
