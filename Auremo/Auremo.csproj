@@ -96,6 +96,7 @@
     </ApplicationDefinition>
     <Compile Include="AlbumMetadataTreeViewNode.cs" />
     <Compile Include="ArtistTreeViewNode.cs" />
+    <Compile Include="DatabaseView.cs" />
     <Compile Include="DirectoryTreeViewNode.cs" />
     <Compile Include="GenreTreeViewNode.cs" />
     <Compile Include="Protocol.cs" />
