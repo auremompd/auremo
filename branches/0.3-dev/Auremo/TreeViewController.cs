@@ -47,7 +47,7 @@ namespace Auremo
             }
         }
 
-        public void Clear()
+        public void ClearMultiSelection()
         {
             while (MultiSelection.Count > 0)
             {
