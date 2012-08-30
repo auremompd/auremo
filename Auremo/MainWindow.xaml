@@ -50,7 +50,8 @@
                                           SelectionChanged="OnSelectedArtistsChanged"
                                           PreviewKeyDown="OnArtistViewKeyDown"
                                           PreviewMouseDown="OnDataGridMouseDown"
-                                          MouseMove="OnMouseMoveDragDrop">
+                                          MouseMove="OnMouseMoveDragDrop"
+                                          MouseUp="OnDataGridMouseUp">
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="Artist" Width="250*" Binding="{Binding}" CanUserResize="True"/>
                                     </DataGrid.Columns>
@@ -66,7 +67,8 @@
                                           SelectionChanged="OnSelectedAlbumsChanged"
                                           PreviewKeyDown="OnAlbumViewKeyDown"
                                           PreviewMouseDown="OnDataGridMouseDown"
-                                          MouseMove="OnMouseMoveDragDrop">
+                                          MouseMove="OnMouseMoveDragDrop"
+                                          MouseUp="OnDataGridMouseUp">
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="Year" MinWidth="50" MaxWidth="50" Binding="{Binding Path=PrintableYear}"/>
                                         <DataGridTextColumn Header="Title" Width="200*" Binding="{Binding Path=Title}"/>
@@ -83,7 +85,8 @@
                                           PreviewKeyDown="OnSongViewKeyDown"
                                           MouseDoubleClick="OnSongsOnAlbumsViewDoubleClicked"
                                           PreviewMouseDown="OnDataGridMouseDown"
-                                          MouseMove="OnMouseMoveDragDrop">
+                                          MouseMove="OnMouseMoveDragDrop"
+                                          MouseUp="OnDataGridMouseUp">
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="Track#" MinWidth="50" MaxWidth="50" Binding="{Binding Track}"/>
                                         <DataGridTextColumn Header="Title" Width="200*" Binding="{Binding Title}"/>
@@ -117,7 +120,8 @@
                                           SelectionChanged="OnSelectedGenresChanged"
                                           PreviewKeyDown="OnGenreViewKeyDown"
                                           PreviewMouseDown="OnDataGridMouseDown"
-                                          MouseMove="OnMouseMoveDragDrop">
+                                          MouseMove="OnMouseMoveDragDrop"
+                                          MouseUp="OnDataGridMouseUp">
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="Genre" Width="250*" Binding="{Binding}" CanUserResize="True"/>
                                     </DataGrid.Columns>
@@ -133,7 +137,8 @@
                                           SelectionChanged="OnSelectedGenreAlbumsChanged"
                                           PreviewKeyDown="OnGenreAlbumsViewKeyDown"
                                           PreviewMouseDown="OnDataGridMouseDown"
-                                          MouseMove="OnMouseMoveDragDrop">
+                                          MouseMove="OnMouseMoveDragDrop"
+                                          MouseUp="OnDataGridMouseUp">
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="Artist" Width="Auto" Binding="{Binding Path=Artist}"/>
                                         <DataGridTextColumn Header="Year" MinWidth="50" MaxWidth="50" Binding="{Binding Path=PrintableYear}"/>
@@ -151,7 +156,8 @@
                                           PreviewKeyDown="OnSongViewKeyDown"
                                           MouseDoubleClick="OnSongsOnSelectedAlbumsOfSelectedGenresViewDoubleClicked"
                                           PreviewMouseDown="OnDataGridMouseDown"
-                                          MouseMove="OnMouseMoveDragDrop">
+                                          MouseMove="OnMouseMoveDragDrop"
+                                          MouseUp="OnDataGridMouseUp">
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="Track#" MinWidth="50" MaxWidth="50" Binding="{Binding Track}"/>
                                         <DataGridTextColumn Header="Title" Width="200*" Binding="{Binding Title}"/>
@@ -198,7 +204,8 @@
                                       MouseMove="OnMouseMoveDragDrop"
                                       DragOver="OnPlaylistViewDragOver"
                                       DragLeave="OnPlaylistViewDragLeave"
-                                      Drop="OnPlaylistViewDrop">
+                                      Drop="OnPlaylistViewDrop"
+                                      MouseUp="OnDataGridMouseUp">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Artist" Width="Auto" Binding="{Binding Path=Song.Artist}"/>
                                     <DataGridTextColumn Header="Album" Width="Auto" Binding="{Binding Path=Song.Album}"/>
