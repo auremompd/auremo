@@ -617,7 +617,7 @@ namespace Auremo
 
                 if (currentChanged)
                 {
-                    TreeViewItem item = GetTreeViewItem(m_DirectoryTree, controller.Current);
+                    TreeViewItem item = GetTreeViewItem(sender, controller.Current);
 
                     if (item != null)
                     {
