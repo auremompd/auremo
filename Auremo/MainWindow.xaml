@@ -95,7 +95,7 @@
                             </Grid>
                         </TabItem>
                         <TabItem Header="Artist tree" Style="{StaticResource BottomTabItemStyle}" Width="80">
-                            <TreeView Name="m_ArtistTree" ItemsSource="{Binding ArtistTree}" Style="{StaticResource TreeViewStyle}" ItemContainerStyle="{StaticResource TreeViewContainerStyle}" PreviewMouseLeftButtonDown="OnTreeViewMouseDown" MouseMove="OnMouseMoveDragDrop" MouseUp="OnTreeViewMouseUp" PreviewKeyDown="OnArtistTreeKeyDown" SelectedItemChanged="OnTreeViewSelectionChanged">
+                            <TreeView Name="m_ArtistTree" ItemsSource="{Binding ArtistTree}" Style="{StaticResource TreeViewStyle}" ItemContainerStyle="{StaticResource TreeViewContainerStyle}" PreviewMouseLeftButtonDown="OnTreeViewMouseDown" MouseMove="OnMouseMoveDragDrop" MouseUp="OnTreeViewMouseUp" PreviewKeyDown="OnTreeViewKeyDown" SelectedItemChanged="OnTreeViewSelectionChanged">
                                 <TreeView.Resources>
                                     <HierarchicalDataTemplate DataType="{x:Type l:TreeViewNode}" ItemsSource="{Binding Children}">
                                         <TextBlock Text="{Binding DisplayString}"/>
@@ -166,7 +166,7 @@
                             </Grid>
                         </TabItem>
                         <TabItem Header="Genre tree" Style="{StaticResource BottomTabItemStyle}" Width="80">
-                            <TreeView Name="m_GenreTree" ItemsSource="{Binding GenreTree}" Style="{StaticResource TreeViewStyle}" ItemContainerStyle="{StaticResource TreeViewContainerStyle}" PreviewMouseLeftButtonDown="OnTreeViewMouseDown" MouseMove="OnMouseMoveDragDrop" MouseUp="OnTreeViewMouseUp" PreviewKeyDown="OnGenreTreeKeyDown" SelectedItemChanged="OnTreeViewSelectionChanged">
+                            <TreeView Name="m_GenreTree" ItemsSource="{Binding GenreTree}" Style="{StaticResource TreeViewStyle}" ItemContainerStyle="{StaticResource TreeViewContainerStyle}" PreviewMouseLeftButtonDown="OnTreeViewMouseDown" MouseMove="OnMouseMoveDragDrop" MouseUp="OnTreeViewMouseUp" PreviewKeyDown="OnTreeViewKeyDown" SelectedItemChanged="OnTreeViewSelectionChanged">
                                 <TreeView.Resources>
                                     <HierarchicalDataTemplate DataType="{x:Type l:TreeViewNode}" ItemsSource="{Binding Children}">
                                         <TextBlock Text="{Binding DisplayString}"/>
@@ -175,7 +175,7 @@
                             </TreeView>
                         </TabItem>
                         <TabItem Header="Filesystem" Style="{StaticResource BottomTabItemStyle}" Width="80">
-                            <TreeView Name="m_DirectoryTree" ItemsSource="{Binding DirectoryTree}" Style="{StaticResource TreeViewStyle}" ItemContainerStyle="{StaticResource TreeViewContainerStyle}" PreviewMouseLeftButtonDown="OnTreeViewMouseDown" MouseMove="OnMouseMoveDragDrop" MouseUp="OnTreeViewMouseUp" PreviewKeyDown="OnDirectoryTreeKeyDown" SelectedItemChanged="OnTreeViewSelectionChanged">
+                            <TreeView Name="m_DirectoryTree" ItemsSource="{Binding DirectoryTree}" Style="{StaticResource TreeViewStyle}" ItemContainerStyle="{StaticResource TreeViewContainerStyle}" PreviewMouseLeftButtonDown="OnTreeViewMouseDown" MouseMove="OnMouseMoveDragDrop" MouseUp="OnTreeViewMouseUp" PreviewKeyDown="OnTreeViewKeyDown" SelectedItemChanged="OnTreeViewSelectionChanged">
                                 <TreeView.Resources>
                                     <HierarchicalDataTemplate DataType="{x:Type l:TreeViewNode}" ItemsSource="{Binding Children}">
                                         <TextBlock Text="{Binding DisplayString}"/>

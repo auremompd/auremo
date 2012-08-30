@@ -66,6 +66,7 @@ namespace Auremo
             InitializeAboutTab();
             InitializeComplexObjects();
             SetUpDataBindings();
+            SetUpTreeViewControllers();
             LoadSettings();
             CreateTimer(Settings.Default.ViewUpdateInterval);
             ApplyInitialSettings();
@@ -103,6 +104,13 @@ namespace Auremo
             m_PlayStatusMessage.DataContext = m_Playlist;
             m_ConnectionStatusDescription.DataContext = m_Connection;
             m_ServerStatus.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(OnServerStatusPropertyChanged);
+        }
+
+        private void SetUpTreeViewControllers()
+        {
+            m_DirectoryTree.Tag = m_Database.DirectoryTreeController;
+            m_ArtistTree.Tag = m_Database.ArtistTreeController;
+            m_GenreTree.Tag = m_Database.GenreTreeController;
         }
 
         private void CreateTimer(int interval)
@@ -493,7 +501,7 @@ namespace Auremo
 
                     if (!node.IsMultiSelected)
                     {
-                        node.Controller.Clear();
+                        node.Controller.ClearMultiSelection();
                         node.IsMultiSelected = true;
                     }
                     else if (e.ClickCount == 1)
@@ -523,7 +531,7 @@ namespace Auremo
                 else if (Keyboard.Modifiers == ModifierKeys.Shift)
                 {
                     node.Controller.Current = node;
-                    node.Controller.Clear();
+                    node.Controller.ClearMultiSelection();
 
                     if (node.Controller.Pivot == null)
                     {
@@ -549,32 +557,20 @@ namespace Auremo
                 if (item != null && item.Header is TreeViewNode)
                 {
                     TreeViewNode node = item.Header as TreeViewNode;
-                    node.Controller.Clear();
+                    node.Controller.ClearMultiSelection();
                     node.IsMultiSelected = true;
                     node.Controller.Pivot = node;
                 }
             }
         }
 
-        private void OnDirectoryTreeKeyDown(object sender, KeyEventArgs e)
+        private void OnTreeViewKeyDown(object sender, KeyEventArgs e)
         {
-            OnTreeViewKeyDown((TreeView)sender, e, m_Database.DirectoryTreeController);
-        }
+            TreeView tree = sender as TreeView;
+            TreeViewController controller = tree.Tag as TreeViewController;
 
-        private void OnArtistTreeKeyDown(object sender, KeyEventArgs e)
-        {
-            OnTreeViewKeyDown((TreeView)sender, e, m_Database.ArtistTreeController);
-        }
-
-        private void OnGenreTreeKeyDown(object sender, KeyEventArgs e)
-        {
-            OnTreeViewKeyDown((TreeView)sender, e, m_Database.GenreTreeController);
-        }
-
-        private void OnTreeViewKeyDown(TreeView sender, KeyEventArgs e, TreeViewController controller)
-        {
             e.Handled = true;
-
+            
             if (Keyboard.Modifiers == ModifierKeys.None || Keyboard.Modifiers == ModifierKeys.Shift)
             {
                 bool currentChanged = false;
@@ -617,7 +613,7 @@ namespace Auremo
 
                 if (currentChanged)
                 {
-                    TreeViewItem item = GetTreeViewItem(sender, controller.Current);
+                    TreeViewItem item = GetTreeViewItem(tree, controller.Current);
 
                     if (item != null)
                     {
@@ -626,7 +622,7 @@ namespace Auremo
 
                     if (Keyboard.Modifiers == ModifierKeys.None)
                     {
-                        controller.Clear();
+                        controller.ClearMultiSelection();
                         controller.Current.IsMultiSelected = true;
                         controller.Pivot = controller.Current;
                     }
@@ -634,13 +630,13 @@ namespace Auremo
                     {
                         if (controller.Pivot == null)
                         {
-                            controller.Clear();
+                            controller.ClearMultiSelection();
                             controller.Current.IsMultiSelected = true;
                             controller.Pivot = controller.Current;
                         }
                         else
                         {
-                            controller.Clear();
+                            controller.ClearMultiSelection();
                             controller.SelectRange(controller.Current);
                         }
                     }
