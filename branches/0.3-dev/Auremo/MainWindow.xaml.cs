@@ -291,7 +291,7 @@ namespace Auremo
 
         #region Music tab
 
-        #region Simple (non-drag-drop) list view operations
+        #region Simple (non-drag-drop) data grid operations
 
         private void OnArtistViewKeyDown(object sender, KeyEventArgs e)
         {
@@ -456,6 +456,21 @@ namespace Auremo
                 PlaylistItem item = row.Item as PlaylistItem;
                 Protocol.PlayId(m_Connection, item.Id);
                 Update();
+            }
+        }
+
+        private void OnDataGridMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (Keyboard.Modifiers == ModifierKeys.None)
+            {
+                DataGrid grid = sender as DataGrid;
+                DataGridRow row = DataGridRowBeingClicked(grid, e);
+
+                if (row != null)
+                {
+                    grid.SelectedIndex = -1;
+                    row.IsSelected = true;
+                }
             }
         }
 
