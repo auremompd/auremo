@@ -735,7 +735,7 @@ namespace Auremo
                     // the standard (through clipboard?) system is pure evil and
                     // since we don't need drag & drop across application borders,
                     // this will do for now.
-                    m_DragDropPayload = new List<object>();
+                    IList<object> payload = new List<object>();
 
                     if (m_DragSource is DataGrid)
                     {
@@ -743,7 +743,7 @@ namespace Auremo
 
                         foreach (object o in source.SelectedItems)
                         {
-                            m_DragDropPayload.Add(o);
+                            payload.Add(o);
                         }
                     }
                     else if (m_DragSource is TreeView)
@@ -767,15 +767,20 @@ namespace Auremo
                         {
                             foreach (SongMetadataTreeViewNode node in selection)
                             {
-                                m_DragDropPayload.Add(node.Song);
+                                payload.Add(node.Song);
                             }
                         }
                     }
 
-                    m_MousePointerHint.Content = DragDropPayloadDescription();
-                    DragDropEffects mode = sender == m_PlaylistView ? DragDropEffects.Move : DragDropEffects.Copy;
-                    m_DragDropData = GetDragDropDataString(m_DragSource);
-                    DragDrop.DoDragDrop((DependencyObject)sender, m_DragDropData, mode);
+                    if (payload.Count > 0)
+                    {
+                        m_MousePointerHint.Content = DragDropPayloadDescription();
+                        DragDropEffects mode = sender == m_PlaylistView ? DragDropEffects.Move : DragDropEffects.Copy;
+                        m_DragDropPayload = payload;
+                        m_DragDropData = GetDragDropDataString(m_DragSource);
+                        DragDrop.DoDragDrop((DependencyObject)sender, m_DragDropData, mode);
+                    }
+
                     m_DragStartPosition = null;
                 }
             }
@@ -1015,6 +1020,7 @@ namespace Auremo
                 }
 
                 m_DragDropPayload = null;
+                m_DragDropData = null;
                 Update();
             }
 
