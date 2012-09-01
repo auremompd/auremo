@@ -774,10 +774,10 @@ namespace Auremo
 
                     if (payload.Count > 0)
                     {
-                        m_MousePointerHint.Content = DragDropPayloadDescription();
                         DragDropEffects mode = sender == m_PlaylistView ? DragDropEffects.Move : DragDropEffects.Copy;
                         m_DragDropPayload = payload;
                         m_DragDropData = GetDragDropDataString(m_DragSource);
+                        m_MousePointerHint.Content = DragDropPayloadDescription();
                         DragDrop.DoDragDrop((DependencyObject)sender, m_DragDropData, mode);
                     }
 
@@ -846,55 +846,59 @@ namespace Auremo
 
         private void OnPlaylistViewDragOver(object sender, DragEventArgs e)
         {
-            if (m_DragDropPayload != null && !m_PlaylistView.Items.IsEmpty)
+            if (m_DragDropPayload != null)
             {
                 m_MousePointerHint.IsOpen = true;
+                m_MousePointerHint.Visibility = Visibility.Visible;
 
-                if (m_DragDropData != LoadPlaylist)
+                if (!m_PlaylistView.Items.IsEmpty)
                 {
-                    Point mousePosition = e.GetPosition(m_PlaylistView);
-
-                    m_MousePointerHint.Placement = PlacementMode.Relative;
-                    m_MousePointerHint.PlacementTarget = m_PlaylistView;
-                    m_MousePointerHint.HorizontalOffset = mousePosition.X + 10;
-                    m_MousePointerHint.VerticalOffset = mousePosition.Y - 6;
-
-                    int targetRow = DropTargetRowIndex(e);
-                    DataGridRow row = null;
-                
-                    if (targetRow >= 0)
+                    if (m_DragDropData != LoadPlaylist)
                     {
-                        row = m_PlaylistView.ItemContainerGenerator.ContainerFromIndex(targetRow) as DataGridRow;
-                    }
+                        Point mousePosition = e.GetPosition(m_PlaylistView);
 
-                    if (row == null)
-                    {
-                        DataGridRow lastItem = m_PlaylistView.ItemContainerGenerator.ContainerFromIndex(m_PlaylistView.Items.Count - 1) as DataGridRow;
+                        m_MousePointerHint.Placement = PlacementMode.Relative;
+                        m_MousePointerHint.PlacementTarget = m_PlaylistView;
+                        m_MousePointerHint.HorizontalOffset = mousePosition.X + 10;
+                        m_MousePointerHint.VerticalOffset = mousePosition.Y - 6;
 
-                        if (lastItem == null)
+                        int targetRow = DropTargetRowIndex(e);
+                        DataGridRow row = null;
+
+                        if (targetRow >= 0)
                         {
-                            // TODO: this is null sometimes. No idea why.
-                            return;
+                            row = m_PlaylistView.ItemContainerGenerator.ContainerFromIndex(targetRow) as DataGridRow;
                         }
 
-                        Rect bounds = VisualTreeHelper.GetDescendantBounds(lastItem);
-                        GeneralTransform transform = lastItem.TransformToAncestor(m_PlaylistView);
-                        Point bottomOfItem = transform.Transform(bounds.BottomLeft);
-                        m_DropPositionIndicator.Y1 = bottomOfItem.Y;
-                    }
-                    else
-                    {
-                        Rect bounds = VisualTreeHelper.GetDescendantBounds(row);
-                        GeneralTransform transform = row.TransformToAncestor(m_PlaylistView);
-                        Point topOfItem = transform.Transform(bounds.TopLeft);
-                        m_DropPositionIndicator.Y1 = topOfItem.Y;
-                    }
+                        if (row == null)
+                        {
+                            DataGridRow lastItem = m_PlaylistView.ItemContainerGenerator.ContainerFromIndex(m_PlaylistView.Items.Count - 1) as DataGridRow;
 
-                    m_DropPositionIndicator.X1 = 10;
-                    m_DropPositionIndicator.X2 = m_PlaylistView.ActualWidth - 20;
-                    m_DropPositionIndicator.Y1 += 3;
-                    m_DropPositionIndicator.Y2 = m_DropPositionIndicator.Y1;
-                    m_DropPositionIndicator.Visibility = Visibility.Visible;
+                            if (lastItem == null)
+                            {
+                                // TODO: this is null sometimes. No idea why.
+                                return;
+                            }
+
+                            Rect bounds = VisualTreeHelper.GetDescendantBounds(lastItem);
+                            GeneralTransform transform = lastItem.TransformToAncestor(m_PlaylistView);
+                            Point bottomOfItem = transform.Transform(bounds.BottomLeft);
+                            m_DropPositionIndicator.Y1 = bottomOfItem.Y;
+                        }
+                        else
+                        {
+                            Rect bounds = VisualTreeHelper.GetDescendantBounds(row);
+                            GeneralTransform transform = row.TransformToAncestor(m_PlaylistView);
+                            Point topOfItem = transform.Transform(bounds.TopLeft);
+                            m_DropPositionIndicator.Y1 = topOfItem.Y;
+                        }
+
+                        m_DropPositionIndicator.X1 = 10;
+                        m_DropPositionIndicator.X2 = m_PlaylistView.ActualWidth - 20;
+                        m_DropPositionIndicator.Y1 += 3;
+                        m_DropPositionIndicator.Y2 = m_DropPositionIndicator.Y1;
+                        m_DropPositionIndicator.Visibility = Visibility.Visible;
+                    }
                 }
             }
             else
