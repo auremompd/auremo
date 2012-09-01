@@ -16,4 +16,3 @@ These features will be added before the release.
 
   * Add support for saving and loading playlists.
   * Add a page for MPD server administration. At least rescanning the music collection (and reloading it in the client) needs to be supported. Support password-protected servers.
-  * Refactor music collection view code.
