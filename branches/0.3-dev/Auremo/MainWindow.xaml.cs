@@ -102,6 +102,7 @@ namespace Auremo
             m_CollectionBrowsingModes.DataContext = m_DatabaseView;
             m_SavedPlaylistsView.DataContext = m_SavedPlaylists;
             m_PlaylistView.DataContext = m_Playlist;
+            m_PlaylistControls.DataContext = m_SavedPlaylists;
             m_PlaybackControls.DataContext = m_ServerStatus;
             m_PlayStatusMessage.DataContext = m_Playlist;
             m_ConnectionStatusDescription.DataContext = m_Connection;
@@ -387,14 +388,13 @@ namespace Auremo
                 if (e.Key == Key.Enter)
                 {
                     e.Handled = true;
-                    Protocol.Load(m_Connection, playlistName);
-                    Update();
+                    LoadSavedPlaylist(playlistName);
                 }
                 else if (e.Key == Key.Delete)
                 {
                     e.Handled = true;
                     Protocol.Rm(m_Connection, playlistName);
-                    Update();
+                    m_SavedPlaylists.Refresh(m_Connection);
                 }
             }
         }
@@ -466,9 +466,7 @@ namespace Auremo
 
                 if (selectedPlaylist != null)
                 {
-                    string playlistName = selectedPlaylist as string;
-                    Protocol.Load(m_Connection, playlistName);
-                    Update();
+                    LoadSavedPlaylist(selectedPlaylist as string);
                 }
             }
         }
@@ -518,6 +516,51 @@ namespace Auremo
                     row.IsSelected = true;
                 }
             }
+        }
+
+        private void OnSavePlaylistViewClicked(object sender, RoutedEventArgs e)
+        {
+            if (m_SavedPlaylists.CurrentPlaylistNameNonempty)
+            {
+                string name = m_SavedPlaylists.CurrentPlaylistName.Trim();
+                Protocol.Rm(m_Connection, name);
+                Protocol.Save(m_Connection, name);
+                m_SavedPlaylists.Refresh(m_Connection);
+            }
+        }
+
+        private void OnDedupPlaylistViewClicked(object sender, RoutedEventArgs e)
+        {
+            ISet<string> songPathsOnPlaylist = new SortedSet<string>();
+            IList<int> playlistIDsOfDuplicates = new List<int>();
+
+            foreach (PlaylistItem item in m_Playlist.Items)
+            {
+                if (!songPathsOnPlaylist.Add(item.Song.Path))
+                {
+                    playlistIDsOfDuplicates.Add(item.Id);
+                }
+            }
+
+            foreach (int id in playlistIDsOfDuplicates)
+            {
+                Protocol.DeleteId(m_Connection, id);
+            }
+        }
+
+        private void OnClearPlaylistViewClicked(object sender, RoutedEventArgs e)
+        {
+            Protocol.Clear(m_Connection);
+            m_SavedPlaylists.CurrentPlaylistName = "";
+            Update();
+        }
+
+        private void LoadSavedPlaylist(string name)
+        {
+            Protocol.Clear(m_Connection);
+            Protocol.Load(m_Connection, name);
+            m_SavedPlaylists.CurrentPlaylistName = name;
+            Update();
         }
 
         #endregion
@@ -980,7 +1023,7 @@ namespace Auremo
                 }
                 else if (data == LoadPlaylist)
                 {
-                    Protocol.Load(m_Connection, m_DragDropPayload[0] as string);
+                    LoadSavedPlaylist(m_DragDropPayload[0] as string);
                 }
                 else if (data == MovePlaylistItems)
                 {
