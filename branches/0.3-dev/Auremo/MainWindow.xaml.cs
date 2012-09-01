@@ -96,9 +96,11 @@ namespace Auremo
 
         private void SetUpDataBindings()
         {
-            m_CollectionBrowsingModes.DataContext = m_Database;
-            m_AlbumsOfSelectedGenresView.DataContext = m_DatabaseView;
-            m_SongsOnSelectedGenreAlbumsView.DataContext = m_DatabaseView;
+            m_CollectionBrowsingModes.DataContext = m_DatabaseView;
+            m_ArtistTree.DataContext = m_Database;
+            m_GenreTree.DataContext = m_Database;
+            m_DirectoryTree.DataContext = m_Database;
+
             m_PlaylistView.DataContext = m_Playlist;
             m_PlaybackControls.DataContext = m_ServerStatus;
             m_PlayStatusMessage.DataContext = m_Playlist;
@@ -164,7 +166,7 @@ namespace Auremo
 
         private void UpdateTopLevelSelection()
         {
-            m_Database.OnSelectedArtistsChanged(m_ArtistsView.SelectedItems);
+            m_DatabaseView.OnSelectedArtistsChanged(m_ArtistsView.SelectedItems);
         }
 
         #endregion
@@ -305,7 +307,7 @@ namespace Auremo
         {
             if (e.Key == Key.Enter)
             {
-                foreach (AlbumMetadata album in m_Database.AlbumsBySelectedArtists)
+                foreach (AlbumMetadata album in m_DatabaseView.AlbumsBySelectedArtists)
                 {
                     foreach (SongMetadata song in m_Database.Songs(album))
                     {
@@ -337,7 +339,7 @@ namespace Auremo
         {
             if (e.Key == Key.Enter)
             {
-                foreach (SongMetadata song in m_Database.SongsOnSelectedArtistAlbums)
+                foreach (SongMetadata song in m_DatabaseView.SongsOnSelectedAlbumsBySelectedArtists)
                 {
                     Protocol.Add(m_Connection, song.Path);
                 }
@@ -393,7 +395,7 @@ namespace Auremo
 
         private void OnSelectedArtistsChanged(object sender, SelectionChangedEventArgs e)
         {
-            m_Database.OnSelectedArtistsChanged(m_ArtistsView.SelectedItems);
+            m_DatabaseView.OnSelectedArtistsChanged(m_ArtistsView.SelectedItems);
         }
 
         private void OnSelectedGenresChanged(object sender, SelectionChangedEventArgs e)
@@ -403,7 +405,7 @@ namespace Auremo
 
         private void OnSelectedAlbumsChanged(object sender, SelectionChangedEventArgs e)
         {
-            m_Database.OnSelectedArtistAlbumsChanged(m_AlbumsBySelectedArtistsView.SelectedItems);
+            m_DatabaseView.OnSelectedAlbumsBySelectedArtistsChanged(m_AlbumsBySelectedArtistsView.SelectedItems);
         }
 
         private void OnSelectedGenreAlbumsChanged(object sender, SelectionChangedEventArgs e)

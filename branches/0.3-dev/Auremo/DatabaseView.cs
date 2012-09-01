@@ -11,12 +11,45 @@ namespace Auremo
     {
         private Database m_Database = null;
 
+        public delegate ISet<AlbumMetadata> AlbumsUnderRoot(string root);
+        public delegate ISet<SongMetadata> SongsOnAlbum(AlbumMetadata album);
+
         public DatabaseView(Database database)
         {
             m_Database = database;
 
+            AlbumsBySelectedArtists = new ObservableCollection<AlbumMetadata>();
+            SongsOnSelectedAlbumsBySelectedArtists = new ObservableCollection<SongMetadata>();
             AlbumsOfSelectedGenres = new ObservableCollection<AlbumMetadata>();
             SongsOnSelectedAlbumsOfSelectedGenres = new ObservableCollection<SongMetadata>();
+        }
+
+        public IList<string> Artists
+        {
+            get
+            {
+                return m_Database.Artists;
+            }
+        }
+
+        public IList<AlbumMetadata> AlbumsBySelectedArtists
+        {
+            get;
+            private set;
+        }
+
+        public IList<SongMetadata> SongsOnSelectedAlbumsBySelectedArtists
+        {
+            get;
+            private set;
+        }
+
+        public IList<string> Genres
+        {
+            get
+            {
+                return m_Database.Genres;
+            }
         }
 
         public IList<AlbumMetadata> AlbumsOfSelectedGenres
@@ -31,40 +64,60 @@ namespace Auremo
             private set;
         }
 
+        public void OnSelectedArtistsChanged(IList selection)
+        {
+            OnRootLevelSelectionChanged(selection, AlbumsBySelectedArtists, m_Database.ArtistAlbums);
+        }
+
+        public void OnSelectedAlbumsBySelectedArtistsChanged(IList selection)
+        {
+            OnAlbumLevelSelectionChanged(selection, SongsOnSelectedAlbumsBySelectedArtists, m_Database.Songs);
+        }
+
         public void OnSelectedGenresChanged(IList selection)
         {
-            AlbumsOfSelectedGenres.Clear();
-            ISet<string> sortedGenres = new SortedSet<string>();
-
-            foreach (object o in selection)
-            {
-                sortedGenres.Add(o as string);
-            }
-
-            foreach (string genre in sortedGenres)
-            {
-                foreach (AlbumMetadata album in m_Database.AlbumsByGenre(genre))
-                {
-                    AlbumsOfSelectedGenres.Add(album);
-                }
-            }
+            OnRootLevelSelectionChanged(selection, AlbumsOfSelectedGenres, m_Database.AlbumsByGenre);
         }
 
         public void OnSelectedAlbumsOfSelectedGenresChanged(IList selection)
         {
-            SongsOnSelectedAlbumsOfSelectedGenres.Clear();
+            OnAlbumLevelSelectionChanged(selection, SongsOnSelectedAlbumsOfSelectedGenres, m_Database.Songs);
+        }
+
+        private void OnRootLevelSelectionChanged(IList newSelection, IList<AlbumMetadata> albumView, AlbumsUnderRoot Albums)
+        {
+            albumView.Clear();
+            ISet<string> sortedItems = new SortedSet<string>();
+
+            foreach (object o in newSelection)
+            {
+                sortedItems.Add(o as string);
+            }
+
+            foreach (string item in sortedItems)
+            {
+                foreach (AlbumMetadata album in Albums(item))
+                {
+                    albumView.Add(album);
+                }
+            }
+        }
+
+        public void OnAlbumLevelSelectionChanged(IList newSelection, IList<SongMetadata> songView, SongsOnAlbum Songs)
+        {
+            songView.Clear();
             ISet<AlbumMetadata> sortedAlbums = new SortedSet<AlbumMetadata>();
 
-            foreach (object o in selection)
+            foreach (object o in newSelection)
             {
                 sortedAlbums.Add(o as AlbumMetadata);
             }
 
             foreach (AlbumMetadata album in sortedAlbums)
             {
-                foreach (SongMetadata song in m_Database.Songs(album))
+                foreach (SongMetadata song in Songs(album))
                 {
-                    SongsOnSelectedAlbumsOfSelectedGenres.Add(song);
+                    songView.Add(song);
                 }
             }
         }
