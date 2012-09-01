@@ -151,7 +151,7 @@ namespace Auremo
             }
         }
 
-        public ISet<AlbumMetadata> ArtistAlbums(string artist)
+        public ISet<AlbumMetadata> AlbumsByArtist(string artist)
         {
             ISet<AlbumMetadata> result = new SortedSet<AlbumMetadata>();
 
@@ -181,7 +181,7 @@ namespace Auremo
             return result;
         }
 
-        public ISet<SongMetadata> Songs(AlbumMetadata byAlbum)
+        public ISet<SongMetadata> SongsByAlbum(AlbumMetadata byAlbum)
         {
             SortedSet<SongMetadata> result = new SortedSet<SongMetadata>();
 
@@ -199,11 +199,11 @@ namespace Auremo
             return result;
         }
 
-        public SongMetadata Song(string byPath)
+        public SongMetadata SongByPath(string path)
         {
-            if (m_SongInfo.ContainsKey(byPath))
+            if (m_SongInfo.ContainsKey(path))
             {
-                return m_SongInfo[byPath];
+                return m_SongInfo[path];
             }
             else
             {
@@ -411,12 +411,12 @@ namespace Auremo
             {
                 ArtistTreeViewNode artistNode = new ArtistTreeViewNode(artist, null, ArtistTreeController);
 
-                foreach (AlbumMetadata album in ArtistAlbums(artist))
+                foreach (AlbumMetadata album in AlbumsByArtist(artist))
                 {
                     AlbumMetadataTreeViewNode albumNode = new AlbumMetadataTreeViewNode(album, artistNode, ArtistTreeController);
                     artistNode.AddChild(albumNode);
 
-                    foreach (SongMetadata song in Songs(album))
+                    foreach (SongMetadata song in SongsByAlbum(album))
                     {
                         SongMetadataTreeViewNode songNode = new SongMetadataTreeViewNode("", song, albumNode, ArtistTreeController);
                         albumNode.AddChild(songNode);
@@ -448,7 +448,7 @@ namespace Auremo
                     AlbumMetadataTreeViewNode albumNode = new AlbumMetadataTreeViewNode(album, genreNode, GenreTreeController);
                     genreNode.AddChild(albumNode);
 
-                    foreach (SongMetadata song in Songs(album))
+                    foreach (SongMetadata song in SongsByAlbum(album))
                     {
                         SongMetadataTreeViewNode songNode = new SongMetadataTreeViewNode("", song, albumNode, GenreTreeController);
                         albumNode.AddChild(songNode);
