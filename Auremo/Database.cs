@@ -26,8 +26,6 @@ namespace Auremo
 {
     public class Database
     {
-        private IList<string> m_Artists = new ObservableCollection<string>();
-        private IList<string> m_Genres = new ObservableCollection<string>();
         private IDictionary<string, ISet<AlbumMetadata>> m_AlbumsByArtist = new SortedDictionary<string, ISet<AlbumMetadata>>();
         private IDictionary<string, ISet<AlbumMetadata>> m_AlbumsByGenre = new SortedDictionary<string, ISet<AlbumMetadata>>();
         private IDictionary<AlbumMetadata, ISet<string>> m_SongPathsByAlbum = new SortedDictionary<AlbumMetadata, ISet<string>>();
@@ -35,14 +33,8 @@ namespace Auremo
 
         public Database()
         {
-            ArtistTree = new ObservableCollection<TreeViewNode>();
-            ArtistTreeController = new TreeViewController(ArtistTree);
-
-            GenreTree = new ObservableCollection<TreeViewNode>();
-            GenreTreeController = new TreeViewController(GenreTree);
-
-            DirectoryTree = new ObservableCollection<TreeViewNode>();
-            DirectoryTreeController = new TreeViewController(DirectoryTree);
+            Artists = new List<string>();
+            Genres = new List<string>();
         }
 
         public bool Refresh(ServerConnection connection)
@@ -52,8 +44,8 @@ namespace Auremo
             m_SongPathsByAlbum.Clear();
             m_SongInfo.Clear();
 
-            m_Artists.Clear();
-            m_Genres.Clear();
+            Artists = new List<string>();
+            Genres = new List<string>();
 
             if (connection.Status == ServerConnection.State.Connected)
             {
@@ -66,88 +58,28 @@ namespace Auremo
                 PopulateAlbumsByGenre();
 
                 PopulateSongPathsByAlbum();
-                
-                PopulateDirectoryTree();
-                PopulateArtistTree();
-                PopulateGenreTree();
             }
 
             return true;
         }
 
-        public IList<string> Artists
+        public IEnumerable<string> Artists
+        {
+            get;
+            private set;
+        }
+
+        public IEnumerable<string> Genres
+        {
+            get;
+            private set;
+        }
+
+        public IEnumerable<SongMetadata> Songs
         {
             get
             {
-                return m_Artists;
-            }
-        }
-
-        public IList<string> Genres
-        {
-            get
-            {
-                return m_Genres;
-            }
-        }
-
-        public IList<TreeViewNode> DirectoryTree
-        {
-            get;
-            private set;
-        }
-
-        public TreeViewController DirectoryTreeController
-        {
-            get;
-            private set;
-        }
-
-        public ISet<SongMetadataTreeViewNode> DirectoryTreeSelectedSongs
-        {
-            get
-            {
-                return DirectoryTreeController.Songs;
-            }
-        }
-
-        public IList<TreeViewNode> ArtistTree
-        {
-            get;
-            private set;
-        }
-
-        public TreeViewController ArtistTreeController
-        {
-            get;
-            private set;
-        }
-
-        public ISet<SongMetadataTreeViewNode> ArtistTreeSelectedSongs
-        {
-            get
-            {
-                return ArtistTreeController.Songs;
-            }
-        }
-
-        public IList<TreeViewNode> GenreTree
-        {
-            get;
-            private set;
-        }
-
-        public TreeViewController GenreTreeController
-        {
-            get;
-            private set;
-        }
-
-        public ISet<SongMetadataTreeViewNode> GenreTreeSelectedSongs
-        {
-            get
-            {
-                return GenreTreeController.Songs;
+                return m_SongInfo.Values;
             }
         }
 
@@ -277,10 +209,7 @@ namespace Auremo
                 uniqueArtists.Add(song.Artist);
             }
 
-            foreach (string artist in uniqueArtists)
-            {
-                m_Artists.Add(artist);
-            }
+            Artists = uniqueArtists;
         }
 
         private void PopulateGenres()
@@ -292,10 +221,7 @@ namespace Auremo
                 uniqueGenres.Add(song.Genre);
             }
 
-            foreach (string genre in uniqueGenres)
-            {
-                m_Genres.Add(genre);
-            }
+            Genres = uniqueGenres;
         }
 
         private void PopulateAlbumsByArtist()
@@ -338,7 +264,6 @@ namespace Auremo
 
                 m_AlbumsByGenre[song.Genre].Add(album);
             }
-
         }
 
         private void PopulateSongPathsByAlbum()
@@ -356,127 +281,6 @@ namespace Auremo
 
                 m_SongPathsByAlbum[album].Add(song.Path);
             }
-        }
-
-        private void PopulateDirectoryTree()
-        {
-            DirectoryTreeController.ClearMultiSelection();
-            DirectoryTree.Clear();
-
-            DirectoryTreeViewNode rootNode = new DirectoryTreeViewNode("/", null, DirectoryTreeController);
-            IDictionary<string, TreeViewNode> directoryLookup = new SortedDictionary<string, TreeViewNode>();
-            directoryLookup[rootNode.DisplayString] = rootNode;
-
-            foreach (KeyValuePair<string, SongMetadata> entry in m_SongInfo)
-            {
-                Tuple<string, string> directoryAndFile = Utils.SplitPath(entry.Key);
-                TreeViewNode parent = FindDirectoryNode(directoryAndFile.Item1, directoryLookup, rootNode);
-                SongMetadataTreeViewNode leaf = new SongMetadataTreeViewNode(directoryAndFile.Item2, entry.Value, parent, DirectoryTreeController);
-                parent.AddChild(leaf);
-            }
-
-            AssignTreeViewNodeIDs(rootNode, 0);
-
-            DirectoryTree.Add(rootNode);
-            rootNode.IsExpanded = true;
-        }
-
-        private TreeViewNode FindDirectoryNode(string path, IDictionary<string, TreeViewNode> lookup, TreeViewNode rootNode)
-        {
-            if (path == "")
-            {
-                return rootNode;
-            }
-            else if (lookup.ContainsKey(path))
-            {
-                return lookup[path];
-            }
-            else
-            {
-                Tuple<string, string> parentAndSelf = Utils.SplitPath(path);
-                TreeViewNode parent = FindDirectoryNode(parentAndSelf.Item1, lookup, rootNode);
-                TreeViewNode self = new DirectoryTreeViewNode(parentAndSelf.Item2, parent, DirectoryTreeController);
-                parent.AddChild(self);
-                lookup[path] = self;
-                return self;
-            }
-        }
-
-        private void PopulateArtistTree()
-        {
-            ArtistTree.Clear();
-            ArtistTreeController.MultiSelection.Clear();
-            
-            foreach (string artist in m_Artists)
-            {
-                ArtistTreeViewNode artistNode = new ArtistTreeViewNode(artist, null, ArtistTreeController);
-
-                foreach (AlbumMetadata album in AlbumsByArtist(artist))
-                {
-                    AlbumMetadataTreeViewNode albumNode = new AlbumMetadataTreeViewNode(album, artistNode, ArtistTreeController);
-                    artistNode.AddChild(albumNode);
-
-                    foreach (SongMetadata song in SongsByAlbum(album))
-                    {
-                        SongMetadataTreeViewNode songNode = new SongMetadataTreeViewNode("", song, albumNode, ArtistTreeController);
-                        albumNode.AddChild(songNode);
-                    }
-                }
-
-                ArtistTree.Add(artistNode); // Insert now that branch is fully populated.
-            }
-
-            int id = 0;
-
-            foreach (TreeViewNode baseNode in ArtistTree)
-            {
-                id = AssignTreeViewNodeIDs(baseNode, id);
-            }
-        }
-
-        private void PopulateGenreTree()
-        {
-            GenreTreeController.ClearMultiSelection();
-            GenreTree.Clear();
-
-            foreach (string genre in m_Genres)
-            {
-                GenreTreeViewNode genreNode = new GenreTreeViewNode(genre, null, GenreTreeController);
-
-                foreach (AlbumMetadata album in AlbumsByGenre(genre))
-                {
-                    AlbumMetadataTreeViewNode albumNode = new AlbumMetadataTreeViewNode(album, genreNode, GenreTreeController);
-                    genreNode.AddChild(albumNode);
-
-                    foreach (SongMetadata song in SongsByAlbum(album))
-                    {
-                        SongMetadataTreeViewNode songNode = new SongMetadataTreeViewNode("", song, albumNode, GenreTreeController);
-                        albumNode.AddChild(songNode);
-                    }
-                }
-                
-                GenreTree.Add(genreNode);
-            }
-
-            int id = 0;
-
-            foreach (TreeViewNode baseNode in GenreTree)
-            {
-                id = AssignTreeViewNodeIDs(baseNode, id);
-            }
-        }
-
-        private int AssignTreeViewNodeIDs(TreeViewNode node, int nodeID)
-        {
-            node.ID = nodeID;
-            int nextNodeID = nodeID + 1;
-
-            foreach (TreeViewNode child in node.Children)
-            {
-                nextNodeID = AssignTreeViewNodeIDs(child, nextNodeID);
-            }
-
-            return nextNodeID;
         }
     }
 }
