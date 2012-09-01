@@ -9,7 +9,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:l="clr-namespace:Auremo"
         Title="Auremo MPD Client"
-        MinWidth="720" MinHeight="540"
+        MinWidth="980" MinHeight="680"
         Background="{StaticResource BackgroundBrush}"
         PreviewKeyDown="OnKeyDown"
         Closing="OnExit">
@@ -33,7 +33,7 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <TabControl Name="m_CollectionBrowsingModes" Style="{StaticResource TabControlStyle}" TabStripPlacement="Bottom">
-                        <TabItem Header="Artist list" Style="{StaticResource BottomTabItemStyle}" Width="80">
+                        <TabItem Header="Artist list" Style="{StaticResource BottomTabItemStyle}" Width="75">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="*"/>
@@ -94,7 +94,7 @@
                                 </DataGrid>
                             </Grid>
                         </TabItem>
-                        <TabItem Header="Artist tree" Style="{StaticResource BottomTabItemStyle}" Width="80">
+                        <TabItem Header="Artist tree" Style="{StaticResource BottomTabItemStyle}" Width="75">
                             <TreeView Name="m_ArtistTree" ItemsSource="{Binding ArtistTree}" Style="{StaticResource TreeViewStyle}" ItemContainerStyle="{StaticResource TreeViewContainerStyle}" PreviewMouseLeftButtonDown="OnTreeViewMouseDown" MouseMove="OnMouseMoveDragDrop" MouseUp="OnTreeViewMouseUp" PreviewKeyDown="OnTreeViewKeyDown" SelectedItemChanged="OnTreeViewSelectionChanged">
                                 <TreeView.Resources>
                                     <HierarchicalDataTemplate DataType="{x:Type l:TreeViewNode}" ItemsSource="{Binding Children}">
@@ -103,7 +103,7 @@
                                 </TreeView.Resources>
                             </TreeView>
                         </TabItem>
-                        <TabItem Header="Genre list" Style="{StaticResource BottomTabItemStyle}" Width="80">
+                        <TabItem Header="Genre list" Style="{StaticResource BottomTabItemStyle}" Width="75">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="*"/>
@@ -165,7 +165,7 @@
                                 </DataGrid>
                             </Grid>
                         </TabItem>
-                        <TabItem Header="Genre tree" Style="{StaticResource BottomTabItemStyle}" Width="80">
+                        <TabItem Header="Genre tree" Style="{StaticResource BottomTabItemStyle}" Width="75">
                             <TreeView Name="m_GenreTree" ItemsSource="{Binding GenreTree}" Style="{StaticResource TreeViewStyle}" ItemContainerStyle="{StaticResource TreeViewContainerStyle}" PreviewMouseLeftButtonDown="OnTreeViewMouseDown" MouseMove="OnMouseMoveDragDrop" MouseUp="OnTreeViewMouseUp" PreviewKeyDown="OnTreeViewKeyDown" SelectedItemChanged="OnTreeViewSelectionChanged">
                                 <TreeView.Resources>
                                     <HierarchicalDataTemplate DataType="{x:Type l:TreeViewNode}" ItemsSource="{Binding Children}">
@@ -174,7 +174,7 @@
                                 </TreeView.Resources>
                             </TreeView>
                         </TabItem>
-                        <TabItem Header="Filesystem" Style="{StaticResource BottomTabItemStyle}" Width="80">
+                        <TabItem Header="Filesystem" Style="{StaticResource BottomTabItemStyle}" Width="75">
                             <TreeView Name="m_DirectoryTree" ItemsSource="{Binding DirectoryTree}" Style="{StaticResource TreeViewStyle}" ItemContainerStyle="{StaticResource TreeViewContainerStyle}" PreviewMouseLeftButtonDown="OnTreeViewMouseDown" MouseMove="OnMouseMoveDragDrop" MouseUp="OnTreeViewMouseUp" PreviewKeyDown="OnTreeViewKeyDown" SelectedItemChanged="OnTreeViewSelectionChanged">
                                 <TreeView.Resources>
                                     <HierarchicalDataTemplate DataType="{x:Type l:TreeViewNode}" ItemsSource="{Binding Children}">
@@ -182,6 +182,25 @@
                                     </HierarchicalDataTemplate>
                                 </TreeView.Resources>
                             </TreeView>
+                        </TabItem>
+                        <TabItem Header="Playlists" Style="{StaticResource BottomTabItemStyle}" Width="75">
+                            <DataGrid Name="m_SavedPlaylistsView"
+                                          Style="{StaticResource DataGridStyle}"
+                                          ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
+                                          RowStyle="{StaticResource DataGridRowStyle}"
+                                          CellStyle="{StaticResource LibraryCellStyle}"
+                                          Margin="0,3,0,3"
+                                          SelectionMode="Single"
+                                          ItemsSource="{Binding Path=Playlists}"
+                                          PreviewKeyDown="OnSavedPlaylistsViewKeyDown"
+                                          MouseDoubleClick="OnSavedPlaylistsViewDoubleClicked"
+                                          PreviewMouseDown="OnDataGridMouseDown"
+                                          MouseMove="OnMouseMoveDragDrop"
+                                          MouseUp="OnDataGridMouseUp">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Playlist" Width="*" Binding="{Binding}"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
                         </TabItem>
                     </TabControl>
                     <Grid Grid.Column="1">

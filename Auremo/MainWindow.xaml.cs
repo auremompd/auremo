@@ -44,10 +44,12 @@ namespace Auremo
         private ServerStatus m_ServerStatus = new ServerStatus();
         private Database m_Database = new Database();
         private DatabaseView m_DatabaseView = null;
+        private SavedPlaylists m_SavedPlaylists = new SavedPlaylists();
         private Playlist m_Playlist = null;
         private DispatcherTimer m_Timer = null;
         private Object m_DragSource = null;
         private IList<object> m_DragDropPayload = null;
+        private string m_DragDropData = null;
         private Nullable<Point> m_DragStartPosition = null;
         private bool m_PropertyUpdateInProgress = false;
         private bool m_OnlineMode = true;
@@ -56,6 +58,7 @@ namespace Auremo
         private const string AddGenres = "add_genres";
         private const string AddAlbums = "add_albums";
         private const string AddSongs = "add_songs";
+        private const string LoadPlaylist = "load_playlist";
         private const string MovePlaylistItems = "move_playlist_items";
 
         #region Start-up, construction and destruction
@@ -97,7 +100,7 @@ namespace Auremo
         private void SetUpDataBindings()
         {
             m_CollectionBrowsingModes.DataContext = m_DatabaseView;
-
+            m_SavedPlaylistsView.DataContext = m_SavedPlaylists;
             m_PlaylistView.DataContext = m_Playlist;
             m_PlaybackControls.DataContext = m_ServerStatus;
             m_PlayStatusMessage.DataContext = m_Playlist;
@@ -147,6 +150,7 @@ namespace Auremo
         {
             m_Database.Refresh(m_Connection);
             m_DatabaseView.Refresh();
+            m_SavedPlaylists.Refresh(m_Connection);
             SetTimerInterval(Settings.Default.ViewUpdateInterval); // Normal operation.
         }
 
@@ -160,6 +164,7 @@ namespace Auremo
             m_Connection.Disconnect();
             m_Database.Refresh(m_Connection);
             m_DatabaseView.Refresh();
+            m_SavedPlaylists.Refresh(m_Connection);
         }
 
         #endregion
@@ -371,6 +376,29 @@ namespace Auremo
             }
         }
 
+        private void OnSavedPlaylistsViewKeyDown(object sender, KeyEventArgs e)
+        {
+            object selectedPlaylist = m_SavedPlaylistsView.SelectedItem;
+
+            if (selectedPlaylist != null)
+            {
+                string playlistName = selectedPlaylist as string;
+            
+                if (e.Key == Key.Enter)
+                {
+                    e.Handled = true;
+                    Protocol.Load(m_Connection, playlistName);
+                    Update();
+                }
+                else if (e.Key == Key.Delete)
+                {
+                    e.Handled = true;
+                    Protocol.Rm(m_Connection, playlistName);
+                    Update();
+                }
+            }
+        }
+
         private void OnDeleteFromPlaylist()
         {
             foreach (object obj in m_PlaylistView.SelectedItems)
@@ -427,6 +455,21 @@ namespace Auremo
                 SongMetadata song = row.Item as SongMetadata;
                 Protocol.Add(m_Connection, song.Path);
                 Update();
+            }
+        }
+
+        private void OnSavedPlaylistsViewDoubleClicked(object sender, MouseButtonEventArgs e)
+        {
+            if (Keyboard.Modifiers == ModifierKeys.None)
+            {
+                object selectedPlaylist = m_SavedPlaylistsView.SelectedItem;
+
+                if (selectedPlaylist != null)
+                {
+                    string playlistName = selectedPlaylist as string;
+                    Protocol.Load(m_Connection, playlistName);
+                    Update();
+                }
             }
         }
 
@@ -652,7 +695,7 @@ namespace Auremo
 
         #endregion
 
-        #region List drag & Drop
+        #region List drag & drop
 
         private void OnDataGridMouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -686,7 +729,7 @@ namespace Auremo
 
                 if (e.LeftButton == MouseButtonState.Pressed &&
                     (Math.Abs(dragDistance.X) > SystemParameters.MinimumHorizontalDragDistance ||
-                    Math.Abs(dragDistance.Y) > SystemParameters.MinimumVerticalDragDistance))
+                     Math.Abs(dragDistance.Y) > SystemParameters.MinimumVerticalDragDistance))
                 {
                     // Using an internal m_DragDropPayload is cheating, but the
                     // the standard (through clipboard?) system is pure evil and
@@ -731,8 +774,8 @@ namespace Auremo
 
                     m_MousePointerHint.Content = DragDropPayloadDescription();
                     DragDropEffects mode = sender == m_PlaylistView ? DragDropEffects.Move : DragDropEffects.Copy;
-                    string data = GetDragDropDataString(m_DragSource);
-                    DragDrop.DoDragDrop((DependencyObject)sender, data, mode);
+                    m_DragDropData = GetDragDropDataString(m_DragSource);
+                    DragDrop.DoDragDrop((DependencyObject)sender, m_DragDropData, mode);
                     m_DragStartPosition = null;
                 }
             }
@@ -740,37 +783,57 @@ namespace Auremo
 
         private string DragDropPayloadDescription()
         {
-            if (m_DragDropPayload == null || m_DragDropPayload.Count == 0)
+            if (m_DragSource == null || m_DragDropPayload == null || m_DragDropPayload.Count == 0)
             {
                 return "";
             }
-            else if (m_DragDropPayload[0] is string)
+            else
             {
-                if (m_DragDropPayload.Count == 1)
-                    return "Adding " + (string)m_DragDropPayload[0];
-                else
-                    return "Adding " + m_DragDropPayload.Count + " artists";
-            }
-            else if (m_DragDropPayload[0] is AlbumMetadata)
-            {
-                if (m_DragDropPayload.Count == 1)
-                    return "Adding " + ((AlbumMetadata)m_DragDropPayload[0]).Title;
-                else
-                    return "Adding " + m_DragDropPayload.Count + " albums";
-            }
-            else if (m_DragDropPayload[0] is SongMetadata)
-            {
-                if (m_DragDropPayload.Count == 1)
-                    return "Adding " + ((SongMetadata)m_DragDropPayload[0]).Title;
-                else
-                    return "Adding " + m_DragDropPayload.Count + " songs";
-            }
-            else if (m_DragDropPayload[0] is PlaylistItem)
-            {
-                if (m_DragDropPayload.Count == 1)
-                    return "Moving " + ((PlaylistItem)m_DragDropPayload[0]).Song.Title;
-                else
-                    return "Moving " + m_DragDropPayload.Count + " songs";
+                int count = m_DragDropPayload.Count;
+                object firstItem = m_DragDropPayload[0];
+
+                if (firstItem is string)
+                {
+                    if (m_DragSource == m_ArtistsView)
+                    {
+                        if (count == 1)
+                            return "Adding " + (string)firstItem;
+                        else
+                            return "Adding " + count + " artists";
+                    }
+                    else if (m_DragSource == m_GenresView)
+                    {
+                        if (count == 1)
+                            return "Adding " + (string)firstItem;
+                        else
+                            return "Adding " + count + " genres";
+                    }
+                    else if (m_DragSource == m_SavedPlaylistsView)
+                    {
+                        return (string)firstItem;
+                    }
+                }
+                else if (firstItem is AlbumMetadata)
+                {
+                    if (m_DragDropPayload.Count == 1)
+                        return "Adding " + ((AlbumMetadata)firstItem).Title;
+                    else
+                        return "Adding " + count + " albums";
+                }
+                else if (firstItem is SongMetadata)
+                {
+                    if (m_DragDropPayload.Count == 1)
+                        return "Adding " + ((SongMetadata)firstItem).Title;
+                    else
+                        return "Adding " + count + " songs";
+                }
+                else if (firstItem is PlaylistItem)
+                {
+                    if (m_DragDropPayload.Count == 1)
+                        return "Moving " + ((PlaylistItem)firstItem).Song.Title;
+                    else
+                        return "Moving " + count + " songs";
+                }
             }
 
             return "";
@@ -780,50 +843,54 @@ namespace Auremo
         {
             if (m_DragDropPayload != null && !m_PlaylistView.Items.IsEmpty)
             {
-                Point mousePosition = e.GetPosition(m_PlaylistView);
+                m_MousePointerHint.IsOpen = true;
 
-                m_MousePointerHint.Placement = PlacementMode.Relative;
-                m_MousePointerHint.PlacementTarget = m_PlaylistView;
-                m_MousePointerHint.HorizontalOffset = mousePosition.X + 10;
-                m_MousePointerHint.VerticalOffset = mousePosition.Y - 6;
+                if (m_DragDropData != LoadPlaylist)
+                {
+                    Point mousePosition = e.GetPosition(m_PlaylistView);
 
-                int targetRow = DropTargetRowIndex(e);
-                DataGridRow row = null;
+                    m_MousePointerHint.Placement = PlacementMode.Relative;
+                    m_MousePointerHint.PlacementTarget = m_PlaylistView;
+                    m_MousePointerHint.HorizontalOffset = mousePosition.X + 10;
+                    m_MousePointerHint.VerticalOffset = mousePosition.Y - 6;
+
+                    int targetRow = DropTargetRowIndex(e);
+                    DataGridRow row = null;
                 
-                if (targetRow >= 0)
-                {
-                    row = m_PlaylistView.ItemContainerGenerator.ContainerFromIndex(targetRow) as DataGridRow;
-                }
-
-                if (row == null)
-                {
-                    DataGridRow lastItem = m_PlaylistView.ItemContainerGenerator.ContainerFromIndex(m_PlaylistView.Items.Count - 1) as DataGridRow;
-
-                    if (lastItem == null)
+                    if (targetRow >= 0)
                     {
-                        // TODO: this is null sometimes. No idea why.
-                        return;
+                        row = m_PlaylistView.ItemContainerGenerator.ContainerFromIndex(targetRow) as DataGridRow;
                     }
 
-                    Rect bounds = VisualTreeHelper.GetDescendantBounds(lastItem);
-                    GeneralTransform transform = lastItem.TransformToAncestor(m_PlaylistView);
-                    Point bottomOfItem = transform.Transform(bounds.BottomLeft);
-                    m_DropPositionIndicator.Y1 = bottomOfItem.Y;
-                }
-                else
-                {
-                    Rect bounds = VisualTreeHelper.GetDescendantBounds(row);
-                    GeneralTransform transform = row.TransformToAncestor(m_PlaylistView);
-                    Point topOfItem = transform.Transform(bounds.TopLeft);
-                    m_DropPositionIndicator.Y1 = topOfItem.Y;
-                }
+                    if (row == null)
+                    {
+                        DataGridRow lastItem = m_PlaylistView.ItemContainerGenerator.ContainerFromIndex(m_PlaylistView.Items.Count - 1) as DataGridRow;
 
-                m_DropPositionIndicator.X1 = 10;
-                m_DropPositionIndicator.X2 = m_PlaylistView.ActualWidth - 20;
-                m_DropPositionIndicator.Y1 += 3;
-                m_DropPositionIndicator.Y2 = m_DropPositionIndicator.Y1;
-                m_DropPositionIndicator.Visibility = Visibility.Visible;
-                m_MousePointerHint.IsOpen = true;
+                        if (lastItem == null)
+                        {
+                            // TODO: this is null sometimes. No idea why.
+                            return;
+                        }
+
+                        Rect bounds = VisualTreeHelper.GetDescendantBounds(lastItem);
+                        GeneralTransform transform = lastItem.TransformToAncestor(m_PlaylistView);
+                        Point bottomOfItem = transform.Transform(bounds.BottomLeft);
+                        m_DropPositionIndicator.Y1 = bottomOfItem.Y;
+                    }
+                    else
+                    {
+                        Rect bounds = VisualTreeHelper.GetDescendantBounds(row);
+                        GeneralTransform transform = row.TransformToAncestor(m_PlaylistView);
+                        Point topOfItem = transform.Transform(bounds.TopLeft);
+                        m_DropPositionIndicator.Y1 = topOfItem.Y;
+                    }
+
+                    m_DropPositionIndicator.X1 = 10;
+                    m_DropPositionIndicator.X2 = m_PlaylistView.ActualWidth - 20;
+                    m_DropPositionIndicator.Y1 += 3;
+                    m_DropPositionIndicator.Y2 = m_DropPositionIndicator.Y1;
+                    m_DropPositionIndicator.Visibility = Visibility.Visible;
+                }
             }
             else
             {
@@ -901,6 +968,10 @@ namespace Auremo
                         SongMetadata song = (SongMetadata)o;
                         Protocol.AddId(m_Connection, song.Path, targetRow++);
                     }
+                }
+                else if (data == LoadPlaylist)
+                {
+                    Protocol.Load(m_Connection, m_DragDropPayload[0] as string);
                 }
                 else if (data == MovePlaylistItems)
                 {
@@ -1262,6 +1333,10 @@ namespace Auremo
             else if (dragSource == m_SongsOnSelectedAlbumsView || dragSource == m_SongsOnSelectedGenreAlbumsView)
             {
                 return AddSongs;
+            }
+            else if (dragSource == m_SavedPlaylistsView)
+            {
+                return LoadPlaylist;
             }
             else if (dragSource is TreeView)
             {
