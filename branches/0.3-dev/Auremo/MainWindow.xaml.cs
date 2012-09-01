@@ -97,9 +97,6 @@ namespace Auremo
         private void SetUpDataBindings()
         {
             m_CollectionBrowsingModes.DataContext = m_DatabaseView;
-            m_ArtistTree.DataContext = m_Database;
-            m_GenreTree.DataContext = m_Database;
-            m_DirectoryTree.DataContext = m_Database;
 
             m_PlaylistView.DataContext = m_Playlist;
             m_PlaybackControls.DataContext = m_ServerStatus;
@@ -110,9 +107,9 @@ namespace Auremo
 
         private void SetUpTreeViewControllers()
         {
-            m_DirectoryTree.Tag = m_Database.DirectoryTreeController;
-            m_ArtistTree.Tag = m_Database.ArtistTreeController;
-            m_GenreTree.Tag = m_Database.GenreTreeController;
+            m_DirectoryTree.Tag = m_DatabaseView.DirectoryTreeController;
+            m_ArtistTree.Tag = m_DatabaseView.ArtistTreeController;
+            m_GenreTree.Tag = m_DatabaseView.GenreTreeController;
         }
 
         private void CreateTimer(int interval)
@@ -149,7 +146,7 @@ namespace Auremo
         private void DoPostConnectInit()
         {
             m_Database.Refresh(m_Connection);
-            UpdateTopLevelSelection();
+            m_DatabaseView.Refresh();
             SetTimerInterval(Settings.Default.ViewUpdateInterval); // Normal operation.
         }
 
@@ -162,11 +159,7 @@ namespace Auremo
 
             m_Connection.Disconnect();
             m_Database.Refresh(m_Connection);
-        }
-
-        private void UpdateTopLevelSelection()
-        {
-            m_DatabaseView.OnSelectedArtistsChanged(m_ArtistsView.SelectedItems);
+            m_DatabaseView.Refresh();
         }
 
         #endregion
@@ -716,15 +709,15 @@ namespace Auremo
 
                         if (m_DragSource == m_DirectoryTree)
                         {
-                            selection = m_Database.DirectoryTreeSelectedSongs;
+                            selection = m_DatabaseView.DirectoryTreeSelectedSongs;
                         }
                         else if (m_DragSource == m_ArtistTree)
                         {
-                            selection = m_Database.ArtistTreeSelectedSongs;
+                            selection = m_DatabaseView.ArtistTreeSelectedSongs;
                         }
                         else if (m_DragSource == m_GenreTree)
                         {
-                            selection = m_Database.GenreTreeSelectedSongs;
+                            selection = m_DatabaseView.GenreTreeSelectedSongs;
                         }
 
                         if (selection != null)
