@@ -309,7 +309,7 @@ namespace Auremo
             {
                 foreach (AlbumMetadata album in m_DatabaseView.AlbumsBySelectedArtists)
                 {
-                    foreach (SongMetadata song in m_Database.Songs(album))
+                    foreach (SongMetadata song in m_Database.SongsByAlbum(album))
                     {
                         Protocol.Add(m_Connection, song.Path);
                     }
@@ -325,7 +325,7 @@ namespace Auremo
             {
                 foreach (AlbumMetadata album in m_DatabaseView.AlbumsOfSelectedGenres)
                 {
-                    foreach (SongMetadata song in m_Database.Songs(album))
+                    foreach (SongMetadata song in m_Database.SongsByAlbum(album))
                     {
                         Protocol.Add(m_Connection, song.Path);
                     }
@@ -857,11 +857,11 @@ namespace Auremo
                     foreach (object o in m_DragDropPayload)
                     {
                         string artist = (string)o;
-                        ISet<AlbumMetadata> albums = m_Database.ArtistAlbums(artist);
+                        ISet<AlbumMetadata> albums = m_Database.AlbumsByArtist(artist);
 
                         foreach (AlbumMetadata album in albums)
                         {
-                            ISet<SongMetadata> songs = m_Database.Songs(album);
+                            ISet<SongMetadata> songs = m_Database.SongsByAlbum(album);
 
                             foreach (SongMetadata song in songs)
                             {
@@ -879,7 +879,7 @@ namespace Auremo
 
                         foreach (AlbumMetadata album in albums)
                         {
-                            ISet<SongMetadata> songs = m_Database.Songs(album);
+                            ISet<SongMetadata> songs = m_Database.SongsByAlbum(album);
 
                             foreach (SongMetadata song in songs)
                             {
@@ -893,7 +893,7 @@ namespace Auremo
                     foreach (object o in m_DragDropPayload)
                     {
                         AlbumMetadata album = (AlbumMetadata)o;
-                        ISet<SongMetadata> songs = m_Database.Songs(album);
+                        ISet<SongMetadata> songs = m_Database.SongsByAlbum(album);
 
                         foreach (SongMetadata song in songs)
                         {

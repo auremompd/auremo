@@ -66,12 +66,12 @@ namespace Auremo
 
         public void OnSelectedArtistsChanged(IList selection)
         {
-            OnRootLevelSelectionChanged(selection, AlbumsBySelectedArtists, m_Database.ArtistAlbums);
+            OnRootLevelSelectionChanged(selection, AlbumsBySelectedArtists, m_Database.AlbumsByArtist);
         }
 
         public void OnSelectedAlbumsBySelectedArtistsChanged(IList selection)
         {
-            OnAlbumLevelSelectionChanged(selection, SongsOnSelectedAlbumsBySelectedArtists, m_Database.Songs);
+            OnAlbumLevelSelectionChanged(selection, SongsOnSelectedAlbumsBySelectedArtists, m_Database.SongsByAlbum);
         }
 
         public void OnSelectedGenresChanged(IList selection)
@@ -81,7 +81,7 @@ namespace Auremo
 
         public void OnSelectedAlbumsOfSelectedGenresChanged(IList selection)
         {
-            OnAlbumLevelSelectionChanged(selection, SongsOnSelectedAlbumsOfSelectedGenres, m_Database.Songs);
+            OnAlbumLevelSelectionChanged(selection, SongsOnSelectedAlbumsOfSelectedGenres, m_Database.SongsByAlbum);
         }
 
         private void OnRootLevelSelectionChanged(IList newSelection, IList<AlbumMetadata> albumView, AlbumsUnderRoot Albums)

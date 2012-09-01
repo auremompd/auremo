@@ -105,7 +105,7 @@ namespace Auremo
                     }
 
                     item = new PlaylistItem();
-                    item.Song = m_Database.Song(line.Value);
+                    item.Song = m_Database.SongByPath(line.Value);
                 }
                 else if (line.Name == "Id")
                 {
