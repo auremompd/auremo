@@ -81,7 +81,7 @@
                                           CellStyle="{StaticResource LibraryCellStyle}"
                                           Grid.Row="2"
                                           Margin="0,3,0,0"
-                                          ItemsSource="{Binding Path=SongsOnSelectedArtistAlbums}"
+                                          ItemsSource="{Binding Path=SongsOnSelectedAlbumsBySelectedArtists}"
                                           PreviewKeyDown="OnSongViewKeyDown"
                                           MouseDoubleClick="OnSongsOnAlbumsViewDoubleClicked"
                                           PreviewMouseDown="OnDataGridMouseDown"

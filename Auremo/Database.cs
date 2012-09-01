@@ -32,8 +32,6 @@ namespace Auremo
         private IDictionary<string, ISet<AlbumMetadata>> m_AlbumsByGenre = new SortedDictionary<string, ISet<AlbumMetadata>>();
         private IDictionary<AlbumMetadata, ISet<string>> m_SongPathsByAlbum = new SortedDictionary<AlbumMetadata, ISet<string>>();
         private IDictionary<string, SongMetadata> m_SongInfo = new SortedDictionary<string, SongMetadata>();
-        private IList<AlbumMetadata> m_AlbumsBySelectedArtists = new ObservableCollection<AlbumMetadata>();
-        private IList<SongMetadata> m_SongsOnSelectedArtistAlbums = new ObservableCollection<SongMetadata>();
 
         public Database()
         {
@@ -90,60 +88,6 @@ namespace Auremo
             get
             {
                 return m_Genres;
-            }
-        }
-
-        public void OnSelectedArtistsChanged(IList selection)
-        {
-            m_AlbumsBySelectedArtists.Clear();
-            ISet<string> sortedArtists = new SortedSet<string>();
-
-            foreach (object o in selection)
-            {
-                sortedArtists.Add(o as string);
-            }
-
-            foreach (string artist in sortedArtists)
-            {
-                foreach (AlbumMetadata album in m_AlbumsByArtist[artist])
-                {
-                    m_AlbumsBySelectedArtists.Add(album);
-                }
-            }
-        }
-
-        public IList<AlbumMetadata> AlbumsBySelectedArtists
-        {
-            get
-            {
-                return m_AlbumsBySelectedArtists;
-            }
-        }
-
-        public void OnSelectedArtistAlbumsChanged(IList selection)
-        {
-            m_SongsOnSelectedArtistAlbums.Clear();
-            ISet<AlbumMetadata> sortedAlbums = new SortedSet<AlbumMetadata>();
-
-            foreach (object o in selection)
-            {
-                sortedAlbums.Add(o as AlbumMetadata);
-            }
-
-            foreach (AlbumMetadata album in sortedAlbums)
-            {
-                foreach (string song in m_SongPathsByAlbum[album])
-                {
-                    m_SongsOnSelectedArtistAlbums.Add(m_SongInfo[song]);
-                }
-            }
-        }
-
-        public IList<SongMetadata> SongsOnSelectedArtistAlbums
-        {
-            get
-            {
-                return m_SongsOnSelectedArtistAlbums;
             }
         }
 
