@@ -19,6 +19,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 
@@ -26,18 +27,20 @@ namespace Auremo
 {
     public class Database
     {
+        private ServerConnection m_Connection = null;
         private IDictionary<string, ISet<AlbumMetadata>> m_AlbumsByArtist = new SortedDictionary<string, ISet<AlbumMetadata>>();
         private IDictionary<string, ISet<AlbumMetadata>> m_AlbumsByGenre = new SortedDictionary<string, ISet<AlbumMetadata>>();
         private IDictionary<AlbumMetadata, ISet<string>> m_SongPathsByAlbum = new SortedDictionary<AlbumMetadata, ISet<string>>();
         private IDictionary<string, SongMetadata> m_SongInfo = new SortedDictionary<string, SongMetadata>();
 
-        public Database()
+        public Database(ServerConnection connection, ServerStatus status)
         {
+            m_Connection = connection;
             Artists = new List<string>();
             Genres = new List<string>();
         }
 
-        public bool Refresh(ServerConnection connection)
+        public bool Refresh()
         {
             m_AlbumsByArtist.Clear();
             m_AlbumsByGenre.Clear();
@@ -47,9 +50,9 @@ namespace Auremo
             Artists = new List<string>();
             Genres = new List<string>();
 
-            if (connection.Status == ServerConnection.State.Connected)
+            if (m_Connection.Status == ServerConnection.State.Connected)
             {
-                PopulateSongInfo(connection);
+                PopulateSongInfo(m_Connection);
                 
                 PopulateArtists();
                 PopulateGenres();
