@@ -12,9 +12,10 @@ These features are already available in SVN in the 0.3-dev branch. All or some o
   * Add support for saving and loading playlists.
   * Add server tab and an "update collection" button.
   * Add support for updating the collection without disconnecting.
+  * Add support for password protected servers.
 
 == Features to add ==
 
 These features will be added before the release.
 
-  * Add admin password support.
+  * More testing, tuning and debugging. Release is imminent.
