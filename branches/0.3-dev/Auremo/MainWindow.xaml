@@ -255,19 +255,19 @@
                     </Grid.RowDefinitions>
                     <StackPanel Orientation="Horizontal">
                         <Label Content="Server name or address:" Style="{StaticResource OptionsLabelStyle}" Width="140"/>
-                        <TextBox Name="m_ServerEntry" Text="localhost" Style="{StaticResource TextBoxStyle}" Width="165"/>
+                        <TextBox Name="m_ServerEntry" Text="localhost" Style="{StaticResource OptionsTextBoxStyle}" Width="165"/>
                         <Label Content="Port:" Style="{StaticResource OptionsLabelStyle}" Width="37"/>
-                        <TextBox Name="m_PortEntry" Text="6600" Style="{StaticResource TextBoxStyle}" Width="50" PreviewTextInput="OnNumericOptionPreviewTextInput" LostFocus="OnNumericOptionLostFocus"/>
+                        <TextBox Name="m_PortEntry" Text="6600" Style="{StaticResource OptionsTextBoxStyle}" Width="50" PreviewTextInput="OnNumericOptionPreviewTextInput" LostFocus="OnNumericOptionLostFocus"/>
                         <Label Content="(1 - 65535, typically 6600)" Style="{StaticResource OptionsLabelStyle}" Width="150"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Grid.Row="1">
                         <Label Content="Update server status and draw user interface every" Style="{StaticResource OptionsLabelStyle}" Width="350"/>
-                        <TextBox Name="m_UpdateIntervalEntry" Text="500" Style="{StaticResource TextBoxStyle}" Width="50" PreviewTextInput="OnNumericOptionPreviewTextInput" LostFocus="OnNumericOptionLostFocus"/>
+                        <TextBox Name="m_UpdateIntervalEntry" Text="500" Style="{StaticResource OptionsTextBoxStyle}" Width="50" PreviewTextInput="OnNumericOptionPreviewTextInput" LostFocus="OnNumericOptionLostFocus"/>
                         <Label Content="milliseconds (min 100, max 5000)" Style="{StaticResource OptionsLabelStyle}"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Grid.Row="2">
                         <Label Content="After connection is lost, attempt reconnection every" Style="{StaticResource OptionsLabelStyle}" Width="350"/>
-                        <TextBox Name="m_ReconnectIntervalEntry" Text="10" Style="{StaticResource TextBoxStyle}" Width="50" PreviewTextInput="OnNumericOptionPreviewTextInput" LostFocus="OnNumericOptionLostFocus"/>
+                        <TextBox Name="m_ReconnectIntervalEntry" Text="10" Style="{StaticResource OptionsTextBoxStyle}" Width="50" PreviewTextInput="OnNumericOptionPreviewTextInput" LostFocus="OnNumericOptionLostFocus"/>
                         <Label Content="seconds (0 = never, max 3600)" Style="{StaticResource OptionsLabelStyle}"/>
                     </StackPanel>
                     <CheckBox Name="m_EnableVolumeControl" Content="Enable volume slider" IsChecked="True" Grid.Row="3" Style="{StaticResource OptionsCheckBoxStyle}"/>
