@@ -247,6 +247,13 @@
             <Setter Property="Background" Value="{StaticResource TextBoxBackgroundBrush}"/>
         </Style>
 
+        <Style x:Key="OptionsPasswordBoxStyle" TargetType="{x:Type PasswordBox}">
+            <Setter Property="VerticalAlignment" Value="Top"/>
+            <Setter Property="Margin" Value="2,4,2,0"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="Background" Value="{StaticResource TextBoxBackgroundBrush}"/>
+        </Style>
+
         <Style x:Key="OptionsCheckBoxStyle" TargetType="{x:Type CheckBox}">
             <Setter Property="VerticalAlignment" Value="Top"/>
             <Setter Property="Margin" Value="7,6,0,0"/>

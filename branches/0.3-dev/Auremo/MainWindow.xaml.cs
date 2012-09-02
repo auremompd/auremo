@@ -151,6 +151,13 @@ namespace Auremo
 
         private void DoPostConnectInit()
         {
+            string password = Crypto.DecryptPassword(Settings.Default.Password);
+
+            if (password.Length > 0)
+            {
+                Protocol.Password(m_Connection, password);
+            }
+            
             m_Database.Refresh();
             m_DatabaseView.Refresh();
             m_SavedPlaylists.Refresh(m_Connection);
@@ -1222,9 +1229,11 @@ namespace Auremo
         {
             string oldServer = Settings.Default.Server;
             int oldPort = Settings.Default.Port;
+            string oldPassword = Settings.Default.Password;
 
             Settings.Default.Server = m_ServerEntry.Text;
             Settings.Default.Port = Utils.StringToInt(m_PortEntry.Text, 6600);
+            Settings.Default.Password = Crypto.EncryptPassword(m_PasswordEntry.Password);
             Settings.Default.ViewUpdateInterval = Utils.StringToInt(m_UpdateIntervalEntry.Text, 500);
             Settings.Default.EnableVolumeControl = m_EnableVolumeControl.IsChecked == null || m_EnableVolumeControl.IsChecked.Value;
             Settings.Default.DisplaySeparatePlayAndPauseButtons = m_DisplaySeparatePlayAndPauseButtons.IsChecked == null || m_DisplaySeparatePlayAndPauseButtons.IsChecked.Value;
@@ -1232,7 +1241,7 @@ namespace Auremo
 
             SetTimerInterval(Settings.Default.ViewUpdateInterval);
 
-            if (Settings.Default.Server != oldServer || Settings.Default.Port != oldPort)
+            if (Settings.Default.Server != oldServer || Settings.Default.Port != oldPort || Settings.Default.Password != oldPassword)
             {
                 Disconnect();
 
@@ -1257,6 +1266,7 @@ namespace Auremo
         {
             m_ServerEntry.Text = Settings.Default.Server;
             m_PortEntry.Text = Settings.Default.Port.ToString();
+            m_PasswordEntry.Password = Crypto.DecryptPassword(Settings.Default.Password);
             m_UpdateIntervalEntry.Text = Settings.Default.ViewUpdateInterval.ToString();
             m_EnableVolumeControl.IsChecked = Settings.Default.EnableVolumeControl;
             m_DisplaySeparatePlayAndPauseButtons.IsChecked = Settings.Default.DisplaySeparatePlayAndPauseButtons;
