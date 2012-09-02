@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -42,7 +43,7 @@ namespace Auremo
     {
         private ServerConnection m_Connection = new ServerConnection();
         private ServerStatus m_ServerStatus = new ServerStatus();
-        private Database m_Database = new Database();
+        private Database m_Database = null;
         private DatabaseView m_DatabaseView = null;
         private SavedPlaylists m_SavedPlaylists = new SavedPlaylists();
         private Playlist m_Playlist = null;
@@ -93,6 +94,7 @@ namespace Auremo
 
         private void InitializeComplexObjects()
         {
+            m_Database = new Database(m_Connection, m_ServerStatus);
             m_DatabaseView = new DatabaseView(m_Database);
             m_Playlist = new Playlist(m_Connection, m_ServerStatus, m_Database);
         }
@@ -106,7 +108,7 @@ namespace Auremo
             m_PlaybackControls.DataContext = m_ServerStatus;
             m_PlayStatusMessage.DataContext = m_Playlist;
             m_ConnectionStatusDescription.DataContext = m_Connection;
-            m_ServerStatus.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(OnServerStatusPropertyChanged);
+            m_ServerStatus.PropertyChanged += new PropertyChangedEventHandler(OnServerStatusPropertyChanged);
         }
 
         private void SetUpTreeViewControllers()
@@ -149,7 +151,7 @@ namespace Auremo
 
         private void DoPostConnectInit()
         {
-            m_Database.Refresh(m_Connection);
+            m_Database.Refresh();
             m_DatabaseView.Refresh();
             m_SavedPlaylists.Refresh(m_Connection);
             SetTimerInterval(Settings.Default.ViewUpdateInterval); // Normal operation.
@@ -163,7 +165,7 @@ namespace Auremo
             }
 
             m_Connection.Disconnect();
-            m_Database.Refresh(m_Connection);
+            m_Database.Refresh();
             m_DatabaseView.Refresh();
             m_SavedPlaylists.Refresh(m_Connection);
         }
@@ -224,6 +226,11 @@ namespace Auremo
             else if (e.PropertyName == "Volume")
             {
                 OnVolumeChanged();
+            }
+            else if (e.PropertyName == "DatabaseUpdateTime")
+            {
+                m_Database.Refresh();
+                m_DatabaseView.Refresh();
             }
 
             m_PropertyUpdateInProgress = false;
@@ -1190,6 +1197,15 @@ namespace Auremo
 
         #endregion
 
+        #endregion
+
+        #region Server Tab
+
+        private void OnUpdateCollectionClicked(object sender, RoutedEventArgs e)
+        {
+            Protocol.Update(m_Connection);
+        }
+        
         #endregion
 
         #region Settings and settings tab

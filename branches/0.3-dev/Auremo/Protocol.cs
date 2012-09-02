@@ -35,6 +35,11 @@ namespace Auremo
 
         #region Informational commands (reference order)
 
+        public static ServerResponse Stats(ServerConnection connection)
+        {
+            return SendStringAndGetResponse(connection, "stats");
+        }
+
         public static ServerResponse Status(ServerConnection connection)
         {
             return SendStringAndGetResponse(connection, "status");
