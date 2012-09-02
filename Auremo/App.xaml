@@ -11,6 +11,7 @@
         <SolidColorBrush x:Key="BorderBrush" Color="#FF406080"/>
         <SolidColorBrush x:Key="TextBrush" Color="#FF205080"/>
         <SolidColorBrush x:Key="ToolTipBackgroundBrush" Color="#A07090B0"/>
+        <SolidColorBrush x:Key="TextBoxBackgroundBrush" Color="#FFD0D8E8"/>
 
         <LinearGradientBrush x:Key="BackgroundBrush" StartPoint=".4,0" EndPoint=".6,1">
             <LinearGradientBrush.GradientStops>
@@ -228,14 +229,22 @@
             <Setter Property="Margin" Value="3,0,3,0"/>
         </Style>
 
+        <Style x:Key="TextBoxStyle" TargetType="{x:Type TextBox}">
+            <Setter Property="VerticalAlignment" Value="Top"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="Background" Value="{StaticResource TextBoxBackgroundBrush}"/>
+        </Style>
+        
         <Style x:Key="OptionsLabelStyle" TargetType="{x:Type Label}">
             <Setter Property="VerticalAlignment" Value="Top"/>
             <Setter Property="Margin" Value="2,2,2,0"/>
         </Style>
 
-        <Style x:Key="TextBoxStyle" TargetType="{x:Type TextBox}">
+        <Style x:Key="OptionsTextBoxStyle" TargetType="{x:Type TextBox}">
             <Setter Property="VerticalAlignment" Value="Top"/>
             <Setter Property="Margin" Value="2,4,2,0"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="Background" Value="{StaticResource TextBoxBackgroundBrush}"/>
         </Style>
 
         <Style x:Key="OptionsCheckBoxStyle" TargetType="{x:Type CheckBox}">
