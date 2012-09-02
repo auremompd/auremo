@@ -263,6 +263,7 @@
                         <RowDefinition Height="30"/>
                         <RowDefinition Height="30"/>
                         <RowDefinition Height="30"/>
+                        <RowDefinition Height="30"/>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="35"/>
                     </Grid.RowDefinitions>
@@ -274,18 +275,22 @@
                         <Label Content="(1 - 65535, typically 6600)" Style="{StaticResource OptionsLabelStyle}" Width="150"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Grid.Row="1">
+                        <Label Content="Server password (optional):" Style="{StaticResource OptionsLabelStyle}" Width="350"/>
+                        <PasswordBox Name="m_PasswordEntry" Style="{StaticResource OptionsPasswordBoxStyle}" Width="250"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Grid.Row="2">
                         <Label Content="Update server status and draw user interface every" Style="{StaticResource OptionsLabelStyle}" Width="350"/>
                         <TextBox Name="m_UpdateIntervalEntry" Text="500" Style="{StaticResource OptionsTextBoxStyle}" Width="50" PreviewTextInput="OnNumericOptionPreviewTextInput" LostFocus="OnNumericOptionLostFocus"/>
                         <Label Content="milliseconds (min 100, max 5000)" Style="{StaticResource OptionsLabelStyle}"/>
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal" Grid.Row="2">
+                    <StackPanel Orientation="Horizontal" Grid.Row="3">
                         <Label Content="After connection is lost, attempt reconnection every" Style="{StaticResource OptionsLabelStyle}" Width="350"/>
                         <TextBox Name="m_ReconnectIntervalEntry" Text="10" Style="{StaticResource OptionsTextBoxStyle}" Width="50" PreviewTextInput="OnNumericOptionPreviewTextInput" LostFocus="OnNumericOptionLostFocus"/>
                         <Label Content="seconds (0 = never, max 3600)" Style="{StaticResource OptionsLabelStyle}"/>
                     </StackPanel>
-                    <CheckBox Name="m_EnableVolumeControl" Content="Enable volume slider" IsChecked="True" Grid.Row="3" Style="{StaticResource OptionsCheckBoxStyle}"/>
-                    <CheckBox Name="m_DisplaySeparatePlayAndPauseButtons" Content="Display separate play and pause buttons" IsChecked="True" Grid.Row="4" Style="{StaticResource OptionsCheckBoxStyle}"/>
-                    <DockPanel LastChildFill="False" Grid.Row="6">
+                    <CheckBox Name="m_EnableVolumeControl" Content="Enable volume slider" IsChecked="True" Grid.Row="4" Style="{StaticResource OptionsCheckBoxStyle}"/>
+                    <CheckBox Name="m_DisplaySeparatePlayAndPauseButtons" Content="Display separate play and pause buttons" IsChecked="True" Grid.Row="5" Style="{StaticResource OptionsCheckBoxStyle}"/>
+                    <DockPanel LastChildFill="False" Grid.Row="7">
                         <Button Name="m_SaveSettingsButton" Content="Apply and save settings" Width="150" Margin="20,2,2,2" DockPanel.Dock="Right" Click="OnSaveSettingsClicked"/>
                         <Button Name="m_LoadSettingsButton" Content="Restore saved settings" Width="150" Margin="2,2,2,2" DockPanel.Dock="Right" Click="OnLoadSettingsClicked"/>
                     </DockPanel>

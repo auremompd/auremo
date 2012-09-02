@@ -181,6 +181,11 @@ namespace Auremo
             SendString(connection, "close");
         }
 
+        public static ServerResponse Password(ServerConnection connection, string password)
+        {
+            return SendStringAndGetResponse(connection, "password " + QuoteString(password));
+        }
+
         #endregion
 
         #region Internal helpers
