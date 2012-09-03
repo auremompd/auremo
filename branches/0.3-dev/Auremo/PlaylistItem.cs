@@ -48,6 +48,7 @@ namespace Auremo
         {
             Song = null;
             Id = -1;
+            Position = -1;
             IsPlaying = false;
         }
 
@@ -58,6 +59,12 @@ namespace Auremo
         }
 
         public int Id
+        {
+            get;
+            set;
+        }
+
+        public int Position
         {
             get;
             set;
