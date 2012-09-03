@@ -238,7 +238,7 @@
                             <Button Width="60" Content="Save" IsEnabled="{Binding Path=CurrentPlaylistNameNonempty, Mode=OneWay}" DockPanel.Dock="Right" Margin="4,0,0,0" Click="OnSavePlaylistViewClicked"/>
                             <TextBox Name="m_PlaylistName" Text="{Binding Path=CurrentPlaylistName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxStyle}" MaxLength="512" Margin="4,0,0,0"/>
                         </DockPanel>
-                        <Line Name="m_DropPositionIndicator" Grid.Column="1" X1="5" X2="320" Y1="50" Y2="50" IsHitTestVisible="False" Visibility="Hidden" StrokeThickness="2" Stroke="{StaticResource DropPositionIndicatorBrush}"/>
+                        <Line Name="m_DropPositionIndicator" Grid.Column="1" X1="10" X2="464" Y1="80" Y2="80" IsHitTestVisible="False" Visibility="Hidden" StrokeThickness="2" Stroke="{StaticResource DropPositionIndicatorBrush}"/>
                     </Grid>
                 </Grid>
             </TabItem>
