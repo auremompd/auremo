@@ -950,9 +950,9 @@ namespace Auremo
                             m_DropPositionIndicator.Y1 = topOfItem.Y;
                         }
 
-                        m_DropPositionIndicator.X1 = 10;
-                        m_DropPositionIndicator.X2 = m_PlaylistView.ActualWidth - 20;
-                        m_DropPositionIndicator.Y1 += 3;
+                        m_DropPositionIndicator.X1 = 11;
+                        m_DropPositionIndicator.X2 = m_PlaylistView.ActualWidth + 8;
+                        m_DropPositionIndicator.Y1 += 5;
                         m_DropPositionIndicator.Y2 = m_DropPositionIndicator.Y1;
                         m_DropPositionIndicator.Visibility = Visibility.Visible;
                     }
