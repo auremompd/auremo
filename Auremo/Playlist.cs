@@ -112,6 +112,11 @@ namespace Auremo
                     int? id = Utils.StringToInt(line.Value);
                     item.Id = id.HasValue ? id.Value : -1;
                 }
+                else if (line.Name == "Pos")
+                {
+                    int? position = Utils.StringToInt(line.Value);
+                    item.Position = position.HasValue ? position.Value : -1;
+                }
             }
 
             if (item.IsValid)
