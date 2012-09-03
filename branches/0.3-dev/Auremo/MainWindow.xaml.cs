@@ -1043,39 +1043,15 @@ namespace Auremo
                 }
                 else if (data == MovePlaylistItems)
                 {
-                    // Plan the move. For this we need the old positions of
-                    // the moved items.
-                    IDictionary<int, int> itemLookup = new SortedDictionary<int, int>();
-
                     foreach (object o in m_DragDropPayload)
                     {
                         PlaylistItem item = (PlaylistItem)o;
-                        itemLookup[item.Id] = -1;
-                    }
 
-                    int positionOnPlaylist = 0;
-
-                    foreach (PlaylistItem item in m_Playlist.Items)
-                    {
-                        if (itemLookup.ContainsKey(item.Id))
-                        {
-                            itemLookup[item.Id] = positionOnPlaylist;
-                        }
-
-                        ++positionOnPlaylist;
-                    }
-
-                    // That's all we need.
-                    foreach (object o in m_DragDropPayload)
-                    {
-                        PlaylistItem item = (PlaylistItem)o;
-                        int oldPosition = itemLookup[item.Id];
-
-                        if (oldPosition < targetRow)
+                        if (item.Position < targetRow)
                         {
                             Protocol.MoveId(m_Connection, item.Id, targetRow - 1);
                         }
-                        else if (oldPosition > targetRow)
+                        else
                         {
                             Protocol.MoveId(m_Connection, item.Id, targetRow++);
                         }
