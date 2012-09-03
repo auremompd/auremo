@@ -22,50 +22,30 @@ using System.Text;
 
 namespace Auremo
 {
-    public class ServerResponseLine
+    public class GenreTreeViewNode : TreeViewNode
     {
-        int m_NameValueBorder = -1;
-
-        public ServerResponseLine(string line)
+        public GenreTreeViewNode(string genre, TreeViewNode parent, TreeViewController controller) : base(parent, controller)
         {
-            Full = line;
-            m_NameValueBorder = Full.IndexOf(':');
+            Genre = genre;
         }
 
-        public string Full
+        public string Genre
         {
             get;
             private set;
         }
 
-        public string Name
+        public override string DisplayString
         {
             get
             {
-                if (m_NameValueBorder >= 0)
-                {
-                    return Full.Substring(0, m_NameValueBorder);
-                }
-                else
-                {
-                    return null;
-                }
+                return Genre;
             }
         }
 
-        public string Value
+        public override string ToString()
         {
-            get
-            {
-                if (m_NameValueBorder >= 0 && Full.Length > m_NameValueBorder + 2)
-                {
-                    return Full.Substring(m_NameValueBorder + 2);
-                }
-                else
-                {
-                    return null;
-                }
-            }
+            return Genre;
         }
     }
 }

@@ -29,7 +29,7 @@
     <ProductName>Auremo</ProductName>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
     <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>0.1.0.0</ApplicationVersion>
+    <ApplicationVersion>0.3.1.0</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -77,6 +77,7 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Security" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -94,16 +95,22 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="DirectoryTreeViewModel.cs" />
-    <Compile Include="ITreeViewModel.cs" />
+    <Compile Include="AlbumMetadataTreeViewNode.cs" />
+    <Compile Include="ArtistTreeViewNode.cs" />
+    <Compile Include="Crypto.cs" />
+    <Compile Include="DatabaseView.cs" />
+    <Compile Include="DirectoryTreeViewNode.cs" />
+    <Compile Include="GenreTreeViewNode.cs" />
     <Compile Include="Protocol.cs" />
+    <Compile Include="SavedPlaylists.cs" />
     <Compile Include="ServerConnection.cs" />
     <Compile Include="ServerResponse.cs" />
     <Compile Include="ServerResponseLine.cs" />
     <Compile Include="ServerStatus.cs" />
     <Compile Include="SongMetadata.cs" />
-    <Compile Include="SongMetadataTreeViewModel.cs" />
-    <Compile Include="TreeViewMultiSelection.cs" />
+    <Compile Include="SongMetadataTreeViewNode.cs" />
+    <Compile Include="TreeViewController.cs" />
+    <Compile Include="TreeViewNode.cs" />
     <Compile Include="Utils.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
