@@ -53,7 +53,7 @@
                                           MouseMove="OnMouseMoveDragDrop"
                                           MouseUp="OnDataGridMouseUp">
                                     <DataGrid.Columns>
-                                        <DataGridTextColumn Header="Artist" Width="250" Binding="{Binding}" CanUserResize="True"/>
+                                        <DataGridTextColumn Header="Artist" Width="250*" Binding="{Binding}" CanUserResize="True"/>
                                     </DataGrid.Columns>
                                 </DataGrid>
                                 <DataGrid Name="m_AlbumsBySelectedArtistsView"
@@ -71,7 +71,7 @@
                                           MouseUp="OnDataGridMouseUp">
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="Year" MinWidth="50" MaxWidth="50" Binding="{Binding Path=PrintableYear}"/>
-                                        <DataGridTextColumn Header="Title" Width="200" Binding="{Binding Path=Title}"/>
+                                        <DataGridTextColumn Header="Title" Width="200*" Binding="{Binding Path=Title}"/>
                                     </DataGrid.Columns>
                                 </DataGrid>
                                 <DataGrid Name="m_SongsOnSelectedAlbumsView"
@@ -89,7 +89,7 @@
                                           MouseUp="OnDataGridMouseUp">
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="Track#" MinWidth="50" MaxWidth="50" Binding="{Binding Track}"/>
-                                        <DataGridTextColumn Header="Title" Width="200" Binding="{Binding Title}"/>
+                                        <DataGridTextColumn Header="Title" Width="200*" Binding="{Binding Title}"/>
                                     </DataGrid.Columns>
                                 </DataGrid>
                             </Grid>
@@ -123,7 +123,7 @@
                                           MouseMove="OnMouseMoveDragDrop"
                                           MouseUp="OnDataGridMouseUp">
                                     <DataGrid.Columns>
-                                        <DataGridTextColumn Header="Genre" Width="250" Binding="{Binding}" CanUserResize="True"/>
+                                        <DataGridTextColumn Header="Genre" Width="250*" Binding="{Binding}" CanUserResize="True"/>
                                     </DataGrid.Columns>
                                 </DataGrid>
                                 <DataGrid Name="m_AlbumsOfSelectedGenresView"
@@ -142,7 +142,7 @@
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="Artist" Width="Auto" Binding="{Binding Path=Artist}"/>
                                         <DataGridTextColumn Header="Year" MinWidth="50" MaxWidth="50" Binding="{Binding Path=PrintableYear}"/>
-                                        <DataGridTextColumn Header="Title" Width="100" Binding="{Binding Path=Title}"/>
+                                        <DataGridTextColumn Header="Title" Width="100*" Binding="{Binding Path=Title}"/>
                                     </DataGrid.Columns>
                                 </DataGrid>
                                 <DataGrid Name="m_SongsOnSelectedGenreAlbumsView"
@@ -160,7 +160,7 @@
                                           MouseUp="OnDataGridMouseUp">
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="Track#" MinWidth="50" MaxWidth="50" Binding="{Binding Track}"/>
-                                        <DataGridTextColumn Header="Title" Width="200" Binding="{Binding Title}"/>
+                                        <DataGridTextColumn Header="Title" Width="200*" Binding="{Binding Title}"/>
                                     </DataGrid.Columns>
                                 </DataGrid>
                             </Grid>
@@ -197,7 +197,7 @@
                                       MouseMove="OnMouseMoveDragDrop"
                                       MouseUp="OnDataGridMouseUp">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="Playlist" Width="250" Binding="{Binding}"/>
+                                    <DataGridTextColumn Header="Playlist" Width="250*" Binding="{Binding}"/>
                                 </DataGrid.Columns>
                             </DataGrid>
                         </TabItem>
@@ -227,7 +227,7 @@
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Artist" Width="Auto" Binding="{Binding Path=Song.Artist}"/>
                                     <DataGridTextColumn Header="Album" Width="Auto" Binding="{Binding Path=Song.Album}"/>
-                                    <DataGridTextColumn Header="Title" Width="150" Binding="{Binding Path=Song.Title}"/>
+                                    <DataGridTextColumn Header="Title" Width="150*" Binding="{Binding Path=Song.Title}"/>
                                 </DataGrid.Columns>
                             </DataGrid>
                         </Border>
