@@ -1,6 +1,14 @@
 Version history
 ===============
 
+Auremo 0.3.1
+------------
+
+ * Put back accidentally removed list column auto-stretch.
+ * Reposition and resize drop position indicator line.
+ * Released 3rd September 2012.
+
+
 Auremo 0.3.0
 ------------
 
