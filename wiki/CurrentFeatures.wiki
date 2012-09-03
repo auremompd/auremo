@@ -2,18 +2,26 @@
 
 = Auremo features =
 
-Version 0.2.0 supports the following features.
+Version 0.3.0 supports the following features.
 
   * Connection to a local or remote MPD server.
-      * The server cannot be password protected at the moment.
+      * Password protected servers are supported.
+          * The number of passwords the client can send is limited to one.
+          * The password is saved in the user settings in encrypted form. However, it is sent to the server as plaintext as required by the MPD protocol.
       * Automatically reconnect to the server after a configurable time when connection to the server has been lost.
   * Music database browsing.
       * The music collection can be viewed in multiple different ways:
-          * A list of artists, of the albums by selected artists and of songs on the selected albums.
+          * Lists of artists, the albums by selected artists and songs on the selected albums.
+          * A tree view of artists, albums and songs.
+          * Lists of music genres, albums belonging to selected genres and songs on the selected albums.
+          * A tree view of genres, albums and songs.
           * A tree view of the file system containing the music collection.
-  * Playlist construction and manipulation.
+  * Playlist construction, manipulation, loading and saving.
       * Elements (individual songs, albums, directories etc) in the music can be sent to the playlist.
-      * Songs on the playlist can be reordered or removed.
+      * Songs on the playlist can be reordered or removed. There are button shortcuts for removing duplicate entries ("dedup") or every entry ("clear") on the playlist.
+      * The playlist can be saved on the server.
+      * Saved playlists on the server can be loaded for use.
+      * Saved playlists on the server can be deleted.
   * Playback control.
       * Skip, play, pause, stop and next buttons.
       * Random and repeat buttons.
