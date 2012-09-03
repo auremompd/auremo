@@ -14,9 +14,9 @@ Auremo is written from scratch in C#. The user interface is implemented in WPF/X
 
 == Project status ==
 
-Auremo's newest version (0.2.1) was released on 26th of August, 2012 (ChangeLog). See the CurrentFeatures page for a brief explanation of what Auremo can currently do.
+Auremo's newest version (0.3.0) was released on the 3rd of September, 2012 (ChangeLog). See the CurrentFeatures page for a brief explanation of what Auremo can currently do.
 
-The release of version 0.3 is imminent. All the new features have been completed and the software is now under final testing, debugging and tuning. The UpcomingFeatures page lists the new additions. There is also a RoadMap of the long-term plans for Auremo.
+Version 0.4 is in the early stages of planning. The UpcomingFeatures page lists the planned additions for that release. There is also a RoadMap of the long-term plans for Auremo.
 
 == Feedback ==
 
