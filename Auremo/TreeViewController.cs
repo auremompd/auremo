@@ -1,21 +1,38 @@
-﻿using System;
+﻿/*
+ * Copyright 2012 Mikko Teräs
+ *
+ * This file is part of Auremo.
+ *
+ * Auremo is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, version 2.
+ *
+ * Auremo is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with Auremo. If not, see http://www.gnu.org/licenses/.
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 namespace Auremo
 {
-    public class TreeViewMultiSelection
+    public class TreeViewController
     {
-        private IList<ITreeViewModel> m_RootLevelNodes = null;
-        private ISet<ITreeViewModel> m_Members = new SortedSet<ITreeViewModel>();
+        private IList<TreeViewNode> m_RootLevelNodes = null;
 
-        public TreeViewMultiSelection(IList<ITreeViewModel> rootLevelNodes)
+        public TreeViewController(IList<TreeViewNode> rootLevelNodes)
         {
             m_RootLevelNodes = rootLevelNodes;
+            MultiSelection = new SortedSet<TreeViewNode>();
         }
 
-        public ITreeViewModel FirstNode
+        public TreeViewNode FirstNode
         {
             get
             {
@@ -30,54 +47,44 @@ namespace Auremo
             }
         }
 
-        public void Clear()
+        public void ClearMultiSelection()
         {
-            while (m_Members.Count > 0)
+            while (MultiSelection.Count > 0)
             {
-                m_Members.First().IsMultiSelected = false;
+                MultiSelection.First().IsMultiSelected = false;
             }
         }
 
-        public void Add(ITreeViewModel node)
-        {
-            m_Members.Add(node);
-        }
-
-        public void Remove(ITreeViewModel node)
-        {
-            m_Members.Remove(node);
-        }
-
-        public void SelectRange(ITreeViewModel toNode)
+        public void SelectRange(TreeViewNode toNode)
         {
             if (Pivot != null)
             {
-                ITreeViewModel root = Pivot;
+                TreeViewNode root = Pivot;
 
                 while (root.Parent != null)
                 {
                     root = root.Parent;
                 }
 
-                SelectVisibleWithinRange(root, Math.Min(Pivot.HierarchyID, toNode.HierarchyID), Math.Max(Pivot.HierarchyID, toNode.HierarchyID));
+                SelectVisibleWithinRange(root, Math.Min(Pivot.ID, toNode.ID), Math.Max(Pivot.ID, toNode.ID));
             }
         }
 
-        private void SelectVisibleWithinRange(ITreeViewModel node, int minID, int maxID)
+        private void SelectVisibleWithinRange(TreeViewNode node, int minID, int maxID)
         {
             // TODO: there is plenty left to optimize here.
-            if (node.HierarchyID >= minID && node.HierarchyID <= maxID)
+            if (node.ID >= minID && node.ID <= maxID)
             {
                 node.IsMultiSelected = true;
             }
 
             if (node.IsExpanded)
             {
-                foreach (ITreeViewModel child in node.Children)
+                foreach (TreeViewNode child in node.Children)
                 {
                     SelectVisibleWithinRange(child, minID, maxID);
 
-                    if (child.HierarchyID > maxID)
+                    if (child.ID > maxID)
                     {
                         return;
                     }
@@ -86,19 +93,19 @@ namespace Auremo
         }
 
         // Start point of range selection (mouse or key with shift down).
-        public ITreeViewModel Pivot
+        public TreeViewNode Pivot
         {
             get;
             set;
         }
 
-        public ITreeViewModel Current
+        public TreeViewNode Current
         {
             get;
             set;
         }
 
-        public ITreeViewModel Previous
+        public TreeViewNode Previous
         {
             get
             {
@@ -113,7 +120,7 @@ namespace Auremo
             }
         }
 
-        public ITreeViewModel Next
+        public TreeViewNode Next
         {
             get
             {
@@ -128,21 +135,19 @@ namespace Auremo
             }
         }
 
-        public ISet<ITreeViewModel> Members
+        public ISet<TreeViewNode> MultiSelection
         {
-            get
-            {
-                return m_Members;
-            }
+            get;
+            private set;
         }
 
-        public ISet<SongMetadataTreeViewModel> Songs
+        public ISet<SongMetadataTreeViewNode> Songs
         {
             get
             {
-                ISet<SongMetadataTreeViewModel> result = new SortedSet<SongMetadataTreeViewModel>();
+                ISet<SongMetadataTreeViewNode> result = new SortedSet<SongMetadataTreeViewNode>();
 
-                foreach (ITreeViewModel node in m_Members)
+                foreach (TreeViewNode node in MultiSelection)
                 {
                     InsertSongs(node, result);
                 }
@@ -151,22 +156,22 @@ namespace Auremo
             }
         }
         
-        private void InsertSongs(ITreeViewModel node, ISet<SongMetadataTreeViewModel> songs)
+        private void InsertSongs(TreeViewNode node, ISet<SongMetadataTreeViewNode> songs)
         {
-            if (node is SongMetadataTreeViewModel)
+            if (node is SongMetadataTreeViewNode)
             {
-                songs.Add(node as SongMetadataTreeViewModel);
+                songs.Add(node as SongMetadataTreeViewNode);
             }
             else
             {
-                foreach (ITreeViewModel child in node.Children)
+                foreach (TreeViewNode child in node.Children)
                 {
                     InsertSongs(child, songs);
                 }
             }
         }
 
-        private ITreeViewModel GetPredecessor(ITreeViewModel current, IList<ITreeViewModel> search, ITreeViewModel dfault)
+        private TreeViewNode GetPredecessor(TreeViewNode current, IList<TreeViewNode> search, TreeViewNode dfault)
         {
             if (search == null || search.Count == 0)
             {
@@ -174,11 +179,11 @@ namespace Auremo
             }
             else
             {
-                ITreeViewModel best = dfault;
+                TreeViewNode best = dfault;
 
-                foreach (ITreeViewModel node in search)
+                foreach (TreeViewNode node in search)
                 {
-                    if (node.HierarchyID < current.HierarchyID)
+                    if (node.ID < current.ID)
                     {
                         best = node;
                     }
@@ -188,7 +193,7 @@ namespace Auremo
                     }
                 }
 
-                if (best.HierarchyID < current.HierarchyID - 1 && best.IsExpanded)
+                if (best.ID < current.ID - 1 && best.IsExpanded)
                 {
                     return GetPredecessor(current, best.Children, best);
                 }
@@ -199,7 +204,7 @@ namespace Auremo
             }            
         }
 
-        private ITreeViewModel GetSuccessor(ITreeViewModel current, IList<ITreeViewModel> search, ITreeViewModel dfault)
+        private TreeViewNode GetSuccessor(TreeViewNode current, IList<TreeViewNode> search, TreeViewNode dfault)
         {
             if (search == null || search.Count == 0)
             {
@@ -207,10 +212,10 @@ namespace Auremo
             }
             else
             {
-                ITreeViewModel bestBefore = null;
-                ITreeViewModel bestAfter = dfault;
+                TreeViewNode bestBefore = null;
+                TreeViewNode bestAfter = dfault;
 
-                foreach (ITreeViewModel node in search)
+                foreach (TreeViewNode node in search)
                 {
                     if (node == current)
                     {
@@ -219,11 +224,11 @@ namespace Auremo
                             return GetSuccessor(current, node.Children, bestAfter);
                         }
                     }
-                    else if (node.HierarchyID == current.HierarchyID + 1)
+                    else if (node.ID == current.ID + 1)
                     {
                         return node;
                     }
-                    else if (node.HierarchyID > current.HierarchyID)
+                    else if (node.ID > current.ID)
                     {
                         bestAfter = node;
                         break;
@@ -238,7 +243,7 @@ namespace Auremo
                 {
                     return GetSuccessor(current, bestBefore.Children, bestAfter);
                 }
-                else if (bestAfter.HierarchyID <= current.HierarchyID)
+                else if (bestAfter.ID <= current.ID)
                 {
                     return current;
                 }

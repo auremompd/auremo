@@ -1,4 +1,21 @@
-﻿using System;
+﻿/*
+ * Copyright 2012 Mikko Teräs
+ *
+ * This file is part of Auremo.
+ *
+ * Auremo is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, version 2.
+ *
+ * Auremo is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with Auremo. If not, see http://www.gnu.org/licenses/.
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -7,11 +24,7 @@ using System.Text;
 
 namespace Auremo
 {
-    /// <summary>
-    /// Wraps a directory (aka folder) name so that it can be consumed by a
-    /// TreeView[Item].
-    /// </summary>
-    public class DirectoryTreeViewModel : ITreeViewModel, INotifyPropertyChanged, IComparable
+    public abstract class TreeViewNode : INotifyPropertyChanged, IComparable
     {
         #region INotifyPropertyChanged implementation
 
@@ -27,50 +40,35 @@ namespace Auremo
 
         #endregion
 
-        private string m_DirectoryName = "";
-        private ITreeViewModel m_Parent = null;
-        private IList<ITreeViewModel> m_Children = new ObservableCollection<ITreeViewModel>();
         private bool m_IsSelected = false;
         private bool m_IsExpanded = false;
         private bool m_IsMultiSelected = false;
-        private TreeViewMultiSelection m_MultiSelection = null;
 
-        public DirectoryTreeViewModel(string name, ITreeViewModel parent, TreeViewMultiSelection multiSelection)
+        protected TreeViewNode(TreeViewNode parent, TreeViewController controller)
         {
-            m_DirectoryName = name;
-            m_Parent = parent;
-            m_MultiSelection = multiSelection;
-            HierarchyID = -1;
+            Parent = parent;
+            Children = new ObservableCollection<TreeViewNode>();
+            Controller = controller;
+            ID = -1;
         }
 
-        public string DisplayString
+        public TreeViewNode Parent
         {
-            get
-            {
-                return m_DirectoryName;
-            }
+            get;
+            private set;
         }
 
-        public void AddChild(ITreeViewModel child)
+        public IList<TreeViewNode> Children
         {
-            m_Children.Add(child);
+            get;
+            private set;
+        }
+
+        public virtual void AddChild(TreeViewNode child)
+        {
+            // Virtual so that leaf types can forbid this.
+            Children.Add(child);
             NotifyPropertyChanged("Children");
-        }
-
-        public ITreeViewModel Parent
-        {
-            get
-            {
-                return m_Parent;
-            }
-        }
-        
-        public IList<ITreeViewModel> Children
-        {
-            get
-            {
-                return m_Children;
-            }
         }
 
         public bool IsSelected
@@ -103,16 +101,16 @@ namespace Auremo
 
                     if (m_IsExpanded)
                     {
-                        if (m_Parent != null)
+                        if (Parent != null)
                         {
-                            m_Parent.IsExpanded = true;
+                            Parent.IsExpanded = true;
                         }
                     }
                     else
                     {
-                        foreach (ITreeViewModel child in Children)
+                        foreach (TreeViewNode child in Children)
                         {
-                            OnAncestorCollapsed();
+                            child.OnAncestorCollapsed();
                         }
                     }
 
@@ -133,11 +131,11 @@ namespace Auremo
                 {
                     if (value)
                     {
-                        m_MultiSelection.Add(this);
+                        Controller.MultiSelection.Add(this);
                     }
                     else
                     {
-                        m_MultiSelection.Remove(this);
+                        Controller.MultiSelection.Remove(this);
                     }
 
                     m_IsMultiSelected = value;
@@ -146,15 +144,13 @@ namespace Auremo
             }
         }
 
-        public TreeViewMultiSelection MultiSelection
+        public TreeViewController Controller
         {
-            get
-            {
-                return m_MultiSelection;
-            }
+            get;
+            private set;
         }
 
-        public int HierarchyID
+        public int ID
         {
             get;
             set;
@@ -164,34 +160,27 @@ namespace Auremo
         {
             IsMultiSelected = false;
 
-            foreach (ITreeViewModel child in Children)
+            foreach (TreeViewNode child in Children)
             {
                 child.OnAncestorCollapsed();
             }
         }
-            
+
         public int CompareTo(object o)
         {
-            if (o is ITreeViewModel)
+            if (o is TreeViewNode)
             {
-                return HierarchyID - ((ITreeViewModel)o).HierarchyID;
+                return ID - ((TreeViewNode)o).ID;
             }
             else
             {
-                throw new Exception("DirectoryTreeViewModel: attempt to compare to an incompatible object");
+                throw new Exception("TreeViewNode: attempt to compare to an incompatible object");
             }
         }
 
-        public override string ToString()
+        public abstract string DisplayString
         {
-            if (m_Parent == null)
-            {
-                return "";
-            }
-            else
-            {
-                return m_Parent.ToString() + "/" + m_DirectoryName;
-            }
+            get;
         }
     }
 }

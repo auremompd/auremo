@@ -26,66 +26,63 @@ namespace Auremo
     {
         public SongMetadata()
         {
+            Path = null;
+            Length = null;
+            Track = null;
+            Year = null;
+
             Artist = "Unknown Artist";
             Genre = "No Genre";
             Album = "Unknown Album";
             Title = "Unknown Title";
         }
 
-        private string m_Path = null;
         public string Path
         {
-            get { return m_Path; }
-            set { m_Path = value; }
+            get;
+            set;
         }
 
-        private string m_Title = null;
         public string Title
         {
-            get { return m_Title; }
-            set { m_Title = value; }
+            get;
+            set;
         }
 
-        private string m_Artist = null;
         public string Artist
         {
-            get { return m_Artist; }
-            set { m_Artist = value; }
+            get;
+            set;
         }
 
-        private string m_Album = null;
         public string Album
         {
-            get { return m_Album; }
-            set { m_Album = value; }
+            get;
+            set;
         }
 
-        private string m_Genre = null;
         public string Genre
         {
-            get { return m_Genre; }
-            set { m_Genre = value; }
+            get;
+            set;
         }
 
-        private int? m_Length = null;
         public int? Length
         {
-            get { return m_Length; }
-            set { m_Length = value; }
+            get;
+            set;
         }
 
-        private int? m_Track = null;
         public int? Track
         {
-            get { return m_Track; }
-            set { m_Track = value; }
+            get;
+            set;
         }
 
-        private int? m_Year = null;
         public int? Year
         {
-            get { return m_Year; }
-            set { m_Year = value; }
+            get;
+            set;
         }
 
         public override string ToString()

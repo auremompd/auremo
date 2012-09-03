@@ -35,6 +35,11 @@ namespace Auremo
 
         #region Informational commands (reference order)
 
+        public static ServerResponse Stats(ServerConnection connection)
+        {
+            return SendStringAndGetResponse(connection, "stats");
+        }
+
         public static ServerResponse Status(ServerConnection connection)
         {
             return SendStringAndGetResponse(connection, "status");
@@ -78,6 +83,16 @@ namespace Auremo
             return SendStringAndGetResponse(connection, "deleteid " + id);
         }
 
+        public static ServerResponse Load(ServerConnection connection, string name)
+        {
+            return SendStringAndGetResponse(connection, "load " + QuoteString(name));
+        }
+
+        public static ServerResponse LsInfo(ServerConnection connection)
+        {
+            return SendStringAndGetResponse(connection, "lsinfo");
+        }
+
         public static ServerResponse MoveId(ServerConnection connection, int id, int position)
         {
             return SendStringAndGetResponse(connection, "moveid " + id + " " + position);
@@ -86,6 +101,16 @@ namespace Auremo
         public static ServerResponse PlaylistInfo(ServerConnection connection)
         {
             return SendStringAndGetResponse(connection, "playlistinfo");
+        }
+
+        public static ServerResponse Rm(ServerConnection connection, string name)
+        {
+            return SendStringAndGetResponse(connection, "rm " + QuoteString(name));
+        }
+
+        public static ServerResponse Save(ServerConnection connection, string name)
+        {
+            return SendStringAndGetResponse(connection, "save " + QuoteString(name));
         }
 
         public static ServerResponse Shuffle(ServerConnection connection)
@@ -154,6 +179,11 @@ namespace Auremo
         public static void Close(ServerConnection connection)
         {
             SendString(connection, "close");
+        }
+
+        public static ServerResponse Password(ServerConnection connection, string password)
+        {
+            return SendStringAndGetResponse(connection, "password " + QuoteString(password));
         }
 
         #endregion
