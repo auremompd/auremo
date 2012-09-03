@@ -1,21 +1,13 @@
 #summary Features planned for the next release
 
-= Partial to-do list for version 0.3.0 =
+= Partial to-do list for version 0.4.0 =
 
 == Committed features ==
 
-These features are already available in SVN in the 0.3-dev branch. All or some of them may also be available as a preview release in the downloads section.
-
-  * Add an artist/album/song tree view of the music collection.
-  * Add a genre/album/song tree view of the music collection.
-  * Add a genre/album/song list view of the music collection.
-  * Add support for saving and loading playlists.
-  * Add server tab and an "update collection" button.
-  * Add support for updating the collection without disconnecting.
-  * Add support for password protected servers.
+  * No changes yet.
 
 == Features to add ==
 
 These features will be added before the release.
 
-  * More testing, tuning and debugging. Release is imminent.
+  * 0.4 will be the GUI release. The controls will be roughly the same as in 0.3, but the looks will be completely reworked. The goal is to achieve something resembling the look of a high-end audio system. Suggestions and criticism are welcome. Screenshots of the work in progress may appear at some point.
