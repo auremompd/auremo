@@ -185,18 +185,17 @@
                         </TabItem>
                         <TabItem Name="m_SavedPlaylistsTab" Header="Playlists" Style="{StaticResource BottomTabItemStyle}" Width="75">
                             <DataGrid Name="m_SavedPlaylistsView"
-                                          Style="{StaticResource DataGridStyle}"
-                                          ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
-                                          RowStyle="{StaticResource DataGridRowStyle}"
-                                          CellStyle="{StaticResource LibraryCellStyle}"
-                                          Margin="0,3,0,3"
-                                          SelectionMode="Single"
-                                          ItemsSource="{Binding Path=Playlists}"
-                                          PreviewKeyDown="OnSavedPlaylistsViewKeyDown"
-                                          MouseDoubleClick="OnSavedPlaylistsViewDoubleClicked"
-                                          PreviewMouseDown="OnDataGridMouseDown"
-                                          MouseMove="OnMouseMoveDragDrop"
-                                          MouseUp="OnDataGridMouseUp">
+                                      Style="{StaticResource DataGridStyle}"
+                                      ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
+                                      RowStyle="{StaticResource DataGridRowStyle}"
+                                      CellStyle="{StaticResource LibraryCellStyle}"
+                                      SelectionMode="Single"
+                                      ItemsSource="{Binding Path=Playlists}"
+                                      PreviewKeyDown="OnSavedPlaylistsViewKeyDown"
+                                      MouseDoubleClick="OnSavedPlaylistsViewDoubleClicked"
+                                      PreviewMouseDown="OnDataGridMouseDown"
+                                      MouseMove="OnMouseMoveDragDrop"
+                                      MouseUp="OnDataGridMouseUp">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Playlist" Width="250" Binding="{Binding}"/>
                                 </DataGrid.Columns>
