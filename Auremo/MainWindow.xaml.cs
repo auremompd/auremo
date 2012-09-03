@@ -960,15 +960,17 @@ namespace Auremo
             }
             else
             {
-                m_DropPositionIndicator.Visibility = Visibility.Hidden;
                 m_MousePointerHint.IsOpen = false;
+                m_MousePointerHint.Visibility = Visibility.Hidden;
+                m_DropPositionIndicator.Visibility = Visibility.Hidden;
             }
         }
 
         private void OnPlaylistViewDragLeave(object sender, DragEventArgs e)
         {
-            m_DropPositionIndicator.Visibility = Visibility.Hidden;
             m_MousePointerHint.IsOpen = false;
+            m_MousePointerHint.Visibility = Visibility.Hidden;
+            m_DropPositionIndicator.Visibility = Visibility.Hidden;
         }
 
         private void OnPlaylistViewDrop(object sender, DragEventArgs e)
@@ -1085,8 +1087,9 @@ namespace Auremo
                 Update();
             }
 
-            m_DropPositionIndicator.Visibility = Visibility.Hidden;
             m_MousePointerHint.IsOpen = false;
+            m_MousePointerHint.Visibility = Visibility.Hidden;
+            m_DropPositionIndicator.Visibility = Visibility.Hidden;
         }
 
         #endregion
