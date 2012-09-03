@@ -6,13 +6,12 @@ This is a list of features that are planned for future releases but are not yet 
 
 === Important features ===
 
-  * Add more ways to browse the music collection.
-  * Add support for password protected MPD servers.
-  * Music database refresh.
   * Improve the look & feel. The color scheme is off and practically all of the controls need customization. The goal is to make Auremo very aesthetic. Help from an expert artist would help here.
+  * Make browsing and copying saved playlists more versatile. 
 
 === Nice to have features ===
 
+  * Add more ways to browse the music collection.
   * Create a cool custom control for the volume knob. A slider is typical but not very pretty, plus it takes a lot of space.
   * Add settings for hiding individual music collection tabs and, if feasible, disabling the data model behind them entirely. This would make the GUI quicker and less cluttered.
   * Album art, supposing that it can be incorporated in the GUI in a meaningful way. This should probably be an opt-in feature because it can be heavy and not useful for all users.
