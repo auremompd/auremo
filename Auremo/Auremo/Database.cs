@@ -19,6 +19,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 
@@ -26,136 +27,72 @@ namespace Auremo
 {
     public class Database
     {
-        private ISet<string> m_ArtistInfo = new SortedSet<string>();
+        private ServerConnection m_Connection = null;
         private IDictionary<string, ISet<AlbumMetadata>> m_AlbumsByArtist = new SortedDictionary<string, ISet<AlbumMetadata>>();
+        private IDictionary<string, ISet<AlbumMetadata>> m_AlbumsByGenre = new SortedDictionary<string, ISet<AlbumMetadata>>();
         private IDictionary<AlbumMetadata, ISet<string>> m_SongPathsByAlbum = new SortedDictionary<AlbumMetadata, ISet<string>>();
         private IDictionary<string, SongMetadata> m_SongInfo = new SortedDictionary<string, SongMetadata>();
-        private IList<string> m_Artists = new ObservableCollection<string>();
-        private IList<AlbumMetadata> m_AlbumsBySelectedArtists = new ObservableCollection<AlbumMetadata>();
-        private IList<SongMetadata> m_SongsOnSelectedAlbums = new ObservableCollection<SongMetadata>();
 
-        private IList<ITreeViewModel> m_DirectoryTree = new ObservableCollection<ITreeViewModel>();
-        private ITreeViewModel m_DirectoryTreeRoot = null;
-
-        public Database()
+        public Database(ServerConnection connection, ServerStatus status)
         {
+            m_Connection = connection;
+            Artists = new List<string>();
+            Genres = new List<string>();
         }
 
-        public bool Refresh(ServerConnection connection)
+        public bool Refresh()
         {
-            m_ArtistInfo.Clear();
             m_AlbumsByArtist.Clear();
+            m_AlbumsByGenre.Clear();
             m_SongPathsByAlbum.Clear();
             m_SongInfo.Clear();
 
-            m_Artists.Clear();
+            Artists = new List<string>();
+            Genres = new List<string>();
 
-            if (connection.Status == ServerConnection.State.Connected)
+            if (m_Connection.Status == ServerConnection.State.Connected)
             {
-                PopulateSongInfo(connection);
+                PopulateSongInfo(m_Connection);
+                
                 PopulateArtists();
+                PopulateGenres();
+
                 PopulateAlbumsByArtist();
+                PopulateAlbumsByGenre();
+
                 PopulateSongPathsByAlbum();
-                PopulateDirectoryTree();
             }
 
             return true;
         }
 
-        public IList<string> Artists
+        public IEnumerable<string> Artists
+        {
+            get;
+            private set;
+        }
+
+        public IEnumerable<string> Genres
+        {
+            get;
+            private set;
+        }
+
+        public IEnumerable<SongMetadata> Songs
         {
             get
             {
-                return m_Artists;
+                return m_SongInfo.Values;
             }
         }
 
-        public void OnSelectedArtistsChanged(IList selection)
-        {
-            m_AlbumsBySelectedArtists.Clear();
-            ISet<string> sortedArtists = new SortedSet<string>();
-
-            foreach (object o in selection)
-            {
-                sortedArtists.Add(o as string);
-            }
-
-            foreach (string artist in sortedArtists)
-            {
-                foreach (AlbumMetadata album in m_AlbumsByArtist[artist])
-                {
-                    m_AlbumsBySelectedArtists.Add(album);
-                }
-            }
-        }
-
-        public IList<AlbumMetadata> AlbumsBySelectedArtists
-        {
-            get
-            {
-                return m_AlbumsBySelectedArtists;
-            }
-        }
-
-        public void OnSelectedAlbumsChanged(IList selection)
-        {
-            m_SongsOnSelectedAlbums.Clear();
-            ISet<AlbumMetadata> sortedAlbums = new SortedSet<AlbumMetadata>();
-
-            foreach (object o in selection)
-            {
-                sortedAlbums.Add(o as AlbumMetadata);
-            }
-
-            foreach (AlbumMetadata album in sortedAlbums)
-            {
-                foreach (string song in m_SongPathsByAlbum[album])
-                {
-                    m_SongsOnSelectedAlbums.Add(m_SongInfo[song]);
-                }
-            }
-        }
-
-        public IList<SongMetadata> SongsOnSelectedAlbums
-        {
-            get
-            {
-                return m_SongsOnSelectedAlbums;
-            }
-        }
-
-        public IList<ITreeViewModel> DirectoryTree
-        {
-            get
-            {
-                return m_DirectoryTree;
-            }
-        }
-
-        public TreeViewMultiSelection DirectoryTreeMultiSelection
-        {
-            get
-            {
-                return m_DirectoryTreeRoot.MultiSelection;
-            }
-        }
-
-
-        public ISet<SongMetadataTreeViewModel> DirectoryTreeSelectedSongs
-        {
-            get
-            {
-                return m_DirectoryTreeRoot.MultiSelection.Songs;
-            }
-        }
-
-        public ISet<AlbumMetadata> Albums(string byArtist)
+        public ISet<AlbumMetadata> AlbumsByArtist(string artist)
         {
             ISet<AlbumMetadata> result = new SortedSet<AlbumMetadata>();
 
-            if (m_AlbumsByArtist.ContainsKey(byArtist))
+            if (m_AlbumsByArtist.ContainsKey(artist))
             {
-                foreach (AlbumMetadata album in m_AlbumsByArtist[byArtist])
+                foreach (AlbumMetadata album in m_AlbumsByArtist[artist])
                 {
                     result.Add(album);
                 }
@@ -164,7 +101,22 @@ namespace Auremo
             return result;
         }
 
-        public ISet<SongMetadata> Songs(AlbumMetadata byAlbum)
+        public ISet<AlbumMetadata> AlbumsByGenre(string genre)
+        {
+            ISet<AlbumMetadata> result = new SortedSet<AlbumMetadata>();
+
+            if (m_AlbumsByGenre.ContainsKey(genre))
+            {
+                foreach (AlbumMetadata album in m_AlbumsByGenre[genre])
+                {
+                    result.Add(album);
+                }
+            }
+
+            return result;
+        }
+
+        public ISet<SongMetadata> SongsByAlbum(AlbumMetadata byAlbum)
         {
             SortedSet<SongMetadata> result = new SortedSet<SongMetadata>();
 
@@ -182,11 +134,11 @@ namespace Auremo
             return result;
         }
 
-        public SongMetadata Song(string byPath)
+        public SongMetadata SongByPath(string path)
         {
-            if (m_SongInfo.ContainsKey(byPath))
+            if (m_SongInfo.ContainsKey(path))
             {
-                return m_SongInfo[byPath];
+                return m_SongInfo[path];
             }
             else
             {
@@ -202,7 +154,7 @@ namespace Auremo
             {
                 SongMetadata song = new SongMetadata();
 
-                foreach (ServerResponseLine line in response.Lines)
+                foreach (ServerResponseLine line in response.ResponseLines)
                 {
                     if (line.Name == "file")
                     {
@@ -260,10 +212,19 @@ namespace Auremo
                 uniqueArtists.Add(song.Artist);
             }
 
-            foreach (string artist in uniqueArtists)
+            Artists = uniqueArtists;
+        }
+
+        private void PopulateGenres()
+        {
+            ISet<string> uniqueGenres = new SortedSet<string>();
+
+            foreach (SongMetadata song in m_SongInfo.Values)
             {
-                m_Artists.Add(artist);
+                uniqueGenres.Add(song.Genre);
             }
+
+            Genres = uniqueGenres;
         }
 
         private void PopulateAlbumsByArtist()
@@ -290,6 +251,24 @@ namespace Auremo
             }
         }
 
+        private void PopulateAlbumsByGenre()
+        {
+            foreach (SongMetadata song in m_SongInfo.Values)
+            {
+                if (!m_AlbumsByGenre.ContainsKey(song.Genre))
+                {
+                    m_AlbumsByGenre[song.Genre] = new SortedSet<AlbumMetadata>();
+                }
+
+                AlbumMetadata album = new AlbumMetadata();
+                album.Artist = song.Artist;
+                album.Title = song.Album;
+                album.Year = song.Year;
+
+                m_AlbumsByGenre[song.Genre].Add(album);
+            }
+        }
+
         private void PopulateSongPathsByAlbum()
         {
             foreach (SongMetadata song in m_SongInfo.Values)
@@ -305,62 +284,6 @@ namespace Auremo
 
                 m_SongPathsByAlbum[album].Add(song.Path);
             }
-        }
-
-        private void PopulateDirectoryTree()
-        {
-            TreeViewMultiSelection multiSelection = new TreeViewMultiSelection(m_DirectoryTree);   
-            m_DirectoryTree.Clear();
-            m_DirectoryTreeRoot = new DirectoryTreeViewModel("/", null, multiSelection);
-            IDictionary<string, ITreeViewModel> directoryLookup = new SortedDictionary<string, ITreeViewModel>();
-            directoryLookup[m_DirectoryTreeRoot.DisplayString] = m_DirectoryTreeRoot;
-
-            foreach (KeyValuePair<string, SongMetadata> entry in m_SongInfo)
-            {
-                Tuple<string, string> directoryAndFile = Utils.SplitPath(entry.Key);
-                ITreeViewModel parent = FindDirectoryViewModel(directoryAndFile.Item1, directoryLookup, multiSelection);
-                SongMetadataTreeViewModel leaf = new SongMetadataTreeViewModel(directoryAndFile.Item2, entry.Value, parent, multiSelection);
-                parent.AddChild(leaf);
-            }
-
-            AssignTreeViewModelHierarchyIDs(m_DirectoryTreeRoot, 0);
-
-            m_DirectoryTree.Add(m_DirectoryTreeRoot);
-            m_DirectoryTreeRoot.IsExpanded = true;
-        }
-
-        private ITreeViewModel FindDirectoryViewModel(string path, IDictionary<string, ITreeViewModel> lookup, TreeViewMultiSelection multiSelection)
-        {
-            if (path == "")
-            {
-                return m_DirectoryTreeRoot;
-            }
-            else if (lookup.ContainsKey(path))
-            {
-                return lookup[path];
-            }
-            else
-            {
-                Tuple<string, string> parentAndSelf = Utils.SplitPath(path);
-                ITreeViewModel parent = FindDirectoryViewModel(parentAndSelf.Item1, lookup, multiSelection);
-                ITreeViewModel self = new DirectoryTreeViewModel(parentAndSelf.Item2, parent, multiSelection);
-                parent.AddChild(self);
-                lookup[path] = self;
-                return self;
-            }
-        }
-
-        int AssignTreeViewModelHierarchyIDs(ITreeViewModel node, int nodeID)
-        {
-            node.HierarchyID = nodeID;
-            int nextNodeID = nodeID + 1;
-
-            foreach (ITreeViewModel child in node.Children)
-            {
-                nextNodeID = AssignTreeViewModelHierarchyIDs(child, nextNodeID);
-            }
-
-            return nextNodeID;
         }
     }
 }

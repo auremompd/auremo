@@ -42,37 +42,34 @@ namespace Auremo
 
         #endregion
 
+        private bool m_IsPlaying = false;
+
         public PlaylistItem()
         {
+            Song = null;
+            Id = -1;
+            Position = -1;
+            IsPlaying = false;
         }
 
-        private SongMetadata m_Song = null;
         public SongMetadata Song
         {
-            get
-            {
-                return m_Song;
-            }
-            set
-            {
-                m_Song = value;
-            }
+            get;
+            set;
         }
 
-        private int m_Id = -1;
         public int Id
         {
-            get
-            {
-                return m_Id;
-            }
-            set
-            {
-                m_Id = value;
-            }
+            get;
+            set;
         }
 
-        private bool m_IsPlaying = false;
+        public int Position
+        {
+            get;
+            set;
+        }
+
         public bool IsPlaying
         {
             get
@@ -93,7 +90,7 @@ namespace Auremo
         {
             get
             {
-                return m_Song != null && m_Id >= 0;
+                return Song != null && Id >= 0;
             }
         }
 

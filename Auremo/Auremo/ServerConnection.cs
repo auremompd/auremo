@@ -58,8 +58,6 @@ namespace Auremo
         private byte[] m_ReceiveBuffer = new byte[1024];
         private int m_BytesInReceiveBuffer = 0;
         private int m_ReceiveBufferIndex = 0;
-        private Int64 m_BytesSent = 0; // For debugging
-        private Int64 m_BytesReceived = 0; // For debugging
 
         public ServerConnection()
         {
@@ -138,8 +136,8 @@ namespace Auremo
             m_BytesInReceiveBuffer = 0;
             m_ReceiveBufferIndex = 0;
             m_ConnectionAsyncResult = null;
-            m_BytesSent = 0;
-            m_BytesReceived = 0;
+            BytesSent = 0;
+            BytesReceived = 0;
         }
 
         public State Status
@@ -193,7 +191,7 @@ namespace Auremo
                 {
                     byte[] messageBytes = System.Text.Encoding.UTF8.GetBytes(command + "\n");
                     m_Stream.Write(messageBytes, 0, messageBytes.Length);
-                    m_BytesSent += messageBytes.Length;
+                    BytesSent += messageBytes.Length;
                 }
                 catch (Exception)
                 {
@@ -236,18 +234,14 @@ namespace Auremo
 
         public Int64 BytesSent
         {
-            get
-            {
-                return m_BytesSent;
-            }
+            get;
+            private set;
         }
 
         public Int64 BytesReceived
         {
-            get
-            {
-                return m_BytesReceived;
-            }
+            get;
+            private set;
         }
 
         // Return a single line (of a possibly multiline) response with the LF stripped.
@@ -263,7 +257,7 @@ namespace Auremo
                 {
                     response += System.Text.Encoding.UTF8.GetString(m_ReceiveBuffer, initialOffset, m_BytesInReceiveBuffer - initialOffset);
                     m_BytesInReceiveBuffer = m_Stream.Read(m_ReceiveBuffer, 0, m_ReceiveBuffer.Length);
-                    m_BytesReceived += m_BytesInReceiveBuffer;
+                    BytesReceived += m_BytesInReceiveBuffer;
                     m_ReceiveBufferIndex = 0;
                     initialOffset = 0;
                 }

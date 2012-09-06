@@ -22,50 +22,42 @@ using System.Text;
 
 namespace Auremo
 {
-    public class ServerResponseLine
+    public class AlbumMetadataTreeViewNode : TreeViewNode
     {
-        int m_NameValueBorder = -1;
+        private string m_DisplayString = null;
 
-        public ServerResponseLine(string line)
+        public AlbumMetadataTreeViewNode(AlbumMetadata album, TreeViewNode parent, TreeViewController controller) :
+            base(parent, controller)
         {
-            Full = line;
-            m_NameValueBorder = Full.IndexOf(':');
+            Album = album;
+
+            if (parent is ArtistTreeViewNode)
+            {
+                m_DisplayString = Album.Title;
+            }
+            else
+            {
+                m_DisplayString = Album.Artist + ": " + Album.Title;
+            }
         }
 
-        public string Full
+        public AlbumMetadata Album
         {
             get;
             private set;
         }
 
-        public string Name
+        public override string DisplayString
         {
             get
             {
-                if (m_NameValueBorder >= 0)
-                {
-                    return Full.Substring(0, m_NameValueBorder);
-                }
-                else
-                {
-                    return null;
-                }
+                return m_DisplayString;
             }
         }
 
-        public string Value
+        public override string ToString()
         {
-            get
-            {
-                if (m_NameValueBorder >= 0 && Full.Length > m_NameValueBorder + 2)
-                {
-                    return Full.Substring(m_NameValueBorder + 2);
-                }
-                else
-                {
-                    return null;
-                }
-            }
+            return Parent.ToString() + "/" + Album.Title;
         }
     }
 }

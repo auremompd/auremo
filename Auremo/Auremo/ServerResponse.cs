@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -24,11 +25,10 @@ namespace Auremo
 {
     public class ServerResponse
     {
-        private IList<ServerResponseLine> m_ResponseLines = null;
-        private ServerResponseLine m_Status = null;
-
         public ServerResponse()
         {
+            Status = null;
+            ResponseLines = null;
         }
 
         public ServerResponse(IList<string> lines)
@@ -36,30 +36,42 @@ namespace Auremo
             // TODO: destructive, could be cleaner.
             if (lines.Count > 0)
             {
-                m_Status = new ServerResponseLine(lines.Last());
+                Status = new ServerResponseLine(lines.Last());
                 lines.RemoveAt(lines.Count - 1);
-                m_ResponseLines = new List<ServerResponseLine>();
+                ResponseLines = new List<ServerResponseLine>();
 
                 foreach (string line in lines)
                 {
-                    m_ResponseLines.Add(new ServerResponseLine(line));
+                    ResponseLines.Add(new ServerResponseLine(line));
                 }
             }
         }
 
-        public IList<ServerResponseLine> Lines
+        // For debugging only.
+        public static ServerResponse FromFile(string filename)
         {
-            get
+            IEnumerable<string> contents = File.ReadLines(filename, Encoding.UTF8);
+            IList<string> lines = new List<string>();
+
+            foreach (string line in contents)
             {
-                return m_ResponseLines;
+                lines.Add(line);
             }
+
+            return new ServerResponse(lines);
+        }
+
+        public IList<ServerResponseLine> ResponseLines
+        {
+            get;
+            private set;
         }
 
         public bool IsOK
         {
             get
             {
-                return m_Status.Full.StartsWith("OK");
+                return Status.Full.StartsWith("OK");
             }
         }
 
@@ -67,16 +79,14 @@ namespace Auremo
         {
             get
             {
-                return m_Status.Full.StartsWith("ACK");
+                return Status.Full.StartsWith("ACK");
             }
         }
 
         public ServerResponseLine Status
         {
-            get
-            {
-                return m_Status;
-            }
+            get;
+            private set;
         }
     }
 }
