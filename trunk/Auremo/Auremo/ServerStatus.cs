@@ -16,8 +16,8 @@
  */
 
 using System;
-using System.ComponentModel;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 
@@ -48,8 +48,8 @@ namespace Auremo
         private bool m_Random = false;
         private bool m_Repeat = false;
         private string m_State = "";
+        private int m_DatabaseUpdateTime = 0;
 
-        
         public ServerStatus()
         {
             Reset();
@@ -57,13 +57,19 @@ namespace Auremo
 
         public void Update(ServerConnection connection)
         {
-            ServerResponse statusResponse = null;
+            ReadStatus(connection);
+            ReadStats(connection);
+        }
+
+        private void ReadStatus(ServerConnection connection)
+        {
+            ServerResponse response = null;
             bool ok = false;
 
             if (connection != null && connection.Status == ServerConnection.State.Connected)
             {
-                statusResponse = Protocol.Status(connection);
-                ok = statusResponse != null && statusResponse.IsOK;
+                response = Protocol.Status(connection);
+                ok = response != null && response.IsOK;
             }
 
             if (!ok && m_OK)
@@ -83,7 +89,7 @@ namespace Auremo
                 int playPosition = 0;
                 int songLength = 1;
 
-                foreach (ServerResponseLine line in statusResponse.Lines)
+                foreach (ServerResponseLine line in response.ResponseLines)
                 {
                     if (line.Name == "state")
                     {
@@ -144,6 +150,39 @@ namespace Auremo
                 CurrentSongIndex = currentSongIndex;
                 PlayPosition = playPosition;
                 SongLength = songLength;
+            }
+        }
+
+        private void ReadStats(ServerConnection connection)
+        {
+            ServerResponse response = null;
+            bool ok = false;
+
+            if (connection != null && connection.Status == ServerConnection.State.Connected)
+            {
+                response = Protocol.Stats(connection);
+                ok = response != null && response.IsOK;
+            }
+
+            if (!ok && m_OK)
+            {
+                // The server disappeared.
+                Reset();
+            }
+
+            m_OK = ok;
+
+            if (m_OK)
+            {
+                foreach (ServerResponseLine line in response.ResponseLines)
+                {
+                    if (line.Name == "db_update")
+                    {
+                        int? time = Utils.StringToInt(line.Value);
+                        DatabaseUpdateTime = time.HasValue ? time.Value : -1;
+                        return; // We're not interested in anything else right now.
+                    }
+                }
             }
         }
 
@@ -309,6 +348,22 @@ namespace Auremo
             }
         }
 
+        public int DatabaseUpdateTime
+        {
+            get
+            {
+                return m_DatabaseUpdateTime;
+            }
+            private set
+            {
+                if (value != m_DatabaseUpdateTime)
+                {
+                    m_DatabaseUpdateTime = value;
+                    NotifyPropertyChanged("DatabaseUpdateTime");
+                }
+            }
+        }
+
         private void Reset()
         {
             OK = false;
@@ -320,6 +375,7 @@ namespace Auremo
             Random = false;
             Repeat = false;
             State = "";
+            DatabaseUpdateTime = 0;
         }
     }
 }

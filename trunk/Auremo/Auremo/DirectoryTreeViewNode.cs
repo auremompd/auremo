@@ -22,49 +22,36 @@ using System.Text;
 
 namespace Auremo
 {
-    public class ServerResponseLine
+    /// <summary>
+    /// Wraps a directory (aka folder) name so that it can be consumed by a
+    /// TreeView[Item].
+    /// </summary>
+    public class DirectoryTreeViewNode : TreeViewNode
     {
-        int m_NameValueBorder = -1;
+        private string m_DirectoryName = "";
 
-        public ServerResponseLine(string line)
+        public DirectoryTreeViewNode(string name, TreeViewNode parent, TreeViewController controller) : base(parent, controller)
         {
-            Full = line;
-            m_NameValueBorder = Full.IndexOf(':');
+            m_DirectoryName = name;
         }
 
-        public string Full
-        {
-            get;
-            private set;
-        }
-
-        public string Name
+        public override string DisplayString
         {
             get
             {
-                if (m_NameValueBorder >= 0)
-                {
-                    return Full.Substring(0, m_NameValueBorder);
-                }
-                else
-                {
-                    return null;
-                }
+                return m_DirectoryName;
             }
         }
 
-        public string Value
+        public override string ToString()
         {
-            get
+            if (Parent == null)
             {
-                if (m_NameValueBorder >= 0 && Full.Length > m_NameValueBorder + 2)
-                {
-                    return Full.Substring(m_NameValueBorder + 2);
-                }
-                else
-                {
-                    return null;
-                }
+                return "";
+            }
+            else
+            {
+                return Parent.ToString() + "/" + m_DirectoryName;
             }
         }
     }
