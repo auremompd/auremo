@@ -1100,6 +1100,28 @@ namespace Auremo
             }
         }
 
+        private void OnSeekBarMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            int currentPosition = m_ServerStatus.PlayPosition;
+            int newPosition = currentPosition;
+            int increment = Math.Max(1, m_ServerStatus.SongLength / 20);
+
+            if (e.Delta < 0)
+            {
+                newPosition = Math.Max(0, newPosition - increment);
+            }
+            else if (e.Delta > 0)
+            {
+                newPosition = Math.Min(m_ServerStatus.SongLength, newPosition + increment);
+            }
+
+            if (newPosition != currentPosition)
+            {
+                Protocol.Seek(m_Connection, m_ServerStatus.CurrentSongIndex, newPosition);
+                Update();
+            }
+        }
+
         #endregion
 
         #region Control buttons row
