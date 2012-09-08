@@ -318,7 +318,7 @@
                          are done using a more manual event instead. -->
                     <Label Name="m_PlayPosition" DockPanel.Dock="Left" VerticalAlignment="Center" Width="40" FontSize="9" Foreground="{StaticResource ActiveBrush}" Content="00:00"/>
                     <Label Name="m_SongLength" DockPanel.Dock="Right" VerticalAlignment="Center" Width="40" FontSize="9" Foreground="{StaticResource ActiveBrush}" Content="{Binding Path=SongLength, Converter={StaticResource IntToTimecodeConverter}}"/>
-                    <Slider Name="m_SeekBar" Margin="2,2,2,2" VerticalAlignment="Center" Minimum="0" Value="0" Maximum="{Binding Path=SongLength}" ValueChanged="OnSeekBarDrag" PreviewMouseDown="OnSeekBarDragStart" PreviewMouseUp="OnSeekBarDragEnd"/>
+                    <Slider Name="m_SeekBar" Margin="2,2,2,2" VerticalAlignment="Center" Minimum="0" Value="0" Maximum="{Binding Path=SongLength}" ValueChanged="OnSeekBarDrag" PreviewMouseDown="OnSeekBarDragStart" PreviewMouseUp="OnSeekBarDragEnd" MouseWheel="OnSeekBarMouseWheel"/>
                 </DockPanel>
                 <DockPanel DockPanel.Dock="Bottom" LastChildFill="False" Margin="0,0,0,5">
                     <Button Name="m_BackButton" Style="{StaticResource PlaybackButtonBaseStyle}" DockPanel.Dock="Left" Click="OnBackButtonClicked">
