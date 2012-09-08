@@ -1157,7 +1157,9 @@ namespace Auremo
             if (!m_PropertyUpdateInProgress && !m_VolumeRestoreInProgress)
             {
                 // Volume slider is actually moving because the user is moving it.
-                if (Protocol.SetVol(m_Connection, (int)e.NewValue).IsACK)
+                ServerResponse response = Protocol.SetVol(m_Connection, (int)e.NewValue);
+
+                if (response != null && response.IsACK)
                 {
                     m_VolumeRestoreInProgress = true;
                     m_VolumeControl.Value = e.OldValue;
