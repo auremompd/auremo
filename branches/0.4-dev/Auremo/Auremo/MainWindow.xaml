@@ -409,7 +409,7 @@
                     </Button>
                     <Border Width="200" Margin="5,0,5,0" BorderBrush="Transparent">
                         <!-- The volume slider cannot use straight property bindings, just like the seek bar. -->
-                        <Slider Name="m_VolumeControl" Minimum="0" Maximum="100" TickFrequency="1" VerticalAlignment="Center" Margin="5,0" ValueChanged="OnVolumeSliderDragged"/>
+                        <Slider Name="m_VolumeControl" Minimum="0" Maximum="100" TickFrequency="1" VerticalAlignment="Center" Margin="5,0" ValueChanged="OnVolumeSliderDragged" MouseWheel="OnVolumeMouseWheel"/>
                     </Border>
                     <Button Name="m_ToggleRandomButton" Style="{StaticResource PlaybackButtonBaseStyle}" DockPanel.Dock="Left" Click="OnToggleRandomClicked">
                         <Image>

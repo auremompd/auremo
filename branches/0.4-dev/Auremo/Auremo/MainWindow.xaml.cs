@@ -1168,6 +1168,31 @@ namespace Auremo
             }
         }
 
+        private void OnVolumeMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            int? currentVolume = m_ServerStatus.Volume;
+
+            if (currentVolume != null && Settings.Default.EnableVolumeControl)
+            {
+                int newVolume = currentVolume.Value;
+
+                if (e.Delta < 0)
+                {
+                    newVolume = Math.Max(0, newVolume - 5);
+                }
+                else if (e.Delta > 0)
+                {
+                    newVolume = Math.Min(100, newVolume + 5);
+                }
+
+                if (newVolume != currentVolume)
+                {
+                    Protocol.SetVol(m_Connection, newVolume);
+                    Update();
+                }
+            }
+        }
+
         private void OnToggleRandomClicked(object sender, RoutedEventArgs e)
         {
             Protocol.Random(m_Connection, !m_ServerStatus.Random);
