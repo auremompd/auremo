@@ -10,4 +10,5 @@
 
 These features will be added before the release.
 
-  * 0.4 will be the GUI release. The controls will be roughly the same as in 0.3, but the looks will be completely reworked. The goal is to achieve something resembling the look of a high-end audio system. Suggestions and criticism are welcome. Screenshots of the work in progress may appear at some point.
+  * 0.4 will be the GUI release. The controls will be roughly the same as in 0.3, but the looks will be completely reworked. Screenshots of the work in progress may appear at some point.
+  * Add mouse wheel support for seek bar and volume slider.
