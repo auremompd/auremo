@@ -4,11 +4,10 @@
 
 == Committed features ==
 
-  * No changes yet.
+  * Add mouse wheel support for seek bar and volume slider.
 
 == Features to add ==
 
 These features will be added before the release.
 
   * 0.4 will be the GUI release. The controls will be roughly the same as in 0.3, but the looks will be completely reworked. Screenshots of the work in progress may appear at some point.
-  * Add mouse wheel support for seek bar and volume slider.
