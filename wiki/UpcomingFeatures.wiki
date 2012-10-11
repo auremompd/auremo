@@ -6,6 +6,10 @@
 
   * Add mouse wheel support for seek bar and volume slider.
 
+== Bugs ==
+
+  * Fix a bug that causes albums to appear in the list multiple times if they contain songs from different years.
+
 == Features to add ==
 
 These features will be added before the release.
