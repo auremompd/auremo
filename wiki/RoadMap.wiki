@@ -12,6 +12,7 @@ This is a list of features that are planned for future releases but are not yet 
 === Nice to have features ===
 
   * Add more ways to browse the music collection.
+  * Add optional criteria for sorting albums. For example, the user should be able to choose alphabetical, chronological or filesystem ordering.
   * Create a cool custom control for the volume knob. A slider is typical but not very pretty, plus it takes a lot of space.
   * Add settings for hiding individual music collection tabs and, if feasible, disabling the data model behind them entirely. This would make the GUI quicker and less cluttered.
   * Album art, supposing that it can be incorporated in the GUI in a meaningful way. This should probably be an opt-in feature because it can be heavy and not useful for all users.
