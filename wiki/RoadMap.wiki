@@ -1,19 +1,25 @@
 #summary Planned future features
 
-= Introduction =
+=Roadmap=
 
-This is a list of features that are planned for future releases but are not yet in any development branch. Suggestions are welcome! If there is something you want added to the list, please [mailto:auremompd@gmail.com e-mail] the author.
+This is a partial list of features that are planned for future releases but are not yet in any development branch.
 
-=== Important features ===
+There is no absolute guarantee that features will appear in the exact version under which they are listed, or at all. Features which are difficult or time-consuming to implement may be pushed to later versions without notice if they are hindering the release of an otherwise publishable version.
 
-  * Improve the look & feel. The color scheme is off and practically all of the controls need customization. The goal is to make Auremo very aesthetic. Help from an expert artist would help here.
-  * Make browsing and copying saved playlists more versatile. 
+Suggestions are welcome! None of these features or software versions are being developed yet, so if you have ideas about how they should work, or would like to see something added to the lists, there is still time to let me know. Please [mailto:auremompd@gmail.com e-mail] the author.
 
-=== Nice to have features ===
+==0.5 release==
 
-  * Add more ways to browse the music collection.
+  * Add a search function.
+  * Allow the user to scroll to a name inside a list by typing the first letters of the name.
+  * Improve saved playlist interface.
+  * Add context menus accessible through right-clicking to selected GUI elements.
   * Add optional criteria for sorting albums. For example, the user should be able to choose alphabetical, chronological or filesystem ordering.
-  * Create a cool custom control for the volume knob. A slider is typical but not very pretty, plus it takes a lot of space.
-  * Add settings for hiding individual music collection tabs and, if feasible, disabling the data model behind them entirely. This would make the GUI quicker and less cluttered.
-  * Album art, supposing that it can be incorporated in the GUI in a meaningful way. This should probably be an opt-in feature because it can be heavy and not useful for all users.
-  * Lyrics. This must definitely be an opt-in feature.
+
+==Later releases==
+  
+  * Maybe add more ways to browse the music collection.
+  * Maybe create a cool custom control for the volume knob. The slider is typical but not very pretty, plus it takes a lot of space.
+  * Maybe add settings for hiding individual music collection tabs and, if feasible, disabling the data model behind them entirely. This would make the GUI quicker and less cluttered.
+  * Maybe add album art, supposing that it can be incorporated in the GUI in a meaningful way. This should probably be an opt-in feature because it can be heavy and not useful for all users.
+  * Maybe add lyrics. This must definitely be an opt-in feature.
