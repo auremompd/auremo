@@ -1,17 +1,18 @@
 #summary Features planned for the next release
 
-= Partial to-do list for version 0.4.0 =
+=Partial to-do list for version 0.4.0=
 
-== Committed features ==
+==Committed features==
 
   * Add mouse wheel support for seek bar and volume slider.
 
 == Bugs ==
 
-  * Fix a bug that causes albums to appear in the list multiple times if they contain songs from different years.
+  * Fix a bug that causes albums to appear in the list multiple times if they contain songs from different years. The fix will switch album sorting mode from chronological to alphabetical for now.
 
 == Features to add ==
 
 These features will be added before the release.
 
-  * 0.4 will be the GUI release. The controls will be roughly the same as in 0.3, but the looks will be completely reworked. Screenshots of the work in progress may appear at some point.
+  * Add user settings for how much a single tick of the mouse wheel will adjust the song position or volume.
+  * Rework the GUI looks entirely.
