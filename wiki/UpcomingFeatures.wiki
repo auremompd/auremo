@@ -5,6 +5,7 @@
 ==Committed features==
 
   * Add mouse wheel support for seek bar and volume slider.
+  * Remove year property from album data, sort albums alphabetically instead of chronologically.
 
 == Bugs ==
 
