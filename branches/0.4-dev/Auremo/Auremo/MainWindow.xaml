@@ -1,10 +1,4 @@
-﻿<!-- Caution! In some versions of Visual Studio specifying '*' as the width
-     of a DataGridTextColumn messes up the designer window. The resulting
-     exectable works just fine though. '*' needs to be the width of some
-     columns here, so if you want to use the designer, do a search for
-     DataGridTextColumn and remove the stars temporarily. -->
-    
-<Window x:Class="Auremo.MainWindow"
+﻿<Window x:Class="Auremo.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:l="clr-namespace:Auremo"
@@ -53,7 +47,7 @@
                                           MouseMove="OnMouseMoveDragDrop"
                                           MouseUp="OnDataGridMouseUp">
                                     <DataGrid.Columns>
-                                        <DataGridTextColumn Header="Artist" Width="250*" Binding="{Binding}" CanUserResize="True"/>
+                                        <DataGridTextColumn Header="Artist" Width="*" Binding="{Binding}" CanUserResize="True"/>
                                     </DataGrid.Columns>
                                 </DataGrid>
                                 <DataGrid Name="m_AlbumsBySelectedArtistsView"
@@ -70,8 +64,7 @@
                                           MouseMove="OnMouseMoveDragDrop"
                                           MouseUp="OnDataGridMouseUp">
                                     <DataGrid.Columns>
-                                        <DataGridTextColumn Header="Year" MinWidth="50" MaxWidth="50" Binding="{Binding Path=PrintableYear}"/>
-                                        <DataGridTextColumn Header="Title" Width="200*" Binding="{Binding Path=Title}"/>
+                                        <DataGridTextColumn Header="Title" Width="*" Binding="{Binding Path=Title}"/>
                                     </DataGrid.Columns>
                                 </DataGrid>
                                 <DataGrid Name="m_SongsOnSelectedAlbumsView"
@@ -123,7 +116,7 @@
                                           MouseMove="OnMouseMoveDragDrop"
                                           MouseUp="OnDataGridMouseUp">
                                     <DataGrid.Columns>
-                                        <DataGridTextColumn Header="Genre" Width="250*" Binding="{Binding}" CanUserResize="True"/>
+                                        <DataGridTextColumn Header="Genre" Width="*" Binding="{Binding}" CanUserResize="True"/>
                                     </DataGrid.Columns>
                                 </DataGrid>
                                 <DataGrid Name="m_AlbumsOfSelectedGenresView"
@@ -141,8 +134,7 @@
                                           MouseUp="OnDataGridMouseUp">
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="Artist" Width="Auto" Binding="{Binding Path=Artist}"/>
-                                        <DataGridTextColumn Header="Year" MinWidth="50" MaxWidth="50" Binding="{Binding Path=PrintableYear}"/>
-                                        <DataGridTextColumn Header="Title" Width="100*" Binding="{Binding Path=Title}"/>
+                                        <DataGridTextColumn Header="Title" Width="*" Binding="{Binding Path=Title}"/>
                                     </DataGrid.Columns>
                                 </DataGrid>
                                 <DataGrid Name="m_SongsOnSelectedGenreAlbumsView"
@@ -197,7 +189,7 @@
                                       MouseMove="OnMouseMoveDragDrop"
                                       MouseUp="OnDataGridMouseUp">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="Playlist" Width="250*" Binding="{Binding}"/>
+                                    <DataGridTextColumn Header="Playlist" Width="*" Binding="{Binding}"/>
                                 </DataGrid.Columns>
                             </DataGrid>
                         </TabItem>
@@ -227,7 +219,7 @@
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Artist" Width="Auto" Binding="{Binding Path=Song.Artist}"/>
                                     <DataGridTextColumn Header="Album" Width="Auto" Binding="{Binding Path=Song.Album}"/>
-                                    <DataGridTextColumn Header="Title" Width="150*" Binding="{Binding Path=Song.Title}"/>
+                                    <DataGridTextColumn Header="Title" Width="*" Binding="{Binding Path=Song.Title}"/>
                                 </DataGrid.Columns>
                             </DataGrid>
                         </Border>
