@@ -15,9 +15,11 @@ Suggestions are welcome! None of these features or software versions are being d
   * Improve saved playlist interface.
   * Add context menus accessible through right-clicking to selected GUI elements.
   * Add optional criteria for sorting albums. For example, the user should be able to choose alphabetical, chronological or filesystem ordering.
+  * Add artist-album collection browsing mode.
 
 ==Later releases==
   
+  * Look into the possibility of supporting multiple genres per song.
   * Maybe add more ways to browse the music collection.
   * Maybe create a cool custom control for the volume knob. The slider is typical but not very pretty, plus it takes a lot of space.
   * Maybe add settings for hiding individual music collection tabs and, if feasible, disabling the data model behind them entirely. This would make the GUI quicker and less cluttered.
