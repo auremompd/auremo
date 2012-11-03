@@ -255,6 +255,8 @@
                         <RowDefinition Height="30"/>
                         <RowDefinition Height="30"/>
                         <RowDefinition Height="30"/>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="30"/>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="35"/>
                     </Grid.RowDefinitions>
@@ -262,7 +264,7 @@
                         <Label Content="Server name or address:" Style="{StaticResource OptionsLabelStyle}" Width="140"/>
                         <TextBox Name="m_ServerEntry" Text="localhost" Style="{StaticResource OptionsTextBoxStyle}" Width="165"/>
                         <Label Content="Port:" Style="{StaticResource OptionsLabelStyle}" Width="37"/>
-                        <TextBox Name="m_PortEntry" Text="6600" Style="{StaticResource OptionsTextBoxStyle}" Width="50" PreviewTextInput="OnNumericOptionPreviewTextInput" LostFocus="OnNumericOptionLostFocus"/>
+                        <TextBox Name="m_PortEntry" Text="6600" Style="{StaticResource OptionsTextBoxStyle}" Width="50" PreviewTextInput="OnNumericOptionPreviewTextInput" LostFocus="ValidateOptions"/>
                         <Label Content="(1 - 65535, typically 6600)" Style="{StaticResource OptionsLabelStyle}" Width="150"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Grid.Row="1">
@@ -271,19 +273,37 @@
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Grid.Row="2">
                         <Label Content="Update server status and draw user interface every" Style="{StaticResource OptionsLabelStyle}" Width="350"/>
-                        <TextBox Name="m_UpdateIntervalEntry" Text="500" Style="{StaticResource OptionsTextBoxStyle}" Width="50" PreviewTextInput="OnNumericOptionPreviewTextInput" LostFocus="OnNumericOptionLostFocus"/>
+                        <TextBox Name="m_UpdateIntervalEntry" Text="500" Style="{StaticResource OptionsTextBoxStyle}" Width="50" PreviewTextInput="OnNumericOptionPreviewTextInput" LostFocus="ValidateOptions"/>
                         <Label Content="milliseconds (min 100, max 5000)" Style="{StaticResource OptionsLabelStyle}"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Grid.Row="3">
                         <Label Content="After connection is lost, attempt reconnection every" Style="{StaticResource OptionsLabelStyle}" Width="350"/>
-                        <TextBox Name="m_ReconnectIntervalEntry" Text="10" Style="{StaticResource OptionsTextBoxStyle}" Width="50" PreviewTextInput="OnNumericOptionPreviewTextInput" LostFocus="OnNumericOptionLostFocus"/>
+                        <TextBox Name="m_ReconnectIntervalEntry" Text="10" Style="{StaticResource OptionsTextBoxStyle}" Width="50" PreviewTextInput="OnNumericOptionPreviewTextInput" LostFocus="ValidateOptions"/>
                         <Label Content="seconds (0 = never, max 3600)" Style="{StaticResource OptionsLabelStyle}"/>
                     </StackPanel>
-                    <CheckBox Name="m_EnableVolumeControl" Content="Enable volume slider" IsChecked="True" Grid.Row="4" Style="{StaticResource OptionsCheckBoxStyle}"/>
-                    <CheckBox Name="m_DisplaySeparatePlayAndPauseButtons" Content="Display separate play and pause buttons" IsChecked="True" Grid.Row="5" Style="{StaticResource OptionsCheckBoxStyle}"/>
-                    <DockPanel LastChildFill="False" Grid.Row="7">
-                        <Button Name="m_SaveSettingsButton" Content="Apply and save settings" Width="150" Margin="20,2,2,2" DockPanel.Dock="Right" Click="OnSaveSettingsClicked"/>
-                        <Button Name="m_LoadSettingsButton" Content="Restore saved settings" Width="150" Margin="2,2,2,2" DockPanel.Dock="Right" Click="OnLoadSettingsClicked"/>
+
+
+
+
+
+                    <StackPanel Orientation="Horizontal" Grid.Row="4">
+                        <Label Content="One tick of the mouse wheel adjusts volume by" Style="{StaticResource OptionsLabelStyle}" Width="350"/>
+                        <TextBox Name="m_WheelVolumeStepEntry" Text="5" Style="{StaticResource OptionsTextBoxStyle}" Width="50" PreviewTextInput="OnNumericOptionPreviewTextInput" LostFocus="ValidateOptions"/>
+                        <Label Content="percent (0 - 100)" Style="{StaticResource OptionsLabelStyle}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Grid.Row="5">
+                        <Label Content="One tick of the mouse wheel adjusts song position by" Style="{StaticResource OptionsLabelStyle}" Width="350"/>
+                        <TextBox Name="m_WheelSongPositionStepEntry" Text="5" Style="{StaticResource OptionsTextBoxStyle}" Width="50" PreviewTextInput="OnNumericOptionPreviewTextInput" LostFocus="ValidateOptions"/>
+                        <ComboBox Width="120" Height="22" Margin="5,0,0,2" VerticalAlignment="Center" VerticalContentAlignment="Center" SelectionChanged="ValidateOptions">
+                            <ComboBoxItem Content="percent (0 - 100)" Name="m_WheelSongPositionUnitIsPercent" IsSelected="True"/>
+                            <ComboBoxItem Content="seconds (0 - 1800)" Name="m_WheelSongPositionUnitIsSecond"/>
+                        </ComboBox>
+                    </StackPanel>
+                    <CheckBox Name="m_EnableVolumeControl" Content="Enable volume slider" IsChecked="True" Grid.Row="6" Style="{StaticResource OptionsCheckBoxStyle}"/>
+                    <CheckBox Name="m_DisplaySeparatePlayAndPauseButtons" Content="Display separate play and pause buttons" IsChecked="True" Grid.Row="7" Style="{StaticResource OptionsCheckBoxStyle}" Margin="8,6,-1,0"/>
+                    <DockPanel LastChildFill="False" Grid.Row="9">
+                        <Button Name="m_SaveSettingsButton" Content="Save" Width="100" Margin="20,2,2,2" DockPanel.Dock="Right" Click="OnSaveSettingsClicked"/>
+                        <Button Name="m_LoadSettingsButton" Content="Revert" Width="100" Margin="2,2,2,2" DockPanel.Dock="Left" Click="OnLoadSettingsClicked"/>
                     </DockPanel>
                 </Grid>
             </TabItem>
