@@ -1102,23 +1102,35 @@ namespace Auremo
 
         private void OnSeekBarMouseWheel(object sender, MouseWheelEventArgs e)
         {
-            int currentPosition = m_ServerStatus.PlayPosition;
-            int newPosition = currentPosition;
-            int increment = Math.Max(1, m_ServerStatus.SongLength / 20);
+            if (Settings.Default.MouseWheelAdjustsSongPositionBy > 0)
+            {
+                int currentPosition = m_ServerStatus.PlayPosition;
+                int newPosition = currentPosition;
+                int increment;
 
-            if (e.Delta < 0)
-            {
-                newPosition = Math.Max(0, newPosition - increment);
-            }
-            else if (e.Delta > 0)
-            {
-                newPosition = Math.Min(m_ServerStatus.SongLength, newPosition + increment);
-            }
+                if (Settings.Default.MouseWheelSongPositionUnitIsSecond)
+                {
+                    increment = Settings.Default.MouseWheelAdjustsSongPositionBy;
+                }
+                else
+                {
+                    increment = Math.Max(1, Settings.Default.MouseWheelAdjustsSongPositionBy * m_ServerStatus.SongLength / 100);
+                }
 
-            if (newPosition != currentPosition)
-            {
-                Protocol.Seek(m_Connection, m_ServerStatus.CurrentSongIndex, newPosition);
-                Update();
+                if (e.Delta < 0)
+                {
+                    newPosition = Math.Max(0, newPosition - increment);
+                }
+                else if (e.Delta > 0)
+                {
+                    newPosition = Math.Min(m_ServerStatus.SongLength, newPosition + increment);
+                }
+
+                if (newPosition != currentPosition)
+                {
+                    Protocol.Seek(m_Connection, m_ServerStatus.CurrentSongIndex, newPosition);
+                    Update();
+                }
             }
         }
 
@@ -1200,11 +1212,11 @@ namespace Auremo
 
                 if (e.Delta < 0)
                 {
-                    newVolume = Math.Max(0, newVolume - 5);
+                    newVolume = Math.Max(0, newVolume - Settings.Default.MouseWheelAdjustsVolumeBy);
                 }
                 else if (e.Delta > 0)
                 {
-                    newVolume = Math.Min(100, newVolume + 5);
+                    newVolume = Math.Min(100, newVolume + Settings.Default.MouseWheelAdjustsVolumeBy);
                 }
 
                 if (newVolume != currentVolume)
@@ -1265,6 +1277,9 @@ namespace Auremo
             Settings.Default.ViewUpdateInterval = Utils.StringToInt(m_UpdateIntervalEntry.Text, 500);
             Settings.Default.EnableVolumeControl = m_EnableVolumeControl.IsChecked == null || m_EnableVolumeControl.IsChecked.Value;
             Settings.Default.DisplaySeparatePlayAndPauseButtons = m_DisplaySeparatePlayAndPauseButtons.IsChecked == null || m_DisplaySeparatePlayAndPauseButtons.IsChecked.Value;
+            Settings.Default.MouseWheelAdjustsVolumeBy = Utils.StringToInt(m_WheelVolumeStepEntry.Text, 5);
+            Settings.Default.MouseWheelAdjustsSongPositionBy = Utils.StringToInt(m_WheelSongPositionStepEntry.Text, 5);
+            Settings.Default.MouseWheelSongPositionUnitIsSecond = m_WheelSongPositionUnitIsSecond.IsSelected;
             Settings.Default.Save();
 
             SetTimerInterval(Settings.Default.ViewUpdateInterval);
@@ -1298,6 +1313,9 @@ namespace Auremo
             m_UpdateIntervalEntry.Text = Settings.Default.ViewUpdateInterval.ToString();
             m_EnableVolumeControl.IsChecked = Settings.Default.EnableVolumeControl;
             m_DisplaySeparatePlayAndPauseButtons.IsChecked = Settings.Default.DisplaySeparatePlayAndPauseButtons;
+            m_WheelVolumeStepEntry.Text = Settings.Default.MouseWheelAdjustsVolumeBy.ToString();
+            m_WheelSongPositionStepEntry.Text = Settings.Default.MouseWheelAdjustsSongPositionBy.ToString();
+            m_WheelSongPositionUnitIsSecond.IsSelected = Settings.Default.MouseWheelSongPositionUnitIsSecond;
         }
 
         private void OnNumericOptionPreviewTextInput(object sender, TextCompositionEventArgs e)
@@ -1305,45 +1323,28 @@ namespace Auremo
             e.Handled = new Regex("[^0-9]+").IsMatch(e.Text);
         }
 
-        private void OnNumericOptionLostFocus(object sender, RoutedEventArgs e)
+        private void ValidateOptions(object sender, RoutedEventArgs e)
         {
-            TextBox source = sender as TextBox;
-            int min, max;
+            ClampTextBoxContent(m_PortEntry, 1, 6600, 65536);
+            ClampTextBoxContent(m_UpdateIntervalEntry, 100, 500, 5000);
+            ClampTextBoxContent(m_ReconnectIntervalEntry, 0, 10, 3600);
+            ClampTextBoxContent(m_WheelVolumeStepEntry, 0, 5, 100);
 
-            if (source == m_PortEntry)
+            if (m_WheelSongPositionUnitIsPercent.IsSelected)
             {
-                min = 1;
-                max = 65535;
+                ClampTextBoxContent(m_WheelSongPositionStepEntry, 0, 5, 100);
             }
-            else if (source == m_UpdateIntervalEntry)
+            else if (m_WheelSongPositionUnitIsSecond.IsSelected)
             {
-                min = 100;
-                max = 5000;
+                ClampTextBoxContent(m_WheelSongPositionStepEntry, 0, 5, 1800);
             }
-            else // if (source == m_ReconnectIntervalEntry)
-            {
-                min = 0;
-                max = 3600;
-            }
+        }
 
-            if (source.Text == "")
-            {
-                source.Text = min.ToString();
-            }
-            else
-            {
-                int value;
-
-                if (!int.TryParse(source.Text, out value))
-                {
-                    value = max + 1;
-                }
-
-                if (value < min)
-                    source.Text = min.ToString();
-                else if (value > max)
-                    source.Text = max.ToString();
-            }
+        private void ClampTextBoxContent(object control, int min, int dfault, int max)
+        {
+            TextBox textBox = control as TextBox;
+            int value = Utils.StringToInt(textBox.Text, dfault);
+            textBox.Text = Utils.Clamp(min, value, max).ToString();
         }
 
         #endregion
