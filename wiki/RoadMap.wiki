@@ -15,7 +15,7 @@ Suggestions are welcome! None of these features or software versions are being d
   * Improve saved playlist interface.
   * Add context menus accessible through right-clicking to selected GUI elements.
   * Add optional criteria for sorting albums. For example, the user should be able to choose alphabetical, chronological or filesystem ordering.
-  * Add artist-album collection browsing mode.
+  * Add album artist collection browsing mode.
 
 ==Later releases==
   
