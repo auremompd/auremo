@@ -92,5 +92,10 @@ namespace Auremo
                 return new Tuple<string, string>(path.Substring(0, limit), path.Substring(limit + 1));
             }
         }
+
+        public static int Clamp(int min, int value, int max)
+        {
+            return min < value ? (max > value ? value : max) : min;
+        }
     }
 }
