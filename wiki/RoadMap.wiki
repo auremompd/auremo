@@ -16,6 +16,7 @@ Suggestions are welcome! None of these features or software versions are being d
   * Add context menus accessible through right-clicking to selected GUI elements.
   * Add optional criteria for sorting albums. For example, the user should be able to choose alphabetical, chronological or filesystem ordering.
   * Add album artist collection browsing mode.
+  * Add controls for enabling and disabling outputs on the server.
 
 ==Later releases==
   
