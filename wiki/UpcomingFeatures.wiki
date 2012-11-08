@@ -15,5 +15,4 @@
 
 These features will be added before the release.
 
-  * Add user settings for how much a single tick of the mouse wheel will adjust the song position or volume.
   * Rework the GUI looks entirely.
