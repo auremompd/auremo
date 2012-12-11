@@ -13,13 +13,13 @@ Suggestions are welcome! None of these features or software versions are being d
   * Add a search function.
   * Allow the user to scroll to a name inside a list by typing the first letters of the name.
   * Improve saved playlist interface.
-  * Add context menus accessible through right-clicking to selected GUI elements.
   * Add optional criteria for sorting albums. For example, the user should be able to choose alphabetical, chronological or filesystem ordering.
   * Add album artist collection browsing mode.
   * Add controls for enabling and disabling outputs on the server.
 
 ==Later releases==
   
+  * Optimize the initial database fetch. There are user reports of very long startup times with slow computers and large collections (20+ seconds with a Raspberry Pi as the server). Caching all the metadata on the client should be simple and help enormously.
   * Look into the possibility of supporting multiple genres per song.
   * Maybe add more ways to browse the music collection.
   * Maybe create a cool custom control for the volume knob. The slider is typical but not very pretty, plus it takes a lot of space.
