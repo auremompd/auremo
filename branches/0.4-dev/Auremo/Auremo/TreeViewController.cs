@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 
@@ -29,7 +30,7 @@ namespace Auremo
         public TreeViewController(IList<TreeViewNode> rootLevelNodes)
         {
             m_RootLevelNodes = rootLevelNodes;
-            MultiSelection = new SortedSet<TreeViewNode>();
+            MultiSelection = new ObservableCollection<TreeViewNode>();
         }
 
         public TreeViewNode FirstNode
@@ -135,7 +136,7 @@ namespace Auremo
             }
         }
 
-        public ISet<TreeViewNode> MultiSelection
+        public ObservableCollection<TreeViewNode> MultiSelection
         {
             get;
             private set;
