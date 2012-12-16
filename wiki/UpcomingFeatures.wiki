@@ -2,10 +2,11 @@
 
 =Partial to-do list for version 0.4.0=
 
-==Committed features==
+==Committed features and fixes==
 
   * Add mouse wheel support for seek bar and volume slider.
   * Remove year property from album data, sort albums alphabetically instead of chronologically.
+  * Fix multiselecting using shift+click in tree views when there are multiple roots. (Effectively the artist and genre trees.)
 
 == Bugs ==
 
