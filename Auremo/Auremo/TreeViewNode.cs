@@ -52,6 +52,21 @@ namespace Auremo
             ID = -1;
         }
 
+        public TreeViewNode Root
+        {
+            get
+            {
+                TreeViewNode root = this;
+
+                while (root.Parent != null)
+                {
+                    root = root.Parent;
+                }
+
+                return root;
+            }
+        }
+
         public TreeViewNode Parent
         {
             get;
