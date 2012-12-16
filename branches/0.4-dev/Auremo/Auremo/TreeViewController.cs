@@ -60,21 +60,20 @@ namespace Auremo
         {
             if (Pivot != null)
             {
-                TreeViewNode root = Pivot;
+                int minID = Math.Min(Pivot.ID, toNode.ID);
+                int maxID = Math.Max(Pivot.ID, toNode.ID);
 
-                while (root.Parent != null)
+                foreach (TreeViewNode root in m_RootLevelNodes)
                 {
-                    root = root.Parent;
+                    SelectVisibleWithinRange(root, minID, maxID);
                 }
-
-                SelectVisibleWithinRange(root, Math.Min(Pivot.ID, toNode.ID), Math.Max(Pivot.ID, toNode.ID));
             }
         }
 
         private void SelectVisibleWithinRange(TreeViewNode node, int minID, int maxID)
         {
             // TODO: there is plenty left to optimize here.
-            if (node.ID >= minID && node.ID <= maxID)
+            if (minID <= node.ID && node.ID <= maxID)
             {
                 node.IsMultiSelected = true;
             }
