@@ -29,7 +29,7 @@
     <ProductName>Auremo</ProductName>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
     <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>0.3.1.0</ApplicationVersion>
+    <ApplicationVersion>0.4.0.0</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -59,7 +59,8 @@
     <StartupObject>Auremo.App</StartupObject>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Graphics\auremo32x32.ico</ApplicationIcon>
+    <ApplicationIcon>
+    </ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestCertificateThumbprint>B87531714F2086FBCA494BD569A11FE832CDC0E0</ManifestCertificateThumbprint>
@@ -105,14 +106,23 @@
     <Compile Include="DatabaseView.cs" />
     <Compile Include="DirectoryTreeViewNode.cs" />
     <Compile Include="GenreTreeViewNode.cs" />
+    <Compile Include="IntToBoolConverter.cs" />
+    <Compile Include="NegateBoolConverter.cs" />
+    <Compile Include="NestedProperty.cs" />
     <Compile Include="Protocol.cs" />
     <Compile Include="SavedPlaylists.cs" />
     <Compile Include="ServerConnection.cs" />
     <Compile Include="ServerResponse.cs" />
     <Compile Include="ServerResponseLine.cs" />
     <Compile Include="ServerStatus.cs" />
+    <Compile Include="SettingsWindow.xaml.cs">
+      <DependentUpon>SettingsWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="SongMetadata.cs" />
     <Compile Include="SongMetadataTreeViewNode.cs" />
+    <Compile Include="TextWindow.xaml.cs">
+      <DependentUpon>TextWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="TreeViewController.cs" />
     <Compile Include="TreeViewNode.cs" />
     <Compile Include="Utils.cs" />
@@ -131,6 +141,66 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="SettingsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WPFResources\ActionButtonStyle.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="WPFResources\Brushes.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="WPFResources\ContextMenuStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WPFResources\MainMenuStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WPFResources\MusicCollectionDataGridStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WPFResources\MusicCollectionTreeViewStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WPFResources\MusicSliderStyle.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="WPFResources\OptionControlStyles.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WPFResources\PlaybackButtonStyle.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="WPFResources\PlaylistStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WPFResources\ScrollBarStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WPFResources\ScrollViewerStyle.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="WPFResources\TabControlStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="TextWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Playlist.cs" />
@@ -160,20 +230,6 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Graphics\back.png" />
-    <Resource Include="Graphics\pause.png" />
-    <Resource Include="Graphics\paused.png" />
-    <Resource Include="Graphics\play.png" />
-    <Resource Include="Graphics\playing.png" />
-    <Resource Include="Graphics\random.png" />
-    <Resource Include="Graphics\randomized.png" />
-    <Resource Include="Graphics\repeat.png" />
-    <Resource Include="Graphics\repeating.png" />
-    <Resource Include="Graphics\skip.png" />
-    <Resource Include="Graphics\stop.png" />
-    <Resource Include="Graphics\stopped.png" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Text\AUTHORS.txt" />
     <EmbeddedResource Include="Text\LICENSE.txt" />
     <None Include="Text\README.txt" />
@@ -201,7 +257,22 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Graphics\auremo32x32.ico" />
+    <Resource Include="Graphics\Auremo_icon_128.png" />
+    <Resource Include="Graphics\Auremo_icon_16.png" />
+    <Resource Include="Graphics\Auremo_icon_24.png" />
+    <Resource Include="Graphics\Auremo_icon_32.png" />
+    <Resource Include="Graphics\Auremo_icon_48.png" />
+    <Resource Include="Graphics\Auremo_icon_64.png" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Graphics\Auremo_icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Graphics\Auremo.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

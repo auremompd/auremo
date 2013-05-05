@@ -26,18 +26,6 @@ namespace Auremo.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool DisplaySeparatePlayAndPauseButtons {
-            get {
-                return ((bool)(this["DisplaySeparatePlayAndPauseButtons"]));
-            }
-            set {
-                this["DisplaySeparatePlayAndPauseButtons"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool EnableVolumeControl {
             get {
                 return ((bool)(this["EnableVolumeControl"]));
@@ -122,24 +110,36 @@ namespace Auremo.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("5")]
-        public int MouseWheelAdjustsSongPositionBy {
+        public int MouseWheelAdjustsSongPositionPercentBy {
             get {
-                return ((int)(this["MouseWheelAdjustsSongPositionBy"]));
+                return ((int)(this["MouseWheelAdjustsSongPositionPercentBy"]));
             }
             set {
-                this["MouseWheelAdjustsSongPositionBy"] = value;
+                this["MouseWheelAdjustsSongPositionPercentBy"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool MouseWheelSongPositionUnitIsSecond {
+        [global::System.Configuration.DefaultSettingValueAttribute("5")]
+        public int MouseWheelAdjustsSongPositionSecondsBy {
             get {
-                return ((bool)(this["MouseWheelSongPositionUnitIsSecond"]));
+                return ((int)(this["MouseWheelAdjustsSongPositionSecondsBy"]));
             }
             set {
-                this["MouseWheelSongPositionUnitIsSecond"] = value;
+                this["MouseWheelAdjustsSongPositionSecondsBy"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool MouseWheelAdjustsSongPositionInPercent {
+            get {
+                return ((bool)(this["MouseWheelAdjustsSongPositionInPercent"]));
+            }
+            set {
+                this["MouseWheelAdjustsSongPositionInPercent"] = value;
             }
         }
     }

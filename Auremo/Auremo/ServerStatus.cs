@@ -45,10 +45,13 @@ namespace Auremo
         private int m_CurrentSongIndex = -1;
         private int m_PlayPosition = 0;
         private int m_SongLength = 0;
-        private bool m_Random = false;
-        private bool m_Repeat = false;
         private string m_State = "";
         private int m_DatabaseUpdateTime = 0;
+        private NestedProperty<bool> m_IsPlaying = new NestedProperty<bool>(false);
+        private NestedProperty<bool> m_IsPaused = new NestedProperty<bool>(false);
+        private NestedProperty<bool> m_IsStopped = new NestedProperty<bool>(false);
+        private NestedProperty<bool> m_IsOnRandom = new NestedProperty<bool>(false);
+        private NestedProperty<bool> m_IsOnRepeat = new NestedProperty<bool>(false);
 
         public ServerStatus()
         {
@@ -139,11 +142,11 @@ namespace Auremo
                     }
                     else if (line.Name == "random")
                     {
-                        Random = line.Value == "1";
+                        m_IsOnRandom.Value = line.Value == "1";
                     }
                     else if (line.Name == "repeat")
                     {
-                        Repeat = line.Value == "1";
+                        m_IsOnRepeat.Value = line.Value == "1";
                     }
                 }
 
@@ -202,19 +205,63 @@ namespace Auremo
             }
         }
 
-        public bool IsPlaying
+        public string State
         {
-            get { return m_State == "play"; }
+            get
+            {
+                return m_State;
+            }
+            private set
+            {
+                if (m_State != value)
+                {
+                    m_State = value;
+                    NotifyPropertyChanged("State");
+                    IsPlaying.Value = m_State == "play";
+                    IsPaused.Value = m_State == "pause";
+                    IsStopped.Value = m_State == "stop";
+                }
+            }
         }
 
-        public bool IsPaused
+        public NestedProperty<bool> IsPlaying
         {
-            get { return m_State == "pause"; }
+            get
+            {
+                return m_IsPlaying;
+            }
         }
 
-        public bool IsStopped
+        public NestedProperty<bool> IsPaused
         {
-            get { return m_State == "stop"; }
+            get
+            {
+                return m_IsPaused;
+            }
+        }
+
+        public NestedProperty<bool> IsStopped
+        {
+            get
+            {
+                return m_IsStopped;
+            }
+        }
+
+        public NestedProperty<bool> IsOnRepeat
+        {
+            get
+            {
+                return m_IsOnRepeat;
+            }
+        }
+
+        public NestedProperty<bool> IsOnRandom
+        {
+            get
+            {
+                return m_IsOnRandom;
+            }
         }
 
         public int? Volume
@@ -297,57 +344,6 @@ namespace Auremo
             }
         }
 
-        public bool Random
-        {
-            get
-            {
-                return m_Random;
-            }
-            private set
-            {
-                if (m_Random != value)
-                {
-                    m_Random = value;
-                    NotifyPropertyChanged("Random");
-                }
-            }
-        }
-
-        public bool Repeat
-        {
-            get
-            {
-                return m_Repeat;
-            }
-            private set
-            {
-                if (m_Repeat != value)
-                {
-                    m_Repeat = value;
-                    NotifyPropertyChanged("Repeat");
-                }
-            }
-        }
-
-        public string State
-        {
-            get
-            {
-                return m_State;
-            }
-            private set
-            {
-                if (m_State != value)
-                {
-                    m_State = value;
-                    NotifyPropertyChanged("State");
-                    NotifyPropertyChanged("IsPlaying");
-                    NotifyPropertyChanged("IsPaused");
-                    NotifyPropertyChanged("IsStopped");
-                }
-            }
-        }
-
         public int DatabaseUpdateTime
         {
             get
@@ -372,8 +368,11 @@ namespace Auremo
             CurrentSongIndex = -1;
             PlayPosition = 0;
             SongLength = 1;
-            Random = false;
-            Repeat = false;
+            IsPlaying.Value = false;
+            IsPaused.Value = false;
+            IsStopped.Value = false;
+            IsOnRandom.Value = false;
+            IsOnRepeat.Value = false;
             State = "";
             DatabaseUpdateTime = 0;
         }
