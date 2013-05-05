@@ -58,6 +58,7 @@ namespace Auremo
         private byte[] m_ReceiveBuffer = new byte[1024];
         private int m_BytesInReceiveBuffer = 0;
         private int m_ReceiveBufferIndex = 0;
+        private State m_Status = State.Disconnected;
 
         public ServerConnection()
         {
@@ -78,6 +79,7 @@ namespace Auremo
         public void StartConnecting()
         {
             Disconnect();
+            Status = State.Connecting;
             m_Connection = new TcpClient();
             m_ConnectionAsyncResult = m_Connection.BeginConnect(m_Host, m_Port, null, null);
             StatusDescription = "Connecting to " + m_Host + ":" + m_Port + ".";
@@ -107,6 +109,7 @@ namespace Auremo
             {
                 m_Stream = m_Connection.GetStream();
                 StatusDescription = "Connected to " + m_Host + ":" + m_Port + ".";
+                Status = State.Connected;
                 return ReceiveResponse();
             }
             else
@@ -138,12 +141,25 @@ namespace Auremo
             m_ConnectionAsyncResult = null;
             BytesSent = 0;
             BytesReceived = 0;
+            Status = State.Disconnected;
         }
-
+        
         public State Status
         {
             get
             {
+                return m_Status;
+            }
+            private set
+            {
+                if (value != m_Status)
+                {
+                    m_Status = value;
+                    NotifyPropertyChanged("Status");
+                    NotifyPropertyChanged("IsConnected");
+                }
+            }
+            /*{
                 if (m_Connection == null)
                 {
                     return State.Disconnected;
@@ -156,6 +172,14 @@ namespace Auremo
                 {
                     return State.Connecting;
                 }
+            }*/
+        }
+
+        public bool IsConnected
+        {
+            get
+            {
+                return Status == State.Connected;
             }
         }
 
