@@ -170,9 +170,12 @@ namespace Auremo
             }
 
             AssignTreeViewNodeIDs(rootNode, 0);
-
-            DirectoryTree.Add(rootNode);
-            rootNode.IsExpanded = true;
+            
+            if (rootNode.Children.Count > 0)
+            {
+                DirectoryTree.Add(rootNode);
+                rootNode.IsExpanded = true;
+            }
         }
 
         private TreeViewNode FindDirectoryNode(string path, IDictionary<string, TreeViewNode> lookup, TreeViewNode rootNode)
