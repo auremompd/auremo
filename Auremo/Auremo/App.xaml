@@ -6,6 +6,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="WPFResources/Brushes.xaml"/>
+                <ResourceDictionary Source="WPFResources/CollectionHintTextStyle.xaml"/>
                 <ResourceDictionary Source="WPFResources/ScrollBarStyle.xaml"/>
                 <ResourceDictionary Source="WPFResources/ScrollViewerStyle.xaml"/>
                 <ResourceDictionary Source="WPFResources/ActionButtonStyle.xaml"/>
