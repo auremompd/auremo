@@ -90,7 +90,7 @@ namespace Auremo
             m_ConnectionMenuItem.DataContext = m_Connection;
 
             m_CollectionBrowsingModes.DataContext = m_DatabaseView;
-            
+
             m_ArtistsViewContextMenu.DataContext = m_ArtistsView.SelectedItems;
             m_ArtistsViewRescanMusicCollectionContextMenuItem.DataContext = m_Connection;
             m_AlbumsBySelectedArtistsViewContextMenu.DataContext = m_AlbumsBySelectedArtistsView.SelectedItems;
@@ -131,6 +131,19 @@ namespace Auremo
 
             m_PlayStatusMessage.DataContext = m_Playlist;
             m_ConnectionStatusDescription.DataContext = m_Connection;
+
+            m_ArtistsHint.DataContext = m_DatabaseView.Artists;
+            m_AlbumsBySelectedArtistsHint.DataContext = m_DatabaseView.AlbumsBySelectedArtists;
+            m_SongsOnSelectedAlbumsHint.DataContext = m_DatabaseView.SongsOnSelectedAlbumsBySelectedArtists;
+            m_ArtistsTreeHint.DataContext = m_DatabaseView.ArtistTree;
+            m_GenresHint.DataContext = m_DatabaseView.Genres;
+            m_AlbumsOfSelectedGenresHint.DataContext = m_DatabaseView.AlbumsOfSelectedGenres;
+            m_SongsOnSelectedGenreAlbumsHint.DataContext = m_DatabaseView.SongsOnSelectedAlbumsOfSelectedGenres;
+            m_GenresTreeHint.DataContext = m_DatabaseView.GenreTree;
+            m_DirectoryTreeHint.DataContext = m_DatabaseView.DirectoryTree;
+            m_SavedPlaylistsHint.DataContext = m_SavedPlaylists.Playlists;
+
+            m_PlaylistViewHint.DataContext = m_Playlist.Items;
 
             m_ServerStatus.PropertyChanged += new PropertyChangedEventHandler(OnServerStatusPropertyChanged);
         }
