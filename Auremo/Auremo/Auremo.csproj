@@ -59,8 +59,7 @@
     <StartupObject>Auremo.App</StartupObject>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>
-    </ApplicationIcon>
+    <ApplicationIcon>Graphics\Auremo.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestCertificateThumbprint>B87531714F2086FBCA494BD569A11FE832CDC0E0</ManifestCertificateThumbprint>
