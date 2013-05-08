@@ -300,7 +300,7 @@
         </RadialGradientBrush.GradientStops>
     </RadialGradientBrush>
 
-    <SolidColorBrush x:Key="MusicSliderKnobPassiveBorderGlowBrush" Color="#22000000"/>
+    <SolidColorBrush x:Key="MusicSliderKnobPassiveBorderGlowBrush" Color="#00000000"/>
 
     <SolidColorBrush x:Key="MusicSliderKnobActiveBorderGlowBrush" Color="#66ac4ab5"/>
 
