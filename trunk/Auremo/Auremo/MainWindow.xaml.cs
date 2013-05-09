@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2012 Mikko Teräs
+ * Copyright 2013 Mikko Teräs and Niilo Säämänen.
  *
  * This file is part of Auremo.
  *
@@ -16,13 +16,13 @@
  */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Windows.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -41,6 +41,9 @@ namespace Auremo
 {
     public partial class MainWindow : Window
     {
+        private SettingsWindow m_SettingsWindow = null;
+        private TextWindow m_LicenseWindow = null;
+        private TextWindow m_AboutWindow = null;
         private ServerConnection m_Connection = new ServerConnection();
         private ServerStatus m_ServerStatus = new ServerStatus();
         private Database m_Database = null;
@@ -67,29 +70,12 @@ namespace Auremo
         public MainWindow()
         {
             InitializeComponent();
-            InitializeAboutTab();
             InitializeComplexObjects();
             SetUpDataBindings();
             SetUpTreeViewControllers();
-            LoadSettings();
             CreateTimer(Settings.Default.ViewUpdateInterval);
             ApplyInitialSettings();
             Update();
-        }
-
-        private void InitializeAboutTab()
-        {
-            Assembly assembly = Assembly.GetExecutingAssembly();
-
-            Stream stream = assembly.GetManifestResourceStream("Auremo.Text.AUTHORS.txt");
-            StreamReader reader = new StreamReader(stream, Encoding.UTF8);
-            string authors = reader.ReadToEnd();
-
-            stream = assembly.GetManifestResourceStream("Auremo.Text.LICENSE.txt");
-            reader = new StreamReader(stream, Encoding.UTF8);
-            string license = reader.ReadToEnd();
-
-            m_AboutBox.Text = authors + "\n\n\n" + license;
         }
 
         private void InitializeComplexObjects()
@@ -101,13 +87,64 @@ namespace Auremo
 
         private void SetUpDataBindings()
         {
+            m_ConnectionMenuItem.DataContext = m_Connection;
+
             m_CollectionBrowsingModes.DataContext = m_DatabaseView;
+
+            m_ArtistsViewContextMenu.DataContext = m_ArtistsView.SelectedItems;
+            m_ArtistsViewRescanMusicCollectionContextMenuItem.DataContext = m_Connection;
+            m_AlbumsBySelectedArtistsViewContextMenu.DataContext = m_AlbumsBySelectedArtistsView.SelectedItems;
+            m_AlbumsBySelectedArtistsViewRescanMusicCollectionContextMenuItem.DataContext = m_Connection;
+            m_SongsOnSelectedAlbumsViewContextMenu.DataContext = m_SongsOnSelectedAlbumsView.SelectedItems;
+            m_SongsOnSelectedAlbumsViewRescanMusicCollectionContextMenuItem.DataContext = m_Connection;
+            
+            m_ArtistTreeContextMenu.DataContext = m_DatabaseView.ArtistTreeController;
+            m_ArtistTreeRescanMusicCollectionContextMenuItem.DataContext = m_Connection;
+            
+            m_GenresViewContextMenu.DataContext = m_GenresView.SelectedItems;
+            m_GenresViewRescanMusicCollectionContextMenuItem.DataContext = m_Connection;
+            m_AlbumsOfSelectedGenresViewContextMenu.DataContext = m_AlbumsOfSelectedGenresView.SelectedItems;
+            m_AlbumsOfSelectedGenresViewRescanMusicCollectionContextMenuItem.DataContext = m_Connection;
+            m_SongsOnSelectedGenreAlbumsViewContextMenu.DataContext = m_SongsOnSelectedGenreAlbumsView.SelectedItems;
+            m_SongsOnSelectedGenreAlbumsViewRescanMusicCollectionContextMenuItem.DataContext = m_Connection;
+            
+            m_GenreTreeContextMenu.DataContext = m_DatabaseView.GenreTreeController;
+            m_GenreTreeRescanMusicCollectionContextMenuItem.DataContext = m_Connection;
+            
+            m_DirectoryTreeContextMenu.DataContext = m_DatabaseView.DirectoryTreeController;
+            m_DirectoryTreeRescanMusicCollectionContextMenuItem.DataContext = m_Connection;
+            
             m_SavedPlaylistsView.DataContext = m_SavedPlaylists;
+            m_SavedPlaylistsViewContextMenu.DataContext = m_SavedPlaylistsView.SelectedItems;
+            m_SavedPlaylistsViewRescanMusicCollectionContextMenuItem.DataContext = m_Connection;
+            
             m_PlaylistView.DataContext = m_Playlist;
-            m_PlaylistControls.DataContext = m_SavedPlaylists;
-            m_PlaybackControls.DataContext = m_ServerStatus;
+            m_PlaylistViewContextMenu.DataContext = m_PlaylistView;
+
+            m_SeekPanel.DataContext = m_ServerStatus;
+            m_PlaybackControlPanel.DataContext = m_ServerStatus;
+            m_PlayButton.DataContext = m_ServerStatus.IsPlaying;
+            m_PauseButton.DataContext = m_ServerStatus.IsPaused;
+            m_StopButton.DataContext = m_ServerStatus.IsStopped;
+            m_RandomButton.DataContext = m_ServerStatus.IsOnRandom;
+            m_RepeatButton.DataContext = m_ServerStatus.IsOnRepeat;
+
             m_PlayStatusMessage.DataContext = m_Playlist;
             m_ConnectionStatusDescription.DataContext = m_Connection;
+
+            m_ArtistsHint.DataContext = m_DatabaseView.Artists;
+            m_AlbumsBySelectedArtistsHint.DataContext = m_DatabaseView.AlbumsBySelectedArtists;
+            m_SongsOnSelectedAlbumsHint.DataContext = m_DatabaseView.SongsOnSelectedAlbumsBySelectedArtists;
+            m_ArtistsTreeHint.DataContext = m_DatabaseView.ArtistTree;
+            m_GenresHint.DataContext = m_DatabaseView.Genres;
+            m_AlbumsOfSelectedGenresHint.DataContext = m_DatabaseView.AlbumsOfSelectedGenres;
+            m_SongsOnSelectedGenreAlbumsHint.DataContext = m_DatabaseView.SongsOnSelectedAlbumsOfSelectedGenres;
+            m_GenresTreeHint.DataContext = m_DatabaseView.GenreTree;
+            m_DirectoryTreeHint.DataContext = m_DatabaseView.DirectoryTree;
+            m_SavedPlaylistsHint.DataContext = m_SavedPlaylists.Playlists;
+
+            m_PlaylistViewHint.DataContext = m_Playlist.Items;
+
             m_ServerStatus.PropertyChanged += new PropertyChangedEventHandler(OnServerStatusPropertyChanged);
         }
 
@@ -132,12 +169,10 @@ namespace Auremo
 
             if (m_OnlineMode)
             {
-                m_ToggleConnectionButton.Content = "Online mode";
                 ConnectTo(Settings.Default.Server, Settings.Default.Port);
             }
             else
             {
-                m_ToggleConnectionButton.Content = "Offline mode";
                 Disconnect();
             }
         }
@@ -266,19 +301,15 @@ namespace Auremo
 
         private void OnKeyDown(object sender, KeyEventArgs e)
         {
-            if (m_MusicTab.IsSelected)
+            if (e.Key == Key.Delete)
             {
-                if (e.Key == Key.Delete)
-                {
-                    OnDeleteFromPlaylist();
-                }
+                OnDeleteFromPlaylist();
             }
-
-            if (e.Key == Key.Space)
+            else if (e.Key == Key.Space)
             {
                 if (m_ServerStatus != null && m_ServerStatus.OK)
                 {
-                    if (m_ServerStatus.IsPlaying)
+                    if (m_ServerStatus.IsPlaying.Value)
                     {
                         Protocol.Pause(m_Connection);
                     }
@@ -290,31 +321,204 @@ namespace Auremo
 
                 Update();
             }
-            /*else if (e.Key == Key.L)
-            {
-                if (m_LogActive)
-                {
-                    LogMessage("Switching logging off.");
-                    m_LogActive = false;
-                }
-                else
-                {
-                    m_LogActive = true;
-                    LogMessage("Switched logging on.");
-                }
-            }*/
         }
 
         private void OnExit(object sender, System.ComponentModel.CancelEventArgs e)
         {
             Disconnect();
+
+            if (m_SettingsWindow != null)
+            {
+                m_SettingsWindow.Close();
+                m_SettingsWindow = null;
+            }
+
+            if (m_LicenseWindow != null)
+            {
+                m_LicenseWindow.Close();
+                m_LicenseWindow = null;
+            }
+
+            if (m_AboutWindow != null)
+            {
+                m_AboutWindow.Close();
+                m_AboutWindow = null;
+            }
         }
 
         #endregion
 
-        #region Music tab
+        #region Main menu
+
+        private void OnEditSettingsClicked(object sender, RoutedEventArgs e)
+        {
+            if (m_SettingsWindow == null)
+            {
+                m_SettingsWindow = new SettingsWindow(this);
+            }
+            else
+            {
+                m_SettingsWindow.Visibility = Visibility.Visible;
+            }
+
+            m_SettingsWindow.Show();
+        }
+
+        private void OnExitClicked(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
+
+        private void OnConnectClicked(object sender, RoutedEventArgs e)
+        {
+            SetOnlineMode(true);
+        }
+
+        private void OnDisconnectClicked(object sender, RoutedEventArgs e)
+        {
+            SetOnlineMode(false);
+        }
+
+        private void OnResetConnectionClicked(object sender, RoutedEventArgs e)
+        {
+            if (m_OnlineMode)
+            {
+                SetOnlineMode(false);
+            }
+
+            SetOnlineMode(true);
+        }
+
+        private void OnViewLicenseClicked(object sender, RoutedEventArgs e)
+        {
+            if (m_LicenseWindow == null)
+            {
+                Assembly assembly = Assembly.GetExecutingAssembly();
+                Stream stream = assembly.GetManifestResourceStream("Auremo.Text.LICENSE.txt");
+                StreamReader reader = new StreamReader(stream, Encoding.UTF8);
+                string license = reader.ReadToEnd();
+
+                m_LicenseWindow = new TextWindow("License - Auremo MPD Client", license, this);
+            }
+            else
+            {
+                m_LicenseWindow.Visibility = Visibility.Visible;
+            }
+
+            m_LicenseWindow.Show();
+        }
+
+        private void OnAboutClicked(object sender, RoutedEventArgs e)
+        {
+            if (m_AboutWindow == null)
+            {
+                Assembly assembly = Assembly.GetExecutingAssembly();
+                Stream stream = assembly.GetManifestResourceStream("Auremo.Text.AUTHORS.txt");
+                StreamReader reader = new StreamReader(stream, Encoding.UTF8);
+                string about = reader.ReadToEnd();
+
+                m_AboutWindow = new TextWindow("About - Auremo MPD Client", about, this);
+            }
+            else
+            {
+                m_AboutWindow.Visibility = Visibility.Visible;
+            }
+
+            m_AboutWindow.Show();
+        }
+
+        #endregion
+
+        #region Music collection
 
         #region Simple (non-drag-drop) data grid operations
+
+        public void OnAddToPlaylistClicked(object sender, RoutedEventArgs e)
+        {
+            MenuItem item = sender as MenuItem;
+            ContextMenu menu = item.Parent as ContextMenu;
+            UIElement element = menu.PlacementTarget;
+
+            if (element is DataGrid)
+            {
+                DataGrid list = element as DataGrid;
+
+                if (list == m_SongsOnSelectedAlbumsView || list == m_SongsOnSelectedGenreAlbumsView)
+                {
+                    foreach (Object song in list.SelectedItems)
+                    {
+                        Protocol.Add(m_Connection, (song as SongMetadata).Path);
+                    }
+                }
+                else if (list == m_AlbumsBySelectedArtistsView || list == m_AlbumsOfSelectedGenresView)
+                {
+                    foreach (Object album in list.SelectedItems)
+                    {
+                        foreach (SongMetadata song in m_Database.SongsByAlbum(album as AlbumMetadata))
+                        {
+                            Protocol.Add(m_Connection, song.Path);
+                        }
+                    }
+                }
+                else if (list == m_ArtistsView)
+                {
+                    foreach (Object artist in list.SelectedItems)
+                    {
+                        foreach (AlbumMetadata album in m_Database.AlbumsByArtist(artist as string))
+                        {
+                            foreach (SongMetadata song in m_Database.SongsByAlbum(album as AlbumMetadata))
+                            {
+                                Protocol.Add(m_Connection, song.Path);
+                            }
+                        }
+                    }
+                }
+                else if (list == m_GenresView)
+                {
+                    foreach (Object genre in list.SelectedItems)
+                    {
+                        foreach (AlbumMetadata album in m_Database.AlbumsByGenre(genre as string))
+                        {
+                            foreach (SongMetadata song in m_Database.SongsByAlbum(album as AlbumMetadata))
+                            {
+                                Protocol.Add(m_Connection, song.Path);
+                            }
+                        }
+                    }
+                }
+            }
+            else if (element is TreeView)
+            {
+                TreeView tree = element as TreeView;
+                ISet<SongMetadataTreeViewNode> selection = null;
+
+                if (tree == m_ArtistTree)
+                {
+                    selection = m_DatabaseView.ArtistTreeSelectedSongs;
+                }
+                else if (tree == m_GenreTree)
+                {
+                    selection = m_DatabaseView.GenreTreeSelectedSongs;
+                }
+                else if (tree == m_DirectoryTree)
+                {
+                    selection = m_DatabaseView.DirectoryTreeSelectedSongs;
+                }
+
+                if (selection != null)
+                {
+                    foreach (SongMetadataTreeViewNode node in selection)
+                    {
+                        Protocol.Add(m_Connection, node.Song.Path);
+                    }
+                }
+            }
+        }
+
+        public void OnRescanMusicCollectionClicked(object sender, RoutedEventArgs e)
+        {
+            Protocol.Update(m_Connection);
+        }
 
         private void OnArtistViewKeyDown(object sender, KeyEventArgs e)
         {
@@ -415,16 +619,15 @@ namespace Auremo
 
         private void OnDeleteFromPlaylist()
         {
-            foreach (object obj in m_PlaylistView.SelectedItems)
+            foreach (object o in m_PlaylistView.SelectedItems)
             {
-                if (obj is PlaylistItem)
+                if (o is PlaylistItem)
                 {
-                    PlaylistItem item = (PlaylistItem)obj;
+                    PlaylistItem item = o as PlaylistItem;
                     Protocol.DeleteId(m_Connection, item.Id);
                 }
             }
 
-            m_PlaylistView.SelectedItems.Clear();
             Update();
         }
 
@@ -519,7 +722,7 @@ namespace Auremo
 
         private void OnDataGridMouseUp(object sender, MouseButtonEventArgs e)
         {
-            if (Keyboard.Modifiers == ModifierKeys.None)
+            if (e.ChangedButton == MouseButton.Left && Keyboard.Modifiers == ModifierKeys.None)
             {
                 DataGrid grid = sender as DataGrid;
                 DataGridRow row = DataGridRowBeingClicked(grid, e);
@@ -534,13 +737,6 @@ namespace Auremo
 
         private void OnSavePlaylistViewClicked(object sender, RoutedEventArgs e)
         {
-            if (m_SavedPlaylists.CurrentPlaylistNameNonempty)
-            {
-                string name = m_SavedPlaylists.CurrentPlaylistName.Trim();
-                Protocol.Rm(m_Connection, name);
-                Protocol.Save(m_Connection, name);
-                m_SavedPlaylists.Refresh(m_Connection);
-            }
         }
 
         private void OnDedupPlaylistViewClicked(object sender, RoutedEventArgs e)
@@ -567,6 +763,65 @@ namespace Auremo
             Protocol.Clear(m_Connection);
             m_SavedPlaylists.CurrentPlaylistName = "";
             Update();
+        }
+
+
+        private void OnRemoveSelectedPlaylistItemsClicked(object sender, RoutedEventArgs e)
+        {
+            OnDeleteFromPlaylist();
+        }
+
+        private void OnCropToSelectedPlaylistItemsClicked(object sender, RoutedEventArgs e)
+        {
+            if (m_PlaylistView.SelectedItems.Count > 0)
+            {
+                ISet<int> keepItems = new SortedSet<int>();
+
+                foreach (Object o in m_PlaylistView.SelectedItems)
+                {
+                    PlaylistItem item = o as PlaylistItem;
+                    keepItems.Add(item.Id);
+                }
+
+                foreach (PlaylistItem item in m_Playlist.Items)
+                {
+                    if (!keepItems.Contains(item.Id))
+                    {
+                        Protocol.DeleteId(m_Connection, item.Id);
+                    }
+                }
+
+                Update();
+            }
+        
+        }
+
+        // Currently unused. The menu item enabling/disabling problem needs
+        // to be solved first, then the header text setting... WPF is evil.
+        private void OnSavePlaylistClicked(object sender, RoutedEventArgs e)
+        {
+            if (m_SavedPlaylists.CurrentPlaylistName != "")
+            {
+                Protocol.Rm(m_Connection, m_SavedPlaylists.CurrentPlaylistName);
+                Protocol.Save(m_Connection, m_SavedPlaylists.CurrentPlaylistName);
+                m_SavedPlaylists.Refresh(m_Connection);
+            }
+        }
+
+        private void OnSavePlaylistAsClicked(object sender, RoutedEventArgs e)
+        {
+            EnterStringQueryOverlay("Save this playlist on the server as:", m_SavedPlaylists.CurrentPlaylistName, OnSavePlaylistAsOverlayReturned);
+        }
+
+        private void OnSavePlaylistAsOverlayReturned(bool okClicked, string playlistName)
+        {
+            if (okClicked && playlistName != "")
+            {
+                m_SavedPlaylists.CurrentPlaylistName = playlistName.Trim();
+                Protocol.Rm(m_Connection, m_SavedPlaylists.CurrentPlaylistName);
+                Protocol.Save(m_Connection, m_SavedPlaylists.CurrentPlaylistName);
+                m_SavedPlaylists.Refresh(m_Connection);
+            }
         }
 
         private void LoadSavedPlaylist(string name)
@@ -645,7 +900,7 @@ namespace Auremo
 
         private void OnTreeViewMouseUp(object sender, MouseButtonEventArgs e)
         {
-            if (Keyboard.Modifiers == ModifierKeys.None)
+            if (e.ChangedButton == MouseButton.Left && Keyboard.Modifiers == ModifierKeys.None)
             {
                 TreeViewItem item = TreeViewItemBeingClicked(sender as TreeView, e);
 
@@ -756,7 +1011,10 @@ namespace Auremo
 
         private void OnDataGridMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0 || (Keyboard.Modifiers & ModifierKeys.Control) != 0 || e.ClickCount > 1)
+            if (e.ChangedButton != MouseButton.Left ||
+                Keyboard.Modifiers.HasFlag(ModifierKeys.Shift) ||
+                Keyboard.Modifiers.HasFlag(ModifierKeys.Control) || 
+                e.ClickCount > 1)
             {
                 // Don't mess up multi-select or multiple-click.
                 return;
@@ -950,9 +1208,8 @@ namespace Auremo
                             m_DropPositionIndicator.Y1 = topOfItem.Y;
                         }
 
-                        m_DropPositionIndicator.X1 = 11;
-                        m_DropPositionIndicator.X2 = m_PlaylistView.ActualWidth + 8;
-                        m_DropPositionIndicator.Y1 += 5;
+                        m_DropPositionIndicator.X1 = 0;
+                        m_DropPositionIndicator.X2 = m_PlaylistView.ActualWidth;
                         m_DropPositionIndicator.Y2 = m_DropPositionIndicator.Y1;
                         m_DropPositionIndicator.Visibility = Visibility.Visible;
                     }
@@ -1070,6 +1327,8 @@ namespace Auremo
 
         #endregion
 
+        #endregion
+
         #region Seek bar
 
         private int m_SeekBarPositionFromUser = -1;
@@ -1100,6 +1359,37 @@ namespace Auremo
             }
         }
 
+        private void OnSeekBarMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            int currentPosition = m_ServerStatus.PlayPosition;
+            int newPosition = currentPosition;
+            int increment = 0;
+
+            if (Settings.Default.MouseWheelAdjustsSongPositionInPercent && Settings.Default.MouseWheelAdjustsSongPositionPercentBy > 0)
+            {
+                increment = Math.Max(1, Settings.Default.MouseWheelAdjustsSongPositionPercentBy * m_ServerStatus.SongLength / 100);
+            }
+            else
+            {
+                increment = Settings.Default.MouseWheelAdjustsSongPositionSecondsBy;
+            }
+
+            if (e.Delta < 0)
+            {
+                newPosition = Math.Max(0, newPosition - increment);
+            }
+            else if (e.Delta > 0)
+            {
+                newPosition = Math.Min(m_ServerStatus.SongLength, newPosition + increment);
+            }
+
+            if (newPosition != currentPosition)
+            {
+                Protocol.Seek(m_Connection, m_ServerStatus.CurrentSongIndex, newPosition);
+                Update();
+            }
+        }
+
         #endregion
 
         #region Control buttons row
@@ -1126,7 +1416,7 @@ namespace Auremo
         {
             if (m_ServerStatus != null && m_ServerStatus.OK)
             {
-                if (m_ServerStatus.IsPlaying)
+                if (m_ServerStatus.IsPlaying.Value)
                 {
                     Protocol.Pause(m_Connection);
                 }
@@ -1138,6 +1428,7 @@ namespace Auremo
 
             Update();
         }
+
         private void OnStopButtonClicked(object sender, RoutedEventArgs e)
         {
             Protocol.Stop(m_Connection);
@@ -1157,7 +1448,9 @@ namespace Auremo
             if (!m_PropertyUpdateInProgress && !m_VolumeRestoreInProgress)
             {
                 // Volume slider is actually moving because the user is moving it.
-                if (Protocol.SetVol(m_Connection, (int)e.NewValue).IsACK)
+                ServerResponse response = Protocol.SetVol(m_Connection, (int)e.NewValue);
+
+                if (response != null && response.IsACK)
                 {
                     m_VolumeRestoreInProgress = true;
                     m_VolumeControl.Value = e.OldValue;
@@ -1166,22 +1459,40 @@ namespace Auremo
             }
         }
 
+        private void OnVolumeMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            int? currentVolume = m_ServerStatus.Volume;
+
+            if (currentVolume != null && Settings.Default.EnableVolumeControl)
+            {
+                int newVolume = currentVolume.Value;
+
+                if (e.Delta < 0)
+                {
+                    newVolume = Math.Max(0, newVolume - Settings.Default.MouseWheelAdjustsVolumeBy);
+                }
+                else if (e.Delta > 0)
+                {
+                    newVolume = Math.Min(100, newVolume + Settings.Default.MouseWheelAdjustsVolumeBy);
+                }
+
+                if (newVolume != currentVolume)
+                {
+                    Protocol.SetVol(m_Connection, newVolume);
+                    Update();
+                }
+            }
+        }
+
         private void OnToggleRandomClicked(object sender, RoutedEventArgs e)
         {
-            Protocol.Random(m_Connection, !m_ServerStatus.Random);
+            Protocol.Random(m_Connection, !m_ServerStatus.IsOnRandom.Value);
         }
 
         private void OnToggleRepeatClicked(object sender, RoutedEventArgs e)
         {
-            Protocol.Repeat(m_Connection, !m_ServerStatus.Repeat);
+            Protocol.Repeat(m_Connection, !m_ServerStatus.IsOnRepeat.Value);
         }
-
-        private void OnToggleOnlineOfflineClicked(object sender, RoutedEventArgs e)
-        {
-            SetOnlineMode(!m_OnlineMode);
-        }
-
-        #endregion
 
         #endregion
 
@@ -1196,31 +1507,13 @@ namespace Auremo
 
         #region Settings and settings tab
 
-        private void ApplyInitialSettings()
+        // Called by SettingsWindow when new settings are applied.
+        public void SettingsChanged(bool reconnect)
         {
-            SetOnlineMode(true);
-            m_PlayButton.Visibility = Settings.Default.DisplaySeparatePlayAndPauseButtons ? Visibility.Visible : Visibility.Collapsed;
-            m_PauseButton.Visibility = Settings.Default.DisplaySeparatePlayAndPauseButtons ? Visibility.Visible : Visibility.Collapsed;
-            m_PlayPauseButton.Visibility = Settings.Default.DisplaySeparatePlayAndPauseButtons ? Visibility.Collapsed : Visibility.Visible;
-        }
-
-        private void OnSaveSettingsClicked(object sender, RoutedEventArgs e)
-        {
-            string oldServer = Settings.Default.Server;
-            int oldPort = Settings.Default.Port;
-            string oldPassword = Settings.Default.Password;
-
-            Settings.Default.Server = m_ServerEntry.Text;
-            Settings.Default.Port = Utils.StringToInt(m_PortEntry.Text, 6600);
-            Settings.Default.Password = Crypto.EncryptPassword(m_PasswordEntry.Password);
-            Settings.Default.ViewUpdateInterval = Utils.StringToInt(m_UpdateIntervalEntry.Text, 500);
-            Settings.Default.EnableVolumeControl = m_EnableVolumeControl.IsChecked == null || m_EnableVolumeControl.IsChecked.Value;
-            Settings.Default.DisplaySeparatePlayAndPauseButtons = m_DisplaySeparatePlayAndPauseButtons.IsChecked == null || m_DisplaySeparatePlayAndPauseButtons.IsChecked.Value;
-            Settings.Default.Save();
-
+            m_VolumeControl.IsEnabled = m_ServerStatus.Volume.HasValue && Settings.Default.EnableVolumeControl;
             SetTimerInterval(Settings.Default.ViewUpdateInterval);
 
-            if (Settings.Default.Server != oldServer || Settings.Default.Port != oldPort || Settings.Default.Password != oldPassword)
+            if (reconnect)
             {
                 Disconnect();
 
@@ -1229,71 +1522,61 @@ namespace Auremo
                     ConnectTo(Settings.Default.Server, Settings.Default.Port);
                 }
             }
-
-            m_PlayButton.Visibility = Settings.Default.DisplaySeparatePlayAndPauseButtons ? Visibility.Visible : Visibility.Collapsed;
-            m_PauseButton.Visibility = Settings.Default.DisplaySeparatePlayAndPauseButtons ? Visibility.Visible : Visibility.Collapsed;
-            m_PlayPauseButton.Visibility = Settings.Default.DisplaySeparatePlayAndPauseButtons ? Visibility.Collapsed : Visibility.Visible;
-            m_VolumeControl.IsEnabled = m_ServerStatus.Volume.HasValue && Settings.Default.EnableVolumeControl;
         }
 
-        private void OnLoadSettingsClicked(object sender, RoutedEventArgs e)
+        private void ApplyInitialSettings()
         {
-            LoadSettings();
+            SetOnlineMode(true);
         }
 
-        private void LoadSettings()
+        #endregion
+
+        #region String query overlay
+
+        public delegate void StringQueryOverlayExitHandler(bool okClicked, string input);
+        StringQueryOverlayExitHandler m_StringQueryOverlayExitHandler = null;
+
+        private void EnterStringQueryOverlay(string caption, string defaultInput, StringQueryOverlayExitHandler handler)
         {
-            m_ServerEntry.Text = Settings.Default.Server;
-            m_PortEntry.Text = Settings.Default.Port.ToString();
-            m_PasswordEntry.Password = Crypto.DecryptPassword(Settings.Default.Password);
-            m_UpdateIntervalEntry.Text = Settings.Default.ViewUpdateInterval.ToString();
-            m_EnableVolumeControl.IsChecked = Settings.Default.EnableVolumeControl;
-            m_DisplaySeparatePlayAndPauseButtons.IsChecked = Settings.Default.DisplaySeparatePlayAndPauseButtons;
+            m_StringQueryOverlayExitHandler = handler;
+            m_StringQueryOverlayCaption.Text = caption;
+            m_StringQueryOverlayInput.Text = defaultInput == null ? "" : defaultInput;
+            m_StringQueryOverlay.Visibility = Visibility.Visible;
         }
 
-        private void OnNumericOptionPreviewTextInput(object sender, TextCompositionEventArgs e)
+        private void ExitStringQueryOverlay()
         {
-            e.Handled = new Regex("[^0-9]+").IsMatch(e.Text);
+            m_StringQueryOverlay.Visibility = Visibility.Collapsed;
         }
 
-        private void OnNumericOptionLostFocus(object sender, RoutedEventArgs e)
+        private void OnStringQueryOverlayButtonClicked(object sender, RoutedEventArgs e)
         {
-            TextBox source = sender as TextBox;
-            int min, max;
-
-            if (source == m_PortEntry)
+            if (m_StringQueryOverlayExitHandler != null)
             {
-                min = 1;
-                max = 65535;
-            }
-            else if (source == m_UpdateIntervalEntry)
-            {
-                min = 100;
-                max = 5000;
-            }
-            else // if (source == m_ReconnectIntervalEntry)
-            {
-                min = 0;
-                max = 3600;
+                m_StringQueryOverlayExitHandler(sender == m_StringQueryOverlayOK, m_StringQueryOverlayInput.Text);
+                m_StringQueryOverlayExitHandler = null;
             }
 
-            if (source.Text == "")
+            ExitStringQueryOverlay();
+        }
+
+        #endregion
+
+        #region Child window interface
+
+        public void OnChildWindowClosing(Window window)
+        {
+            if (window == m_AboutWindow)
             {
-                source.Text = min.ToString();
+                m_AboutWindow = null;
             }
-            else
+            else if (window == m_LicenseWindow)
             {
-                int value;
-
-                if (!int.TryParse(source.Text, out value))
-                {
-                    value = max + 1;
-                }
-
-                if (value < min)
-                    source.Text = min.ToString();
-                else if (value > max)
-                    source.Text = max.ToString();
+                m_LicenseWindow = null;
+            }
+            else if (window == m_SettingsWindow)
+            {
+                m_SettingsWindow = null;
             }
         }
 
@@ -1446,29 +1729,6 @@ namespace Auremo
                 {
                     return GetTreeViewItem(nodeWithHighestLowerID, node);
                 }
-            }
-        }
-
-        bool m_LogActive = false;
-
-        private void LogMessage(string message)
-        {
-            if (m_LogActive)
-            {
-                m_LogLines.Items.Add(DateTime.Now.TimeOfDay.ToString() + ": " + message);
-            }
-        }
-
-        private void LogResponse(ServerResponse response)
-        {
-            if (m_LogActive)
-            {
-                foreach (ServerResponseLine line in response.ResponseLines)
-                {
-                    m_LogLines.Items.Add(line.Full);
-                }
-
-                m_LogLines.Items.Add(response.Status.Full);
             }
         }
 

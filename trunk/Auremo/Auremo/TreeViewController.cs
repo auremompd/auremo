@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2012 Mikko Teräs
+ * Copyright 2013 Mikko Teräs and Niilo Säämänen.
  *
  * This file is part of Auremo.
  *
@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 
@@ -29,7 +30,7 @@ namespace Auremo
         public TreeViewController(IList<TreeViewNode> rootLevelNodes)
         {
             m_RootLevelNodes = rootLevelNodes;
-            MultiSelection = new SortedSet<TreeViewNode>();
+            MultiSelection = new ObservableCollection<TreeViewNode>();
         }
 
         public TreeViewNode FirstNode
@@ -59,21 +60,20 @@ namespace Auremo
         {
             if (Pivot != null)
             {
-                TreeViewNode root = Pivot;
+                int minID = Math.Min(Pivot.ID, toNode.ID);
+                int maxID = Math.Max(Pivot.ID, toNode.ID);
 
-                while (root.Parent != null)
+                foreach (TreeViewNode root in m_RootLevelNodes)
                 {
-                    root = root.Parent;
+                    SelectVisibleWithinRange(root, minID, maxID);
                 }
-
-                SelectVisibleWithinRange(root, Math.Min(Pivot.ID, toNode.ID), Math.Max(Pivot.ID, toNode.ID));
             }
         }
 
         private void SelectVisibleWithinRange(TreeViewNode node, int minID, int maxID)
         {
             // TODO: there is plenty left to optimize here.
-            if (node.ID >= minID && node.ID <= maxID)
+            if (minID <= node.ID && node.ID <= maxID)
             {
                 node.IsMultiSelected = true;
             }
@@ -135,7 +135,7 @@ namespace Auremo
             }
         }
 
-        public ISet<TreeViewNode> MultiSelection
+        public ObservableCollection<TreeViewNode> MultiSelection
         {
             get;
             private set;

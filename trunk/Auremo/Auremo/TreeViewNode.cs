@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2012 Mikko Teräs
+ * Copyright 2013 Mikko Teräs and Niilo Säämänen.
  *
  * This file is part of Auremo.
  *
@@ -50,6 +50,21 @@ namespace Auremo
             Children = new ObservableCollection<TreeViewNode>();
             Controller = controller;
             ID = -1;
+        }
+
+        public TreeViewNode Root
+        {
+            get
+            {
+                TreeViewNode root = this;
+
+                while (root.Parent != null)
+                {
+                    root = root.Parent;
+                }
+
+                return root;
+            }
         }
 
         public TreeViewNode Parent

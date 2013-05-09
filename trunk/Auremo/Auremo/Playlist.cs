@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2012 Mikko Teräs
+ * Copyright 2013 Mikko Teräs and Niilo Säämänen.
  *
  * This file is part of Auremo.
  *
@@ -131,7 +131,7 @@ namespace Auremo
         {
             PlaylistItem itemToMarkCurrent = null;
 
-            if (m_ServerStatus.OK && (m_ServerStatus.IsPaused || m_ServerStatus.IsPlaying) &&
+            if (m_ServerStatus.OK && (m_ServerStatus.IsPaused.Value || m_ServerStatus.IsPlaying.Value) &&
                 m_ServerStatus.CurrentSongIndex >= 0 && m_ServerStatus.CurrentSongIndex < Items.Count)
             {
                 itemToMarkCurrent = Items[m_ServerStatus.CurrentSongIndex];
@@ -156,14 +156,14 @@ namespace Auremo
             {
                 PlayStatusDescription = "";
             }
-            else if (m_ItemMarkedAsCurrent == null || (m_ServerStatus.IsPaused && m_ServerStatus.IsPlaying))
+            else if (m_ItemMarkedAsCurrent == null || m_ServerStatus.IsStopped.Value)
             {
                 PlayStatusDescription = "Stopped.";
             }
             else
             {
                 PlayStatusDescription =
-                     (m_ServerStatus.IsPlaying ? "Playing " : "Paused - ") +
+                     (m_ServerStatus.IsPlaying.Value ? "Playing " : "Paused - ") +
                       m_ItemMarkedAsCurrent.Song.Artist + ": " +
                       m_ItemMarkedAsCurrent.Song.Title + " (" +
                       m_ItemMarkedAsCurrent.Song.Album;

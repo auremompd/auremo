@@ -1,6 +1,13 @@
 Version history
 ===============
 
+Auremo 0.4.0
+------------
+
+ * Redesign the GUI.
+ * Released 8th May 2013.
+
+
 Auremo 0.3.1
 ------------
 

@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2012 Mikko Teräs
+ * Copyright 2013 Mikko Teräs and Niilo Säämänen.
  *
  * This file is part of Auremo.
  *
@@ -29,11 +29,10 @@ namespace Auremo
             Title = "Unknown Album";
         }
 
-        public AlbumMetadata(string artist, string albumTitle, int? year)
+        public AlbumMetadata(string artist, string albumTitle)
         {
             Artist = artist;
             Title = albumTitle;
-            Year = year;
         }
 
         public string Artist
@@ -48,20 +47,6 @@ namespace Auremo
             set;
         }
 
-        public int? Year
-        {
-            get;
-            set;
-        }
-
-        public string PrintableYear
-        {
-            get
-            {
-                return Year != null ? Year.ToString() : "N/A";
-            }
-        }
-
         public int CompareTo(object o)
         {
             if (o is AlbumMetadata)
@@ -71,16 +56,6 @@ namespace Auremo
                 if (Artist != rhs.Artist)
                 {
                     return Artist.CompareTo(rhs.Artist);
-                }
-
-                if (Year != rhs.Year)
-                {
-                    if (Year == null)
-                        return 1;
-                    else if (rhs.Year == null)
-                        return -1;
-                    else
-                        return Year.Value.CompareTo(rhs.Year.Value);
                 }
 
                 return Title.CompareTo(rhs.Title);
@@ -93,7 +68,7 @@ namespace Auremo
 
         public override string ToString()
         {
-            return Artist + ": " + Title + " (" + PrintableYear + ")";
+            return Artist + ": " + Title;
         }
     }
 }
