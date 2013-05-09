@@ -5,6 +5,11 @@ Auremo 0.4.0
 ------------
 
  * Redesign the GUI.
+ * Add mouse wheel support for seek bar and volume slider.
+ * Remove year property from album data. Sort albums
+   alphabetically instead of chronologically.
+ * Fix multiselecting using shift+click in tree views when
+   there are multiple roots. (Effectively the artist and genre trees.)
  * Released 8th May 2013.
 
 
