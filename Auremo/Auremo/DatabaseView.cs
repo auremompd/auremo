@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2012 Mikko Teräs
+ * Copyright 2013 Mikko Teräs and Niilo Säämänen.
  *
  * This file is part of Auremo.
  *
@@ -170,9 +170,12 @@ namespace Auremo
             }
 
             AssignTreeViewNodeIDs(rootNode, 0);
-
-            DirectoryTree.Add(rootNode);
-            rootNode.IsExpanded = true;
+            
+            if (rootNode.Children.Count > 0)
+            {
+                DirectoryTree.Add(rootNode);
+                rootNode.IsExpanded = true;
+            }
         }
 
         private TreeViewNode FindDirectoryNode(string path, IDictionary<string, TreeViewNode> lookup, TreeViewNode rootNode)

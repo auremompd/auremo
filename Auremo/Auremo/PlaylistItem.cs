@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2012 Mikko Teräs
+ * Copyright 2013 Mikko Teräs and Niilo Säämänen.
  *
  * This file is part of Auremo.
  *

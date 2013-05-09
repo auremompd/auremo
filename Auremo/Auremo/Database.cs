@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2012 Mikko Teräs
+ * Copyright 2013 Mikko Teräs and Niilo Säämänen.
  *
  * This file is part of Auremo.
  *
@@ -59,7 +59,6 @@ namespace Auremo
 
                 PopulateAlbumsByArtist();
                 PopulateAlbumsByGenre();
-
                 PopulateSongPathsByAlbum();
             }
 
@@ -231,12 +230,6 @@ namespace Auremo
         {
             foreach (SongMetadata song in m_SongInfo.Values)
             {
-                // TODO: handle cases where a single album has songs from
-                // multiple years; use the maximum year as the album year.
-                // The solution should involve removing an existing album
-                // from the dictionary, maxing the year and reinserting for
-                // each song.
-
                 if (!m_AlbumsByArtist.ContainsKey(song.Artist))
                 {
                     m_AlbumsByArtist[song.Artist] = new SortedSet<AlbumMetadata>();
@@ -245,7 +238,6 @@ namespace Auremo
                 AlbumMetadata album = new AlbumMetadata();
                 album.Artist = song.Artist;
                 album.Title = song.Album;
-                album.Year = song.Year;
 
                 m_AlbumsByArtist[song.Artist].Add(album);
             }
@@ -263,7 +255,6 @@ namespace Auremo
                 AlbumMetadata album = new AlbumMetadata();
                 album.Artist = song.Artist;
                 album.Title = song.Album;
-                album.Year = song.Year;
 
                 m_AlbumsByGenre[song.Genre].Add(album);
             }
@@ -275,7 +266,7 @@ namespace Auremo
             {
                 // Note that we are now making copies of all album metadata. We
                 // could reference the metadata in m_AlbumsByArtist instead.
-                AlbumMetadata album = new AlbumMetadata(song.Artist, song.Album, song.Year);
+                AlbumMetadata album = new AlbumMetadata(song.Artist, song.Album);
 
                 if (!m_SongPathsByAlbum.ContainsKey(album))
                 {
