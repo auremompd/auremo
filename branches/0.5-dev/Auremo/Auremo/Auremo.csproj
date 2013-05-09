@@ -285,15 +285,14 @@
     <Resource Include="Graphics\Auremo_icon_48.png" />
     <Resource Include="Graphics\Auremo_icon_64.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Resources\" />
+  </ItemGroup>
   <ItemGroup>
     <Resource Include="Graphics\Auremo_icon.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Graphics\Auremo.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Icon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
