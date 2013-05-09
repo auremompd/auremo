@@ -1,19 +1,22 @@
 #summary Features planned for the next release
 
-=Partial to-do list for version 0.4.0=
+=Partial to-do list for version 0.5.0=
+
+The 0.5 version will add new features. As there are many requested features, emphasis is given to low-hanging fruit.
 
 ==Committed features and fixes==
 
-  * Add mouse wheel support for seek bar and volume slider.
-  * Remove year property from album data, sort albums alphabetically instead of chronologically.
-  * Fix multiselecting using shift+click in tree views when there are multiple roots. (Effectively the artist and genre trees.)
+  * (No committed changes yet.)
 
 == Bugs ==
 
-  * (No current known bugs)
+  * (No current known bugs.)
 
 == Features to add ==
 
 These features will be added before the release.
 
-  * Rework the GUI looks entirely.
+  * Add support for web radio.
+  * Add a search function.
+  * Allow the user to scroll to a name inside a list by typing the first letters of the name.
+  * Add controls for enabling and disabling outputs on the server.
