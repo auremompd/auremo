@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2012 Mikko Teräs
+ * Copyright 2013 Mikko Teräs and Niilo Säämänen.
  *
  * This file is part of Auremo.
  *
@@ -91,6 +91,11 @@ namespace Auremo
             {
                 return new Tuple<string, string>(path.Substring(0, limit), path.Substring(limit + 1));
             }
+        }
+
+        public static int Clamp(int min, int value, int max)
+        {
+            return min < value ? (max > value ? value : max) : min;
         }
     }
 }
