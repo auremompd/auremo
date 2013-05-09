@@ -8,16 +8,12 @@ There is no absolute guarantee that features will appear in the exact version un
 
 Suggestions are welcome! None of these features or software versions are being developed yet, so if you have ideas about how they should work, or would like to see something added to the lists, there is still time to let me know. Please [mailto:auremompd@gmail.com e-mail] the author.
 
-==0.5 release==
+==0.6 release==
 
-  * Add support for web radio.
   * Use MPD command lists for playlist control for speed and atomicity.
-  * Add a search function.
-  * Allow the user to scroll to a name inside a list by typing the first letters of the name.
   * Improve saved playlist interface.
   * Add optional criteria for sorting albums. For example, the user should be able to choose alphabetical, chronological or filesystem ordering.
   * Add album artist collection browsing mode.
-  * Add controls for enabling and disabling outputs on the server.
 
 ==Later releases==
 
