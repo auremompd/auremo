@@ -14,14 +14,14 @@ Auremo is written from scratch in C#. The user interface is implemented in WPF/X
 
 == Project status ==
 
-Auremo's newest version (0.3.1) was released on the 3rd of September, 2012 (ChangeLog). See the CurrentFeatures page for a brief explanation of what Auremo can currently do.
+Auremo's newest version (0.4.0) was released on the 8th of May, 2013 (ChangeLog). See the CurrentFeatures page for a brief explanation of what Auremo can currently do.
 
-Version 0.4 is under development. A UX expert has volunteered to help with the UI overhaul. It will take time, but the results should be worth the wait. See the UpcomingFeatures page for details. There is also a RoadMap of the long-term plans for Auremo.
+Version 0.4 concentrated exclusively on GUI work. It took much longer than expected and is still not 100% finished, but should now be good enough for real use. GUI work will continue, but the next versions will concentrate on features that you guys have requested. They should also see a return to the former, rapid release pace. 
+
+See the UpcomingFeatures page for details. There is also a RoadMap of the long-term plans for Auremo.
 
 == Feedback ==
 
 User feedback is encouraged! If you like Auremo, have bugs to report or would like to suggest new features, or you just like conversation, please e-mail the author.
-
-Help is particularly welcome. The GUI needs attention from an expert artist (preferably one with WPF/XAML skills). Or, if you are good at drawing, there are textures that need creating.
 
 You can reach the author by [mailto:auremompd@gmail.com e-mail].
