@@ -10,7 +10,7 @@ The 0.5 version will add new features. As there are many requested features, emp
 
 == Bugs ==
 
-  * (No current known bugs.)
+  * Fix play status in status bar.
 
 == Features to add ==
 
