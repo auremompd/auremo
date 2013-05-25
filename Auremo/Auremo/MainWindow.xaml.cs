@@ -15,12 +15,12 @@
  * with Auremo. If not, see http://www.gnu.org/licenses/.
  */
 
+using Microsoft.Win32;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Windows.Threading;
@@ -31,10 +31,6 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Resources;
-using System.Windows.Shapes;
 using Auremo.Properties;
 
 namespace Auremo
@@ -47,6 +43,7 @@ namespace Auremo
         private ServerConnection m_Connection = new ServerConnection();
         private ServerStatus m_ServerStatus = new ServerStatus();
         private Database m_Database = null;
+        private StreamsCollection m_StreamsCollection = new StreamsCollection();
         private DatabaseView m_DatabaseView = null;
         private SavedPlaylists m_SavedPlaylists = new SavedPlaylists();
         private Playlist m_Playlist = null;
@@ -62,6 +59,7 @@ namespace Auremo
         private const string AddGenres = "add_genres";
         private const string AddAlbums = "add_albums";
         private const string AddSongs = "add_songs";
+        private const string AddStreams = "add_streams";
         private const string LoadPlaylist = "load_playlist";
         private const string MovePlaylistItems = "move_playlist_items";
 
@@ -81,8 +79,9 @@ namespace Auremo
         private void InitializeComplexObjects()
         {
             m_Database = new Database(m_Connection, m_ServerStatus);
-            m_DatabaseView = new DatabaseView(m_Database);
-            m_Playlist = new Playlist(m_Connection, m_ServerStatus, m_Database);
+            m_DatabaseView = new DatabaseView(m_Database, m_StreamsCollection);
+            m_Playlist = new Playlist(m_Connection, m_ServerStatus, m_Database, m_StreamsCollection);
+            m_DatabaseView.RefreshStreams();
         }
 
         private void SetUpDataBindings()
@@ -117,10 +116,12 @@ namespace Auremo
             m_SavedPlaylistsView.DataContext = m_SavedPlaylists;
             m_SavedPlaylistsViewContextMenu.DataContext = m_SavedPlaylistsView.SelectedItems;
             m_SavedPlaylistsViewRescanMusicCollectionContextMenuItem.DataContext = m_Connection;
-            
+
+            m_StreamsViewContextMenu.DataContext = m_StreamsView.SelectedItems;
+
             m_PlaylistView.DataContext = m_Playlist;
             m_PlaylistViewContextMenu.DataContext = m_PlaylistView;
-
+            
             m_SeekPanel.DataContext = m_ServerStatus;
             m_PlaybackControlPanel.DataContext = m_ServerStatus;
             m_PlayButton.DataContext = m_ServerStatus.IsPlaying;
@@ -193,8 +194,8 @@ namespace Auremo
                 Protocol.Password(m_Connection, password);
             }
             
-            m_Database.Refresh();
-            m_DatabaseView.Refresh();
+            m_Database.RefreshCollection();
+            m_DatabaseView.RefreshCollection();
             m_SavedPlaylists.Refresh(m_Connection);
             SetTimerInterval(Settings.Default.ViewUpdateInterval); // Normal operation.
         }
@@ -207,8 +208,8 @@ namespace Auremo
             }
 
             m_Connection.Disconnect();
-            m_Database.Refresh();
-            m_DatabaseView.Refresh();
+            m_Database.RefreshCollection();
+            m_DatabaseView.RefreshCollection();
             m_SavedPlaylists.Refresh(m_Connection);
         }
 
@@ -271,8 +272,8 @@ namespace Auremo
             }
             else if (e.PropertyName == "DatabaseUpdateTime")
             {
-                m_Database.Refresh();
-                m_DatabaseView.Refresh();
+                m_Database.RefreshCollection();
+                m_DatabaseView.RefreshCollection();
             }
 
             m_PropertyUpdateInProgress = false;
@@ -301,11 +302,7 @@ namespace Auremo
 
         private void OnKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Delete)
-            {
-                OnDeleteFromPlaylist();
-            }
-            else if (e.Key == Key.Space)
+            if (e.Key == Key.Space)
             {
                 if (m_ServerStatus != null && m_ServerStatus.OK)
                 {
@@ -443,11 +440,11 @@ namespace Auremo
             {
                 DataGrid list = element as DataGrid;
 
-                if (list == m_SongsOnSelectedAlbumsView || list == m_SongsOnSelectedGenreAlbumsView)
+                if (list == m_SongsOnSelectedAlbumsView || list == m_SongsOnSelectedGenreAlbumsView || list == m_StreamsView)
                 {
-                    foreach (Object song in list.SelectedItems)
+                    foreach (Object playable in list.SelectedItems)
                     {
-                        Protocol.Add(m_Connection, (song as SongMetadata).Path);
+                        Protocol.Add(m_Connection, (playable as Playable).Path);
                     }
                 }
                 else if (list == m_AlbumsBySelectedArtistsView || list == m_AlbumsOfSelectedGenresView)
@@ -595,6 +592,160 @@ namespace Auremo
             }
         }
 
+        private void OnStreamsViewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.F2 && m_StreamsView.SelectedItems.Count == 1)
+            {
+                e.Handled = true;
+                OnRenameSelectedStream();
+            }
+            if (e.Key == Key.Delete)
+            {
+                e.Handled = true;
+                OnDeleteSelectedStreams();
+            }
+        }
+
+        private void OnStreamsViewDoubleClicked(object sender, MouseButtonEventArgs e)
+        {
+            foreach (object o in m_StreamsView.SelectedItems)
+            {
+                StreamMetadata stream = o as StreamMetadata;
+
+                if (stream != null)
+                {
+                    Protocol.Add(m_Connection, stream.Path);
+                }
+            }
+        }
+
+        private void OnRenameSelectedStreamClicked(object sender, RoutedEventArgs e)
+        {
+            OnRenameSelectedStream();
+        }
+
+        private void OnRenameStreamQueryFinished(bool succeeded, StreamMetadata stream, string newName)
+        {
+            if (succeeded)
+            {
+                m_StreamsCollection.Rename(stream, newName);
+            }
+        }
+
+        private void OnDeleteSelectedStreamsClicked(object sender, RoutedEventArgs e)
+        {
+            OnDeleteSelectedStreams();
+        }
+
+        private void OnAddStreamURLClicked(object sender, RoutedEventArgs e)
+        {
+            StartAddNewStreamQuery();
+        }
+
+        private void OnAddNewStreamQueryFinished(bool succeeded, string address, string name)
+        {
+            if (succeeded)
+            {
+                StreamMetadata stream = new StreamMetadata();
+                stream.Path = address;
+                stream.Title = name;
+                m_StreamsCollection.Add(stream);
+                m_DatabaseView.RefreshStreams();
+            }
+        }
+
+        private void OnAddStreamFromFileClicked(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Title = "Add stream files";
+            dialog.Multiselect = true;
+            dialog.Filter = "Playlist Files|*.pls;*.m3u";
+
+            bool? dialogResult = dialog.ShowDialog();
+
+            if (dialogResult.HasValue && dialogResult.Value)
+            {
+                PLSParser plsParser = new PLSParser();
+                M3UParser m3uParser = new M3UParser();
+                List<StreamMetadata> streamsToAdd = new List<StreamMetadata>();
+
+                foreach (string filename in dialog.FileNames)
+                {
+                    IEnumerable<StreamMetadata> streams = null;
+
+                    if (filename.ToLowerInvariant().EndsWith(".pls"))
+                    {
+                        streams = plsParser.ParseFile(filename);
+                    }
+                    else if (filename.ToLowerInvariant().EndsWith(".m3u"))
+                    {
+                        streams = m3uParser.ParseFile(filename);
+                    }
+                    
+                    if (streams != null)
+                    {
+                        streamsToAdd.AddRange(streams);
+                    }
+                }
+
+                m_StreamsCollection.Add(streamsToAdd);
+                m_DatabaseView.RefreshStreams();
+            }
+        }
+
+        private void OnSaveSelectedStreamsToFileClicked(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog dialog = new SaveFileDialog();
+            dialog.Title = "Save streams";
+            dialog.Filter = "Playlist Files|*.pls";
+
+            bool? dialogResult = dialog.ShowDialog();
+
+            if (dialogResult.HasValue && dialogResult.Value)
+            {
+                string filename = dialog.FileName;
+                string playlist = PlaylistWriter.Write(Utils.ToTypedList<StreamMetadata>(m_StreamsView.SelectedItems));
+
+                if (playlist != null)
+                {
+                    File.WriteAllText(filename, playlist);
+                }
+            }
+        }
+
+        private void OnRenameSelectedStream()
+        {
+            if (m_StreamsView.SelectedItems.Count == 1)
+            {
+                StartRenameStreamQuery(m_StreamsView.SelectedItem as StreamMetadata);
+            }
+        }
+
+        private void OnDeleteSelectedStreams()
+        {
+            IList<StreamMetadata> streams = new List<StreamMetadata>();
+
+            foreach (object o in m_StreamsView.SelectedItems)
+            {
+                streams.Add(o as StreamMetadata);
+            }
+
+            m_StreamsCollection.Delete(streams);
+        }
+
+        private void OnSavedPlaylistsViewDoubleClicked(object sender, MouseButtonEventArgs e)
+        {
+            if (Keyboard.Modifiers == ModifierKeys.None)
+            {
+                object selectedPlaylist = m_SavedPlaylistsView.SelectedItem;
+
+                if (selectedPlaylist != null)
+                {
+                    LoadSavedPlaylist(selectedPlaylist as string);
+                }
+            }
+        }
+        
         private void OnSavedPlaylistsViewKeyDown(object sender, KeyEventArgs e)
         {
             object selectedPlaylist = m_SavedPlaylistsView.SelectedItem;
@@ -674,20 +825,7 @@ namespace Auremo
                 Update();
             }
         }
-
-        private void OnSavedPlaylistsViewDoubleClicked(object sender, MouseButtonEventArgs e)
-        {
-            if (Keyboard.Modifiers == ModifierKeys.None)
-            {
-                object selectedPlaylist = m_SavedPlaylistsView.SelectedItem;
-
-                if (selectedPlaylist != null)
-                {
-                    LoadSavedPlaylist(selectedPlaylist as string);
-                }
-            }
-        }
-
+        
         private void OnPlaylistViewKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
@@ -705,6 +843,10 @@ namespace Auremo
                 }
 
                 e.Handled = true;
+            }
+            else if (e.Key == Key.Delete)
+            {
+                OnDeleteFromPlaylist();
             }
         }
 
@@ -746,7 +888,7 @@ namespace Auremo
 
             foreach (PlaylistItem item in m_Playlist.Items)
             {
-                if (!songPathsOnPlaylist.Add(item.Song.Path))
+                if (!songPathsOnPlaylist.Add(item.Playable.Path))
                 {
                     playlistIDsOfDuplicates.Add(item.Id);
                 }
@@ -810,14 +952,14 @@ namespace Auremo
 
         private void OnSavePlaylistAsClicked(object sender, RoutedEventArgs e)
         {
-            EnterStringQueryOverlay("Save this playlist on the server as:", m_SavedPlaylists.CurrentPlaylistName, OnSavePlaylistAsOverlayReturned);
+            StartAddNewPlaylistAsQuery(m_SavedPlaylists.CurrentPlaylistName);
         }
 
-        private void OnSavePlaylistAsOverlayReturned(bool okClicked, string playlistName)
+        private void OnAddNewPlaylistAsQueryFinished(bool succeeded, string playlistName)
         {
-            if (okClicked && playlistName != "")
+            if (succeeded)
             {
-                m_SavedPlaylists.CurrentPlaylistName = playlistName.Trim();
+                m_SavedPlaylists.CurrentPlaylistName = playlistName;
                 Protocol.Rm(m_Connection, m_SavedPlaylists.CurrentPlaylistName);
                 Protocol.Save(m_Connection, m_SavedPlaylists.CurrentPlaylistName);
                 m_SavedPlaylists.Refresh(m_Connection);
@@ -1147,10 +1289,17 @@ namespace Auremo
                     else
                         return "Adding " + count + " songs";
                 }
+                else if (firstItem is StreamMetadata)
+                {
+                    if (m_DragDropPayload.Count == 1)
+                        return "Adding " + ((StreamMetadata)firstItem).Title;
+                    else
+                        return "Adding " + count + " streams";
+                }
                 else if (firstItem is PlaylistItem)
                 {
                     if (m_DragDropPayload.Count == 1)
-                        return "Moving " + ((PlaylistItem)firstItem).Song.Title;
+                        return "Moving " + ((PlaylistItem)firstItem).Playable.Title;
                     else
                         return "Moving " + count + " songs";
                 }
@@ -1286,12 +1435,12 @@ namespace Auremo
                         }
                     }
                 }
-                else if (data == AddSongs)
+                else if (data == AddSongs || data == AddStreams)
                 {
                     foreach (object o in m_DragDropPayload)
                     {
-                        SongMetadata song = (SongMetadata)o;
-                        Protocol.AddId(m_Connection, song.Path, targetRow++);
+                        Playable playable = (Playable)o;
+                        Protocol.AddId(m_Connection, playable.Path, targetRow++);
                     }
                 }
                 else if (data == LoadPlaylist)
@@ -1531,7 +1680,81 @@ namespace Auremo
 
         #endregion
 
-        #region String query overlay
+        #region String query overlay use cases
+
+        #region Querying for a new stream address and name
+
+        string m_NewStreamAddress;
+
+        private void StartAddNewStreamQuery()
+        {
+            m_NewStreamAddress = "";
+            EnterStringQueryOverlay("Enter the address of the new stream:", "http://", OnAddStreamAddressOverlayReturned);
+        }
+        
+        private void OnAddStreamAddressOverlayReturned(bool okClicked, string streamAddress)
+        {
+            m_NewStreamAddress = streamAddress.Trim();
+
+            if (okClicked && m_NewStreamAddress != "")
+            {
+                EnterStringQueryOverlay("Enter a name for this stream:", "", OnAddStreamNameOverlayReturned);
+            }
+            else
+            {
+                m_NewStreamAddress = "";
+                OnAddNewStreamQueryFinished(false, null, null);
+            }
+        }
+
+        private void OnAddStreamNameOverlayReturned(bool okClicked, string streamName)
+        {
+            string cleanedStreamName = streamName.Trim();
+            string newStreamAddress = m_NewStreamAddress;
+            m_NewStreamAddress = "";
+            OnAddNewStreamQueryFinished(okClicked && cleanedStreamName != "", newStreamAddress, cleanedStreamName);
+        }
+
+        #endregion
+
+        #region Querying for a new name for a stream
+
+        private StreamMetadata m_RenameStream = null;
+
+        private void StartRenameStreamQuery(StreamMetadata stream)
+        {
+            m_RenameStream = stream;
+            EnterStringQueryOverlay("New stream name:", stream.Title, OnRenameStreamOverlayReturned);
+        }
+
+        private void OnRenameStreamOverlayReturned(bool okClicked, string streamName)
+        {
+            StreamMetadata renameStream = m_RenameStream;
+            m_RenameStream = null;
+            string trimmedName = streamName.Trim();
+            OnRenameStreamQueryFinished(okClicked && trimmedName.Length > 0, renameStream, trimmedName);
+        }
+
+        #endregion
+
+        #region Querying for a new playlist name
+
+        private void StartAddNewPlaylistAsQuery(string currentPlaylistName)
+        {
+            EnterStringQueryOverlay("Save this playlist on the server as:", currentPlaylistName, OnSavePlaylistAsOverlayReturned);
+        }
+
+        private void OnSavePlaylistAsOverlayReturned(bool okClicked, string playlistName)
+        {
+            string trimmedName = playlistName.Trim();
+            OnAddNewPlaylistAsQueryFinished(okClicked && trimmedName.Length > 0, trimmedName);
+        }
+
+        #endregion
+
+        #endregion
+
+        #region String query overlay implementation
 
         public delegate void StringQueryOverlayExitHandler(bool okClicked, string input);
         StringQueryOverlayExitHandler m_StringQueryOverlayExitHandler = null;
@@ -1547,17 +1770,18 @@ namespace Auremo
         private void ExitStringQueryOverlay()
         {
             m_StringQueryOverlay.Visibility = Visibility.Collapsed;
+            m_StringQueryOverlayExitHandler = null;
         }
 
         private void OnStringQueryOverlayButtonClicked(object sender, RoutedEventArgs e)
         {
-            if (m_StringQueryOverlayExitHandler != null)
-            {
-                m_StringQueryOverlayExitHandler(sender == m_StringQueryOverlayOK, m_StringQueryOverlayInput.Text);
-                m_StringQueryOverlayExitHandler = null;
-            }
-
+            StringQueryOverlayExitHandler currentHandler = m_StringQueryOverlayExitHandler;
             ExitStringQueryOverlay();
+
+            if (currentHandler != null)
+            {
+                currentHandler(sender == m_StringQueryOverlayOK, m_StringQueryOverlayInput.Text);
+            }
         }
 
         #endregion
@@ -1682,6 +1906,10 @@ namespace Auremo
             else if (dragSource is TreeView)
             {
                 return AddSongs;
+            }
+            else if (dragSource == m_StreamsView)
+            {
+                return AddStreams;
             }
             else if (dragSource == m_PlaylistView)
             {

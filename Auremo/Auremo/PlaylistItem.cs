@@ -46,13 +46,13 @@ namespace Auremo
 
         public PlaylistItem()
         {
-            Song = null;
+            Playable = null;
             Id = -1;
             Position = -1;
             IsPlaying = false;
         }
 
-        public SongMetadata Song
+        public Playable Playable
         {
             get;
             set;
@@ -90,13 +90,13 @@ namespace Auremo
         {
             get
             {
-                return Song != null && Id >= 0;
+                return Playable != null && Id >= 0;
             }
         }
 
         public override string ToString()
         {
-            return Id + " - " + Song.ToString();
+            return Id + " - " + Playable.ToString();
         }
     }
 }

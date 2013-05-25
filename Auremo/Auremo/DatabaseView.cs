@@ -19,23 +19,40 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 
 namespace Auremo
 {
-    public class DatabaseView
+    public class DatabaseView : INotifyPropertyChanged
     {
+        #region INotifyPropertyChanged implementation
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChanged(string info)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(info));
+            }
+        }
+
+        #endregion
+
         private Database m_Database = null;
+        private StreamsCollection m_StreamsCollection = null;
 
         public delegate ISet<AlbumMetadata> AlbumsUnderRoot(string root);
         public delegate ISet<SongMetadata> SongsOnAlbum(AlbumMetadata album);
 
         #region Construction and setup
 
-        public DatabaseView(Database database)
+        public DatabaseView(Database database, StreamsCollection streamsCollection)
         {
             m_Database = database;
+            m_StreamsCollection = streamsCollection;
 
             Artists = new ObservableCollection<string>();
             AlbumsBySelectedArtists = new ObservableCollection<AlbumMetadata>();
@@ -53,9 +70,13 @@ namespace Auremo
 
             DirectoryTree = new ObservableCollection<TreeViewNode>();
             DirectoryTreeController = new TreeViewController(DirectoryTree);
+
+            m_StreamsCollection.PropertyChanged += new PropertyChangedEventHandler(OnStreamsCollectionPropertyChanged);
+            PopulateStreams();
+            
         }
 
-        public void Refresh()
+        public void RefreshCollection()
         {
             PopulateArtists();
             AlbumsBySelectedArtists.Clear();
@@ -66,6 +87,11 @@ namespace Auremo
             PopulateDirectoryTree();
             PopulateArtistTree();
             PopulateGenreTree();
+        }
+
+        public void RefreshStreams()
+        {
+            //PopulateStreams();
         }
 
         private void PopulateArtists()
@@ -346,6 +372,32 @@ namespace Auremo
             {
                 return DirectoryTreeController.Songs;
             }
+        }
+
+        #endregion
+
+        #region Streams view
+
+        private void OnStreamsCollectionPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "Streams")
+            {
+                PopulateStreams();
+                Streams = new ObservableCollection<StreamMetadata>(m_StreamsCollection.Streams);
+            }
+        }
+
+        public IList<StreamMetadata> Streams
+        {
+            get;
+            private set;
+        }
+
+        private void PopulateStreams()
+        {
+            ISet<StreamMetadata> sortedStreams = new SortedSet<StreamMetadata>(m_StreamsCollection.Streams);
+            Streams = new ObservableCollection<StreamMetadata>(sortedStreams);
+            NotifyPropertyChanged("Streams");
         }
 
         #endregion

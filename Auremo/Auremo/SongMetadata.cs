@@ -22,7 +22,7 @@ using System.Text;
 
 namespace Auremo
 {
-    public class SongMetadata : IComparable
+    public class SongMetadata : Playable, IComparable
     {
         public SongMetadata()
         {
@@ -96,6 +96,10 @@ namespace Auremo
             {
                 SongMetadata rhs = (SongMetadata)o;
                 return Path.CompareTo(rhs.Path);
+            }
+            else if (o is StreamMetadata)
+            {
+                return -1;
             }
             else
             {
