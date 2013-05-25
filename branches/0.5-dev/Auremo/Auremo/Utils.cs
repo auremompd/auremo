@@ -97,5 +97,22 @@ namespace Auremo
         {
             return min < value ? (max > value ? value : max) : min;
         }
+
+        public static IEnumerable<T> ToTypedList<T>(System.Collections.IEnumerable source)
+        {
+            IList<T> result = new List<T>();
+
+            foreach (object o in source)
+            {
+                if (o.GetType() != typeof(T))
+                {
+                    throw new Exception("ToTypedList: attempted to cast " + o.GetType().ToString() + " to " + typeof(T).ToString() + ".");
+                }
+                
+                result.Add((T)o);
+            }
+
+            return result;
+        }
     }
 }
