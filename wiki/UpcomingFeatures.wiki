@@ -20,3 +20,4 @@ These features will be added before the release.
   * Add a search function.
   * Allow the user to scroll to a name inside a list by typing the first letters of the name.
   * Add controls for enabling and disabling outputs on the server.
+  * Add support for the shuffle command.
