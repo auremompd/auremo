@@ -14,7 +14,17 @@ namespace Auremo
         public UnknownPlayable(string path)
         {
             Path = path;
-            Title = Utils.SplitPath(path).Item2;
+
+            if (path.Contains("://"))
+            {
+                // Looks like a URL.
+                Title = path;
+            }
+            else
+            {
+                // Looks like a stream.
+                Title = Utils.SplitPath(path).Item2;
+            }
         }
 
         public string Path
