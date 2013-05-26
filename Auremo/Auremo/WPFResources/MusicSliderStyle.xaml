@@ -15,7 +15,7 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="Ellipse" Property="Fill" Value="{StaticResource MusicSliderButtonMouseOverBackgroundBrush}"/>
-                            <Setter TargetName="GlowBorder"  Property="BorderBrush" Value="{StaticResource MusicSliderKnobActiveBorderGlowBrush}"/>
+                            <Setter TargetName="GlowBorder" Property="BorderBrush" Value="{StaticResource MusicSliderKnobActiveBorderGlowBrush}"/>
                         </Trigger>
                         <Trigger Property="IsDragging" Value="True">
                             <Setter TargetName="Ellipse" Property="Fill" Value="{StaticResource MusicSliderButtonPressedBackgroundBrush}"/>
@@ -23,7 +23,8 @@
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="Ellipse" Property="Fill" Value="Transparent"/>
-                            <Setter TargetName="GlowBorder"  Property="BorderBrush" Value="Transparent"/>
+                            <Setter TargetName="Ellipse" Property="Stroke" Value="Transparent"/>
+                            <Setter TargetName="GlowBorder" Property="BorderBrush" Value="Transparent"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -64,7 +65,7 @@
                         <Border Grid.Row="1" Margin="0" x:Name="Border" Height="3" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="2"/>
                         <Track Grid.Row="1" x:Name="PART_Track">
                             <Track.Thumb>
-                                <Thumb Style="{StaticResource MusicSliderThumbStyle}"/>
+                                <Thumb x:Name="Thumb" Style="{StaticResource MusicSliderThumbStyle}"/>
                             </Track.Thumb>
                             <Track.IncreaseRepeatButton>
                                 <RepeatButton Style="{StaticResource MusicRepeatButtonStyle}"/>

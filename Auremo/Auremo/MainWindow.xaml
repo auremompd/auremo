@@ -261,6 +261,36 @@
                         <TextBlock Name="m_DirectoryTreeHint" Style="{StaticResource CollectionHintTextStyle}" Text="Music collection is not available."/>
                     </Grid>
                 </TabItem>
+                <TabItem Header="Streams">
+                    <Grid>
+                        <DataGrid Name="m_StreamsView"
+                                  Style="{StaticResource MusicCollectionDataGridStyle}"
+                                  ItemsSource="{Binding Path=Streams}"
+                                  PreviewKeyDown="OnStreamsViewKeyDown"
+                                  PreviewMouseDown="OnDataGridMouseDown"
+                                  MouseMove="OnMouseMoveDragDrop"
+                                  MouseUp="OnDataGridMouseUp"
+                                  MouseDoubleClick="OnStreamsViewDoubleClicked">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Stream" Width="*" Binding="{Binding Title}"/>
+                            </DataGrid.Columns>
+                            <DataGrid.ContextMenu>
+                                <ContextMenu Name="m_StreamsViewContextMenu">
+                                    <MenuItem Header="Add to playlist" Click="OnAddToPlaylistClicked" IsEnabled="{Binding Path=Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
+                                    <Separator/>
+                                    <MenuItem Header="Rename stream..." Click="OnRenameSelectedStreamClicked"/>
+                                    <MenuItem Header="Delete streams" Click="OnDeleteSelectedStreamsClicked" IsEnabled="{Binding Path=Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
+                                    <Separator/>
+                                    <MenuItem Header="Add stream URL..." Click="OnAddStreamURLClicked"/>
+                                    <MenuItem Header="Add stream from file..." Click="OnAddStreamFromFileClicked"/>
+                                    <Separator/>
+                                    <MenuItem Header="Save selection to file..." Click="OnSaveSelectedStreamsToFileClicked"/>
+                                </ContextMenu>
+                            </DataGrid.ContextMenu>
+                        </DataGrid>
+                        <TextBlock Name="m_StreamsHint" Style="{StaticResource CollectionHintTextStyle}" Text="Right-click here to import streams."/>
+                    </Grid>
+                </TabItem>
                 <TabItem Name="m_SavedPlaylistsTab" Header="Playlists">
                     <Grid>
                         <DataGrid Name="m_SavedPlaylistsView"
@@ -302,9 +332,9 @@
                       MouseUp="OnDataGridMouseUp"
                       Grid.Column="2">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Artist" Width="Auto" Binding="{Binding Path=Song.Artist}"/>
-                    <DataGridTextColumn Header="Album" Width="Auto" Binding="{Binding Path=Song.Album}"/>
-                    <DataGridTextColumn Header="Title" Width="*" Binding="{Binding Path=Song.Title}"/>
+                    <DataGridTextColumn Header="Title" Width="Auto" Binding="{Binding Path=Playable.Title}"/>
+                    <DataGridTextColumn Header="Artist" Width="Auto" Binding="{Binding Path=Playable.Artist}"/>
+                    <DataGridTextColumn Header="Album" Width="*" Binding="{Binding Path=Playable.Album}"/>
                 </DataGrid.Columns>
                 <DataGrid.ContextMenu>
                     <ContextMenu Name="m_PlaylistViewContextMenu">
@@ -326,7 +356,7 @@
                      are done using a more manual event instead. -->
                 <Label Name="m_PlayPosition" DockPanel.Dock="Left" VerticalAlignment="Center" Width="40" FontSize="9" Foreground="{StaticResource ButtonActiveGlyphGlowBrush}" Content="00:00"/>
                 <Label Name="m_SongLength" DockPanel.Dock="Right" VerticalAlignment="Center" Width="40" FontSize="9" Foreground="{StaticResource ButtonActiveGlyphGlowBrush}" Content="{Binding Path=SongLength, Converter={StaticResource IntToTimecodeConverter}}"/>
-                <Slider Name="m_SeekBar" Style="{StaticResource MusicSliderStyle}" Margin="2,2,2,2" VerticalAlignment="Center" Minimum="0" Value="0" Maximum="{Binding Path=SongLength}" ValueChanged="OnSeekBarDrag" PreviewMouseDown="OnSeekBarDragStart" PreviewMouseUp="OnSeekBarDragEnd" MouseWheel="OnSeekBarMouseWheel"/>
+                <Slider Name="m_SeekBar" Style="{StaticResource MusicSliderStyle}" Margin="2,2,2,2" VerticalAlignment="Center" Minimum="0" Value="0" Maximum="{Binding Path=SongLength}" ValueChanged="OnSeekBarDrag" PreviewMouseDown="OnSeekBarDragStart" PreviewMouseUp="OnSeekBarDragEnd" MouseWheel="OnSeekBarMouseWheel" IsEnabled="{Binding Path=SongLength, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
             </DockPanel>
         </Border>
         <Border Grid.Row="3" Padding="20, 5, 20, 5" BorderBrush="#FFCBCBCB" BorderThickness="0,1,0,1" Background="{StaticResource ControlPanelBackgroundBrushBelow}" Grid.ColumnSpan="2" >

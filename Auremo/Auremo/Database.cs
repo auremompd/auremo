@@ -32,7 +32,7 @@ namespace Auremo
         private IDictionary<string, ISet<AlbumMetadata>> m_AlbumsByGenre = new SortedDictionary<string, ISet<AlbumMetadata>>();
         private IDictionary<AlbumMetadata, ISet<string>> m_SongPathsByAlbum = new SortedDictionary<AlbumMetadata, ISet<string>>();
         private IDictionary<string, SongMetadata> m_SongInfo = new SortedDictionary<string, SongMetadata>();
-
+        
         public Database(ServerConnection connection, ServerStatus status)
         {
             m_Connection = connection;
@@ -40,7 +40,7 @@ namespace Auremo
             Genres = new List<string>();
         }
 
-        public bool Refresh()
+        public bool RefreshCollection()
         {
             m_AlbumsByArtist.Clear();
             m_AlbumsByGenre.Clear();
@@ -135,16 +135,16 @@ namespace Auremo
 
         public SongMetadata SongByPath(string path)
         {
-            if (m_SongInfo.ContainsKey(path))
+            SongMetadata result;
+            
+            if (m_SongInfo.TryGetValue(path, out result))
             {
-                return m_SongInfo[path];
+                return result;
             }
-            else
-            {
-                return new SongMetadata();
-            }
-        }
 
+            return null;
+        }
+                
         private void PopulateSongInfo(ServerConnection connection)
         {
             ServerResponse response = Protocol.ListAllInfo(connection);
