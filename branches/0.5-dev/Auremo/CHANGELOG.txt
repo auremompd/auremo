@@ -1,6 +1,16 @@
 Version history
 ===============
 
+Auremo 0.5.0
+------------
+
+ * Add support for HTTP streams, such as web radio. Supports PLS and M3U
+   playlist files.
+ * Fix appearance of disabled sliders.
+ * Display songs without title tags by their file names instead of
+   "Unknown Song".
+ * Prerelease 1 on 26th May 2013.
+
 Auremo 0.4.0
 ------------
 
