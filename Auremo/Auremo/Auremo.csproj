@@ -149,6 +149,7 @@
     </Compile>
     <Compile Include="TreeViewController.cs" />
     <Compile Include="TreeViewNode.cs" />
+    <Compile Include="UnknownPlayable.cs" />
     <Compile Include="Utils.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

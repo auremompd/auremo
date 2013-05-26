@@ -180,7 +180,7 @@ namespace Auremo
 
                     status += ").";
                 }
-                else if (m_ItemMarkedAsCurrent.Playable is StreamMetadata)
+                else
                 {
                     status =
                          (m_ServerStatus.IsPlaying.Value ? "Playing " : "Paused - ") +
@@ -200,6 +200,11 @@ namespace Auremo
             if (result == null)
             {
                 result = m_StreamsCollection.StreamByPath(path);
+            }
+
+            if (result == null)
+            {
+                result = new UnknownPlayable(path);
             }
 
             return result;
