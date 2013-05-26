@@ -34,7 +34,6 @@ namespace Auremo
             Artist = "Unknown Artist";
             Genre = "No Genre";
             Album = "Unknown Album";
-            Title = "Unknown Title";
         }
 
         public string Path
@@ -43,10 +42,25 @@ namespace Auremo
             set;
         }
 
+        private string m_Title = "";
+
         public string Title
         {
-            get;
-            set;
+            get
+            {
+                if (m_Title.Length > 0)
+                {
+                    return m_Title;
+                }
+                else
+                {
+                    return Utils.SplitPath(Path).Item2;
+                }
+            }
+            set
+            {
+                m_Title = value;
+            }
         }
 
         public string Artist
