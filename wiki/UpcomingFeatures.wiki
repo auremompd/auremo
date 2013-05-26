@@ -6,7 +6,7 @@ The 0.5 version will add new features. As there are many requested features, emp
 
 ==Committed features and fixes==
 
-  * (No committed changes yet.)
+  * Add support for HTTP streams, e.g. web radio. (Available as of r226 in /branches/0.5-dev.)
 
 == Bugs ==
 
@@ -16,8 +16,7 @@ The 0.5 version will add new features. As there are many requested features, emp
 
 These features will be added before the release.
 
-  * Add support for web radio.
+  * Add support for the shuffle command.
   * Add a search function.
   * Allow the user to scroll to a name inside a list by typing the first letters of the name.
   * Add controls for enabling and disabling outputs on the server.
-  * Add support for the shuffle command.
