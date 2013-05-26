@@ -216,10 +216,10 @@ namespace Auremo
                 if (m_State != value)
                 {
                     m_State = value;
-                    NotifyPropertyChanged("State");
                     IsPlaying.Value = m_State == "play";
                     IsPaused.Value = m_State == "pause";
                     IsStopped.Value = m_State == "stop";
+                    NotifyPropertyChanged("State");
                 }
             }
         }
