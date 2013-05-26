@@ -6,8 +6,9 @@ The 0.5 version will add new features. As there are many requested features, emp
 
 ==Committed features and fixes==
 
-  * Add support for HTTP streams, e.g. web radio. (Available as of r229 in /branches/0.5-dev.)
-  * Fix disabled slider visual. (Available as of r229 in /branches/0.5-dev.)
+  * Add support for HTTP streams, e.g. web radio. (r229, /branches/0.5-dev)
+  * Fix disabled slider visual. (r229, /branches/0.5-dev)
+  * Display untitled songs by file name instead of as "Unknown Song". (r232, /branches/0.5-dev)
 
 == Bugs ==
 
