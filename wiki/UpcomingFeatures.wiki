@@ -4,15 +4,20 @@
 
 The 0.5 version will add new features. As there are many requested features, emphasis is given to low-hanging fruit.
 
-==Committed features and fixes==
+==Features and fixes available in 0.5.pre1 prerelease==
 
-  * Add support for HTTP streams, e.g. web radio. (r229, /branches/0.5-dev)
-  * Fix disabled slider visual. (r229, /branches/0.5-dev)
-  * Display untitled songs by file name instead of as "Unknown Song". (r232, /branches/0.5-dev)
+  * Add support for HTTP streams, e.g. web radio.
+  * Fix disabled slider visual.
+  * Fix play status in status bar.
+  * Display untitled songs by file name instead of as "Unknown Song".
+
+==Committed features and fixes==
+ 
+  * (no new features in SVN)
 
 == Bugs ==
 
-  * Fix play status in status bar.
+  * (no currently known bugs)
 
 == Features to add ==
 
