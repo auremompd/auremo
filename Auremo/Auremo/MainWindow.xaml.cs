@@ -1403,7 +1403,21 @@ namespace Auremo
             }
             else if (m_DragSource == m_SearchResultsView)
             {
-                return "stuff";
+                if (m_DragDropPayload.Count == 1)
+                {
+                    object theItem = m_DragDropPayload[0];
+
+                    if (theItem is string)
+                        return "Adding " + (string)theItem;
+                    else if (theItem is AlbumMetadata)
+                        return "Adding " + ((AlbumMetadata)theItem).Title;
+                    else if (theItem is SongMetadata)
+                        return "Adding " + ((SongMetadata)theItem).Title;
+                }
+                else
+                {
+                    return "Adding " + m_DragDropPayload.Count + " items";
+                }
             }
             else
             {
