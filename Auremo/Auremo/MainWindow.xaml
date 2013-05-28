@@ -55,6 +55,37 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <TabControl Name="m_CollectionBrowsingModes" Style="{StaticResource MusicCollectionTabControlStyle}">
+                <TabItem Header="Search">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <DataGrid Name="m_SearchResultsView"
+                                  Style="{StaticResource SearchResultsDataGridStyle}"
+                                  ItemsSource="{Binding Path=SearchResults}"
+                                  PreviewMouseDown="OnDataGridMouseDown"
+                                  MouseMove="OnMouseMoveDragDrop"
+                                  MouseUp="OnDataGridMouseUp"
+                                  MouseDoubleClick="OnSearchResultsViewDoubleClicked">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Title" Width="Auto" Binding="{Binding Path=Song.Title}" CanUserResize="True"/>
+                                <DataGridTextColumn Header="Artist" Width="Auto" Binding="{Binding Path=Artist}" CanUserResize="True"/>
+                                <DataGridTextColumn Header="Album" Width="*" Binding="{Binding Path=Album.Title}" CanUserResize="False"/>
+                            </DataGrid.Columns>
+                            <DataGrid.ContextMenu>
+                                <ContextMenu Name="m_SearchResultsViewContextMenu">
+                                    <MenuItem Header="Add to playlist" Click="OnAddToPlaylistClicked" IsEnabled="{Binding Path=Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
+                                    <Separator/>
+                                    <MenuItem Name="m_SearchResultsViewRescanMusicCollectionContextMenuItem" Header="Rescan music collection" Click="OnRescanMusicCollectionClicked" IsEnabled="{Binding Path=IsConnected}"/>
+                                </ContextMenu>
+                            </DataGrid.ContextMenu>
+                        </DataGrid>
+                        <TextBlock Name="m_SearchResultsHint" Grid.Row="0" Style="{StaticResource CollectionHintTextStyle}" Text="No search results."/>
+                        <TextBox Name="m_SearchBox" Grid.Row="1" Margin="0,5,0,0" DockPanel.Dock="Top" TextChanged="OnSearchBoxTextChanged"/>
+                        <TextBlock Name="m_SearchBoxHint" Style="{StaticResource CollectionHintTextStyle}" Grid.Row="1" Margin="5,5,0,0" Text="Type here to start searching..."/>
+                    </Grid>
+                </TabItem>
                 <TabItem Header="Artist list">
                     <Grid>
                         <Grid.RowDefinitions>

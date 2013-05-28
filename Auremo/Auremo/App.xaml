@@ -18,6 +18,7 @@
                 <ResourceDictionary Source="WPFResources/OptionControlStyles.xaml"/>
                 <ResourceDictionary Source="WPFResources/PlaybackButtonStyle.xaml"/>
                 <ResourceDictionary Source="WPFResources/PlaylistStyle.xaml"/>
+                <ResourceDictionary Source="WPFResources/SearchResultsDataGridStyle.xaml"/>
                 <ResourceDictionary Source="WPFResources/TabControlStyle.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
