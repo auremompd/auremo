@@ -119,6 +119,7 @@
     </ApplicationDefinition>
     <Compile Include="AlbumMetadataTreeViewNode.cs" />
     <Compile Include="ArtistTreeViewNode.cs" />
+    <Compile Include="CollectionSearchThread.cs" />
     <Compile Include="Crypto.cs" />
     <Compile Include="DatabaseView.cs" />
     <Compile Include="DirectoryTreeViewNode.cs" />
@@ -221,6 +222,10 @@
     <Page Include="WPFResources\ScrollViewerStyle.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="WPFResources\SearchResultsDataGridStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="WPFResources\TabControlStyle.xaml">
       <SubType>Designer</SubType>

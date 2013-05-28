@@ -45,6 +45,7 @@ namespace Auremo
         private Database m_Database = null;
         private StreamsCollection m_StreamsCollection = new StreamsCollection();
         private DatabaseView m_DatabaseView = null;
+        private CollectionSearchThread m_CollectionSearchThread = null;
         private SavedPlaylists m_SavedPlaylists = new SavedPlaylists();
         private Playlist m_Playlist = null;
         private DispatcherTimer m_Timer = null;
@@ -55,6 +56,7 @@ namespace Auremo
         private bool m_PropertyUpdateInProgress = false;
         private bool m_OnlineMode = true;
 
+        private const string AddSearchResults = "add_search_results";
         private const string AddArtists = "add_artists";
         private const string AddGenres = "add_genres";
         private const string AddAlbums = "add_albums";
@@ -79,7 +81,8 @@ namespace Auremo
         private void InitializeComplexObjects()
         {
             m_Database = new Database(m_Connection, m_ServerStatus);
-            m_DatabaseView = new DatabaseView(m_Database, m_StreamsCollection);
+            m_CollectionSearchThread = new CollectionSearchThread(m_Database);
+            m_DatabaseView = new DatabaseView(m_Database, m_StreamsCollection, m_CollectionSearchThread);
             m_Playlist = new Playlist(m_Connection, m_ServerStatus, m_Database, m_StreamsCollection);
             m_DatabaseView.RefreshStreams();
         }
@@ -89,6 +92,7 @@ namespace Auremo
             m_ConnectionMenuItem.DataContext = m_Connection;
 
             m_CollectionBrowsingModes.DataContext = m_DatabaseView;
+            m_SearchResultsViewRescanMusicCollectionContextMenuItem.DataContext = m_Connection;
 
             m_ArtistsViewContextMenu.DataContext = m_ArtistsView.SelectedItems;
             m_ArtistsViewRescanMusicCollectionContextMenuItem.DataContext = m_Connection;
@@ -133,6 +137,8 @@ namespace Auremo
             m_PlayStatusMessage.DataContext = m_Playlist;
             m_ConnectionStatusDescription.DataContext = m_Connection;
 
+            m_SearchResultsHint.DataContext = m_SearchResultsView;
+            m_SearchBoxHint.DataContext = m_SearchBox;
             m_ArtistsHint.DataContext = m_DatabaseView.Artists;
             m_AlbumsBySelectedArtistsHint.DataContext = m_DatabaseView.AlbumsBySelectedArtists;
             m_SongsOnSelectedAlbumsHint.DataContext = m_DatabaseView.SongsOnSelectedAlbumsBySelectedArtists;
@@ -429,6 +435,42 @@ namespace Auremo
         #region Music collection
 
         #region Simple (non-drag-drop) data grid operations
+
+        private void OnSearchBoxTextChanged(object sender, TextChangedEventArgs e)
+        {
+            m_CollectionSearchThread.SearchString = m_SearchBox.Text;
+        }
+
+        private void OnSearchResultsViewDoubleClicked(object sender, MouseButtonEventArgs e)
+        {
+            // Is this really the best way to find which column this is?
+            // It seems contrived, but DataGridCellInfo seems to contain
+            // very little usable information.
+            const int songColumnDisplayIndex = 0;
+            const int artistColumnDisplayIndex = 1;
+            const int albumColumnDisplayIndex = 2;
+
+            foreach (DataGridCellInfo cell in m_SearchResultsView.SelectedCells)
+            {
+                CollectionSearchThread.SearchResultTuple result = (CollectionSearchThread.SearchResultTuple)(cell.Item);
+
+                if (result != null)
+                {
+                    if (cell.Column.DisplayIndex == artistColumnDisplayIndex)
+                    {
+                        AddArtistToPlaylist(result.Artist);
+                    }
+                    else if (cell.Column.DisplayIndex == albumColumnDisplayIndex)
+                    {
+                        AddAlbumToPlaylist(result.Album);
+                    }
+                    else if (cell.Column.DisplayIndex == songColumnDisplayIndex)
+                    {
+                        AddSongToPlaylist(result.Song);
+                    }
+                }
+            } 
+        }
 
         public void OnAddToPlaylistClicked(object sender, RoutedEventArgs e)
         {
@@ -867,12 +909,26 @@ namespace Auremo
             if (e.ChangedButton == MouseButton.Left && Keyboard.Modifiers == ModifierKeys.None)
             {
                 DataGrid grid = sender as DataGrid;
-                DataGridRow row = DataGridRowBeingClicked(grid, e);
 
-                if (row != null)
+                if (grid == m_SearchResultsView)
                 {
-                    grid.SelectedIndex = -1;
-                    row.IsSelected = true;
+                    DataGridCell cell = DataGridCellBeingClicked(grid, e);
+
+                    if (cell != null)
+                    {
+                        grid.SelectedCells.Clear();
+                        cell.IsSelected = true;
+                    }
+                }
+                else
+                {
+                    DataGridRow row = DataGridRowBeingClicked(grid, e);
+
+                    if (row != null)
+                    {
+                        grid.SelectedIndex = -1;
+                        row.IsSelected = true;
+                    }
                 }
             }
         }
@@ -1162,11 +1218,23 @@ namespace Auremo
                 return;
             }
 
-            DataGridRow row = DataGridRowBeingClicked((DataGrid)sender, e);
+            DataGrid grid = sender as DataGrid;
+            bool dragStarting = false;
 
-            if (row != null && row.IsSelected)
+            if (sender == m_SearchResultsView)
             {
-                m_DragSource = sender;
+                DataGridCell cell = DataGridCellBeingClicked(grid, e);
+                dragStarting = cell != null && cell.IsSelected;
+            }
+            else
+            {
+                DataGridRow row = DataGridRowBeingClicked(grid, e);
+                dragStarting = row != null && row.IsSelected;
+            }
+
+            if (dragStarting)
+            {
+                m_DragSource = grid;
                 m_DragStartPosition = e.GetPosition(null);
                 // Again, don't mess up multi-select.
                 e.Handled = true;
@@ -1194,7 +1262,91 @@ namespace Auremo
                     // this will do for now.
                     IList<object> payload = new List<object>();
 
-                    if (m_DragSource is DataGrid)
+                    if (m_DragSource == m_SearchResultsView)
+                    {
+                        IList<object> itemsToAdd = new List<object>();
+
+                        foreach (DataGridCellInfo cell in m_SearchResultsView.SelectedCells)
+                        {
+                            itemsToAdd.Add(SearchResultCellContent(cell));
+                        }
+
+                        ISet<string> artistsToAdd = new SortedSet<string>();
+                        ISet<AlbumMetadata> albumsToAdd = new SortedSet<AlbumMetadata>();
+                        ISet<SongMetadata> songsToAdd = new SortedSet<SongMetadata>();
+
+                        foreach (object item in itemsToAdd)
+                        {
+                            if (item is string)
+                            {
+                                artistsToAdd.Add(item as string);
+                            }
+                            else if (item is AlbumMetadata)
+                            {
+                                albumsToAdd.Add(item as AlbumMetadata);
+                            }
+                            else if (item is SongMetadata)
+                            {
+                                songsToAdd.Add(item as SongMetadata);
+                            }
+                        }
+
+                        // Make an effort to not add anything twice, even if it is selected
+                        // multiple times directly (as in the same artist on multiple lines)
+                        // or indirectly (as in a song and the album to which it belongs).
+                        foreach (AlbumMetadata album in new SortedSet<AlbumMetadata>(albumsToAdd))
+                        {
+                            if (artistsToAdd.Contains(album.Artist))
+                            {
+                                albumsToAdd.Remove(album);
+                            }
+                        }
+
+                        foreach (SongMetadata song in new SortedSet<SongMetadata>(songsToAdd))
+                        {
+                            if (artistsToAdd.Contains(song.Artist) || albumsToAdd.Contains(m_Database.AlbumOfSong(song)))
+                            {
+                                songsToAdd.Remove(song);
+                            }
+                        }
+
+                        ISet<string> artistsAlreadyAdded = new SortedSet<string>();
+                        ISet<AlbumMetadata> albumsAlreadyAdded = new SortedSet<AlbumMetadata>();
+
+                        foreach (object item in itemsToAdd)
+                        {
+                            if (item is string)
+                            {
+                                string artist = item as string;
+
+                                if (artistsToAdd.Contains(artist) && !artistsAlreadyAdded.Contains(artist))
+                                {
+                                    payload.Add(item);
+                                    artistsAlreadyAdded.Add(artist);
+                                }
+                            }
+                            else if (item is AlbumMetadata)
+                            {
+                                AlbumMetadata album = item as AlbumMetadata;
+
+                                if (albumsToAdd.Contains(album) && !albumsAlreadyAdded.Contains(album))
+                                {
+                                    payload.Add(item);
+                                    albumsAlreadyAdded.Add(album);
+                                }
+                            }
+                            else if (item is SongMetadata)
+                            {
+                                SongMetadata song = item as SongMetadata;
+
+                                if (songsToAdd.Contains(song))
+                                {
+                                    payload.Add(item);
+                                }
+                            }
+                        }
+                    }
+                    else if (m_DragSource is DataGrid)
                     {
                         DataGrid source = m_DragSource as DataGrid;
 
@@ -1248,6 +1400,10 @@ namespace Auremo
             if (m_DragSource == null || m_DragDropPayload == null || m_DragDropPayload.Count == 0)
             {
                 return "";
+            }
+            else if (m_DragSource == m_SearchResultsView)
+            {
+                return "stuff";
             }
             else
             {
@@ -1386,7 +1542,14 @@ namespace Auremo
                 int targetRow = DropTargetRowIndex(e);
                 string data = (string)e.Data.GetData(typeof(string));
 
-                if (data == AddArtists)
+                if (data == AddSearchResults)
+                {
+                    foreach (object o in m_DragDropPayload)
+                    {
+                        targetRow = AddObjectToPlaylist(o, true, targetRow);
+                    }
+                }
+                else if (data == AddArtists)
                 {
                     foreach (object o in m_DragDropPayload)
                     {
@@ -1806,8 +1969,164 @@ namespace Auremo
 
         #endregion
 
+        #region Helpers for adding items to the playlist
+
+        private void AddObjectToPlaylist(object o, bool stringsAreArtists)
+        {
+            if (o is string)
+            {
+                if (stringsAreArtists)
+                {
+                    AddArtistToPlaylist(o as string);
+                }
+                else
+                {
+                    AddGenreToPlaylist(o as string);
+                }
+            }
+            else if (o is AlbumMetadata)
+            {
+                AddAlbumToPlaylist(o as AlbumMetadata);
+            }
+            else if (o is SongMetadata)
+            {
+                AddSongToPlaylist(o as SongMetadata);
+            }
+        }
+
+        // Template: firstPosition is the position on the playlist to which
+        // the first item is pushed. The return value is the position after
+        // the last item.
+        private int AddObjectToPlaylist(object o, bool stringsAreArtists, int firstPosition)
+        {
+            if (o is string)
+            {
+                if (stringsAreArtists)
+                {
+                    return AddArtistToPlaylist(o as string, firstPosition);
+                }
+                else
+                {
+                    return AddGenreToPlaylist(o as string, firstPosition);
+                }
+            }
+            else if (o is AlbumMetadata)
+            {
+                return AddAlbumToPlaylist(o as AlbumMetadata, firstPosition);
+            }
+            else if (o is SongMetadata)
+            {
+                return AddSongToPlaylist(o as SongMetadata, firstPosition);
+            }
+
+            return firstPosition;
+        }
+
+        private void AddArtistToPlaylist(string artist)
+        {
+            foreach (AlbumMetadata album in m_Database.AlbumsByArtist(artist))
+            {
+                AddAlbumToPlaylist(album);
+            }
+        }
+
+        private int AddArtistToPlaylist(string artist, int firstPosition)
+        {
+            int position = firstPosition;
+
+            foreach (AlbumMetadata album in m_Database.AlbumsByArtist(artist))
+            {
+                position = AddAlbumToPlaylist(album, position);
+            }
+
+            return position;
+        }
+
+        private void AddGenreToPlaylist(string genre)
+        {
+            foreach (AlbumMetadata album in m_Database.AlbumsByGenre(genre))
+            {
+                AddAlbumToPlaylist(album);
+            }
+        }
+
+        private int AddGenreToPlaylist(string genre, int firstPosition)
+        {
+            int position = firstPosition;
+
+            foreach (AlbumMetadata album in m_Database.AlbumsByGenre(genre))
+            {
+                position = AddAlbumToPlaylist(album, position);
+            }
+
+            return position;
+        }
+
+        private void AddAlbumToPlaylist(AlbumMetadata album)
+        {
+            foreach (SongMetadata song in m_Database.SongsByAlbum(album))
+            {
+                AddSongToPlaylist(song);
+            }
+        }
+
+        private int AddAlbumToPlaylist(AlbumMetadata album, int firstPosition)
+        {
+            int position = firstPosition;
+
+            foreach (SongMetadata song in m_Database.SongsByAlbum(album))
+            {
+                position = AddSongToPlaylist(song, position);
+            }
+
+            return position;
+        }
+
+        private void AddSongToPlaylist(SongMetadata song)
+        {
+            Protocol.Add(m_Connection, song.Path);
+        }
+
+        private int AddSongToPlaylist(SongMetadata song, int position)
+        {
+            Protocol.AddId(m_Connection, song.Path, position);
+            return position + 1;
+        }
+
+        #endregion
+
         #region Miscellaneous helper functions
 
+        private object SearchResultCellContent(DataGridCellInfo cell)
+        {
+            // Is this really the best way to find which column this is?
+            // It seems contrived, but DataGridCellInfo seems to contain
+            // very little usable information.
+            const int songColumnDisplayIndex = 0;
+            const int artistColumnDisplayIndex = 1;
+            const int albumColumnDisplayIndex = 2;
+
+            CollectionSearchThread.SearchResultTuple result = (CollectionSearchThread.SearchResultTuple)(cell.Item);
+
+            if (result != null)
+            {
+                if (cell.Column.DisplayIndex == artistColumnDisplayIndex)
+                {
+                    return result.Artist;
+                }
+                else if (cell.Column.DisplayIndex == albumColumnDisplayIndex)
+                {
+                    return result.Album;
+                }
+                else if (cell.Column.DisplayIndex == songColumnDisplayIndex)
+                {
+                    return result.Song;
+                }
+            }
+
+            return null;
+        }
+        
         private DataGridRow DataGridRowBeingClicked(DataGrid grid, MouseButtonEventArgs e)
         {
             HitTestResult hit = VisualTreeHelper.HitTest(grid, e.GetPosition(grid));
@@ -1821,6 +2140,30 @@ namespace Auremo
                     if (component is DataGridRow)
                     {
                         return (DataGridRow)component;
+                    }
+                    else
+                    {
+                        component = VisualTreeHelper.GetParent(component);
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private DataGridCell DataGridCellBeingClicked(DataGrid grid, MouseButtonEventArgs e)
+        {
+            HitTestResult hit = VisualTreeHelper.HitTest(grid, e.GetPosition(grid));
+
+            if (hit != null)
+            {
+                DependencyObject component = (DependencyObject)hit.VisualHit;
+
+                while (component != null)
+                {
+                    if (component is DataGridCell)
+                    {
+                        return (DataGridCell)component;
                     }
                     else
                     {
@@ -1883,7 +2226,11 @@ namespace Auremo
 
         private string GetDragDropDataString(object dragSource)
         {
-            if (dragSource == m_ArtistsView)
+            if (dragSource == m_SearchResultsView)
+            {
+                return AddSearchResults;
+            }
+            else if (dragSource == m_ArtistsView)
             {
                 return AddArtists;
             }

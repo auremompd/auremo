@@ -43,16 +43,20 @@ namespace Auremo
 
         private Database m_Database = null;
         private StreamsCollection m_StreamsCollection = null;
+        private CollectionSearchThread m_CollectionSearchThread = null;
 
         public delegate ISet<AlbumMetadata> AlbumsUnderRoot(string root);
         public delegate ISet<SongMetadata> SongsOnAlbum(AlbumMetadata album);
 
         #region Construction and setup
 
-        public DatabaseView(Database database, StreamsCollection streamsCollection)
+        public DatabaseView(Database database, StreamsCollection streamsCollection, CollectionSearchThread collectionSeachThread)
         {
             m_Database = database;
             m_StreamsCollection = streamsCollection;
+
+            m_CollectionSearchThread = collectionSeachThread;
+            SearchResults = new ObservableCollection<CollectionSearchThread.SearchResultTuple>();
 
             Artists = new ObservableCollection<string>();
             AlbumsBySelectedArtists = new ObservableCollection<AlbumMetadata>();
@@ -72,7 +76,11 @@ namespace Auremo
             DirectoryTreeController = new TreeViewController(DirectoryTree);
 
             m_StreamsCollection.PropertyChanged += new PropertyChangedEventHandler(OnStreamsCollectionPropertyChanged);
+            m_CollectionSearchThread.PropertyChanged += new PropertyChangedEventHandler(OnCollectionSearchResultsPropertyChanged);
             PopulateStreams();
+
+
+
             
         }
 
@@ -236,6 +244,25 @@ namespace Auremo
             }
 
             return nextNodeID;
+        }
+
+        #endregion
+
+        #region Seach
+
+        private void OnCollectionSearchResultsPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "SearchResults")
+            {
+                SearchResults = new ObservableCollection<CollectionSearchThread.SearchResultTuple>(m_CollectionSearchThread.SearchResults);
+                NotifyPropertyChanged("SearchResults");
+            }
+        }
+
+        public IList<CollectionSearchThread.SearchResultTuple> SearchResults
+        {
+            get;
+            private set;
         }
 
         #endregion
