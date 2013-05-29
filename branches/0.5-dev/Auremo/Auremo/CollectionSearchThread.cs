@@ -62,6 +62,9 @@ namespace Auremo
         private void Search()
         {
             string searchString = SearchString;
+            char[] delimiters = { ' ', '\t' };
+            string[] searchFragments = searchString.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
+
             IList<SearchResultTuple> results = new ObservableCollection<SearchResultTuple>();
 
             if (searchString != "")
@@ -70,7 +73,15 @@ namespace Auremo
                 
                 foreach (SongMetadata song in allSongs)
                 {
-                    if (song.Artist.ToLower().Contains(searchString) || song.Album.ToLower().Contains(searchString) || song.Title.ToLower().Contains(searchString))
+                    bool allFragmentsMatch = true;
+
+                    for (int i = 0; i < searchFragments.Count() && allFragmentsMatch; ++i)
+                    {
+                        string fragment = searchFragments[i];
+                        allFragmentsMatch = song.Artist.ToLower().Contains(fragment) || song.Album.ToLower().Contains(fragment) || song.Title.ToLower().Contains(fragment);
+                    }
+
+                    if (allFragmentsMatch)
                     {
                         SearchResultTuple result = new SearchResultTuple();
                         result.Song = song;
