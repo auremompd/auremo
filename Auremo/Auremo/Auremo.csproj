@@ -119,7 +119,7 @@
     </ApplicationDefinition>
     <Compile Include="AlbumMetadataTreeViewNode.cs" />
     <Compile Include="ArtistTreeViewNode.cs" />
-    <Compile Include="CollectionSearchThread.cs" />
+    <Compile Include="CollectionSearch.cs" />
     <Compile Include="Crypto.cs" />
     <Compile Include="DatabaseView.cs" />
     <Compile Include="DirectoryTreeViewNode.cs" />

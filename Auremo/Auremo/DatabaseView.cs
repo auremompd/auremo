@@ -43,20 +43,20 @@ namespace Auremo
 
         private Database m_Database = null;
         private StreamsCollection m_StreamsCollection = null;
-        private CollectionSearchThread m_CollectionSearchThread = null;
+        private CollectionSearch m_CollectionSearchThread = null;
 
         public delegate ISet<AlbumMetadata> AlbumsUnderRoot(string root);
         public delegate ISet<SongMetadata> SongsOnAlbum(AlbumMetadata album);
 
         #region Construction and setup
 
-        public DatabaseView(Database database, StreamsCollection streamsCollection, CollectionSearchThread collectionSeachThread)
+        public DatabaseView(Database database, StreamsCollection streamsCollection, CollectionSearch collectionSeachThread)
         {
             m_Database = database;
             m_StreamsCollection = streamsCollection;
 
             m_CollectionSearchThread = collectionSeachThread;
-            SearchResults = new ObservableCollection<CollectionSearchThread.SearchResultTuple>();
+            SearchResults = new ObservableCollection<CollectionSearch.SearchResultTuple>();
 
             Artists = new ObservableCollection<string>();
             AlbumsBySelectedArtists = new ObservableCollection<AlbumMetadata>();
@@ -254,12 +254,12 @@ namespace Auremo
         {
             if (e.PropertyName == "SearchResults")
             {
-                SearchResults = new ObservableCollection<CollectionSearchThread.SearchResultTuple>(m_CollectionSearchThread.SearchResults);
+                SearchResults = new ObservableCollection<CollectionSearch.SearchResultTuple>(m_CollectionSearchThread.SearchResults);
                 NotifyPropertyChanged("SearchResults");
             }
         }
 
-        public IList<CollectionSearchThread.SearchResultTuple> SearchResults
+        public IList<CollectionSearch.SearchResultTuple> SearchResults
         {
             get;
             private set;

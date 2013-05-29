@@ -45,7 +45,7 @@ namespace Auremo
         private Database m_Database = null;
         private StreamsCollection m_StreamsCollection = new StreamsCollection();
         private DatabaseView m_DatabaseView = null;
-        private CollectionSearchThread m_CollectionSearchThread = null;
+        private CollectionSearch m_CollectionSearchThread = null;
         private SavedPlaylists m_SavedPlaylists = new SavedPlaylists();
         private Playlist m_Playlist = null;
         private DispatcherTimer m_Timer = null;
@@ -81,7 +81,7 @@ namespace Auremo
         private void InitializeComplexObjects()
         {
             m_Database = new Database(m_Connection, m_ServerStatus);
-            m_CollectionSearchThread = new CollectionSearchThread(m_Database);
+            m_CollectionSearchThread = new CollectionSearch(m_Database);
             m_DatabaseView = new DatabaseView(m_Database, m_StreamsCollection, m_CollectionSearchThread);
             m_Playlist = new Playlist(m_Connection, m_ServerStatus, m_Database, m_StreamsCollection);
             m_DatabaseView.RefreshStreams();
@@ -328,6 +328,7 @@ namespace Auremo
 
         private void OnExit(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            m_CollectionSearchThread.Terminate();
             Disconnect();
 
             if (m_SettingsWindow != null)
@@ -452,7 +453,7 @@ namespace Auremo
 
             foreach (DataGridCellInfo cell in m_SearchResultsView.SelectedCells)
             {
-                CollectionSearchThread.SearchResultTuple result = (CollectionSearchThread.SearchResultTuple)(cell.Item);
+                CollectionSearch.SearchResultTuple result = (CollectionSearch.SearchResultTuple)(cell.Item);
 
                 if (result != null)
                 {
@@ -2120,7 +2121,7 @@ namespace Auremo
             const int artistColumnDisplayIndex = 1;
             const int albumColumnDisplayIndex = 2;
 
-            CollectionSearchThread.SearchResultTuple result = (CollectionSearchThread.SearchResultTuple)(cell.Item);
+            CollectionSearch.SearchResultTuple result = (CollectionSearch.SearchResultTuple)(cell.Item);
 
             if (result != null)
             {
