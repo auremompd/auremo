@@ -308,7 +308,7 @@ namespace Auremo
 
         private void OnKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Space)
+            if (e.Key == Key.Space && !m_SearchBox.IsFocused)
             {
                 if (m_ServerStatus != null && m_ServerStatus.OK)
                 {
