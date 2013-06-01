@@ -123,6 +123,7 @@
     <Compile Include="Crypto.cs" />
     <Compile Include="DatabaseView.cs" />
     <Compile Include="DirectoryTreeViewNode.cs" />
+    <Compile Include="EqualsConverter.cs" />
     <Compile Include="GenreTreeViewNode.cs" />
     <Compile Include="IntToBoolConverter.cs" />
     <Compile Include="M3UParser.cs" />
