@@ -90,7 +90,7 @@ namespace Auremo
                 // can be provided.
                 int currentSongIndex = -1;
                 int playPosition = 0;
-                int songLength = 1;
+                int songLength = 0;
 
                 foreach (ServerResponseLine line in response.ResponseLines)
                 {
@@ -216,10 +216,10 @@ namespace Auremo
                 if (m_State != value)
                 {
                     m_State = value;
-                    NotifyPropertyChanged("State");
                     IsPlaying.Value = m_State == "play";
                     IsPaused.Value = m_State == "pause";
                     IsStopped.Value = m_State == "stop";
+                    NotifyPropertyChanged("State");
                 }
             }
         }
