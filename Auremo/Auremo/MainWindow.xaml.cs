@@ -705,7 +705,7 @@ namespace Auremo
             }
         }
 
-        private void OnAddStreamFromFileClicked(object sender, RoutedEventArgs e)
+        private void OnImportStreamsFromFileClicked(object sender, RoutedEventArgs e)
         {
             OpenFileDialog dialog = new OpenFileDialog();
             dialog.Title = "Add stream files";
