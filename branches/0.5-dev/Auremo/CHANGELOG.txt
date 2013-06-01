@@ -6,10 +6,13 @@ Auremo 0.5.0
 
  * Add support for HTTP streams, such as web radio. Supports PLS and M3U
    playlist files.
+ * Add search tab.
  * Fix appearance of disabled sliders.
  * Display songs without title tags by their file names instead of
    "Unknown Song".
- * Prerelease 1 on 26th May 2013.
+ * Fix space bar handling while entering strings from the keyboard.
+ * Prerelease 2 on 2nd June 2013.
+
 
 Auremo 0.4.0
 ------------
