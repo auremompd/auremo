@@ -4,8 +4,9 @@
 
 The 0.5 version will add new features. As there are many requested features, emphasis is given to low-hanging fruit.
 
-==Features and fixes available in 0.5.pre1 prerelease==
+==Features and fixes available in 0.5.pre2 prerelease==
 
+  * Add search tab.
   * Add support for HTTP streams, e.g. web radio.
   * Fix disabled slider visual.
   * Fix play status in status bar.
@@ -13,7 +14,7 @@ The 0.5 version will add new features. As there are many requested features, emp
 
 ==Committed features and fixes==
  
-  * Fix playlist titles of unknown streams. (r239, /branches/0.5-dev)
+  * (no new important commits after 0.5.pre2)
 
 == Bugs ==
 
@@ -24,6 +25,5 @@ The 0.5 version will add new features. As there are many requested features, emp
 These features will be added before the release.
 
   * Add support for the shuffle command.
-  * Add a search function.
   * Allow the user to scroll to a name inside a list by typing the first letters of the name.
   * Add controls for enabling and disabling outputs on the server.
