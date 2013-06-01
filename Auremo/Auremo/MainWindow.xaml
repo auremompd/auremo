@@ -83,7 +83,7 @@
                             </DataGrid.ContextMenu>
                         </DataGrid>
                         <TextBlock Name="m_SearchResultsHint" Grid.Row="0" Style="{StaticResource CollectionHintTextStyle}" Text="No search results."/>
-                        <TextBox Name="m_SearchBox" Grid.Row="1" Margin="0,5,0,0" DockPanel.Dock="Top" TextChanged="OnSearchBoxTextChanged"/>
+                        <TextBox Name="m_SearchBox" Grid.Row="1" Margin="0,5,0,0" DockPanel.Dock="Top" TextChanged="OnSearchBoxTextChanged" IsEnabled="{Binding Path=IsConnected}"/>
                         <TextBlock Name="m_SearchBoxHint" Style="{StaticResource CollectionHintTextStyle}" Grid.Row="1" Margin="5,5,0,0" Text="Type here to start searching..."/>
                     </Grid>
                 </TabItem>
