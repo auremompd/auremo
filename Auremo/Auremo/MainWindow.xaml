@@ -13,6 +13,7 @@
         <l:IntToTimecodeConverter x:Key="IntToTimecodeConverter"/>
         <l:IntToBoolConverter x:Key="IntToBoolConverter"/>
         <l:NegateBoolConverter x:Key="NegateBoolConverter"/>
+        <l:EqualsConverter x:Key="EqualsConverter"/>
     </Window.Resources>
     <Window.ToolTip>
         <ToolTip Name="m_MousePointerHint" Padding="10" BorderBrush="{StaticResource PassiveGenericBorderBrush}" HasDropShadow="False" BorderThickness="1" Foreground="{StaticResource SelectedTextBrush}" Background="{StaticResource ToolTipBackgroundBrush}" IsOpen="False" Visibility="Hidden" IsHitTestVisible="False"/>
@@ -309,7 +310,7 @@
                                 <ContextMenu Name="m_StreamsViewContextMenu">
                                     <MenuItem Header="Add to playlist" Click="OnAddToPlaylistClicked" IsEnabled="{Binding Path=Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
                                     <Separator/>
-                                    <MenuItem Header="Rename stream..." Click="OnRenameSelectedStreamClicked"/>
+                                    <MenuItem Header="Rename stream..." Click="OnRenameSelectedStreamClicked" IsEnabled="{Binding Path=Count, Converter={StaticResource EqualsConverter}, Mode=OneWay, ConverterParameter=1}"/>
                                     <MenuItem Header="Delete streams" Click="OnDeleteSelectedStreamsClicked" IsEnabled="{Binding Path=Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
                                     <Separator/>
                                     <MenuItem Header="Add stream URL..." Click="OnAddStreamURLClicked"/>
