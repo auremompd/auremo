@@ -93,6 +93,7 @@ namespace Auremo
 
             m_CollectionBrowsingModes.DataContext = m_DatabaseView;
             m_SearchResultsViewRescanMusicCollectionContextMenuItem.DataContext = m_Connection;
+            m_SearchBox.DataContext = m_Connection;
 
             m_ArtistsViewContextMenu.DataContext = m_ArtistsView.SelectedItems;
             m_ArtistsViewRescanMusicCollectionContextMenuItem.DataContext = m_Connection;
@@ -268,7 +269,14 @@ namespace Auremo
         {
             m_PropertyUpdateInProgress = true;
 
-            if (e.PropertyName == "PlayPosition")
+            if (e.PropertyName == "OK")
+            {
+                if (!m_ServerStatus.OK)
+                {
+                    m_SearchBox.Text = "";
+                }
+            }
+            else if (e.PropertyName == "PlayPosition")
             {
                 OnPlayPositionChanged();
             }
