@@ -90,13 +90,8 @@
                     <Setter Property="Margin" Value="10,1,0,1"/>
                     <Style.Triggers>
                         <Trigger Property="IsSelected" Value="True">
-                            <Setter Property="Background" Value="Transparent"/>
-                            <Setter Property="BorderBrush" Value="White"/>
-                            <Setter Property="BorderThickness" Value="0,0,1,0"/>
+                            <Setter Property="Background" Value="{StaticResource SelectionBackgroundBrush}"/>
                             <Setter Property="Foreground" Value="{StaticResource SelectedTextBrush}"/>
-                        </Trigger>
-                        <Trigger Property="IsSelected" Value="False">
-                            <Setter Property="Background" Value="Transparent"/>
                         </Trigger>
                     </Style.Triggers>
                 </Style>
