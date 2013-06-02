@@ -377,6 +377,7 @@
                         <MenuItem Header="Remove everything but selected items" Click="OnCropToSelectedPlaylistItemsClicked" IsEnabled="{Binding Path=SelectedItems.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
                         <MenuItem Header="Save as..." Click="OnSavePlaylistAsClicked" IsEnabled="{Binding Path=SelectedItems.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
                         <MenuItem Header="Remove duplicate items" Click="OnDedupPlaylistViewClicked" IsEnabled="{Binding Path=SelectedItems.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
+                        <MenuItem Header="Shuffle" Click="OnShufflePlaylistClicked" IsEnabled="{Binding Path=Items.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
                     </ContextMenu>
                 </DataGrid.ContextMenu>
             </DataGrid>
