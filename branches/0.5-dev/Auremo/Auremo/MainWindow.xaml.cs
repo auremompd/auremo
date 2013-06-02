@@ -965,6 +965,11 @@ namespace Auremo
             }
         }
 
+        private void OnShufflePlaylistClicked(object sender, RoutedEventArgs e)
+        {
+            Protocol.Shuffle(m_Connection);
+        }
+
         private void OnClearPlaylistViewClicked(object sender, RoutedEventArgs e)
         {
             Protocol.Clear(m_Connection);
