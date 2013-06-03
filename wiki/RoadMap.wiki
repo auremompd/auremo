@@ -13,7 +13,7 @@ Suggestions are welcome! None of these features or software versions are being d
   * Use MPD command lists for playlist control for speed and atomicity.
   * Improve saved playlist interface.
   * Add optional criteria for sorting albums. For example, the user should be able to choose alphabetical, chronological or filesystem ordering.
-  * Add album artist collection browsing mode.
+  * Add support for choosing between artist and album artist when parsing the collection.
 
 ==Later releases==
 
