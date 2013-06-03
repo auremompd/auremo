@@ -25,6 +25,5 @@ The 0.5 version will add new features. As there are many requested features, emp
 
 These features will be added before the release.
 
-  * Add support for the shuffle command.
-  * Allow the user to scroll to a name inside a list by typing the first letters of the name.
   * Add controls for enabling and disabling outputs on the server.
+  * Add support for audio control keys (volume, play/pause, maybe mute).
