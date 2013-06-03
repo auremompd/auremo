@@ -98,12 +98,12 @@ namespace Auremo.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("5")]
-        public int MouseWheelAdjustsVolumeBy {
+        public int VolumeAdjustmentStep {
             get {
-                return ((int)(this["MouseWheelAdjustsVolumeBy"]));
+                return ((int)(this["VolumeAdjustmentStep"]));
             }
             set {
-                this["MouseWheelAdjustsVolumeBy"] = value;
+                this["VolumeAdjustmentStep"] = value;
             }
         }
         
