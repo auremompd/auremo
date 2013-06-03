@@ -104,7 +104,11 @@ namespace Auremo
 
             foreach (object o in source)
             {
-                if (o.GetType() != typeof(T))
+                try
+                {
+                    T item = (T)o;
+                }
+                catch (Exception)
                 {
                     throw new Exception("ToTypedList: attempted to cast " + o.GetType().ToString() + " to " + typeof(T).ToString() + ".");
                 }
