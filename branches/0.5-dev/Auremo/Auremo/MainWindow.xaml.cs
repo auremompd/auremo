@@ -55,6 +55,10 @@ namespace Auremo
         private Nullable<Point> m_DragStartPosition = null;
         private bool m_PropertyUpdateInProgress = false;
         private bool m_OnlineMode = true;
+        private string m_AutoSearchString = "";
+        private DateTime m_TimeOfLastAutoSearch = DateTime.MinValue;
+        private object m_LastAutoSearchSender = null;
+        private const int m_AutoSearchMaxKeystrokeGap = 2500;
 
         private const string AddSearchResults = "add_search_results";
         private const string AddArtists = "add_artists";
@@ -316,7 +320,7 @@ namespace Auremo
 
         private void OnKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Space && !m_SearchBox.IsFocused && m_StringQueryOverlay.Visibility != Visibility.Visible)
+            if (e.Key == Key.Space && !m_SearchBox.IsFocused && m_StringQueryOverlay.Visibility != Visibility.Visible && !AutoSearchInProgrss)
             {
                 if (m_ServerStatus != null && m_ServerStatus.OK)
                 {
@@ -582,6 +586,10 @@ namespace Auremo
 
                 e.Handled = true;
             }
+            else
+            {
+                CollectionAutoSearch(sender, e.Key);
+            }
         }
 
         private void OnGenreViewKeyDown(object sender, KeyEventArgs e)
@@ -598,6 +606,10 @@ namespace Auremo
 
                 e.Handled = true;
             }
+            else
+            {
+                CollectionAutoSearch(sender, e.Key);
+            }
         }
 
         private void OnAlbumViewKeyDown(object sender, KeyEventArgs e)
@@ -611,6 +623,10 @@ namespace Auremo
 
                 e.Handled = true;
             }
+            else
+            {
+                CollectionAutoSearch(sender, e.Key);
+            }
         }
 
         private void OnGenreAlbumsViewKeyDown(object sender, KeyEventArgs e)
@@ -623,6 +639,10 @@ namespace Auremo
                 }
 
                 e.Handled = true;
+            }
+            else
+            {
+                CollectionAutoSearch(sender, e.Key);
             }
         }
 
@@ -641,6 +661,10 @@ namespace Auremo
 
                 e.Handled = true;
             }
+            else
+            {
+                CollectionAutoSearch(sender, e.Key);
+            }
         }
 
         private void OnStreamsViewKeyDown(object sender, KeyEventArgs e)
@@ -650,10 +674,14 @@ namespace Auremo
                 e.Handled = true;
                 OnRenameSelectedStream();
             }
-            if (e.Key == Key.Delete)
+            else if (e.Key == Key.Delete)
             {
                 e.Handled = true;
                 OnDeleteSelectedStreams();
+            }
+            else
+            {
+                CollectionAutoSearch(sender, e.Key);
             }
         }
 
@@ -1044,6 +1072,99 @@ namespace Auremo
             Update();
         }
 
+        private bool AutoSearchInProgrss
+        {
+            get
+            {
+                return m_AutoSearchString.Length > 0 && DateTime.Now.Subtract(m_TimeOfLastAutoSearch).TotalMilliseconds <= m_AutoSearchMaxKeystrokeGap;
+            }
+        }
+
+        private bool CollectionAutoSearch(object sender, Key key)
+        {
+            if (sender != m_LastAutoSearchSender || DateTime.Now.Subtract(m_TimeOfLastAutoSearch).TotalMilliseconds > m_AutoSearchMaxKeystrokeGap)
+            {
+                m_AutoSearchString = "";
+            }
+            
+            m_TimeOfLastAutoSearch = DateTime.Now;
+            m_LastAutoSearchSender = sender;
+            bool searchAgain = false;
+            string keyAsString = key.ToString();
+
+            if (keyAsString.Length == 1)
+            {
+                char keyAsChar = keyAsString[0];
+
+                if (char.IsLetter(keyAsChar))
+                {
+                    m_AutoSearchString = (m_AutoSearchString + keyAsChar).ToLowerInvariant();
+                    searchAgain = true;
+                }
+            }
+            else if (key == Key.Back && m_AutoSearchString.Length > 0)
+            {
+                m_AutoSearchString = m_AutoSearchString.Remove(m_AutoSearchString.Length - 1);
+                searchAgain = m_AutoSearchString.Length > 0;
+            }
+
+            if (searchAgain)
+            {
+                if (sender is DataGrid)
+                {
+                    DataGrid grid = sender as DataGrid;
+
+                    foreach (object o in grid.Items)
+                    {
+                        if (o is string && (o as string).ToLowerInvariant().StartsWith(m_AutoSearchString) ||
+                           o is AlbumMetadata && (o as AlbumMetadata).Title.ToLowerInvariant().StartsWith(m_AutoSearchString) ||
+                           o is SongMetadata && (o as SongMetadata).Title.ToLowerInvariant().StartsWith(m_AutoSearchString))
+                        {
+                            grid.SelectedItem = o;
+                            grid.ScrollIntoView(o);
+                            return true;
+                        }
+                    }
+                }
+                else if (sender is TreeView)
+                {
+                    TreeView tree = sender as TreeView;
+                    TreeViewNode item = CollectionAutoSearchTreeView(Utils.ToTypedList<TreeViewNode>(tree.Items));
+
+                    if (item != null)
+                    {
+                        item.Controller.ClearMultiSelection();
+                        item.Controller.Current = item;
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private TreeViewNode CollectionAutoSearchTreeView(IEnumerable<TreeViewNode> nodes)
+        {
+            foreach (TreeViewNode node in nodes)
+            {
+                if (node.DisplayString.ToLowerInvariant().StartsWith(m_AutoSearchString))
+                {
+                    return node;
+                }
+                else if (node.IsExpanded)
+                {
+                    TreeViewNode result = CollectionAutoSearchTreeView(Utils.ToTypedList<TreeViewNode>(node.Children));
+
+                    if (result != null)
+                    {
+                        return result;
+                    }
+                }
+            }
+
+            return null;
+        }
+
         #endregion
 
         #region TreeView handling (browsing, drag & drop)
@@ -1132,7 +1253,7 @@ namespace Auremo
             TreeViewController controller = tree.Tag as TreeViewController;
 
             e.Handled = true;
-            
+
             if (Keyboard.Modifiers == ModifierKeys.None || Keyboard.Modifiers == ModifierKeys.Shift)
             {
                 bool currentChanged = false;
@@ -1171,6 +1292,10 @@ namespace Auremo
 
                         Update();
                     }
+                }
+                else
+                {
+                    currentChanged = CollectionAutoSearch(sender, e.Key);
                 }
 
                 if (currentChanged)
