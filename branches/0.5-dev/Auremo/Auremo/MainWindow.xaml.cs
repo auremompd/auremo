@@ -320,21 +320,33 @@ namespace Auremo
 
         private void OnKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Space && !m_SearchBox.IsFocused && m_StringQueryOverlay.Visibility != Visibility.Visible && !AutoSearchInProgrss)
+            if (e.Key == Key.MediaPreviousTrack)
             {
-                if (m_ServerStatus != null && m_ServerStatus.OK)
-                {
-                    if (m_ServerStatus.IsPlaying.Value)
-                    {
-                        Protocol.Pause(m_Connection);
-                    }
-                    else
-                    {
-                        Protocol.Play(m_Connection);
-                    }
-                }
-
-                Update();
+                Back();
+            }
+            else if (e.Key == Key.Space && !m_SearchBox.IsFocused && m_StringQueryOverlay.Visibility != Visibility.Visible && !AutoSearchInProgrss)
+            {
+                TogglePlayPause();
+            }
+            else if (e.Key == Key.MediaPlayPause)
+            {
+                TogglePlayPause();
+            }
+            else if (e.Key == Key.MediaStop)
+            {
+                Stop();
+            }
+            else if (e.Key == Key.MediaNextTrack)
+            {
+                Skip();
+            }
+            else if (e.Key == Key.VolumeDown)
+            {
+                VolumeDown();
+            }
+            else if (e.Key == Key.VolumeUp)
+            {
+                VolumeUp();
             }
         }
 
@@ -1861,49 +1873,32 @@ namespace Auremo
 
         private void OnBackButtonClicked(object sender, RoutedEventArgs e)
         {
-            Protocol.Previous(m_Connection);
-            Update();
+            Back();
         }
 
         private void OnPlayButtonClicked(object sender, RoutedEventArgs e)
         {
-            Protocol.Play(m_Connection);
-            Update();
+            Play();
         }
 
         private void OnPauseButtonClicked(object sender, RoutedEventArgs e)
         {
-            Protocol.Pause(m_Connection);
-            Update();
+            Pause();
         }
 
         private void OnPlayPauseButtonClicked(object sender, RoutedEventArgs e)
         {
-            if (m_ServerStatus != null && m_ServerStatus.OK)
-            {
-                if (m_ServerStatus.IsPlaying.Value)
-                {
-                    Protocol.Pause(m_Connection);
-                }
-                else
-                {
-                    Protocol.Play(m_Connection);
-                }
-            }
-
-            Update();
+            TogglePlayPause();
         }
 
         private void OnStopButtonClicked(object sender, RoutedEventArgs e)
         {
-            Protocol.Stop(m_Connection);
-            Update();
+            Stop();
         }
 
         private void OnSkipButtonClicked(object sender, RoutedEventArgs e)
         {
-            Protocol.Next(m_Connection);
-            Update();
+            Skip();
         }
 
         bool m_VolumeRestoreInProgress = false;
@@ -1926,26 +1921,13 @@ namespace Auremo
 
         private void OnVolumeMouseWheel(object sender, MouseWheelEventArgs e)
         {
-            int? currentVolume = m_ServerStatus.Volume;
-
-            if (currentVolume != null && Settings.Default.EnableVolumeControl)
+            if (e.Delta < 0)
             {
-                int newVolume = currentVolume.Value;
-
-                if (e.Delta < 0)
-                {
-                    newVolume = Math.Max(0, newVolume - Settings.Default.MouseWheelAdjustsVolumeBy);
-                }
-                else if (e.Delta > 0)
-                {
-                    newVolume = Math.Min(100, newVolume + Settings.Default.MouseWheelAdjustsVolumeBy);
-                }
-
-                if (newVolume != currentVolume)
-                {
-                    Protocol.SetVol(m_Connection, newVolume);
-                    Update();
-                }
+                VolumeDown();
+            }
+            else if (e.Delta > 0)
+            {
+                VolumeUp();
             }
         }
 
@@ -1957,6 +1939,89 @@ namespace Auremo
         private void OnToggleRepeatClicked(object sender, RoutedEventArgs e)
         {
             Protocol.Repeat(m_Connection, !m_ServerStatus.IsOnRepeat.Value);
+        }
+
+        #endregion
+
+        #region Playback control
+
+        private void Back()
+        {
+            Protocol.Previous(m_Connection);
+            Update();
+        }
+
+        private void Play()
+        {
+            Protocol.Play(m_Connection);
+            Update();
+        }
+
+        private void Pause()
+        {
+            Protocol.Pause(m_Connection);
+            Update();
+        }
+
+        private void TogglePlayPause()
+        {
+            if (m_ServerStatus != null && m_ServerStatus.OK)
+            {
+                if (m_ServerStatus.IsPlaying.Value)
+                {
+                    Protocol.Pause(m_Connection);
+                }
+                else
+                {
+                    Protocol.Play(m_Connection);
+                }
+            }
+
+            Update();
+        }
+
+        private void Stop()
+        {
+            Protocol.Stop(m_Connection);
+            Update();
+        }
+
+        private void Skip()
+        {
+            Protocol.Next(m_Connection);
+            Update();
+        }
+                
+        private void VolumeDown()
+        {
+            int? currentVolume = m_ServerStatus.Volume;
+
+            if (currentVolume != null && Settings.Default.EnableVolumeControl)
+            {
+                int newVolume = Math.Max(0, currentVolume.Value - Settings.Default.VolumeAdjustmentStep);
+
+                if (newVolume != currentVolume)
+                {
+                    Protocol.SetVol(m_Connection, newVolume);
+                    Update();
+                }
+            }
+        }
+        
+        private void VolumeUp()
+        {
+            int? currentVolume = m_ServerStatus.Volume;
+
+            if (currentVolume != null && Settings.Default.EnableVolumeControl)
+            {
+                int newVolume = Math.Min(100, currentVolume.Value + Settings.Default.VolumeAdjustmentStep);
+
+                if (newVolume != currentVolume)
+                {
+                    Protocol.SetVol(m_Connection, newVolume);
+                    Update();
+                }
+            }
         }
 
         #endregion

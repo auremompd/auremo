@@ -45,7 +45,7 @@
             <Label Content="seconds (0 = never, max 3600)" Style="{StaticResource OptionLabelStyle}"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal" Grid.Row="5">
-            <Label Content="A mouse wheel tick adjusts volume by" Style="{StaticResource OptionLabelStyle}" Width="350"/>
+            <Label Content="A mouse wheel tick and the volume keys adjust volume by" Style="{StaticResource OptionLabelStyle}" Width="350"/>
             <TextBox Name="m_WheelVolumeStepEntry" Text="5" Style="{StaticResource OptionTextBoxStyle}" Width="50" PreviewTextInput="OnNumericOptionPreviewTextInput" LostFocus="ValidateOptions"/>
             <Label Content="percent (0 - 100)" Style="{StaticResource OptionLabelStyle}"/>
         </StackPanel>
@@ -59,7 +59,7 @@
             <TextBox Name="m_WheelSongPositioningSecondsEntry" Text="5" Style="{StaticResource OptionTextBoxStyle}" VerticalAlignment="Center" Width="50" IsEnabled="{Binding ElementName=m_WheelSongPositioningModeIsSeconds,Path=IsChecked}" PreviewTextInput="OnNumericOptionPreviewTextInput" LostFocus="ValidateOptions"/>
             <Label Content="seconds (0 - 1800)" Style="{StaticResource OptionLabelStyle}" IsEnabled="{Binding ElementName=m_WheelSongPositioningModeIsSeconds,Path=IsChecked}"/>
         </StackPanel>
-        <CheckBox Name="m_EnableVolumeControl" Content="Enable volume slider" IsChecked="True" Grid.Row="8" Style="{StaticResource OptionCheckBoxStyle}"/>
+        <CheckBox Name="m_EnableVolumeControl" Content="Enable volume control" IsChecked="True" Grid.Row="8" Style="{StaticResource OptionCheckBoxStyle}"/>
         <Border Grid.Row="9" BorderBrush="#DDDDDD" BorderThickness="0,1,0,0" Margin="0,5,0,0">
             <DockPanel LastChildFill="False"  VerticalAlignment="Bottom">
                 <Button Name="m_CancelButton" Style="{StaticResource ActionButtonStyle}" Content="Cancel" Width="90" Margin="4" DockPanel.Dock="Right" Click="OnCancelClicked"/>
