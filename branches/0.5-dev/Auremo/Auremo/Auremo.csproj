@@ -129,6 +129,8 @@
     <Compile Include="M3UParser.cs" />
     <Compile Include="NegateBoolConverter.cs" />
     <Compile Include="NestedProperty.cs" />
+    <Compile Include="Output.cs" />
+    <Compile Include="OutputCollection.cs" />
     <Compile Include="Playable.cs" />
     <Compile Include="PlaylistFileParserBase.cs" />
     <Compile Include="PlaylistWriter.cs" />
