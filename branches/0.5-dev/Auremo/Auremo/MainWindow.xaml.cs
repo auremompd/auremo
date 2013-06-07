@@ -156,6 +156,7 @@ namespace Auremo
             m_SongsOnSelectedGenreAlbumsHint.DataContext = m_DatabaseView.SongsOnSelectedAlbumsOfSelectedGenres;
             m_GenresTreeHint.DataContext = m_DatabaseView.GenreTree;
             m_DirectoryTreeHint.DataContext = m_DatabaseView.DirectoryTree;
+            m_StreamsHint.DataContext = m_StreamsView.Items;
             m_SavedPlaylistsHint.DataContext = m_SavedPlaylists.Playlists;
 
             m_PlaylistViewHint.DataContext = m_Playlist.Items;

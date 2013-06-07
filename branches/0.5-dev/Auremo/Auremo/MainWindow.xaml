@@ -330,7 +330,7 @@
                                 </ContextMenu>
                             </DataGrid.ContextMenu>
                         </DataGrid>
-                        <TextBlock Name="m_StreamsHint" Style="{StaticResource CollectionHintTextStyle}" Text="Right-click here to import streams."/>
+                        <TextBlock Name="m_StreamsHint" Style="{StaticResource CollectionHintTextStyle}" Text="Right-click here to add streams."/>
                     </Grid>
                 </TabItem>
                 <TabItem Name="m_SavedPlaylistsTab" Header="Playlists">
