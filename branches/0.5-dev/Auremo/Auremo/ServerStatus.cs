@@ -367,7 +367,7 @@ namespace Auremo
             PlaylistVersion = -1;
             CurrentSongIndex = -1;
             PlayPosition = 0;
-            SongLength = 1;
+            SongLength = 0;
             IsPlaying.Value = false;
             IsPaused.Value = false;
             IsStopped.Value = false;
