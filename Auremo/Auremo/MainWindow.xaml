@@ -35,7 +35,7 @@
                 <MenuItem Header="Edit settings..." Click="OnEditSettingsClicked"/>
                 <Separator/>
                 <MenuItem Header="Import streams from PLS/M3U playlist..." Click="OnImportStreamsFromFileClicked"/>
-                <Separator/>
+                <Separator/> 
                 <MenuItem Header="Exit" Click="OnExitClicked"/>
             </MenuItem>
             <MenuItem Name="m_ConnectionMenuItem" Header="Connection">
@@ -45,6 +45,13 @@
                 <Separator/>
                 <MenuItem Header="Rescan music collection" Click="OnRescanMusicCollectionClicked" IsEnabled="{Binding Path=IsConnected}"/>
             </MenuItem>
+            <MenuItem Name="m_OutputsMenu" Header="Outputs" ItemsSource="{Binding Path=Items}" IsEnabled="{Binding Path=Items.Count,Converter={StaticResource IntToBoolConverter}}">
+                <MenuItem.ItemTemplate>
+                    <DataTemplate>
+                        <CheckBox Content="{Binding Path=Name}" IsChecked="{Binding Path=IsEnabled, Mode=OneWay}" Click="OnEnableDisbaleOutput"/>
+                    </DataTemplate>
+                </MenuItem.ItemTemplate>
+            </MenuItem>
             <MenuItem Header="Help">
                 <MenuItem Header="View license (GPL2)..." Click="OnViewLicenseClicked"/>
                 <MenuItem Header="About..." Click="OnAboutClicked"/>
@@ -53,11 +60,12 @@
         <Image Source="Graphics/Auremo_icon.png" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.RowSpan="5" Grid.ColumnSpan="2" Margin="128,0"/>
         <Grid Grid.Row="1" Margin="0,10" Grid.ColumnSpan="2">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="28*"/>
+                <ColumnDefinition Width="47*"/>
                 <ColumnDefinition Width="10"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="75*"/>
             </Grid.ColumnDefinitions>
-            <TabControl Name="m_CollectionBrowsingModes" Style="{StaticResource MusicCollectionTabControlStyle}">
+            <TabControl Name="m_CollectionBrowsingModes" Style="{StaticResource MusicCollectionTabControlStyle}" Grid.ColumnSpan="2">
                 <TabItem Header="Search">
                     <Grid>
                         <Grid.RowDefinitions>
@@ -351,7 +359,7 @@
                     </Grid>
                 </TabItem>
             </TabControl>
-            <GridSplitter HorizontalAlignment="Left" Width="10" VerticalAlignment="Stretch" Grid.Row="1" Grid.Column="1" ResizeBehavior="PreviousAndNext" Height="Auto" Background="Transparent" Margin="0,0,0,5" IsEnabled="True" ResizeDirection="Columns" Cursor="SizeWE"/>
+            <GridSplitter HorizontalAlignment="Left" Width="10" VerticalAlignment="Stretch" Grid.Column="2" ResizeBehavior="PreviousAndNext" Height="Auto" Background="Transparent" Margin="0,0,0,5" IsEnabled="True" ResizeDirection="Columns" Cursor="SizeWE"/>
             <DataGrid Name="m_PlaylistView"
                       Style="{StaticResource PlaylistStyle}"
                       ItemsSource="{Binding Path=Items}"
@@ -364,7 +372,7 @@
                       DragLeave="OnPlaylistViewDragLeave"
                       Drop="OnPlaylistViewDrop"
                       MouseUp="OnDataGridMouseUp"
-                      Grid.Column="2">
+                      Grid.Column="3">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Title" Width="Auto" Binding="{Binding Path=Playable.Title}"/>
                     <DataGridTextColumn Header="Artist" Width="Auto" Binding="{Binding Path=Playable.Artist}"/>
@@ -381,8 +389,8 @@
                     </ContextMenu>
                 </DataGrid.ContextMenu>
             </DataGrid>
-            <TextBlock Name="m_PlaylistViewHint" Grid.Column="2" Style="{StaticResource CollectionHintTextStyle}" Text="Drag music here to add it to the playlist."/>
-            <Line Name="m_DropPositionIndicator" Grid.Column="2" X1="0" X2="464" Y1="80" Y2="80" IsHitTestVisible="False" Visibility="Hidden" StrokeThickness="1" Stroke="{StaticResource DropPositionIndicatorBrush}"/>
+            <TextBlock Name="m_PlaylistViewHint" Grid.Column="3" Style="{StaticResource CollectionHintTextStyle}" Text="Drag music here to add it to the playlist." Margin="187,173,188,173"/>
+            <Line Name="m_DropPositionIndicator" Grid.Column="3" X1="0" X2="464" Y1="80" Y2="80" IsHitTestVisible="False" Visibility="Hidden" StrokeThickness="1" Stroke="{StaticResource DropPositionIndicatorBrush}"/>
         </Grid>
         <Border Grid.Row="2" Padding="20,4" BorderBrush="{StaticResource HeaderBorderBrush }" BorderThickness="0,1,0,0" Background="{StaticResource ControlPanelBackgroundBrush}" Grid.ColumnSpan="2">
             <DockPanel Name="m_SeekPanel" LastChildFill="True" Margin="0,5,0,0">

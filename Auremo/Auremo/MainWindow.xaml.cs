@@ -48,6 +48,7 @@ namespace Auremo
         private CollectionSearch m_CollectionSearchThread = null;
         private SavedPlaylists m_SavedPlaylists = new SavedPlaylists();
         private Playlist m_Playlist = null;
+        private OutputCollection m_Outputs = new OutputCollection();
         private DispatcherTimer m_Timer = null;
         private Object m_DragSource = null;
         private IList<object> m_DragDropPayload = null;
@@ -58,6 +59,7 @@ namespace Auremo
         private string m_AutoSearchString = "";
         private DateTime m_TimeOfLastAutoSearch = DateTime.MinValue;
         private object m_LastAutoSearchSender = null;
+
         private const int m_AutoSearchMaxKeystrokeGap = 2500;
 
         private const string AddSearchResults = "add_search_results";
@@ -94,7 +96,8 @@ namespace Auremo
         private void SetUpDataBindings()
         {
             m_ConnectionMenuItem.DataContext = m_Connection;
-
+            m_OutputsMenu.DataContext = m_Outputs;
+            
             m_CollectionBrowsingModes.DataContext = m_DatabaseView;
             m_SearchResultsViewRescanMusicCollectionContextMenuItem.DataContext = m_Connection;
             m_SearchBox.DataContext = m_Connection;
@@ -267,6 +270,7 @@ namespace Auremo
             }
 
             m_ServerStatus.Update(m_Connection);
+            m_Outputs.Update(m_Connection);
         }
 
         private void OnServerStatusPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -415,6 +419,23 @@ namespace Auremo
             }
 
             SetOnlineMode(true);
+        }
+
+        private void OnEnableDisbaleOutput(object sender, RoutedEventArgs e)
+        {
+            CheckBox checkBox = sender as CheckBox;
+            Output output = checkBox.DataContext as Output;
+
+            if (output.IsEnabled)
+            {
+                Protocol.DisableOutput(m_Connection, output.Index);
+            }
+            else
+            {
+                Protocol.EnableOutput(m_Connection, output.Index);
+            }
+
+            Update();
         }
 
         private void OnViewLicenseClicked(object sender, RoutedEventArgs e)
