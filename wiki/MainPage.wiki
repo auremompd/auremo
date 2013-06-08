@@ -10,15 +10,15 @@ Auremo's design philosophy is to provide a straightforward MPD client that has e
 
 To run the software you need a MPD server running on either the local computer or a remote one. Nothing else is required -- Auremo is a single executable and only depends on things that come preinstalled on any modern Windows computer.
 
-Auremo is written from scratch in C#. The user interface is implemented in WPF/XAML. The project can be compiled with e.g. Visual C# 2010 Express, which is available free of charge.
+Auremo is written from scratch in C#. The user interface is implemented in WPF/XAML. The project can be compiled with e.g. Visual C# 2012 Express, which is available free of charge.
 
 == Project status ==
 
-Auremo's newest version (0.4.0) was released on the 8th of May, 2013 (ChangeLog). See the CurrentFeatures page for a brief explanation of what Auremo can currently do.
+Auremo's latest stable version (0.4.0) was released on the 8th of May, 2013 (ChangeLog). See the CurrentFeatures page for a brief explanation of what Auremo can currently do.
 
-Version 0.4 concentrated exclusively on GUI work. It took much longer than expected and is still not 100% finished, but should now be good enough for real use. GUI work will continue, but the next versions will concentrate on features that you guys have requested. They should also see a return to the former, rapid release pace. 
+The upcoming 0.5 version is feature complete and pre-releases of it are available on the downloads page. The new features are listed on the UpcomingFeatures page. Some further bug fixing and polishing work needs to happen before 0.5 goes gold.
 
-See the UpcomingFeatures page for details. There is also a RoadMap of the long-term plans for Auremo.
+There is also a RoadMap of the long-term plans for Auremo.
 
 == Feedback ==
 
