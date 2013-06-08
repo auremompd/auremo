@@ -154,5 +154,17 @@ namespace Auremo.Properties {
                 this["KnownStreams"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool InitialSetupDone {
+            get {
+                return ((bool)(this["InitialSetupDone"]));
+            }
+            set {
+                this["InitialSetupDone"] = value;
+            }
+        }
     }
 }

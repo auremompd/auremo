@@ -81,6 +81,7 @@ namespace Auremo
             SetUpTreeViewControllers();
             CreateTimer(Settings.Default.ViewUpdateInterval);
             ApplyInitialSettings();
+            SetInitialWindowState();
             Update();
         }
 
@@ -226,6 +227,16 @@ namespace Auremo
             m_Database.RefreshCollection();
             m_DatabaseView.RefreshCollection();
             m_SavedPlaylists.Refresh(m_Connection);
+        }
+
+        private void SetInitialWindowState()
+        {
+            Show();
+
+            if (!Settings.Default.InitialSetupDone)
+            {
+                BringUpSettingsWindow();
+            }
         }
 
         #endregion
@@ -385,16 +396,7 @@ namespace Auremo
 
         private void OnEditSettingsClicked(object sender, RoutedEventArgs e)
         {
-            if (m_SettingsWindow == null)
-            {
-                m_SettingsWindow = new SettingsWindow(this);
-            }
-            else
-            {
-                m_SettingsWindow.Visibility = Visibility.Visible;
-            }
-
-            m_SettingsWindow.Show();
+            BringUpSettingsWindow();
         }
 
         private void OnExitClicked(object sender, RoutedEventArgs e)
@@ -441,40 +443,12 @@ namespace Auremo
 
         private void OnViewLicenseClicked(object sender, RoutedEventArgs e)
         {
-            if (m_LicenseWindow == null)
-            {
-                Assembly assembly = Assembly.GetExecutingAssembly();
-                Stream stream = assembly.GetManifestResourceStream("Auremo.Text.LICENSE.txt");
-                StreamReader reader = new StreamReader(stream, Encoding.UTF8);
-                string license = reader.ReadToEnd();
-
-                m_LicenseWindow = new TextWindow("License - Auremo MPD Client", license, this);
-            }
-            else
-            {
-                m_LicenseWindow.Visibility = Visibility.Visible;
-            }
-
-            m_LicenseWindow.Show();
+            BringUpLicenseWindow();
         }
 
         private void OnAboutClicked(object sender, RoutedEventArgs e)
         {
-            if (m_AboutWindow == null)
-            {
-                Assembly assembly = Assembly.GetExecutingAssembly();
-                Stream stream = assembly.GetManifestResourceStream("Auremo.Text.AUTHORS.txt");
-                StreamReader reader = new StreamReader(stream, Encoding.UTF8);
-                string about = reader.ReadToEnd();
-
-                m_AboutWindow = new TextWindow("About - Auremo MPD Client", about, this);
-            }
-            else
-            {
-                m_AboutWindow.Visibility = Visibility.Visible;
-            }
-
-            m_AboutWindow.Show();
+            BringUpAboutWindow();
         }
 
         #endregion
@@ -2189,7 +2163,59 @@ namespace Auremo
 
         #endregion
 
-        #region Child window interface
+        #region Child window handling
+
+        private void BringUpSettingsWindow()
+        {
+            if (m_SettingsWindow == null)
+            {
+                m_SettingsWindow = new SettingsWindow(this);
+            }
+            else
+            {
+                m_SettingsWindow.Visibility = Visibility.Visible;
+            }
+
+            m_SettingsWindow.Show();
+        }
+
+        private void BringUpLicenseWindow()
+        {
+            if (m_LicenseWindow == null)
+            {
+                Assembly assembly = Assembly.GetExecutingAssembly();
+                Stream stream = assembly.GetManifestResourceStream("Auremo.Text.LICENSE.txt");
+                StreamReader reader = new StreamReader(stream, Encoding.UTF8);
+                string license = reader.ReadToEnd();
+
+                m_LicenseWindow = new TextWindow("License - Auremo MPD Client", license, this);
+            }
+            else
+            {
+                m_LicenseWindow.Visibility = Visibility.Visible;
+            }
+
+            m_LicenseWindow.Show();
+        }
+
+        private void BringUpAboutWindow()
+        {
+            if (m_AboutWindow == null)
+            {
+                Assembly assembly = Assembly.GetExecutingAssembly();
+                Stream stream = assembly.GetManifestResourceStream("Auremo.Text.AUTHORS.txt");
+                StreamReader reader = new StreamReader(stream, Encoding.UTF8);
+                string about = reader.ReadToEnd();
+
+                m_AboutWindow = new TextWindow("About - Auremo MPD Client", about, this);
+            }
+            else
+            {
+                m_AboutWindow.Visibility = Visibility.Visible;
+            }
+
+            m_AboutWindow.Show();
+        }
 
         public void OnChildWindowClosing(Window window)
         {

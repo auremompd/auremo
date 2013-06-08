@@ -122,6 +122,8 @@ namespace Auremo
             Settings.Default.MouseWheelAdjustsSongPositionPercentBy = Utils.StringToInt(m_WheelSongPositioningPercentEntry.Text, 5);
             Settings.Default.MouseWheelAdjustsSongPositionSecondsBy = Utils.StringToInt(m_WheelSongPositioningSecondsEntry.Text, 5);
 
+            Settings.Default.InitialSetupDone = true;
+
             Settings.Default.Save();
 
             m_Parent.SettingsChanged(reconnectNeeded);
