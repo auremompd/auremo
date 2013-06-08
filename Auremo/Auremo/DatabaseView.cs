@@ -19,23 +19,44 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 
 namespace Auremo
 {
-    public class DatabaseView
+    public class DatabaseView : INotifyPropertyChanged
     {
+        #region INotifyPropertyChanged implementation
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChanged(string info)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(info));
+            }
+        }
+
+        #endregion
+
         private Database m_Database = null;
+        private StreamsCollection m_StreamsCollection = null;
+        private CollectionSearch m_CollectionSearchThread = null;
 
         public delegate ISet<AlbumMetadata> AlbumsUnderRoot(string root);
         public delegate ISet<SongMetadata> SongsOnAlbum(AlbumMetadata album);
 
         #region Construction and setup
 
-        public DatabaseView(Database database)
+        public DatabaseView(Database database, StreamsCollection streamsCollection, CollectionSearch collectionSeachThread)
         {
             m_Database = database;
+            m_StreamsCollection = streamsCollection;
+
+            m_CollectionSearchThread = collectionSeachThread;
+            SearchResults = new ObservableCollection<CollectionSearch.SearchResultTuple>();
 
             Artists = new ObservableCollection<string>();
             AlbumsBySelectedArtists = new ObservableCollection<AlbumMetadata>();
@@ -53,9 +74,17 @@ namespace Auremo
 
             DirectoryTree = new ObservableCollection<TreeViewNode>();
             DirectoryTreeController = new TreeViewController(DirectoryTree);
+
+            m_StreamsCollection.PropertyChanged += new PropertyChangedEventHandler(OnStreamsCollectionPropertyChanged);
+            m_CollectionSearchThread.PropertyChanged += new PropertyChangedEventHandler(OnCollectionSearchResultsPropertyChanged);
+            PopulateStreams();
+
+
+
+            
         }
 
-        public void Refresh()
+        public void RefreshCollection()
         {
             PopulateArtists();
             AlbumsBySelectedArtists.Clear();
@@ -66,6 +95,11 @@ namespace Auremo
             PopulateDirectoryTree();
             PopulateArtistTree();
             PopulateGenreTree();
+        }
+
+        public void RefreshStreams()
+        {
+            //PopulateStreams();
         }
 
         private void PopulateArtists()
@@ -214,6 +248,25 @@ namespace Auremo
 
         #endregion
 
+        #region Seach
+
+        private void OnCollectionSearchResultsPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "SearchResults")
+            {
+                SearchResults = new ObservableCollection<CollectionSearch.SearchResultTuple>(m_CollectionSearchThread.SearchResults);
+                NotifyPropertyChanged("SearchResults");
+            }
+        }
+
+        public IList<CollectionSearch.SearchResultTuple> SearchResults
+        {
+            get;
+            private set;
+        }
+
+        #endregion
+
         #region Artist/album/song view
 
         public IList<string> Artists
@@ -346,6 +399,32 @@ namespace Auremo
             {
                 return DirectoryTreeController.Songs;
             }
+        }
+
+        #endregion
+
+        #region Streams view
+
+        private void OnStreamsCollectionPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "Streams")
+            {
+                PopulateStreams();
+                Streams = new ObservableCollection<StreamMetadata>(m_StreamsCollection.Streams);
+            }
+        }
+
+        public IList<StreamMetadata> Streams
+        {
+            get;
+            private set;
+        }
+
+        private void PopulateStreams()
+        {
+            ISet<StreamMetadata> sortedStreams = new SortedSet<StreamMetadata>(m_StreamsCollection.Streams);
+            Streams = new ObservableCollection<StreamMetadata>(sortedStreams);
+            NotifyPropertyChanged("Streams");
         }
 
         #endregion

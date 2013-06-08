@@ -174,6 +174,25 @@ namespace Auremo
 
         #endregion
 
+        #region Outputs
+
+        public static ServerResponse Outputs(ServerConnection connection)
+        {
+            return SendStringAndGetResponse(connection, "outputs");
+        }
+
+        public static ServerResponse EnableOutput(ServerConnection connection, int index)
+        {
+            return SendStringAndGetResponse(connection, "enableoutput " + index);
+        }
+
+        public static ServerResponse DisableOutput(ServerConnection connection, int index)
+        {
+            return SendStringAndGetResponse(connection, "disableoutput " + index);
+        }
+
+        #endregion
+
         #region Miscellaneous commands (reference order)
 
         public static void Close(ServerConnection connection)

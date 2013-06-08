@@ -43,13 +43,15 @@ namespace Auremo
         ServerConnection m_Connection = null;
         ServerStatus m_ServerStatus = null;
         Database m_Database = null;
+        StreamsCollection m_StreamsCollection = null;
         PlaylistItem m_ItemMarkedAsCurrent = null;
 
-        public Playlist(ServerConnection connection, ServerStatus serverStatus, Database database)
+        public Playlist(ServerConnection connection, ServerStatus serverStatus, Database database, StreamsCollection streamsCollection)
         {
             m_Connection = connection;
             m_ServerStatus = serverStatus;
             m_Database = database;
+            m_StreamsCollection = streamsCollection;
 
             Items = new ObservableCollection<PlaylistItem>();
 
@@ -105,7 +107,7 @@ namespace Auremo
                     }
 
                     item = new PlaylistItem();
-                    item.Song = m_Database.SongByPath(line.Value);
+                    item.Playable = PlayableByPath(line.Value);
                 }
                 else if (line.Name == "Id")
                 {
@@ -162,21 +164,50 @@ namespace Auremo
             }
             else
             {
-                PlayStatusDescription =
-                     (m_ServerStatus.IsPlaying.Value ? "Playing " : "Paused - ") +
-                      m_ItemMarkedAsCurrent.Song.Artist + ": " +
-                      m_ItemMarkedAsCurrent.Song.Title + " (" +
-                      m_ItemMarkedAsCurrent.Song.Album;
+                string status = m_ServerStatus.IsPlaying.Value ? "Playing " : "Paused - ";
 
-                if (m_ItemMarkedAsCurrent.Song.Year.HasValue)
+                if (m_ItemMarkedAsCurrent.Playable is SongMetadata)
                 {
-                    PlayStatusDescription += ", " + m_ItemMarkedAsCurrent.Song.Year.Value;
+                    status += 
+                          m_ItemMarkedAsCurrent.Playable.Artist + ": " +
+                          m_ItemMarkedAsCurrent.Playable.Title + " (" +
+                          m_ItemMarkedAsCurrent.Playable.Album;
+
+                    if (m_ItemMarkedAsCurrent.Playable.Year.HasValue)
+                    {
+                        status += ", " + m_ItemMarkedAsCurrent.Playable.Year.Value;
+                    }
+
+                    status += ").";
+                }
+                else
+                {
+                    status =
+                         (m_ServerStatus.IsPlaying.Value ? "Playing " : "Paused - ") +
+                          m_ItemMarkedAsCurrent.Playable.Title + ".";
                 }
 
-                PlayStatusDescription += ").";
+                PlayStatusDescription = status;
             }
 
             NotifyPropertyChanged("PlayStatusDescription");
+        }
+
+        private Playable PlayableByPath(string path)
+        {
+            Playable result = m_Database.SongByPath(path);
+
+            if (result == null)
+            {
+                result = m_StreamsCollection.StreamByPath(path);
+            }
+
+            if (result == null)
+            {
+                result = new UnknownPlayable(path);
+            }
+
+            return result;
         }
     }
 }

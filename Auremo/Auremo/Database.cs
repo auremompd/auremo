@@ -31,8 +31,9 @@ namespace Auremo
         private IDictionary<string, ISet<AlbumMetadata>> m_AlbumsByArtist = new SortedDictionary<string, ISet<AlbumMetadata>>();
         private IDictionary<string, ISet<AlbumMetadata>> m_AlbumsByGenre = new SortedDictionary<string, ISet<AlbumMetadata>>();
         private IDictionary<AlbumMetadata, ISet<string>> m_SongPathsByAlbum = new SortedDictionary<AlbumMetadata, ISet<string>>();
+        private IDictionary<SongMetadata, AlbumMetadata> m_AlbumBySong = new SortedDictionary<SongMetadata, AlbumMetadata>();
         private IDictionary<string, SongMetadata> m_SongInfo = new SortedDictionary<string, SongMetadata>();
-
+        
         public Database(ServerConnection connection, ServerStatus status)
         {
             m_Connection = connection;
@@ -40,11 +41,12 @@ namespace Auremo
             Genres = new List<string>();
         }
 
-        public bool Refresh()
+        public bool RefreshCollection()
         {
             m_AlbumsByArtist.Clear();
             m_AlbumsByGenre.Clear();
             m_SongPathsByAlbum.Clear();
+            m_AlbumBySong.Clear();
             m_SongInfo.Clear();
 
             Artists = new List<string>();
@@ -56,10 +58,11 @@ namespace Auremo
                 
                 PopulateArtists();
                 PopulateGenres();
-
+                                
                 PopulateAlbumsByArtist();
                 PopulateAlbumsByGenre();
                 PopulateSongPathsByAlbum();
+                PopulateAlbumsBySong();
             }
 
             return true;
@@ -115,6 +118,20 @@ namespace Auremo
             return result;
         }
 
+        public AlbumMetadata AlbumOfSong(SongMetadata song)
+        {
+            AlbumMetadata album = null;
+
+            if (m_AlbumBySong.TryGetValue(song, out album))
+            {
+                return album;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         public ISet<SongMetadata> SongsByAlbum(AlbumMetadata byAlbum)
         {
             SortedSet<SongMetadata> result = new SortedSet<SongMetadata>();
@@ -135,16 +152,16 @@ namespace Auremo
 
         public SongMetadata SongByPath(string path)
         {
-            if (m_SongInfo.ContainsKey(path))
+            SongMetadata result;
+            
+            if (m_SongInfo.TryGetValue(path, out result))
             {
-                return m_SongInfo[path];
+                return result;
             }
-            else
-            {
-                return new SongMetadata();
-            }
-        }
 
+            return null;
+        }
+                
         private void PopulateSongInfo(ServerConnection connection)
         {
             ServerResponse response = Protocol.ListAllInfo(connection);
@@ -225,7 +242,7 @@ namespace Auremo
 
             Genres = uniqueGenres;
         }
-
+        
         private void PopulateAlbumsByArtist()
         {
             foreach (SongMetadata song in m_SongInfo.Values)
@@ -257,6 +274,17 @@ namespace Auremo
                 album.Title = song.Album;
 
                 m_AlbumsByGenre[song.Genre].Add(album);
+            }
+        }
+
+        private void PopulateAlbumsBySong()
+        {
+            foreach (KeyValuePair<AlbumMetadata, ISet<string>> albumAndSongs in m_SongPathsByAlbum)
+            {
+                foreach (string songPath in albumAndSongs.Value)
+                {
+                    m_AlbumBySong.Add(SongByPath(songPath), albumAndSongs.Key);
+                }
             }
         }
 
