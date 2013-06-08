@@ -4,20 +4,24 @@
 
 The 0.5 version will add new features. As there are many requested features, emphasis is given to low-hanging fruit.
 
-==Features and fixes available in the 0.5.pre2 prerelease==
+==Features and fixes available in the 0.5.pre3 prerelease==
 
   * Add search tab.
+  * Enable searching the music collection by typing characters in any view (auto-search).
   * Add support for HTTP streams, e.g. web radio.
+  * Add a menu for viewing, enabling and disable outputs on the server.
+  * Add support in media keys on the keyboard (play/pause, next, previous, stop, volume up and down).
+  * Display untitled songs by file name instead of as "Unknown Song".
+  * Add a shuffle function to the playlist's context menu. 
+  * Make the settings window appear automatically the first time Auremo is started.
   * Fix disabled slider visual.
   * Fix play status in status bar.
-  * Display untitled songs by file name instead of as "Unknown Song".
+  * Fix song length display when disconnected or inactive.
+  * Shrink minimum window size to 960 x 640 for the benefit of 720p users.
 
 ==Committed features and fixes==
  
-  * Add shuffle menu item to the playlist's context menu. (/branches/0.5-dev, r256)
-  * Enable searching the music collection by typing characters in any view (auto-search). (/branches/0.5-dev, r257)
-  * Add menu for viewing, enabling and disable outputs on the server. (/branches/0.5-dev, r262)
-  * Shrink minimum window size to 960 x 640 for the benefit of 720p users. (/branches/0.5-dev, r266)
+  * (no new commits)
 
 == Bugs ==
 
