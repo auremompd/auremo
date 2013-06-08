@@ -146,7 +146,7 @@ namespace Auremo
             m_PlayStatusMessage.DataContext = m_Playlist;
             m_ConnectionStatusDescription.DataContext = m_Connection;
 
-            m_SearchResultsHint.DataContext = m_DatabaseView.SearchResults;
+            m_SearchResultsHint.DataContext = m_SearchResultsView.Items;
             m_SearchBoxHint.DataContext = m_SearchBox;
             m_ArtistsHint.DataContext = m_DatabaseView.Artists;
             m_AlbumsBySelectedArtistsHint.DataContext = m_DatabaseView.AlbumsBySelectedArtists;
