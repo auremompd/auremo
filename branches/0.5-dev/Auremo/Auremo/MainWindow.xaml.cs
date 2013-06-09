@@ -2171,6 +2171,24 @@ namespace Auremo
             }
         }
 
+        private void m_StringQueryOverlayBackgroundClicked(object sender, MouseButtonEventArgs e)
+        {
+            StringQueryOverlayExitHandler currentHandler = m_StringQueryOverlayExitHandler;
+            ExitStringQueryOverlay();
+
+            if (currentHandler != null)
+            {
+                currentHandler(false, m_StringQueryOverlayInput.Text);
+            }
+
+            e.Handled = true;
+        }
+
+        private void m_StringQueryOverlayForegroundClicked(object sender, MouseButtonEventArgs e)
+        {
+            e.Handled = true;
+        }
+
         #endregion
 
         #region Child window handling
