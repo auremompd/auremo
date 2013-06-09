@@ -457,6 +457,14 @@ namespace Auremo
 
         #region Simple (non-drag-drop) data grid operations
 
+        private void OnSearchBoxEnabledChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (m_SearchBox.Focusable)
+            {
+                m_SearchBox.Focus();
+            }
+        }
+
         private void OnSearchBoxTextChanged(object sender, TextChangedEventArgs e)
         {
             m_CollectionSearchThread.SearchString = m_SearchBox.Text;
@@ -2142,6 +2150,8 @@ namespace Auremo
             m_StringQueryOverlayCaption.Text = caption;
             m_StringQueryOverlayInput.Text = defaultInput == null ? "" : defaultInput;
             m_StringQueryOverlay.Visibility = Visibility.Visible;
+            m_StringQueryOverlayInput.CaretIndex = m_StringQueryOverlayInput.Text.Length;
+            m_StringQueryOverlayInput.Focus();
         }
 
         private void ExitStringQueryOverlay()

@@ -78,10 +78,6 @@ namespace Auremo
             m_StreamsCollection.PropertyChanged += new PropertyChangedEventHandler(OnStreamsCollectionPropertyChanged);
             m_CollectionSearchThread.PropertyChanged += new PropertyChangedEventHandler(OnCollectionSearchResultsPropertyChanged);
             PopulateStreams();
-
-
-
-            
         }
 
         public void RefreshCollection()
