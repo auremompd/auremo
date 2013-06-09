@@ -551,9 +551,13 @@ namespace Auremo
 
                 e.Handled = true;
             }
-            else
+        }
+
+        private void OnCollectionTextInput(object sender, TextCompositionEventArgs e)
+        {
+            if (!e.Handled && e.Text != null && e.Text.Length == 1)
             {
-                CollectionAutoSearch(sender, e.Key);
+                CollectionAutoSearch(sender, e.Text[0]);
             }
         }
 
@@ -571,10 +575,6 @@ namespace Auremo
 
                 e.Handled = true;
             }
-            else
-            {
-                CollectionAutoSearch(sender, e.Key);
-            }
         }
 
         private void OnAlbumViewKeyDown(object sender, KeyEventArgs e)
@@ -587,10 +587,6 @@ namespace Auremo
                 }
 
                 e.Handled = true;
-            }
-            else
-            {
-                CollectionAutoSearch(sender, e.Key);
             }
         }
 
@@ -605,10 +601,6 @@ namespace Auremo
 
                 e.Handled = true;
             }
-            else
-            {
-                CollectionAutoSearch(sender, e.Key);
-            }
         }
 
         private void OnSongViewKeyDown(object sender, KeyEventArgs e)
@@ -621,10 +613,6 @@ namespace Auremo
                 }
 
                 e.Handled = true;
-            }
-            else
-            {
-                CollectionAutoSearch(sender, e.Key);
             }
         }
 
@@ -648,10 +636,6 @@ namespace Auremo
             {
                 OnDeleteSelectedStreams();
                 e.Handled = true;
-            }
-            else
-            {
-                CollectionAutoSearch(sender, e.Key);
             }
         }
 
@@ -1022,7 +1006,7 @@ namespace Auremo
             }
         }
 
-        private bool CollectionAutoSearch(object sender, Key key)
+        private bool CollectionAutoSearch(object sender, char c)
         {
             if (sender != m_LastAutoSearchSender || DateTime.Now.Subtract(m_TimeOfLastAutoSearch).TotalMilliseconds > m_AutoSearchMaxKeystrokeGap)
             {
@@ -1032,22 +1016,23 @@ namespace Auremo
             m_TimeOfLastAutoSearch = DateTime.Now;
             m_LastAutoSearchSender = sender;
             bool searchAgain = false;
-            string keyAsString = key.ToString();
 
-            if (keyAsString.Length == 1)
+            if (c == '\b')
             {
-                char keyAsChar = keyAsString[0];
-
-                if (char.IsLetter(keyAsChar))
+                if (m_AutoSearchString.Length > 0)
                 {
-                    m_AutoSearchString = (m_AutoSearchString + keyAsChar).ToLowerInvariant();
-                    searchAgain = true;
+                    m_AutoSearchString = m_AutoSearchString.Remove(m_AutoSearchString.Length - 1);
+                    searchAgain = m_AutoSearchString.Length > 0;
                 }
             }
-            else if (key == Key.Back && m_AutoSearchString.Length > 0)
+            else if (!char.IsControl(c) && !char.IsSurrogate(c))
             {
-                m_AutoSearchString = m_AutoSearchString.Remove(m_AutoSearchString.Length - 1);
-                searchAgain = m_AutoSearchString.Length > 0;
+                m_AutoSearchString = (m_AutoSearchString + c).ToLowerInvariant();
+                searchAgain = true;
+            }
+            else
+            {
+                m_TimeOfLastAutoSearch = DateTime.MinValue;
             }
 
             if (searchAgain)
@@ -1060,8 +1045,9 @@ namespace Auremo
                     {
                         if (o is string && (o as string).ToLowerInvariant().StartsWith(m_AutoSearchString) ||
                            o is AlbumMetadata && (o as AlbumMetadata).Title.ToLowerInvariant().StartsWith(m_AutoSearchString) ||
-                           o is SongMetadata && (o as SongMetadata).Title.ToLowerInvariant().StartsWith(m_AutoSearchString))
+                           o is Playable && (o as Playable).Title.ToLowerInvariant().StartsWith(m_AutoSearchString))
                         {
+                            grid.CurrentItem = o;
                             grid.SelectedItem = o;
                             grid.ScrollIntoView(o);
                             return true;
@@ -1071,12 +1057,16 @@ namespace Auremo
                 else if (sender is TreeView)
                 {
                     TreeView tree = sender as TreeView;
-                    TreeViewNode item = CollectionAutoSearchTreeView(Utils.ToTypedList<TreeViewNode>(tree.Items));
+                    TreeViewNode item = CollectionAutoSearchTreeViewRecursively(Utils.ToTypedList<TreeViewNode>(tree.Items));
 
                     if (item != null)
                     {
                         item.Controller.ClearMultiSelection();
+                        item.IsMultiSelected = true;
+                        item.IsSelected = true;
                         item.Controller.Current = item;
+                        item.Controller.Pivot = item;
+                        
                         return true;
                     }
                 }
@@ -1085,7 +1075,7 @@ namespace Auremo
             return false;
         }
 
-        private TreeViewNode CollectionAutoSearchTreeView(IEnumerable<TreeViewNode> nodes)
+        private TreeViewNode CollectionAutoSearchTreeViewRecursively(IEnumerable<TreeViewNode> nodes)
         {
             foreach (TreeViewNode node in nodes)
             {
@@ -1095,7 +1085,7 @@ namespace Auremo
                 }
                 else if (node.IsExpanded)
                 {
-                    TreeViewNode result = CollectionAutoSearchTreeView(Utils.ToTypedList<TreeViewNode>(node.Children));
+                    TreeViewNode result = CollectionAutoSearchTreeViewRecursively(Utils.ToTypedList<TreeViewNode>(node.Children));
 
                     if (result != null)
                     {
@@ -1194,21 +1184,22 @@ namespace Auremo
             TreeView tree = sender as TreeView;
             TreeViewController controller = tree.Tag as TreeViewController;
 
-            e.Handled = true;
-
             if (Keyboard.Modifiers == ModifierKeys.None || Keyboard.Modifiers == ModifierKeys.Shift)
             {
                 bool currentChanged = false;
+                bool handled = true;
 
                 if (e.Key == Key.Up && EnsureTreeViewHasCurrentNode(controller))
                 {
                     controller.Current = controller.Previous;
                     currentChanged = true;
+                    e.Handled = true;
                 }
                 else if (e.Key == Key.Down && EnsureTreeViewHasCurrentNode(controller))
                 {
                     controller.Current = controller.Next;
                     currentChanged = true;
+                    e.Handled = true;
                 }
                 else if (e.Key == Key.Enter)
                 {
@@ -1234,10 +1225,8 @@ namespace Auremo
 
                         Update();
                     }
-                }
-                else
-                {
-                    currentChanged = CollectionAutoSearch(sender, e.Key);
+
+                    e.Handled = true;
                 }
 
                 if (currentChanged)
