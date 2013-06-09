@@ -510,68 +510,17 @@ namespace Auremo
             if (element is DataGrid)
             {
                 DataGrid list = element as DataGrid;
+                bool selectionMayIncludeArtists = list != m_GenresView;
 
-                if (list == m_SongsOnSelectedAlbumsView || list == m_SongsOnSelectedGenreAlbumsView || list == m_StreamsView)
+                foreach (object o in list.SelectedItems)
                 {
-                    foreach (Object playable in list.SelectedItems)
-                    {
-                        Protocol.Add(m_Connection, (playable as Playable).Path);
-                    }
-                }
-                else if (list == m_AlbumsBySelectedArtistsView || list == m_AlbumsOfSelectedGenresView)
-                {
-                    foreach (Object album in list.SelectedItems)
-                    {
-                        foreach (SongMetadata song in m_Database.SongsByAlbum(album as AlbumMetadata))
-                        {
-                            Protocol.Add(m_Connection, song.Path);
-                        }
-                    }
-                }
-                else if (list == m_ArtistsView)
-                {
-                    foreach (Object artist in list.SelectedItems)
-                    {
-                        foreach (AlbumMetadata album in m_Database.AlbumsByArtist(artist as string))
-                        {
-                            foreach (SongMetadata song in m_Database.SongsByAlbum(album as AlbumMetadata))
-                            {
-                                Protocol.Add(m_Connection, song.Path);
-                            }
-                        }
-                    }
-                }
-                else if (list == m_GenresView)
-                {
-                    foreach (Object genre in list.SelectedItems)
-                    {
-                        foreach (AlbumMetadata album in m_Database.AlbumsByGenre(genre as string))
-                        {
-                            foreach (SongMetadata song in m_Database.SongsByAlbum(album as AlbumMetadata))
-                            {
-                                Protocol.Add(m_Connection, song.Path);
-                            }
-                        }
-                    }
+                    AddObjectToPlaylist(o, selectionMayIncludeArtists);
                 }
             }
             else if (element is TreeView)
             {
-                TreeView tree = element as TreeView;
-                ISet<SongMetadataTreeViewNode> selection = null;
-
-                if (tree == m_ArtistTree)
-                {
-                    selection = m_DatabaseView.ArtistTreeSelectedSongs;
-                }
-                else if (tree == m_GenreTree)
-                {
-                    selection = m_DatabaseView.GenreTreeSelectedSongs;
-                }
-                else if (tree == m_DirectoryTree)
-                {
-                    selection = m_DatabaseView.DirectoryTreeSelectedSongs;
-                }
+                TreeViewController controller = TreeViewControllerOf(element as TreeView);
+                ISet<SongMetadataTreeViewNode> selection = controller.Songs;
 
                 if (selection != null)
                 {
@@ -666,13 +615,9 @@ namespace Auremo
         {
             if (e.Key == Key.Enter)
             {
-                foreach (object o in m_SongsOnSelectedAlbumsView.SelectedItems)
+                foreach (object song in m_SongsOnSelectedAlbumsView.SelectedItems)
                 {
-                    if (o is SongMetadata)
-                    {
-                        SongMetadata song = o as SongMetadata;
-                        Protocol.Add(m_Connection, song.Path);
-                    }
+                    AddObjectToPlaylist(song, false);
                 }
 
                 e.Handled = true;
@@ -685,15 +630,24 @@ namespace Auremo
 
         private void OnStreamsViewKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.F2 && m_StreamsView.SelectedItems.Count == 1)
+            if (e.Key == Key.Enter)
             {
+                foreach (object stream in m_StreamsView.SelectedItems)
+                {
+                    AddObjectToPlaylist(stream, false);
+                }
+
                 e.Handled = true;
+            }
+            else if (e.Key == Key.F2 && m_StreamsView.SelectedItems.Count == 1)
+            {
                 OnRenameSelectedStream();
+                e.Handled = true;
             }
             else if (e.Key == Key.Delete)
             {
-                e.Handled = true;
                 OnDeleteSelectedStreams();
+                e.Handled = true;
             }
             else
             {
@@ -703,14 +657,9 @@ namespace Auremo
 
         private void OnStreamsViewDoubleClicked(object sender, MouseButtonEventArgs e)
         {
-            foreach (object o in m_StreamsView.SelectedItems)
+            foreach (object stream in m_StreamsView.SelectedItems)
             {
-                StreamMetadata stream = o as StreamMetadata;
-
-                if (stream != null)
-                {
-                    Protocol.Add(m_Connection, stream.Path);
-                }
+                AddObjectToPlaylist(stream, false);
             }
         }
 
@@ -818,21 +767,14 @@ namespace Auremo
 
         private void OnDeleteSelectedStreams()
         {
-            IList<StreamMetadata> streams = new List<StreamMetadata>();
-
-            foreach (object o in m_StreamsView.SelectedItems)
-            {
-                streams.Add(o as StreamMetadata);
-            }
-
-            m_StreamsCollection.Delete(streams);
+            m_StreamsCollection.Delete(Utils.ToTypedList<StreamMetadata>(m_StreamsView.SelectedItems));
         }
 
         private void OnSavedPlaylistsViewDoubleClicked(object sender, MouseButtonEventArgs e)
         {
             if (Keyboard.Modifiers == ModifierKeys.None)
             {
-                object selectedPlaylist = m_SavedPlaylistsView.SelectedItem;
+                object selectedPlaylist = m_SavedPlaylistsView.SelectedItems;
 
                 if (selectedPlaylist != null)
                 {
@@ -986,10 +928,6 @@ namespace Auremo
             }
         }
 
-        private void OnSavePlaylistViewClicked(object sender, RoutedEventArgs e)
-        {
-        }
-
         private void OnDedupPlaylistViewClicked(object sender, RoutedEventArgs e)
         {
             ISet<string> songPathsOnPlaylist = new SortedSet<string>();
@@ -1050,18 +988,6 @@ namespace Auremo
                 Update();
             }
         
-        }
-
-        // Currently unused. The menu item enabling/disabling problem needs
-        // to be solved first, then the header text setting... WPF is evil.
-        private void OnSavePlaylistClicked(object sender, RoutedEventArgs e)
-        {
-            if (m_SavedPlaylists.CurrentPlaylistName != "")
-            {
-                Protocol.Rm(m_Connection, m_SavedPlaylists.CurrentPlaylistName);
-                Protocol.Save(m_Connection, m_SavedPlaylists.CurrentPlaylistName);
-                m_SavedPlaylists.Refresh(m_Connection);
-            }
         }
 
         private void OnSavePlaylistAsClicked(object sender, RoutedEventArgs e)
@@ -2286,6 +2212,10 @@ namespace Auremo
             {
                 AddSongToPlaylist(o as SongMetadata);
             }
+            else if (o is StreamMetadata)
+            {
+                AddStreamToPlaylist(o as StreamMetadata);
+            }
         }
 
         // Template: firstPosition is the position on the playlist to which
@@ -2311,6 +2241,10 @@ namespace Auremo
             else if (o is SongMetadata)
             {
                 return AddSongToPlaylist(o as SongMetadata, firstPosition);
+            }
+            else if (o is StreamMetadata)
+            {
+                return AddStreamToPlaylist(o as StreamMetadata, firstPosition);
             }
 
             return firstPosition;
@@ -2384,6 +2318,17 @@ namespace Auremo
         private int AddSongToPlaylist(SongMetadata song, int position)
         {
             Protocol.AddId(m_Connection, song.Path, position);
+            return position + 1;
+        }
+
+        private void AddStreamToPlaylist(StreamMetadata stream)
+        {
+            Protocol.Add(m_Connection, stream.Path);
+        }
+
+        private int AddStreamToPlaylist(StreamMetadata stream, int position)
+        {
+            Protocol.AddId(m_Connection, stream.Path, position);
             return position + 1;
         }
 
@@ -2494,6 +2439,24 @@ namespace Auremo
             }
 
             return null;
+        }
+
+        private TreeViewController TreeViewControllerOf(TreeView tree)
+        {
+            if (tree == m_ArtistTree)
+            {
+                return m_DatabaseView.ArtistTreeController;
+            }
+            else if (tree == m_GenreTree)
+            {
+                return m_DatabaseView.GenreTreeController;
+            }
+            else if (tree == m_DirectoryTree)
+            {
+                return m_DatabaseView.DirectoryTreeController;
+            }
+
+            throw new Exception("Tried to find the controller of an unknown TreeView.");
         }
 
         private int DropTargetRowIndex(DragEventArgs e)
