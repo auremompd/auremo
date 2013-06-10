@@ -35,7 +35,9 @@
                 <MenuItem Header="Edit settings..." Click="OnEditSettingsClicked"/>
                 <Separator/>
                 <MenuItem Header="Import streams from PLS/M3U playlist..." Click="OnImportStreamsFromFileClicked"/>
-                <Separator/> 
+                <Separator/>
+                <MenuItem Name="m_FileMenuSavePlaylistAsItem" Header="Save current playlist into collection as..." Click="OnSavePlaylistAsClicked" IsEnabled="{Binding Path=Items.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
+                <Separator/>
                 <MenuItem Header="Exit" Click="OnExitClicked"/>
             </MenuItem>
             <MenuItem Name="m_ConnectionMenuItem" Header="Connection">
@@ -393,7 +395,7 @@
                         <MenuItem Header="Clear" Click="OnClearPlaylistViewClicked" IsEnabled="{Binding Path=SelectedItems.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
                         <MenuItem Header="Remove selected items" Click="OnRemoveSelectedPlaylistItemsClicked" IsEnabled="{Binding Path=SelectedItems.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
                         <MenuItem Header="Remove everything but selected items" Click="OnCropToSelectedPlaylistItemsClicked" IsEnabled="{Binding Path=SelectedItems.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
-                        <MenuItem Header="Save as..." Click="OnSavePlaylistAsClicked" IsEnabled="{Binding Path=SelectedItems.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
+                        <MenuItem Header="Save playlist into collection as..." Click="OnSavePlaylistAsClicked" IsEnabled="{Binding Path=Items.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
                         <MenuItem Header="Remove duplicate items" Click="OnDedupPlaylistViewClicked" IsEnabled="{Binding Path=SelectedItems.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
                         <MenuItem Header="Shuffle" Click="OnShufflePlaylistClicked" IsEnabled="{Binding Path=Items.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
                     </ContextMenu>
