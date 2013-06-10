@@ -359,7 +359,7 @@
                             </DataGrid.Columns>
                             <DataGrid.ContextMenu>
                                 <ContextMenu Name="m_SavedPlaylistsViewContextMenu">
-                                    <MenuItem Header="Add to playlist" Click="OnAddToPlaylistClicked" IsEnabled="{Binding Path=Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
+                                    <MenuItem Header="Send to playlist" Click="OnSendSavedPlaylistToPlaylistClicked" IsEnabled="{Binding Path=Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
                                     <Separator/>
                                     <MenuItem Name="m_SavedPlaylistsViewRescanMusicCollectionContextMenuItem" Header="Rescan music collection" Click="OnRescanMusicCollectionClicked" IsEnabled="{Binding Path=IsConnected}"/>
                                 </ContextMenu>
