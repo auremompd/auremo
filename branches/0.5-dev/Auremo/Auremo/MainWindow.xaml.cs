@@ -753,19 +753,6 @@ namespace Auremo
         {
             m_StreamsCollection.Delete(Utils.ToTypedList<StreamMetadata>(m_StreamsView.SelectedItems));
         }
-
-        private void OnSavedPlaylistsViewDoubleClicked(object sender, MouseButtonEventArgs e)
-        {
-            if (Keyboard.Modifiers == ModifierKeys.None)
-            {
-                object selectedPlaylist = m_SavedPlaylistsView.SelectedItem;
-
-                if (selectedPlaylist != null)
-                {
-                    LoadSavedPlaylist(selectedPlaylist as string);
-                }
-            }
-        }
         
         private void OnSavedPlaylistsViewKeyDown(object sender, KeyEventArgs e)
         {
@@ -786,6 +773,29 @@ namespace Auremo
                     Protocol.Rm(m_Connection, playlistName);
                     m_SavedPlaylists.Refresh(m_Connection);
                 }
+            }
+        }
+
+        private void OnSavedPlaylistsViewDoubleClicked(object sender, MouseButtonEventArgs e)
+        {
+            if (Keyboard.Modifiers == ModifierKeys.None)
+            {
+                object selectedPlaylist = m_SavedPlaylistsView.SelectedItem;
+
+                if (selectedPlaylist != null)
+                {
+                    LoadSavedPlaylist(selectedPlaylist as string);
+                }
+            }
+        }
+
+        private void OnSendSavedPlaylistToPlaylistClicked(object sender, RoutedEventArgs e)
+        {
+            object selectedPlaylist = m_SavedPlaylistsView.SelectedItem;
+
+            if (selectedPlaylist != null)
+            {
+                LoadSavedPlaylist(selectedPlaylist as string);
             }
         }
 
@@ -1187,7 +1197,6 @@ namespace Auremo
             if (Keyboard.Modifiers == ModifierKeys.None || Keyboard.Modifiers == ModifierKeys.Shift)
             {
                 bool currentChanged = false;
-                bool handled = true;
 
                 if (e.Key == Key.Up && EnsureTreeViewHasCurrentNode(controller))
                 {
