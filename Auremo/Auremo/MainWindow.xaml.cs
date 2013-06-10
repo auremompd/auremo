@@ -758,7 +758,7 @@ namespace Auremo
         {
             if (Keyboard.Modifiers == ModifierKeys.None)
             {
-                object selectedPlaylist = m_SavedPlaylistsView.SelectedItems;
+                object selectedPlaylist = m_SavedPlaylistsView.SelectedItem;
 
                 if (selectedPlaylist != null)
                 {
