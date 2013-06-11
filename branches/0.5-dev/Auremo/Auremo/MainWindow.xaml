@@ -58,6 +58,8 @@
             <MenuItem Header="Help">
                 <MenuItem Header="View license (GPL2)..." Click="OnViewLicenseClicked"/>
                 <MenuItem Header="About..." Click="OnAboutClicked"/>
+                <Separator/>
+                <Hyperlink NavigateUri="https://code.google.com/p/auremo/" RequestNavigate="OnNavigate">Project home page</Hyperlink>
             </MenuItem>
         </Menu>
         <Image Source="Graphics/Auremo_icon.png" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.RowSpan="5" Grid.ColumnSpan="2" Margin="128,0"/>

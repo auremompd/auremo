@@ -20,6 +20,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -449,6 +450,12 @@ namespace Auremo
         private void OnAboutClicked(object sender, RoutedEventArgs e)
         {
             BringUpAboutWindow();
+        }
+
+        private void OnNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
+        {
+            Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
+            e.Handled = true;
         }
 
         #endregion
