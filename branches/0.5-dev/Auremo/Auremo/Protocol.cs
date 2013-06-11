@@ -103,6 +103,11 @@ namespace Auremo
             return SendStringAndGetResponse(connection, "playlistinfo");
         }
 
+        public static ServerResponse Rename(ServerConnection connection, string oldName, string newName)
+        {
+            return SendStringAndGetResponse(connection, "rename " + QuoteString(oldName) + " " + QuoteString(newName));
+        }
+
         public static ServerResponse Rm(ServerConnection connection, string name)
         {
             return SendStringAndGetResponse(connection, "rm " + QuoteString(name));
