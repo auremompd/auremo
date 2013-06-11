@@ -50,6 +50,14 @@
         </LinearGradientBrush.GradientStops>
     </LinearGradientBrush>
 
+    <LinearGradientBrush x:Key="TextBoxBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
+        <LinearGradientBrush.GradientStops>
+            <GradientStop Color="#FFFFFF" Offset="0"/>
+            <GradientStop Color="#FFFFFF" Offset="0.6"/>
+            <GradientStop Color="#F2F2F2" Offset="1"/>
+        </LinearGradientBrush.GradientStops>
+    </LinearGradientBrush>
+
     <LinearGradientBrush x:Key="HeaderBorderBrush" StartPoint="0,0" EndPoint="1,0">
         <LinearGradientBrush.GradientStops>
             <GradientStop Offset="0" Color="#DDDDDD"/>
@@ -307,8 +315,7 @@
     <!-- Drop & drop -->
 
     <SolidColorBrush x:Key="ToolTipBackgroundBrush" Color="#A07090B0"/>
-    <SolidColorBrush x:Key="TextBoxBackgroundBrush" Color="#FFD0D8E8"/>
-
+    
     <LinearGradientBrush x:Key="DropPositionIndicatorBrush" StartPoint="0,0" EndPoint="1,0">
         <LinearGradientBrush.GradientStops>
             <GradientStop Color="#AAAAAA" Offset="0"/>
