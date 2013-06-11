@@ -478,8 +478,8 @@
                     </Grid.RowDefinitions>
                     <TextBlock Name="m_StringQueryOverlayCaption" Text="Overlay for querying strings." TextWrapping="Wrap" Grid.ColumnSpan="2" Margin="10"/>
                     <TextBox Name="m_StringQueryOverlayInput" Text="Sample input" Margin="10,0" Height="20" Grid.Row="1" Grid.ColumnSpan="2" VerticalAlignment="Center"/>
-                    <Button Name="m_StringQueryOverlayCancel" Content="Cancel" Grid.Row="2" Margin="10,5" Width="80" HorizontalAlignment="Left" Click="OnStringQueryOverlayButtonClicked"/>
-                    <Button Name="m_StringQueryOverlayOK" Content="OK" Grid.Row="2" Grid.Column="1" Margin="10,5" Width="80" HorizontalAlignment="Right" Click="OnStringQueryOverlayButtonClicked"/>
+                    <Button Name="m_StringQueryOverlayCancel" Content="Cancel" IsCancel="True"  Grid.Row="2" Margin="10,5" Width="80" HorizontalAlignment="Left" Click="OnStringQueryOverlayButtonClicked"/>
+                    <Button Name="m_StringQueryOverlayOK" Content="OK" IsDefault="True" Grid.Row="2" Grid.Column="1" Margin="10,5" Width="80" HorizontalAlignment="Right" Click="OnStringQueryOverlayButtonClicked"/>
                 </Grid>
             </Border>
         </Border>
