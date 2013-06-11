@@ -44,17 +44,17 @@
 
     <LinearGradientBrush x:Key="ListBackgroundBrush" StartPoint="0,0" EndPoint="0,1">
         <LinearGradientBrush.GradientStops>
-            <GradientStop Color="#FFFFFF" Offset="0"/>
-            <GradientStop Color="#FFFFFF" Offset="0.6"/>
-            <GradientStop Color="#F2F2F2" Offset="1"/>
+            <GradientStop Color="#D0FFFFFF" Offset="0"/>
+            <GradientStop Color="#D0FFFFFF" Offset="0.6"/>
+            <GradientStop Color="#D0F2F2F2" Offset="1"/>
         </LinearGradientBrush.GradientStops>
     </LinearGradientBrush>
 
     <LinearGradientBrush x:Key="TextBoxBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
         <LinearGradientBrush.GradientStops>
-            <GradientStop Color="#FFFFFF" Offset="0"/>
-            <GradientStop Color="#FFFFFF" Offset="0.6"/>
-            <GradientStop Color="#F2F2F2" Offset="1"/>
+            <GradientStop Color="#D0FFFFFF" Offset="0"/>
+            <GradientStop Color="#D0FFFFFF" Offset="0.6"/>
+            <GradientStop Color="#D0F2F2F2" Offset="1"/>
         </LinearGradientBrush.GradientStops>
     </LinearGradientBrush>
 
@@ -97,9 +97,9 @@
 
     <LinearGradientBrush x:Key="PlaylistBackgroundBrush" StartPoint="0,0" EndPoint="0,1">
         <LinearGradientBrush.GradientStops>
-            <GradientStop Color="#FFFFFF" Offset="0"/>
-            <GradientStop Color="#FFFFFF" Offset="0.65"/>
-            <GradientStop Color="#F2F2F2" Offset="1"/>
+            <GradientStop Color="#D0FFFFFF" Offset="0"/>
+            <GradientStop Color="#D0FFFFFF" Offset="0.65"/>
+            <GradientStop Color="#D0F2F2F2" Offset="1"/>
         </LinearGradientBrush.GradientStops>
     </LinearGradientBrush>
 
