@@ -799,8 +799,16 @@ namespace Auremo
 
             if (selectedPlaylist != null)
             {
-                Protocol.Load(m_Connection, selectedPlaylist as string);
+                LoadSavedPlaylist(selectedPlaylist as string);
             }
+        }
+
+        private void LoadSavedPlaylist(string name)
+        {
+            Protocol.Clear(m_Connection);
+            Protocol.Load(m_Connection, name);
+            m_SavedPlaylists.CurrentPlaylistName = name;
+            Update();
         }
 
         private void OnRenameSavedPlaylistClicked(object sender, RoutedEventArgs e)
@@ -1042,14 +1050,6 @@ namespace Auremo
                 Protocol.Save(m_Connection, m_SavedPlaylists.CurrentPlaylistName);
                 m_SavedPlaylists.Refresh(m_Connection);
             }
-        }
-
-        private void LoadSavedPlaylist(string name)
-        {
-            Protocol.Clear(m_Connection);
-            Protocol.Load(m_Connection, name);
-            m_SavedPlaylists.CurrentPlaylistName = name;
-            Update();
         }
 
         private bool AutoSearchInProgrss
