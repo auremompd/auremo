@@ -34,9 +34,12 @@
             <MenuItem Header="File">
                 <MenuItem Header="Edit settings..." Click="OnEditSettingsClicked"/>
                 <Separator/>
-                <MenuItem Header="Import streams from PLS/M3U playlist..." Click="OnImportStreamsFromFileClicked"/>
+                <MenuItem Header="Add stream by URL..." Click="OnAddStreamURLClicked"/>
+                <MenuItem Header="Add streams from PLS/M3U file..." Click="OnAddStreamsFromFileClicked"/>
                 <Separator/>
                 <MenuItem Name="m_FileMenuSavePlaylistAsItem" Header="Save current playlist into collection as..." Click="OnSavePlaylistAsClicked" IsEnabled="{Binding Path=Items.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
+                <Separator/>
+                <MenuItem Header="Rescan music collection" Click="OnRescanMusicCollectionClicked" IsEnabled="{Binding Path=IsConnected}"/>
                 <Separator/>
                 <MenuItem Header="Exit" Click="OnExitClicked"/>
             </MenuItem>
@@ -44,8 +47,6 @@
                 <MenuItem Header="Connect" Click="OnConnectClicked" IsEnabled="{Binding Path=IsConnected,Converter={StaticResource NegateBoolConverter}}"/>
                 <MenuItem Header="Disconnect" Click="OnDisconnectClicked" IsEnabled="{Binding Path=IsConnected}"/>
                 <MenuItem Header="Reset connection" Click="OnResetConnectionClicked" IsEnabled="{Binding Path=IsConnected}"/>
-                <Separator/>
-                <MenuItem Header="Rescan music collection" Click="OnRescanMusicCollectionClicked" IsEnabled="{Binding Path=IsConnected}"/>
             </MenuItem>
             <MenuItem Name="m_OutputsMenu" Header="Outputs" ItemsSource="{Binding Path=Items}" IsEnabled="{Binding Path=Items.Count,Converter={StaticResource IntToBoolConverter}}">
                 <MenuItem.ItemTemplate>
@@ -334,8 +335,8 @@
                                     <MenuItem Header="Rename stream..." Click="OnRenameSelectedStreamClicked" IsEnabled="{Binding Path=Count, Converter={StaticResource EqualsConverter}, Mode=OneWay, ConverterParameter=1}"/>
                                     <MenuItem Header="Delete streams" Click="OnDeleteSelectedStreamsClicked" IsEnabled="{Binding Path=Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
                                     <Separator/>
-                                    <MenuItem Header="Add stream URL..." Click="OnAddStreamURLClicked"/>
-                                    <MenuItem Header="Import streams from PLS/M3U playlist..." Click="OnImportStreamsFromFileClicked"/>
+                                    <MenuItem Header="Add stream by URL..." Click="OnAddStreamURLClicked"/>
+                                    <MenuItem Header="Add streams from PLS/M3U file..." Click="OnAddStreamsFromFileClicked"/>
                                     <Separator/>
                                     <MenuItem Header="Save selection to file..." Click="OnSaveSelectedStreamsToFileClicked"/>
                                 </ContextMenu>
