@@ -129,7 +129,6 @@ namespace Auremo
             
             m_SavedPlaylistsView.DataContext = m_SavedPlaylists;
             m_SavedPlaylistsViewContextMenu.DataContext = m_SavedPlaylistsView.SelectedItems;
-            m_SavedPlaylistsViewRescanMusicCollectionContextMenuItem.DataContext = m_Connection;
 
             m_StreamsViewContextMenu.DataContext = m_StreamsView.SelectedItems;
 
@@ -757,23 +756,20 @@ namespace Auremo
         
         private void OnSavedPlaylistsViewKeyDown(object sender, KeyEventArgs e)
         {
-            object selectedPlaylist = m_SavedPlaylistsView.SelectedItem;
-
-            if (selectedPlaylist != null)
+            if (e.Key == Key.Enter)
             {
-                string playlistName = selectedPlaylist as string;
-            
-                if (e.Key == Key.Enter)
-                {
-                    e.Handled = true;
-                    LoadSavedPlaylist(playlistName);
-                }
-                else if (e.Key == Key.Delete)
-                {
-                    e.Handled = true;
-                    Protocol.Rm(m_Connection, playlistName);
-                    m_SavedPlaylists.Refresh(m_Connection);
-                }
+                OnLoadSavedPlaylist();
+                e.Handled = true;
+            }
+            else if (e.Key == Key.F2)
+            {
+                RenameSavedPlaylist();
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Delete)
+            {
+                OnDeleteSavedPlaylist();
+                e.Handled = true;
             }
         }
 
@@ -781,22 +777,62 @@ namespace Auremo
         {
             if (Keyboard.Modifiers == ModifierKeys.None)
             {
-                object selectedPlaylist = m_SavedPlaylistsView.SelectedItem;
-
-                if (selectedPlaylist != null)
-                {
-                    LoadSavedPlaylist(selectedPlaylist as string);
-                }
+                OnLoadSavedPlaylist();
             }
         }
 
         private void OnSendSavedPlaylistToPlaylistClicked(object sender, RoutedEventArgs e)
         {
+            OnLoadSavedPlaylist();
+        }
+
+        private void OnLoadSavedPlaylist()
+        {
             object selectedPlaylist = m_SavedPlaylistsView.SelectedItem;
 
             if (selectedPlaylist != null)
             {
-                LoadSavedPlaylist(selectedPlaylist as string);
+                Protocol.Load(m_Connection, selectedPlaylist as string);
+            }
+        }
+
+        private void OnRenameSavedPlaylistClicked(object sender, RoutedEventArgs e)
+        {
+            RenameSavedPlaylist();
+        }
+
+        private void RenameSavedPlaylist()
+        {
+            object selectedPlaylist = m_SavedPlaylistsView.SelectedItem;
+
+            if (selectedPlaylist != null)
+            {
+                StartRenameSavedPlaylistQuery(selectedPlaylist as string);
+            }
+        }
+
+        private void OnRenameStreamQueryFinished(bool succeeded, string oldName, string newName)
+        {
+            if (succeeded)
+            {
+                Protocol.Rename(m_Connection, oldName, newName);
+                m_SavedPlaylists.Refresh(m_Connection);
+            }
+        }
+
+        private void OnDeleteSavedPlaylistClicked(object sender, RoutedEventArgs e)
+        {
+            OnDeleteSavedPlaylist();
+        }
+
+        private void OnDeleteSavedPlaylist()
+        {
+            object selectedPlaylist = m_SavedPlaylistsView.SelectedItem;
+
+            if (selectedPlaylist != null)
+            {
+                Protocol.Rm(m_Connection, selectedPlaylist as string);
+                m_SavedPlaylists.Refresh(m_Connection);
             }
         }
 
@@ -2058,6 +2094,26 @@ namespace Auremo
         {
             string trimmedName = playlistName.Trim();
             OnAddNewPlaylistAsQueryFinished(okClicked && trimmedName.Length > 0, trimmedName);
+        }
+
+        #endregion
+
+        #region Querying for a new name for a saved playlist
+
+        private string m_OldSavedPlaylistName = null;
+
+        private void StartRenameSavedPlaylistQuery(string oldName)
+        {
+            m_OldSavedPlaylistName = oldName;
+            EnterStringQueryOverlay("New playlist name:", oldName, OnRenameSavedPlaylistOverlayReturned);
+        }
+
+        private void OnRenameSavedPlaylistOverlayReturned(bool okClicked, string newName)
+        {
+            string oldName = m_OldSavedPlaylistName;
+            m_OldSavedPlaylistName = null;
+            string trimmedNewName = newName.Trim();
+            OnRenameStreamQueryFinished(okClicked && trimmedNewName.Length > 0, oldName, trimmedNewName);
         }
 
         #endregion

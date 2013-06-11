@@ -362,8 +362,8 @@
                             <DataGrid.ContextMenu>
                                 <ContextMenu Name="m_SavedPlaylistsViewContextMenu">
                                     <MenuItem Header="Send to playlist" Click="OnSendSavedPlaylistToPlaylistClicked" IsEnabled="{Binding Path=Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
-                                    <Separator/>
-                                    <MenuItem Name="m_SavedPlaylistsViewRescanMusicCollectionContextMenuItem" Header="Rescan music collection" Click="OnRescanMusicCollectionClicked" IsEnabled="{Binding Path=IsConnected}"/>
+                                    <MenuItem Header="Rename..." Click="OnRenameSavedPlaylistClicked" IsEnabled="{Binding Path=Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
+                                    <MenuItem Header="Delete" Click="OnDeleteSavedPlaylistClicked" IsEnabled="{Binding Path=Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
                                 </ContextMenu>
                             </DataGrid.ContextMenu>
                         </DataGrid>
