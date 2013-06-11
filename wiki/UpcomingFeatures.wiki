@@ -21,7 +21,9 @@ The 0.5 version will add new features. As there are many requested features, emp
 
 ==Committed features and fixes==
  
-  * (no new commits)
+  * Add support for non-latin characters in collection auto-search.
+  * Add support for renaming saved playlists.
+  * Many usability improvements, bug fixes and refactorizations.
 
 == Bugs ==
 
