@@ -1260,7 +1260,7 @@ namespace Auremo
                     {
                         foreach (SongMetadataTreeViewNode leaf in controller.Songs)
                         {
-                            Protocol.Add(m_Connection, leaf.Song.Path);
+                            AddSongToPlaylist(leaf.Song);
                         }
 
                         Update();
@@ -1269,7 +1269,7 @@ namespace Auremo
                     {
                         if (controller.Current is SongMetadataTreeViewNode)
                         {
-                            Protocol.Add(m_Connection, ((SongMetadataTreeViewNode)controller.Current).Song.Path);
+                            AddSongToPlaylist((controller.Current as SongMetadataTreeViewNode).Song);
                         }
                         else
                         {
@@ -1679,71 +1679,7 @@ namespace Auremo
                 int targetRow = DropTargetRowIndex(e);
                 string data = (string)e.Data.GetData(typeof(string));
 
-                if (data == AddSearchResults)
-                {
-                    foreach (object o in m_DragDropPayload)
-                    {
-                        targetRow = AddObjectToPlaylist(o, true, targetRow);
-                    }
-                }
-                else if (data == AddArtists)
-                {
-                    foreach (object o in m_DragDropPayload)
-                    {
-                        string artist = (string)o;
-                        ISet<AlbumMetadata> albums = m_Database.AlbumsByArtist(artist);
-
-                        foreach (AlbumMetadata album in albums)
-                        {
-                            ISet<SongMetadata> songs = m_Database.SongsByAlbum(album);
-
-                            foreach (SongMetadata song in songs)
-                            {
-                                Protocol.AddId(m_Connection, song.Path, targetRow++);
-                            }
-                        }
-                    }
-                }
-                else if (data == AddGenres)
-                {
-                    foreach (object o in m_DragDropPayload)
-                    {
-                        string genre = (string)o;
-                        ISet<AlbumMetadata> albums = m_Database.AlbumsByGenre(genre);
-
-                        foreach (AlbumMetadata album in albums)
-                        {
-                            ISet<SongMetadata> songs = m_Database.SongsByAlbum(album);
-
-                            foreach (SongMetadata song in songs)
-                            {
-                                Protocol.AddId(m_Connection, song.Path, targetRow++);
-                            }
-                        }
-                    }
-                }
-                else if (data == AddAlbums)
-                {
-                    foreach (object o in m_DragDropPayload)
-                    {
-                        AlbumMetadata album = (AlbumMetadata)o;
-                        ISet<SongMetadata> songs = m_Database.SongsByAlbum(album);
-
-                        foreach (SongMetadata song in songs)
-                        {
-                            Protocol.AddId(m_Connection, song.Path, targetRow++);
-                        }
-                    }
-                }
-                else if (data == AddSongs || data == AddStreams)
-                {
-                    foreach (object o in m_DragDropPayload)
-                    {
-                        Playable playable = (Playable)o;
-                        Protocol.AddId(m_Connection, playable.Path, targetRow++);
-                    }
-                }
-                else if (data == LoadPlaylist)
+                if (data == LoadPlaylist)
                 {
                     LoadSavedPlaylist(m_DragDropPayload[0] as string);
                 }
@@ -1761,6 +1697,20 @@ namespace Auremo
                         {
                             Protocol.MoveId(m_Connection, item.Id, targetRow++);
                         }
+                    }
+                }
+                else if (data == AddGenres)
+                {
+                    foreach (object o in m_DragDropPayload)
+                    {
+                        targetRow = AddObjectToPlaylist(o, false, targetRow);
+                    }
+                }
+                else if (data == AddSearchResults || data == AddArtists || data == AddAlbums || data == AddSongs || data == AddStreams)
+                {
+                    foreach (object o in m_DragDropPayload)
+                    {
+                        targetRow = AddObjectToPlaylist(o, true, targetRow);
                     }
                 }
 
