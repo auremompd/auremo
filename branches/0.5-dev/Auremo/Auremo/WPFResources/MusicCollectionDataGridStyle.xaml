@@ -86,6 +86,7 @@
             <Setter.Value>
                 <Style TargetType="{x:Type DataGridCell}">
                     <Setter Property="BorderThickness" Value="0"/>
+                    <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
                     <Setter Property="Foreground" Value="{StaticResource PassiveTextBrush}"/>
                     <Setter Property="Margin" Value="10,1,0,1"/>
                     <Style.Triggers>
