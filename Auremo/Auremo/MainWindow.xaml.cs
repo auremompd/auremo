@@ -533,7 +533,7 @@ namespace Auremo
                 {
                     foreach (SongMetadataTreeViewNode node in selection)
                     {
-                        Protocol.Add(m_Connection, node.Song.Path);
+                        AddSongToPlaylist(node.Song);
                     }
                 }
             }
@@ -550,10 +550,7 @@ namespace Auremo
             {
                 foreach (AlbumMetadata album in m_DatabaseView.AlbumsBySelectedArtists)
                 {
-                    foreach (SongMetadata song in m_Database.SongsByAlbum(album))
-                    {
-                        Protocol.Add(m_Connection, song.Path);
-                    }
+                    AddObjectToPlaylist(album, false);
                 }
 
                 e.Handled = true;
@@ -574,10 +571,7 @@ namespace Auremo
             {
                 foreach (AlbumMetadata album in m_DatabaseView.AlbumsOfSelectedGenres)
                 {
-                    foreach (SongMetadata song in m_Database.SongsByAlbum(album))
-                    {
-                        Protocol.Add(m_Connection, song.Path);
-                    }
+                    AddObjectToPlaylist(album, true);
                 }
 
                 e.Handled = true;
@@ -590,7 +584,7 @@ namespace Auremo
             {
                 foreach (SongMetadata song in m_DatabaseView.SongsOnSelectedAlbumsBySelectedArtists)
                 {
-                    Protocol.Add(m_Connection, song.Path);
+                    AddObjectToPlaylist(song, false);
                 }
 
                 e.Handled = true;
@@ -603,7 +597,7 @@ namespace Auremo
             {
                 foreach (SongMetadata song in m_DatabaseView.SongsOnSelectedAlbumsOfSelectedGenres)
                 {
-                    Protocol.Add(m_Connection, song.Path);
+                    AddObjectToPlaylist(song, false);
                 }
 
                 e.Handled = true;
@@ -614,7 +608,9 @@ namespace Auremo
         {
             if (e.Key == Key.Enter)
             {
-                foreach (object song in m_SongsOnSelectedAlbumsView.SelectedItems)
+                DataGrid grid = sender as DataGrid;
+
+                foreach (object song in grid.SelectedItems)
                 {
                     AddObjectToPlaylist(song, false);
                 }
@@ -891,8 +887,7 @@ namespace Auremo
 
             if (row != null)
             {
-                SongMetadata song = row.Item as SongMetadata;
-                Protocol.Add(m_Connection, song.Path);
+                AddObjectToPlaylist(row.Item, false);
                 Update();
             }
         }
@@ -903,8 +898,7 @@ namespace Auremo
 
             if (row != null)
             {
-                SongMetadata song = row.Item as SongMetadata;
-                Protocol.Add(m_Connection, song.Path);
+                AddObjectToPlaylist(row.Item, false);
                 Update();
             }
         }
@@ -1187,7 +1181,7 @@ namespace Auremo
                         else if (node is SongMetadataTreeViewNode)
                         {
                             SongMetadataTreeViewNode songNode = node as SongMetadataTreeViewNode;
-                            Protocol.Add(m_Connection, songNode.Song.Path);
+                            AddSongToPlaylist(songNode.Song);
                         }
                     }
                 }
