@@ -79,7 +79,7 @@
                 <ColumnDefinition Width="10"/>
                 <ColumnDefinition Width="75*"/>
             </Grid.ColumnDefinitions>
-            <TabControl Name="m_CollectionBrowsingModes" Style="{StaticResource MusicCollectionTabControlStyle}" Grid.ColumnSpan="2">
+            <TabControl Name="m_CollectionBrowsingModes" Style="{StaticResource MusicCollectionTabControlStyle}" Grid.ColumnSpan="2" KeyboardNavigation.DirectionalNavigation="None">
                 <TabItem Header="Search">
                     <Grid>
                         <Grid.RowDefinitions>
