@@ -198,11 +198,11 @@
                         <TreeView Name="m_ArtistTree"
                                   ItemsSource="{Binding ArtistTree}"
                                   Style="{StaticResource MusicCollectionTreeViewStyle}"
+                                  PreviewKeyDown="OnTreeViewKeyDown"
+                                  TextInput="OnCollectionTextInput"
                                   PreviewMouseLeftButtonDown="OnTreeViewMouseDown"
                                   MouseMove="OnMouseMoveDragDrop"
                                   MouseUp="OnTreeViewMouseUp"
-                                  PreviewKeyDown="OnTreeViewKeyDown"
-                                  TextInput="OnCollectionTextInput"
                                   SelectedItemChanged="OnTreeViewSelectionChanged">
                             <TreeView.Resources>
                                 <HierarchicalDataTemplate DataType="{x:Type l:TreeViewNode}" ItemsSource="{Binding Children}">
@@ -302,7 +302,15 @@
                 </TabItem>
                 <TabItem Header="Genre tree" Height="Auto" VerticalAlignment="Bottom">
                     <Grid>
-                        <TreeView Name="m_GenreTree" ItemsSource="{Binding GenreTree}" Style="{StaticResource MusicCollectionTreeViewStyle}" PreviewMouseLeftButtonDown="OnTreeViewMouseDown" MouseMove="OnMouseMoveDragDrop" MouseUp="OnTreeViewMouseUp" PreviewKeyDown="OnTreeViewKeyDown" TextInput="OnCollectionTextInput" SelectedItemChanged="OnTreeViewSelectionChanged">
+                        <TreeView Name="m_GenreTree"
+                                  ItemsSource="{Binding GenreTree}"
+                                  Style="{StaticResource MusicCollectionTreeViewStyle}"
+                                  PreviewKeyDown="OnTreeViewKeyDown"
+                                  TextInput="OnCollectionTextInput"
+                                  PreviewMouseLeftButtonDown="OnTreeViewMouseDown"
+                                  MouseMove="OnMouseMoveDragDrop"
+                                  MouseUp="OnTreeViewMouseUp"
+                                  SelectedItemChanged="OnTreeViewSelectionChanged">
                             <TreeView.Resources>
                                 <HierarchicalDataTemplate DataType="{x:Type l:TreeViewNode}" ItemsSource="{Binding Children}">
                                     <TextBlock Text="{Binding DisplayString}"/>
@@ -324,11 +332,11 @@
                         <TreeView Name="m_DirectoryTree"
                                   ItemsSource="{Binding DirectoryTree}"
                                   Style="{StaticResource MusicCollectionTreeViewStyle}"
+                                  PreviewKeyDown="OnTreeViewKeyDown"
+                                  TextInput="OnCollectionTextInput"
                                   PreviewMouseLeftButtonDown="OnTreeViewMouseDown"
                                   MouseMove="OnMouseMoveDragDrop"
                                   MouseUp="OnTreeViewMouseUp"
-                                  PreviewKeyDown="OnTreeViewKeyDown"
-                                  TextInput="OnCollectionTextInput"
                                   SelectedItemChanged="OnTreeViewSelectionChanged">
                             <TreeView.Resources>
                                 <HierarchicalDataTemplate DataType="{x:Type l:TreeViewNode}" ItemsSource="{Binding Children}">

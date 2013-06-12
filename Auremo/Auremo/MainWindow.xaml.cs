@@ -338,33 +338,43 @@ namespace Auremo
 
         private void OnKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.MediaPreviousTrack)
+            if (!e.Handled)
             {
-                Back();
-            }
-            else if (e.Key == Key.Space && !m_SearchBox.IsFocused && m_StringQueryOverlay.Visibility != Visibility.Visible && !AutoSearchInProgrss)
-            {
-                TogglePlayPause();
-            }
-            else if (e.Key == Key.MediaPlayPause)
-            {
-                TogglePlayPause();
-            }
-            else if (e.Key == Key.MediaStop)
-            {
-                Stop();
-            }
-            else if (e.Key == Key.MediaNextTrack)
-            {
-                Skip();
-            }
-            else if (e.Key == Key.VolumeDown)
-            {
-                VolumeDown();
-            }
-            else if (e.Key == Key.VolumeUp)
-            {
-                VolumeUp();
+                if (e.Key == Key.MediaPreviousTrack)
+                {
+                    Back();
+                    e.Handled = true;
+                }
+                else if (e.Key == Key.Space && !m_SearchBox.IsFocused && m_StringQueryOverlay.Visibility != Visibility.Visible && !AutoSearchInProgrss)
+                {
+                    TogglePlayPause();
+                    e.Handled = true;
+                }
+                else if (e.Key == Key.MediaPlayPause)
+                {
+                    TogglePlayPause();
+                    e.Handled = true;
+                }
+                else if (e.Key == Key.MediaStop)
+                {
+                    Stop();
+                    e.Handled = true;
+                }
+                else if (e.Key == Key.MediaNextTrack)
+                {
+                    Skip();
+                    e.Handled = true;
+                }
+                else if (e.Key == Key.VolumeDown)
+                {
+                    VolumeDown();
+                    e.Handled = true;
+                }
+                else if (e.Key == Key.VolumeUp)
+                {
+                    VolumeUp();
+                    e.Handled = true;
+                }
             }
         }
 
@@ -733,20 +743,8 @@ namespace Auremo
                     }
                     else if (m_DragSource is TreeView)
                     {
-                        ISet<SongMetadataTreeViewNode> selection = null;
-
-                        if (m_DragSource == m_DirectoryTree)
-                        {
-                            selection = m_DatabaseView.DirectoryTreeSelectedSongs;
-                        }
-                        else if (m_DragSource == m_ArtistTree)
-                        {
-                            selection = m_DatabaseView.ArtistTreeSelectedSongs;
-                        }
-                        else if (m_DragSource == m_GenreTree)
-                        {
-                            selection = m_DatabaseView.GenreTreeSelectedSongs;
-                        }
+                        TreeViewController controller = TreeViewControllerOf(m_DragSource as TreeView);
+                        ISet<SongMetadataTreeViewNode> selection = controller.Songs;
 
                         if (selection != null)
                         {
@@ -1006,14 +1004,9 @@ namespace Auremo
                     }
                     else if (e.ClickCount == 2)
                     {
-                        if (node is DirectoryTreeViewNode)
+                        foreach (SongMetadataTreeViewNode leaf in node.Controller.Songs)
                         {
-                            node.IsExpanded = !node.IsExpanded;
-                        }
-                        else if (node is SongMetadataTreeViewNode)
-                        {
-                            SongMetadataTreeViewNode songNode = node as SongMetadataTreeViewNode;
-                            AddSongToPlaylist(songNode.Song);
+                            AddSongToPlaylist(leaf.Song);
                         }
                     }
                 }
@@ -1061,28 +1054,28 @@ namespace Auremo
 
         private void OnTreeViewKeyDown(object sender, KeyEventArgs e)
         {
-            TreeView tree = sender as TreeView;
-            TreeViewController controller = tree.Tag as TreeViewController;
-
-            if (Keyboard.Modifiers == ModifierKeys.None || Keyboard.Modifiers == ModifierKeys.Shift)
+            if (!e.Handled)
             {
-                bool currentChanged = false;
+                TreeView tree = sender as TreeView;
+                TreeViewController controller = tree.Tag as TreeViewController;
 
-                if (e.Key == Key.Up && EnsureTreeViewHasCurrentNode(controller))
+                if (Keyboard.Modifiers == ModifierKeys.None || Keyboard.Modifiers == ModifierKeys.Shift)
                 {
-                    controller.Current = controller.Previous;
-                    currentChanged = true;
-                    e.Handled = true;
-                }
-                else if (e.Key == Key.Down && EnsureTreeViewHasCurrentNode(controller))
-                {
-                    controller.Current = controller.Next;
-                    currentChanged = true;
-                    e.Handled = true;
-                }
-                else if (e.Key == Key.Enter)
-                {
-                    if (controller.MultiSelection.Count > 1)
+                    bool currentChanged = false;
+
+                    if (e.Key == Key.Up && EnsureTreeViewHasCurrentNode(controller))
+                    {
+                        controller.Current = controller.Previous;
+                        currentChanged = true;
+                        e.Handled = true;
+                    }
+                    else if (e.Key == Key.Down && EnsureTreeViewHasCurrentNode(controller))
+                    {
+                        controller.Current = controller.Next;
+                        currentChanged = true;
+                        e.Handled = true;
+                    }
+                    else if (e.Key == Key.Enter)
                     {
                         foreach (SongMetadataTreeViewNode leaf in controller.Songs)
                         {
@@ -1090,51 +1083,37 @@ namespace Auremo
                         }
 
                         Update();
+                        e.Handled = true;
                     }
-                    else if (controller.Current != null)
+
+                    if (currentChanged)
                     {
-                        if (controller.Current is SongMetadataTreeViewNode)
+                        TreeViewItem item = GetTreeViewItem(tree, controller.Current);
+
+                        if (item != null)
                         {
-                            AddSongToPlaylist((controller.Current as SongMetadataTreeViewNode).Song);
-                        }
-                        else
-                        {
-                            controller.Current.IsExpanded = !controller.Current.IsExpanded;
+                            item.BringIntoView();
                         }
 
-                        Update();
-                    }
-
-                    e.Handled = true;
-                }
-
-                if (currentChanged)
-                {
-                    TreeViewItem item = GetTreeViewItem(tree, controller.Current);
-
-                    if (item != null)
-                    {
-                        item.BringIntoView();
-                    }
-
-                    if (Keyboard.Modifiers == ModifierKeys.None)
-                    {
-                        controller.ClearMultiSelection();
-                        controller.Current.IsMultiSelected = true;
-                        controller.Pivot = controller.Current;
-                    }
-                    else if (Keyboard.Modifiers == ModifierKeys.Shift)
-                    {
-                        if (controller.Pivot == null)
+                        if (Keyboard.Modifiers == ModifierKeys.None)
                         {
                             controller.ClearMultiSelection();
                             controller.Current.IsMultiSelected = true;
                             controller.Pivot = controller.Current;
                         }
-                        else
+                        else if (Keyboard.Modifiers == ModifierKeys.Shift)
                         {
-                            controller.ClearMultiSelection();
-                            controller.SelectRange(controller.Current);
+                            if (controller.Pivot == null)
+                            {
+                                controller.ClearMultiSelection();
+                                controller.Current.IsMultiSelected = true;
+                                controller.Pivot = controller.Current;
+                            }
+                            else
+                            {
+                                controller.ClearMultiSelection();
+                                controller.SelectRange(controller.Current);
+                            }
                         }
                     }
                 }
