@@ -461,52 +461,86 @@ namespace Auremo
 
         #endregion
 
-        #region Music collection
+        #region Music collection and playlist
 
-        #region Simple (non-drag-drop) data grid operations
+        #region Key, mouse and menu events common to multiple controls
 
-        private void OnSearchBoxEnabledChanged(object sender, DependencyPropertyChangedEventArgs e)
+        private void OnMusicCollectionDataGridKeyDown(object sender, KeyEventArgs e)
         {
-            if (m_SearchBox.Focusable)
+            if (!e.Handled)
             {
-                m_SearchBox.Focus();
+                if (e.Key == Key.Enter)
+                {
+                    DataGrid grid = sender as DataGrid;
+                    bool stringsAreArtists = grid == m_ArtistsView;
+
+                    foreach (object item in grid.SelectedItems)
+                    {
+                        AddObjectToPlaylist(item, stringsAreArtists);
+                    }
+
+                    Update();
+                    e.Handled = true;
+                }
+                else if (sender == m_StreamsView)
+                {
+                    OnStreamsViewKeyDown(sender, e);
+                }
             }
         }
 
-        private void OnSearchBoxTextChanged(object sender, TextChangedEventArgs e)
+        private void OnCollectionTextInput(object sender, TextCompositionEventArgs e)
         {
-            m_CollectionSearchThread.SearchString = m_SearchBox.Text;
+            if (!e.Handled && e.Text != null && e.Text.Length == 1)
+            {
+                CollectionAutoSearch(sender, e.Text[0]);
+            }
         }
 
-        private void OnSearchResultsViewDoubleClicked(object sender, MouseButtonEventArgs e)
+        private void OnDataGridMouseUp(object sender, MouseButtonEventArgs e)
         {
-            // Is this really the best way to find which column this is?
-            // It seems contrived, but DataGridCellInfo seems to contain
-            // very little usable information.
-            const int songColumnDisplayIndex = 0;
-            const int artistColumnDisplayIndex = 1;
-            const int albumColumnDisplayIndex = 2;
-
-            foreach (DataGridCellInfo cell in m_SearchResultsView.SelectedCells)
+            if (e.ChangedButton == MouseButton.Left && Keyboard.Modifiers == ModifierKeys.None)
             {
-                CollectionSearch.SearchResultTuple result = (CollectionSearch.SearchResultTuple)(cell.Item);
+                DataGrid grid = sender as DataGrid;
 
-                if (result != null)
+                if (grid == m_SearchResultsView)
                 {
-                    if (cell.Column.DisplayIndex == artistColumnDisplayIndex)
+                    DataGridCell cell = DataGridCellBeingClicked(grid, e);
+
+                    if (cell != null)
                     {
-                        AddArtistToPlaylist(result.Artist);
-                    }
-                    else if (cell.Column.DisplayIndex == albumColumnDisplayIndex)
-                    {
-                        AddAlbumToPlaylist(result.Album);
-                    }
-                    else if (cell.Column.DisplayIndex == songColumnDisplayIndex)
-                    {
-                        AddSongToPlaylist(result.Song);
+                        grid.SelectedCells.Clear();
+                        cell.IsSelected = true;
                     }
                 }
-            } 
+                else
+                {
+                    DataGridRow row = DataGridRowBeingClicked(grid, e);
+
+                    if (row != null)
+                    {
+                        grid.SelectedIndex = -1;
+                        row.IsSelected = true;
+                    }
+                }
+            }
+        }
+
+        private void OnMusicCollectionDataGridDoubleClicked(object sender, MouseButtonEventArgs e)
+        {
+            if (!e.Handled)
+            {
+                DataGrid grid = sender as DataGrid;
+                DataGridRow row = DataGridRowBeingClicked(grid, e);
+                bool stringsAreArtists = grid == m_ArtistsView;
+
+                if (row != null)
+                {
+                    AddObjectToPlaylist(row.Item, stringsAreArtists);
+                    Update();
+                    e.Handled = true;
+                }
+            }
         }
 
         public void OnAddToPlaylistClicked(object sender, RoutedEventArgs e)
@@ -545,782 +579,6 @@ namespace Auremo
             Protocol.Update(m_Connection);
         }
 
-        private void OnArtistViewKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                foreach (AlbumMetadata album in m_DatabaseView.AlbumsBySelectedArtists)
-                {
-                    AddObjectToPlaylist(album, false);
-                }
-
-                e.Handled = true;
-            }
-        }
-
-        private void OnCollectionTextInput(object sender, TextCompositionEventArgs e)
-        {
-            if (!e.Handled && e.Text != null && e.Text.Length == 1)
-            {
-                CollectionAutoSearch(sender, e.Text[0]);
-            }
-        }
-
-        private void OnGenreViewKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                foreach (AlbumMetadata album in m_DatabaseView.AlbumsOfSelectedGenres)
-                {
-                    AddObjectToPlaylist(album, true);
-                }
-
-                e.Handled = true;
-            }
-        }
-
-        private void OnAlbumViewKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                foreach (SongMetadata song in m_DatabaseView.SongsOnSelectedAlbumsBySelectedArtists)
-                {
-                    AddObjectToPlaylist(song, false);
-                }
-
-                e.Handled = true;
-            }
-        }
-
-        private void OnGenreAlbumsViewKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                foreach (SongMetadata song in m_DatabaseView.SongsOnSelectedAlbumsOfSelectedGenres)
-                {
-                    AddObjectToPlaylist(song, false);
-                }
-
-                e.Handled = true;
-            }
-        }
-
-        private void OnSongViewKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                DataGrid grid = sender as DataGrid;
-
-                foreach (object song in grid.SelectedItems)
-                {
-                    AddObjectToPlaylist(song, false);
-                }
-
-                e.Handled = true;
-            }
-        }
-
-        private void OnStreamsViewKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                foreach (object stream in m_StreamsView.SelectedItems)
-                {
-                    AddObjectToPlaylist(stream, false);
-                }
-
-                e.Handled = true;
-            }
-            else if (e.Key == Key.F2 && m_StreamsView.SelectedItems.Count == 1)
-            {
-                OnRenameSelectedStream();
-                e.Handled = true;
-            }
-            else if (e.Key == Key.Delete)
-            {
-                OnDeleteSelectedStreams();
-                e.Handled = true;
-            }
-        }
-
-        private void OnStreamsViewDoubleClicked(object sender, MouseButtonEventArgs e)
-        {
-            foreach (object stream in m_StreamsView.SelectedItems)
-            {
-                AddObjectToPlaylist(stream, false);
-            }
-        }
-
-        private void OnRenameSelectedStreamClicked(object sender, RoutedEventArgs e)
-        {
-            OnRenameSelectedStream();
-        }
-
-        private void OnRenameStreamQueryFinished(bool succeeded, StreamMetadata stream, string newName)
-        {
-            if (succeeded)
-            {
-                m_StreamsCollection.Rename(stream, newName);
-            }
-        }
-
-        private void OnDeleteSelectedStreamsClicked(object sender, RoutedEventArgs e)
-        {
-            OnDeleteSelectedStreams();
-        }
-
-        private void OnAddStreamURLClicked(object sender, RoutedEventArgs e)
-        {
-            StartAddNewStreamQuery();
-        }
-
-        private void OnAddNewStreamQueryFinished(bool succeeded, string address, string name)
-        {
-            if (succeeded)
-            {
-                StreamMetadata stream = new StreamMetadata();
-                stream.Path = address;
-                stream.Title = name;
-                m_StreamsCollection.Add(stream);
-                m_DatabaseView.RefreshStreams();
-            }
-        }
-
-        private void OnAddStreamsFromFileClicked(object sender, RoutedEventArgs e)
-        {
-            OpenFileDialog dialog = new OpenFileDialog();
-            dialog.Title = "Add stream files";
-            dialog.Multiselect = true;
-            dialog.Filter = "Playlist Files|*.pls;*.m3u";
-
-            bool? dialogResult = dialog.ShowDialog();
-
-            if (dialogResult.HasValue && dialogResult.Value)
-            {
-                PLSParser plsParser = new PLSParser();
-                M3UParser m3uParser = new M3UParser();
-                List<StreamMetadata> streamsToAdd = new List<StreamMetadata>();
-
-                foreach (string filename in dialog.FileNames)
-                {
-                    IEnumerable<StreamMetadata> streams = null;
-
-                    if (filename.ToLowerInvariant().EndsWith(".pls"))
-                    {
-                        streams = plsParser.ParseFile(filename);
-                    }
-                    else if (filename.ToLowerInvariant().EndsWith(".m3u"))
-                    {
-                        streams = m3uParser.ParseFile(filename);
-                    }
-                    
-                    if (streams != null)
-                    {
-                        streamsToAdd.AddRange(streams);
-                    }
-                }
-
-                m_StreamsCollection.Add(streamsToAdd);
-                m_DatabaseView.RefreshStreams();
-            }
-        }
-
-        private void OnSaveSelectedStreamsToFileClicked(object sender, RoutedEventArgs e)
-        {
-            SaveFileDialog dialog = new SaveFileDialog();
-            dialog.Title = "Save streams";
-            dialog.Filter = "Playlist Files|*.pls";
-
-            bool? dialogResult = dialog.ShowDialog();
-
-            if (dialogResult.HasValue && dialogResult.Value)
-            {
-                string filename = dialog.FileName;
-                string playlist = PlaylistWriter.Write(Utils.ToTypedList<StreamMetadata>(m_StreamsView.SelectedItems));
-
-                if (playlist != null)
-                {
-                    File.WriteAllText(filename, playlist);
-                }
-            }
-        }
-
-        private void OnRenameSelectedStream()
-        {
-            if (m_StreamsView.SelectedItems.Count == 1)
-            {
-                StartRenameStreamQuery(m_StreamsView.SelectedItem as StreamMetadata);
-            }
-        }
-
-        private void OnDeleteSelectedStreams()
-        {
-            m_StreamsCollection.Delete(Utils.ToTypedList<StreamMetadata>(m_StreamsView.SelectedItems));
-        }
-        
-        private void OnSavedPlaylistsViewKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                OnLoadSavedPlaylist();
-                e.Handled = true;
-            }
-            else if (e.Key == Key.F2)
-            {
-                RenameSavedPlaylist();
-                e.Handled = true;
-            }
-            else if (e.Key == Key.Delete)
-            {
-                OnDeleteSavedPlaylist();
-                e.Handled = true;
-            }
-        }
-
-        private void OnSavedPlaylistsViewDoubleClicked(object sender, MouseButtonEventArgs e)
-        {
-            if (Keyboard.Modifiers == ModifierKeys.None)
-            {
-                OnLoadSavedPlaylist();
-            }
-        }
-
-        private void OnSendSavedPlaylistToPlaylistClicked(object sender, RoutedEventArgs e)
-        {
-            OnLoadSavedPlaylist();
-        }
-
-        private void OnLoadSavedPlaylist()
-        {
-            object selectedPlaylist = m_SavedPlaylistsView.SelectedItem;
-
-            if (selectedPlaylist != null)
-            {
-                LoadSavedPlaylist(selectedPlaylist as string);
-            }
-        }
-
-        private void LoadSavedPlaylist(string name)
-        {
-            Protocol.Clear(m_Connection);
-            Protocol.Load(m_Connection, name);
-            m_SavedPlaylists.CurrentPlaylistName = name;
-            Update();
-        }
-
-        private void OnRenameSavedPlaylistClicked(object sender, RoutedEventArgs e)
-        {
-            RenameSavedPlaylist();
-        }
-
-        private void RenameSavedPlaylist()
-        {
-            object selectedPlaylist = m_SavedPlaylistsView.SelectedItem;
-
-            if (selectedPlaylist != null)
-            {
-                StartRenameSavedPlaylistQuery(selectedPlaylist as string);
-            }
-        }
-
-        private void OnRenameStreamQueryFinished(bool succeeded, string oldName, string newName)
-        {
-            if (succeeded)
-            {
-                Protocol.Rename(m_Connection, oldName, newName);
-                m_SavedPlaylists.Refresh(m_Connection);
-            }
-        }
-
-        private void OnDeleteSavedPlaylistClicked(object sender, RoutedEventArgs e)
-        {
-            OnDeleteSavedPlaylist();
-        }
-
-        private void OnDeleteSavedPlaylist()
-        {
-            object selectedPlaylist = m_SavedPlaylistsView.SelectedItem;
-
-            if (selectedPlaylist != null)
-            {
-                Protocol.Rm(m_Connection, selectedPlaylist as string);
-                m_SavedPlaylists.Refresh(m_Connection);
-            }
-        }
-
-        private void OnDeleteFromPlaylist()
-        {
-            foreach (object o in m_PlaylistView.SelectedItems)
-            {
-                if (o is PlaylistItem)
-                {
-                    PlaylistItem item = o as PlaylistItem;
-                    Protocol.DeleteId(m_Connection, item.Id);
-                }
-            }
-
-            Update();
-        }
-
-        private void OnSelectedArtistsChanged(object sender, SelectionChangedEventArgs e)
-        {
-            m_DatabaseView.OnSelectedArtistsChanged(m_ArtistsView.SelectedItems);
-        }
-
-        private void OnSelectedGenresChanged(object sender, SelectionChangedEventArgs e)
-        {
-            m_DatabaseView.OnSelectedGenresChanged(m_GenresView.SelectedItems);
-        }
-
-        private void OnSelectedAlbumsChanged(object sender, SelectionChangedEventArgs e)
-        {
-            m_DatabaseView.OnSelectedAlbumsBySelectedArtistsChanged(m_AlbumsBySelectedArtistsView.SelectedItems);
-        }
-
-        private void OnSelectedGenreAlbumsChanged(object sender, SelectionChangedEventArgs e)
-        {
-            m_DatabaseView.OnSelectedAlbumsOfSelectedGenresChanged(m_AlbumsOfSelectedGenresView.SelectedItems);
-        }
-        
-        private void OnSongsOnAlbumsViewDoubleClicked(object sender, MouseButtonEventArgs e)
-        {
-            DataGridRow row = DataGridRowBeingClicked(m_SongsOnSelectedAlbumsView, e);
-
-            if (row != null)
-            {
-                AddObjectToPlaylist(row.Item, false);
-                Update();
-            }
-        }
-
-        private void OnSongsOnSelectedAlbumsOfSelectedGenresViewDoubleClicked(object sender, MouseButtonEventArgs e)
-        {
-            DataGridRow row = DataGridRowBeingClicked(sender as DataGrid, e);
-
-            if (row != null)
-            {
-                AddObjectToPlaylist(row.Item, false);
-                Update();
-            }
-        }
-        
-        private void OnPlaylistViewKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                if (m_PlaylistView.SelectedItems.Count == 1)
-                {
-                    object o = m_PlaylistView.SelectedItems[0];
-                    
-                    if (o is PlaylistItem)
-                    {
-                        PlaylistItem item = o as PlaylistItem;
-                        Protocol.PlayId(m_Connection, item.Id);
-                        Update();
-                    }
-                }
-
-                e.Handled = true;
-            }
-            else if (e.Key == Key.Delete)
-            {
-                OnDeleteFromPlaylist();
-            }
-        }
-
-        private void OnPlaylistViewDoubleClicked(object sender, MouseButtonEventArgs e)
-        {
-            DataGridRow row = DataGridRowBeingClicked(m_PlaylistView, e);
-
-            if (row != null)
-            {
-                PlaylistItem item = row.Item as PlaylistItem;
-                Protocol.PlayId(m_Connection, item.Id);
-                Update();
-            }
-        }
-
-        private void OnDataGridMouseUp(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ChangedButton == MouseButton.Left && Keyboard.Modifiers == ModifierKeys.None)
-            {
-                DataGrid grid = sender as DataGrid;
-
-                if (grid == m_SearchResultsView)
-                {
-                    DataGridCell cell = DataGridCellBeingClicked(grid, e);
-
-                    if (cell != null)
-                    {
-                        grid.SelectedCells.Clear();
-                        cell.IsSelected = true;
-                    }
-                }
-                else
-                {
-                    DataGridRow row = DataGridRowBeingClicked(grid, e);
-
-                    if (row != null)
-                    {
-                        grid.SelectedIndex = -1;
-                        row.IsSelected = true;
-                    }
-                }
-            }
-        }
-
-        private void OnDedupPlaylistViewClicked(object sender, RoutedEventArgs e)
-        {
-            ISet<string> songPathsOnPlaylist = new SortedSet<string>();
-            IList<int> playlistIDsOfDuplicates = new List<int>();
-
-            foreach (PlaylistItem item in m_Playlist.Items)
-            {
-                if (!songPathsOnPlaylist.Add(item.Playable.Path))
-                {
-                    playlistIDsOfDuplicates.Add(item.Id);
-                }
-            }
-
-            foreach (int id in playlistIDsOfDuplicates)
-            {
-                Protocol.DeleteId(m_Connection, id);
-            }
-        }
-
-        private void OnShufflePlaylistClicked(object sender, RoutedEventArgs e)
-        {
-            Protocol.Shuffle(m_Connection);
-        }
-
-        private void OnClearPlaylistViewClicked(object sender, RoutedEventArgs e)
-        {
-            Protocol.Clear(m_Connection);
-            m_SavedPlaylists.CurrentPlaylistName = "";
-            Update();
-        }
-
-
-        private void OnRemoveSelectedPlaylistItemsClicked(object sender, RoutedEventArgs e)
-        {
-            OnDeleteFromPlaylist();
-        }
-
-        private void OnCropToSelectedPlaylistItemsClicked(object sender, RoutedEventArgs e)
-        {
-            if (m_PlaylistView.SelectedItems.Count > 0)
-            {
-                ISet<int> keepItems = new SortedSet<int>();
-
-                foreach (Object o in m_PlaylistView.SelectedItems)
-                {
-                    PlaylistItem item = o as PlaylistItem;
-                    keepItems.Add(item.Id);
-                }
-
-                foreach (PlaylistItem item in m_Playlist.Items)
-                {
-                    if (!keepItems.Contains(item.Id))
-                    {
-                        Protocol.DeleteId(m_Connection, item.Id);
-                    }
-                }
-
-                Update();
-            }
-        
-        }
-
-        private void OnSavePlaylistAsClicked(object sender, RoutedEventArgs e)
-        {
-            StartAddNewPlaylistAsQuery(m_SavedPlaylists.CurrentPlaylistName);
-        }
-
-        private void OnAddNewPlaylistAsQueryFinished(bool succeeded, string playlistName)
-        {
-            if (succeeded)
-            {
-                m_SavedPlaylists.CurrentPlaylistName = playlistName;
-                Protocol.Rm(m_Connection, m_SavedPlaylists.CurrentPlaylistName);
-                Protocol.Save(m_Connection, m_SavedPlaylists.CurrentPlaylistName);
-                m_SavedPlaylists.Refresh(m_Connection);
-            }
-        }
-
-        private bool AutoSearchInProgrss
-        {
-            get
-            {
-                return m_AutoSearchString.Length > 0 && DateTime.Now.Subtract(m_TimeOfLastAutoSearch).TotalMilliseconds <= m_AutoSearchMaxKeystrokeGap;
-            }
-        }
-
-        private bool CollectionAutoSearch(object sender, char c)
-        {
-            if (sender != m_LastAutoSearchSender || DateTime.Now.Subtract(m_TimeOfLastAutoSearch).TotalMilliseconds > m_AutoSearchMaxKeystrokeGap)
-            {
-                m_AutoSearchString = "";
-            }
-            
-            m_TimeOfLastAutoSearch = DateTime.Now;
-            m_LastAutoSearchSender = sender;
-            bool searchAgain = false;
-
-            if (c == '\b')
-            {
-                if (m_AutoSearchString.Length > 0)
-                {
-                    m_AutoSearchString = m_AutoSearchString.Remove(m_AutoSearchString.Length - 1);
-                    searchAgain = m_AutoSearchString.Length > 0;
-                }
-            }
-            else if (!char.IsControl(c) && !char.IsSurrogate(c))
-            {
-                m_AutoSearchString = (m_AutoSearchString + c).ToLowerInvariant();
-                searchAgain = true;
-            }
-            else
-            {
-                m_TimeOfLastAutoSearch = DateTime.MinValue;
-            }
-
-            if (searchAgain)
-            {
-                if (sender is DataGrid)
-                {
-                    DataGrid grid = sender as DataGrid;
-
-                    foreach (object o in grid.Items)
-                    {
-                        if (o is string && (o as string).ToLowerInvariant().StartsWith(m_AutoSearchString) ||
-                           o is AlbumMetadata && (o as AlbumMetadata).Title.ToLowerInvariant().StartsWith(m_AutoSearchString) ||
-                           o is Playable && (o as Playable).Title.ToLowerInvariant().StartsWith(m_AutoSearchString))
-                        {
-                            grid.CurrentItem = o;
-                            grid.SelectedItem = o;
-                            grid.ScrollIntoView(o);
-                            return true;
-                        }
-                    }
-                }
-                else if (sender is TreeView)
-                {
-                    TreeView tree = sender as TreeView;
-                    TreeViewNode item = CollectionAutoSearchTreeViewRecursively(Utils.ToTypedList<TreeViewNode>(tree.Items));
-
-                    if (item != null)
-                    {
-                        item.Controller.ClearMultiSelection();
-                        item.IsMultiSelected = true;
-                        item.IsSelected = true;
-                        item.Controller.Current = item;
-                        item.Controller.Pivot = item;
-                        
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
-
-        private TreeViewNode CollectionAutoSearchTreeViewRecursively(IEnumerable<TreeViewNode> nodes)
-        {
-            foreach (TreeViewNode node in nodes)
-            {
-                if (node.DisplayString.ToLowerInvariant().StartsWith(m_AutoSearchString))
-                {
-                    return node;
-                }
-                else if (node.IsExpanded)
-                {
-                    TreeViewNode result = CollectionAutoSearchTreeViewRecursively(Utils.ToTypedList<TreeViewNode>(node.Children));
-
-                    if (result != null)
-                    {
-                        return result;
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        #endregion
-
-        #region TreeView handling (browsing, drag & drop)
-
-        private void OnTreeViewMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            TreeViewItem item = TreeViewItemBeingClicked(sender as TreeView, e);
-
-            if (item != null && item.Header is TreeViewNode)
-            {
-                TreeViewNode node = item.Header as TreeViewNode;
-
-                if (Keyboard.Modifiers == ModifierKeys.None)
-                {
-                    node.Controller.Current = node;
-                    node.Controller.Pivot = node;
-
-                    if (!node.IsMultiSelected)
-                    {
-                        node.Controller.ClearMultiSelection();
-                        node.IsMultiSelected = true;
-                    }
-                    else if (e.ClickCount == 1)
-                    {
-                        m_DragSource = sender;
-                        m_DragStartPosition = e.GetPosition(null);
-                    }
-                    else if (e.ClickCount == 2)
-                    {
-                        if (node is DirectoryTreeViewNode)
-                        {
-                            node.IsExpanded = !node.IsExpanded;
-                        }
-                        else if (node is SongMetadataTreeViewNode)
-                        {
-                            SongMetadataTreeViewNode songNode = node as SongMetadataTreeViewNode;
-                            AddSongToPlaylist(songNode.Song);
-                        }
-                    }
-                }
-                else if (Keyboard.Modifiers == ModifierKeys.Control)
-                {
-                    node.Controller.Current = node;
-                    node.IsMultiSelected = !node.IsMultiSelected;
-                    node.Controller.Pivot = node.IsMultiSelected ? node : null;
-                }
-                else if (Keyboard.Modifiers == ModifierKeys.Shift)
-                {
-                    node.Controller.Current = node;
-                    node.Controller.ClearMultiSelection();
-
-                    if (node.Controller.Pivot == null)
-                    {
-                        node.IsMultiSelected = true;
-                        node.Controller.Pivot = node;
-                    }
-                    else
-                    {
-                        node.Controller.SelectRange(node);
-                    }
-                }
-
-                e.Handled = true;
-            }
-        }
-
-        private void OnTreeViewMouseUp(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ChangedButton == MouseButton.Left && Keyboard.Modifiers == ModifierKeys.None)
-            {
-                TreeViewItem item = TreeViewItemBeingClicked(sender as TreeView, e);
-
-                if (item != null && item.Header is TreeViewNode)
-                {
-                    TreeViewNode node = item.Header as TreeViewNode;
-                    node.Controller.ClearMultiSelection();
-                    node.IsMultiSelected = true;
-                    node.Controller.Pivot = node;
-                }
-            }
-        }
-
-        private void OnTreeViewKeyDown(object sender, KeyEventArgs e)
-        {
-            TreeView tree = sender as TreeView;
-            TreeViewController controller = tree.Tag as TreeViewController;
-
-            if (Keyboard.Modifiers == ModifierKeys.None || Keyboard.Modifiers == ModifierKeys.Shift)
-            {
-                bool currentChanged = false;
-
-                if (e.Key == Key.Up && EnsureTreeViewHasCurrentNode(controller))
-                {
-                    controller.Current = controller.Previous;
-                    currentChanged = true;
-                    e.Handled = true;
-                }
-                else if (e.Key == Key.Down && EnsureTreeViewHasCurrentNode(controller))
-                {
-                    controller.Current = controller.Next;
-                    currentChanged = true;
-                    e.Handled = true;
-                }
-                else if (e.Key == Key.Enter)
-                {
-                    if (controller.MultiSelection.Count > 1)
-                    {
-                        foreach (SongMetadataTreeViewNode leaf in controller.Songs)
-                        {
-                            AddSongToPlaylist(leaf.Song);
-                        }
-
-                        Update();
-                    }
-                    else if (controller.Current != null)
-                    {
-                        if (controller.Current is SongMetadataTreeViewNode)
-                        {
-                            AddSongToPlaylist((controller.Current as SongMetadataTreeViewNode).Song);
-                        }
-                        else
-                        {
-                            controller.Current.IsExpanded = !controller.Current.IsExpanded;
-                        }
-
-                        Update();
-                    }
-
-                    e.Handled = true;
-                }
-
-                if (currentChanged)
-                {
-                    TreeViewItem item = GetTreeViewItem(tree, controller.Current);
-
-                    if (item != null)
-                    {
-                        item.BringIntoView();
-                    }
-
-                    if (Keyboard.Modifiers == ModifierKeys.None)
-                    {
-                        controller.ClearMultiSelection();
-                        controller.Current.IsMultiSelected = true;
-                        controller.Pivot = controller.Current;
-                    }
-                    else if (Keyboard.Modifiers == ModifierKeys.Shift)
-                    {
-                        if (controller.Pivot == null)
-                        {
-                            controller.ClearMultiSelection();
-                            controller.Current.IsMultiSelected = true;
-                            controller.Pivot = controller.Current;
-                        }
-                        else
-                        {
-                            controller.ClearMultiSelection();
-                            controller.SelectRange(controller.Current);
-                        }
-                    }
-                }
-            }
-        }
-
-        private void OnTreeViewSelectionChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
-        {
-            // Cancel the selection. Use the controller multiselection system instead.
-            TreeViewNode node = e.NewValue as TreeViewNode;
-
-            if (node != null)
-            {
-                node.IsSelected = false;
-            }
-        }
-
         #endregion
 
         #region List drag & drop
@@ -1329,7 +587,7 @@ namespace Auremo
         {
             if (e.ChangedButton != MouseButton.Left ||
                 Keyboard.Modifiers.HasFlag(ModifierKeys.Shift) ||
-                Keyboard.Modifiers.HasFlag(ModifierKeys.Control) || 
+                Keyboard.Modifiers.HasFlag(ModifierKeys.Control) ||
                 e.ClickCount > 1)
             {
                 // Don't mess up multi-select or multiple-click.
@@ -1717,6 +975,846 @@ namespace Auremo
             m_MousePointerHint.IsOpen = false;
             m_MousePointerHint.Visibility = Visibility.Hidden;
             m_DropPositionIndicator.Visibility = Visibility.Hidden;
+        }
+
+        #endregion
+
+        #region TreeView handling (browsing, drag & drop)
+
+        private void OnTreeViewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            TreeViewItem item = TreeViewItemBeingClicked(sender as TreeView, e);
+
+            if (item != null && item.Header is TreeViewNode)
+            {
+                TreeViewNode node = item.Header as TreeViewNode;
+
+                if (Keyboard.Modifiers == ModifierKeys.None)
+                {
+                    node.Controller.Current = node;
+                    node.Controller.Pivot = node;
+
+                    if (!node.IsMultiSelected)
+                    {
+                        node.Controller.ClearMultiSelection();
+                        node.IsMultiSelected = true;
+                    }
+                    else if (e.ClickCount == 1)
+                    {
+                        m_DragSource = sender;
+                        m_DragStartPosition = e.GetPosition(null);
+                    }
+                    else if (e.ClickCount == 2)
+                    {
+                        if (node is DirectoryTreeViewNode)
+                        {
+                            node.IsExpanded = !node.IsExpanded;
+                        }
+                        else if (node is SongMetadataTreeViewNode)
+                        {
+                            SongMetadataTreeViewNode songNode = node as SongMetadataTreeViewNode;
+                            AddSongToPlaylist(songNode.Song);
+                        }
+                    }
+                }
+                else if (Keyboard.Modifiers == ModifierKeys.Control)
+                {
+                    node.Controller.Current = node;
+                    node.IsMultiSelected = !node.IsMultiSelected;
+                    node.Controller.Pivot = node.IsMultiSelected ? node : null;
+                }
+                else if (Keyboard.Modifiers == ModifierKeys.Shift)
+                {
+                    node.Controller.Current = node;
+                    node.Controller.ClearMultiSelection();
+
+                    if (node.Controller.Pivot == null)
+                    {
+                        node.IsMultiSelected = true;
+                        node.Controller.Pivot = node;
+                    }
+                    else
+                    {
+                        node.Controller.SelectRange(node);
+                    }
+                }
+
+                e.Handled = true;
+            }
+        }
+
+        private void OnTreeViewMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left && Keyboard.Modifiers == ModifierKeys.None)
+            {
+                TreeViewItem item = TreeViewItemBeingClicked(sender as TreeView, e);
+
+                if (item != null && item.Header is TreeViewNode)
+                {
+                    TreeViewNode node = item.Header as TreeViewNode;
+                    node.Controller.ClearMultiSelection();
+                    node.IsMultiSelected = true;
+                    node.Controller.Pivot = node;
+                }
+            }
+        }
+
+        private void OnTreeViewKeyDown(object sender, KeyEventArgs e)
+        {
+            TreeView tree = sender as TreeView;
+            TreeViewController controller = tree.Tag as TreeViewController;
+
+            if (Keyboard.Modifiers == ModifierKeys.None || Keyboard.Modifiers == ModifierKeys.Shift)
+            {
+                bool currentChanged = false;
+
+                if (e.Key == Key.Up && EnsureTreeViewHasCurrentNode(controller))
+                {
+                    controller.Current = controller.Previous;
+                    currentChanged = true;
+                    e.Handled = true;
+                }
+                else if (e.Key == Key.Down && EnsureTreeViewHasCurrentNode(controller))
+                {
+                    controller.Current = controller.Next;
+                    currentChanged = true;
+                    e.Handled = true;
+                }
+                else if (e.Key == Key.Enter)
+                {
+                    if (controller.MultiSelection.Count > 1)
+                    {
+                        foreach (SongMetadataTreeViewNode leaf in controller.Songs)
+                        {
+                            AddSongToPlaylist(leaf.Song);
+                        }
+
+                        Update();
+                    }
+                    else if (controller.Current != null)
+                    {
+                        if (controller.Current is SongMetadataTreeViewNode)
+                        {
+                            AddSongToPlaylist((controller.Current as SongMetadataTreeViewNode).Song);
+                        }
+                        else
+                        {
+                            controller.Current.IsExpanded = !controller.Current.IsExpanded;
+                        }
+
+                        Update();
+                    }
+
+                    e.Handled = true;
+                }
+
+                if (currentChanged)
+                {
+                    TreeViewItem item = GetTreeViewItem(tree, controller.Current);
+
+                    if (item != null)
+                    {
+                        item.BringIntoView();
+                    }
+
+                    if (Keyboard.Modifiers == ModifierKeys.None)
+                    {
+                        controller.ClearMultiSelection();
+                        controller.Current.IsMultiSelected = true;
+                        controller.Pivot = controller.Current;
+                    }
+                    else if (Keyboard.Modifiers == ModifierKeys.Shift)
+                    {
+                        if (controller.Pivot == null)
+                        {
+                            controller.ClearMultiSelection();
+                            controller.Current.IsMultiSelected = true;
+                            controller.Pivot = controller.Current;
+                        }
+                        else
+                        {
+                            controller.ClearMultiSelection();
+                            controller.SelectRange(controller.Current);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void OnTreeViewSelectionChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            // Cancel the selection. Use the controller multiselection system instead.
+            TreeViewNode node = e.NewValue as TreeViewNode;
+
+            if (node != null)
+            {
+                node.IsSelected = false;
+            }
+        }
+
+        #endregion
+
+        #region Specialized events for individual controls
+
+        private void OnSearchResultsViewDoubleClicked(object sender, MouseButtonEventArgs e)
+        {
+            // Is this really the best way to find which column this is?
+            // It seems contrived, but DataGridCellInfo seems to contain
+            // very little usable information.
+            const int songColumnDisplayIndex = 0;
+            const int artistColumnDisplayIndex = 1;
+            const int albumColumnDisplayIndex = 2;
+
+            foreach (DataGridCellInfo cell in m_SearchResultsView.SelectedCells)
+            {
+                CollectionSearch.SearchResultTuple result = (CollectionSearch.SearchResultTuple)(cell.Item);
+
+                if (result != null)
+                {
+                    if (cell.Column.DisplayIndex == artistColumnDisplayIndex)
+                    {
+                        AddArtistToPlaylist(result.Artist);
+                    }
+                    else if (cell.Column.DisplayIndex == albumColumnDisplayIndex)
+                    {
+                        AddAlbumToPlaylist(result.Album);
+                    }
+                    else if (cell.Column.DisplayIndex == songColumnDisplayIndex)
+                    {
+                        AddSongToPlaylist(result.Song);
+                    }
+                }
+            } 
+        }
+
+        private void OnSearchBoxEnabledChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (m_SearchBox.Focusable)
+            {
+                m_SearchBox.Focus();
+            }
+        }
+
+        private void OnSearchBoxTextChanged(object sender, TextChangedEventArgs e)
+        {
+            m_CollectionSearchThread.SearchString = m_SearchBox.Text;
+        }
+
+                private void OnSelectedArtistsChanged(object sender, SelectionChangedEventArgs e)
+        {
+            m_DatabaseView.OnSelectedArtistsChanged(m_ArtistsView.SelectedItems);
+        }
+
+        private void OnSelectedGenresChanged(object sender, SelectionChangedEventArgs e)
+        {
+            m_DatabaseView.OnSelectedGenresChanged(m_GenresView.SelectedItems);
+        }
+
+        private void OnSelectedAlbumsChanged(object sender, SelectionChangedEventArgs e)
+        {
+            m_DatabaseView.OnSelectedAlbumsBySelectedArtistsChanged(m_AlbumsBySelectedArtistsView.SelectedItems);
+        }
+
+        private void OnSelectedGenreAlbumsChanged(object sender, SelectionChangedEventArgs e)
+        {
+            m_DatabaseView.OnSelectedAlbumsOfSelectedGenresChanged(m_AlbumsOfSelectedGenresView.SelectedItems);
+        }
+
+        #region Streams collection
+
+        private void OnStreamsViewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.F2 && m_StreamsView.SelectedItems.Count == 1)
+            {
+                OnRenameSelectedStream();
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Delete)
+            {
+                DeleteSelectedStreams();
+                e.Handled = true;
+            }
+        }
+
+        private void OnRenameSelectedStreamClicked(object sender, RoutedEventArgs e)
+        {
+            OnRenameSelectedStream();
+        }
+
+        private void OnRenameStreamQueryFinished(bool succeeded, StreamMetadata stream, string newName)
+        {
+            if (succeeded)
+            {
+                m_StreamsCollection.Rename(stream, newName);
+            }
+        }
+
+        private void OnDeleteSelectedStreamsClicked(object sender, RoutedEventArgs e)
+        {
+            DeleteSelectedStreams();
+        }
+
+        private void OnAddStreamURLClicked(object sender, RoutedEventArgs e)
+        {
+            StartAddNewStreamQuery();
+        }
+
+        private void OnAddNewStreamQueryFinished(bool succeeded, string address, string name)
+        {
+            if (succeeded)
+            {
+                StreamMetadata stream = new StreamMetadata();
+                stream.Path = address;
+                stream.Title = name;
+                m_StreamsCollection.Add(stream);
+                m_DatabaseView.RefreshStreams();
+            }
+        }
+
+        private void OnAddStreamsFromFileClicked(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Title = "Add stream files";
+            dialog.Multiselect = true;
+            dialog.Filter = "Playlist Files|*.pls;*.m3u";
+
+            bool? dialogResult = dialog.ShowDialog();
+
+            if (dialogResult.HasValue && dialogResult.Value)
+            {
+                PLSParser plsParser = new PLSParser();
+                M3UParser m3uParser = new M3UParser();
+                List<StreamMetadata> streamsToAdd = new List<StreamMetadata>();
+
+                foreach (string filename in dialog.FileNames)
+                {
+                    IEnumerable<StreamMetadata> streams = null;
+
+                    if (filename.ToLowerInvariant().EndsWith(".pls"))
+                    {
+                        streams = plsParser.ParseFile(filename);
+                    }
+                    else if (filename.ToLowerInvariant().EndsWith(".m3u"))
+                    {
+                        streams = m3uParser.ParseFile(filename);
+                    }
+                    
+                    if (streams != null)
+                    {
+                        streamsToAdd.AddRange(streams);
+                    }
+                }
+
+                m_StreamsCollection.Add(streamsToAdd);
+                m_DatabaseView.RefreshStreams();
+            }
+        }
+
+        private void OnSaveSelectedStreamsToFileClicked(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog dialog = new SaveFileDialog();
+            dialog.Title = "Save streams";
+            dialog.Filter = "Playlist Files|*.pls";
+
+            bool? dialogResult = dialog.ShowDialog();
+
+            if (dialogResult.HasValue && dialogResult.Value)
+            {
+                string filename = dialog.FileName;
+                string playlist = PlaylistWriter.Write(Utils.ToTypedList<StreamMetadata>(m_StreamsView.SelectedItems));
+
+                if (playlist != null)
+                {
+                    File.WriteAllText(filename, playlist);
+                }
+            }
+        }
+
+        private void OnRenameSelectedStream()
+        {
+            if (m_StreamsView.SelectedItems.Count == 1)
+            {
+                StartRenameStreamQuery(m_StreamsView.SelectedItem as StreamMetadata);
+            }
+        }
+
+        private void DeleteSelectedStreams()
+        {
+            m_StreamsCollection.Delete(Utils.ToTypedList<StreamMetadata>(m_StreamsView.SelectedItems));
+        }
+
+        #endregion
+
+        #region Saved playlists collection
+
+        private void OnSavedPlaylistsViewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                LoadSelectedSavedPlaylist();
+                e.Handled = true;
+            }
+            else if (e.Key == Key.F2)
+            {
+                RenameSavedPlaylist();
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Delete)
+            {
+                DeleteSelectedSavedPlaylist();
+                e.Handled = true;
+            }
+        }
+
+        private void OnSavedPlaylistsViewDoubleClicked(object sender, MouseButtonEventArgs e)
+        {
+            if (Keyboard.Modifiers == ModifierKeys.None)
+            {
+                LoadSelectedSavedPlaylist();
+            }
+        }
+
+        private void OnSendSavedPlaylistToPlaylistClicked(object sender, RoutedEventArgs e)
+        {
+            LoadSelectedSavedPlaylist();
+        }
+
+        private void LoadSelectedSavedPlaylist()
+        {
+            object selectedPlaylist = m_SavedPlaylistsView.SelectedItem;
+
+            if (selectedPlaylist != null)
+            {
+                LoadSavedPlaylist(selectedPlaylist as string);
+            }
+        }
+
+        private void LoadSavedPlaylist(string name)
+        {
+            Protocol.Clear(m_Connection);
+            Protocol.Load(m_Connection, name);
+            m_SavedPlaylists.CurrentPlaylistName = name;
+            Update();
+        }
+
+        private void OnRenameSavedPlaylistClicked(object sender, RoutedEventArgs e)
+        {
+            RenameSavedPlaylist();
+        }
+
+        private void RenameSavedPlaylist()
+        {
+            object selectedPlaylist = m_SavedPlaylistsView.SelectedItem;
+
+            if (selectedPlaylist != null)
+            {
+                StartRenameSavedPlaylistQuery(selectedPlaylist as string);
+            }
+        }
+
+        private void OnRenameStreamQueryFinished(bool succeeded, string oldName, string newName)
+        {
+            if (succeeded)
+            {
+                Protocol.Rename(m_Connection, oldName, newName);
+                m_SavedPlaylists.Refresh(m_Connection);
+            }
+        }
+
+        private void OnDeleteSavedPlaylistClicked(object sender, RoutedEventArgs e)
+        {
+            DeleteSelectedSavedPlaylist();
+        }
+
+        private void DeleteSelectedSavedPlaylist()
+        {
+            object selectedPlaylist = m_SavedPlaylistsView.SelectedItem;
+
+            if (selectedPlaylist != null)
+            {
+                Protocol.Rm(m_Connection, selectedPlaylist as string);
+                m_SavedPlaylists.Refresh(m_Connection);
+            }
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Playlist
+
+        private void OnPlaylistViewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                if (m_PlaylistView.SelectedItems.Count == 1)
+                {
+                    object o = m_PlaylistView.SelectedItems[0];
+
+                    if (o is PlaylistItem)
+                    {
+                        PlaylistItem item = o as PlaylistItem;
+                        Protocol.PlayId(m_Connection, item.Id);
+                        Update();
+                    }
+                }
+
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Delete)
+            {
+                DeleteSelectedItemsFromPlaylist();
+            }
+        }
+
+        private void OnPlaylistViewDoubleClicked(object sender, MouseButtonEventArgs e)
+        {
+            DataGridRow row = DataGridRowBeingClicked(m_PlaylistView, e);
+
+            if (row != null)
+            {
+                PlaylistItem item = row.Item as PlaylistItem;
+                Protocol.PlayId(m_Connection, item.Id);
+                Update();
+            }
+        }
+
+        private void OnClearPlaylistViewClicked(object sender, RoutedEventArgs e)
+        {
+            Protocol.Clear(m_Connection);
+            m_SavedPlaylists.CurrentPlaylistName = "";
+            Update();
+        }
+
+        private void OnRemoveSelectedPlaylistItemsClicked(object sender, RoutedEventArgs e)
+        {
+            DeleteSelectedItemsFromPlaylist();
+        }
+
+        private void OnCropToSelectedPlaylistItemsClicked(object sender, RoutedEventArgs e)
+        {
+            if (m_PlaylistView.SelectedItems.Count > 0)
+            {
+                ISet<int> keepItems = new SortedSet<int>();
+
+                foreach (Object o in m_PlaylistView.SelectedItems)
+                {
+                    PlaylistItem item = o as PlaylistItem;
+                    keepItems.Add(item.Id);
+                }
+
+                foreach (PlaylistItem item in m_Playlist.Items)
+                {
+                    if (!keepItems.Contains(item.Id))
+                    {
+                        Protocol.DeleteId(m_Connection, item.Id);
+                    }
+                }
+
+                Update();
+            }
+        }
+
+        private void OnSavePlaylistAsClicked(object sender, RoutedEventArgs e)
+        {
+            StartAddNewPlaylistAsQuery(m_SavedPlaylists.CurrentPlaylistName);
+        }
+
+        private void OnAddNewPlaylistAsQueryFinished(bool succeeded, string playlistName)
+        {
+            if (succeeded)
+            {
+                m_SavedPlaylists.CurrentPlaylistName = playlistName;
+                Protocol.Rm(m_Connection, m_SavedPlaylists.CurrentPlaylistName);
+                Protocol.Save(m_Connection, m_SavedPlaylists.CurrentPlaylistName);
+                m_SavedPlaylists.Refresh(m_Connection);
+            }
+        }
+        
+        private void OnDedupPlaylistViewClicked(object sender, RoutedEventArgs e)
+        {
+            ISet<string> songPathsOnPlaylist = new SortedSet<string>();
+            IList<int> playlistIDsOfDuplicates = new List<int>();
+
+            foreach (PlaylistItem item in m_Playlist.Items)
+            {
+                if (!songPathsOnPlaylist.Add(item.Playable.Path))
+                {
+                    playlistIDsOfDuplicates.Add(item.Id);
+                }
+            }
+
+            foreach (int id in playlistIDsOfDuplicates)
+            {
+                Protocol.DeleteId(m_Connection, id);
+            }
+        }
+
+        private void OnShufflePlaylistClicked(object sender, RoutedEventArgs e)
+        {
+            Protocol.Shuffle(m_Connection);
+        }
+
+        private void DeleteSelectedItemsFromPlaylist()
+        {
+            foreach (object o in m_PlaylistView.SelectedItems)
+            {
+                if (o is PlaylistItem)
+                {
+                    PlaylistItem item = o as PlaylistItem;
+                    Protocol.DeleteId(m_Connection, item.Id);
+                }
+            }
+
+            Update();
+        }
+
+        #endregion
+
+        #region Autosearch
+
+        private bool AutoSearchInProgrss
+        {
+            get
+            {
+                return m_AutoSearchString.Length > 0 && DateTime.Now.Subtract(m_TimeOfLastAutoSearch).TotalMilliseconds <= m_AutoSearchMaxKeystrokeGap;
+            }
+        }
+
+        private bool CollectionAutoSearch(object sender, char c)
+        {
+            if (sender != m_LastAutoSearchSender || DateTime.Now.Subtract(m_TimeOfLastAutoSearch).TotalMilliseconds > m_AutoSearchMaxKeystrokeGap)
+            {
+                m_AutoSearchString = "";
+            }
+
+            m_TimeOfLastAutoSearch = DateTime.Now;
+            m_LastAutoSearchSender = sender;
+            bool searchAgain = false;
+
+            if (c == '\b')
+            {
+                if (m_AutoSearchString.Length > 0)
+                {
+                    m_AutoSearchString = m_AutoSearchString.Remove(m_AutoSearchString.Length - 1);
+                    searchAgain = m_AutoSearchString.Length > 0;
+                }
+            }
+            else if (!char.IsControl(c) && !char.IsSurrogate(c))
+            {
+                m_AutoSearchString = (m_AutoSearchString + c).ToLowerInvariant();
+                searchAgain = true;
+            }
+            else
+            {
+                m_TimeOfLastAutoSearch = DateTime.MinValue;
+            }
+
+            if (searchAgain)
+            {
+                if (sender is DataGrid)
+                {
+                    DataGrid grid = sender as DataGrid;
+
+                    foreach (object o in grid.Items)
+                    {
+                        if (o is string && (o as string).ToLowerInvariant().StartsWith(m_AutoSearchString) ||
+                           o is AlbumMetadata && (o as AlbumMetadata).Title.ToLowerInvariant().StartsWith(m_AutoSearchString) ||
+                           o is Playable && (o as Playable).Title.ToLowerInvariant().StartsWith(m_AutoSearchString))
+                        {
+                            grid.CurrentItem = o;
+                            grid.SelectedItem = o;
+                            grid.ScrollIntoView(o);
+                            return true;
+                        }
+                    }
+                }
+                else if (sender is TreeView)
+                {
+                    TreeView tree = sender as TreeView;
+                    TreeViewNode item = CollectionAutoSearchTreeViewRecursively(Utils.ToTypedList<TreeViewNode>(tree.Items));
+
+                    if (item != null)
+                    {
+                        item.Controller.ClearMultiSelection();
+                        item.IsMultiSelected = true;
+                        item.IsSelected = true;
+                        item.Controller.Current = item;
+                        item.Controller.Pivot = item;
+
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private TreeViewNode CollectionAutoSearchTreeViewRecursively(IEnumerable<TreeViewNode> nodes)
+        {
+            foreach (TreeViewNode node in nodes)
+            {
+                if (node.DisplayString.ToLowerInvariant().StartsWith(m_AutoSearchString))
+                {
+                    return node;
+                }
+                else if (node.IsExpanded)
+                {
+                    TreeViewNode result = CollectionAutoSearchTreeViewRecursively(Utils.ToTypedList<TreeViewNode>(node.Children));
+
+                    if (result != null)
+                    {
+                        return result;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        #endregion
+
+        #region Helpers for adding items to the playlist
+
+        private void AddObjectToPlaylist(object o, bool stringsAreArtists)
+        {
+            if (o is string)
+            {
+                if (stringsAreArtists)
+                {
+                    AddArtistToPlaylist(o as string);
+                }
+                else
+                {
+                    AddGenreToPlaylist(o as string);
+                }
+            }
+            else if (o is AlbumMetadata)
+            {
+                AddAlbumToPlaylist(o as AlbumMetadata);
+            }
+            else if (o is SongMetadata)
+            {
+                AddSongToPlaylist(o as SongMetadata);
+            }
+            else if (o is StreamMetadata)
+            {
+                AddStreamToPlaylist(o as StreamMetadata);
+            }
+        }
+
+        // Template: firstPosition is the position on the playlist to which
+        // the first item is pushed. The return value is the position after
+        // the last item.
+        private int AddObjectToPlaylist(object o, bool stringsAreArtists, int firstPosition)
+        {
+            if (o is string)
+            {
+                if (stringsAreArtists)
+                {
+                    return AddArtistToPlaylist(o as string, firstPosition);
+                }
+                else
+                {
+                    return AddGenreToPlaylist(o as string, firstPosition);
+                }
+            }
+            else if (o is AlbumMetadata)
+            {
+                return AddAlbumToPlaylist(o as AlbumMetadata, firstPosition);
+            }
+            else if (o is SongMetadata)
+            {
+                return AddSongToPlaylist(o as SongMetadata, firstPosition);
+            }
+            else if (o is StreamMetadata)
+            {
+                return AddStreamToPlaylist(o as StreamMetadata, firstPosition);
+            }
+
+            return firstPosition;
+        }
+
+        private void AddArtistToPlaylist(string artist)
+        {
+            foreach (AlbumMetadata album in m_Database.AlbumsByArtist(artist))
+            {
+                AddAlbumToPlaylist(album);
+            }
+        }
+
+        private int AddArtistToPlaylist(string artist, int firstPosition)
+        {
+            int position = firstPosition;
+
+            foreach (AlbumMetadata album in m_Database.AlbumsByArtist(artist))
+            {
+                position = AddAlbumToPlaylist(album, position);
+            }
+
+            return position;
+        }
+
+        private void AddGenreToPlaylist(string genre)
+        {
+            foreach (AlbumMetadata album in m_Database.AlbumsByGenre(genre))
+            {
+                AddAlbumToPlaylist(album);
+            }
+        }
+
+        private int AddGenreToPlaylist(string genre, int firstPosition)
+        {
+            int position = firstPosition;
+
+            foreach (AlbumMetadata album in m_Database.AlbumsByGenre(genre))
+            {
+                position = AddAlbumToPlaylist(album, position);
+            }
+
+            return position;
+        }
+
+        private void AddAlbumToPlaylist(AlbumMetadata album)
+        {
+            foreach (SongMetadata song in m_Database.SongsByAlbum(album))
+            {
+                AddSongToPlaylist(song);
+            }
+        }
+
+        private int AddAlbumToPlaylist(AlbumMetadata album, int firstPosition)
+        {
+            int position = firstPosition;
+
+            foreach (SongMetadata song in m_Database.SongsByAlbum(album))
+            {
+                position = AddSongToPlaylist(song, position);
+            }
+
+            return position;
+        }
+
+        private void AddSongToPlaylist(SongMetadata song)
+        {
+            Protocol.Add(m_Connection, song.Path);
+        }
+
+        private int AddSongToPlaylist(SongMetadata song, int position)
+        {
+            Protocol.AddId(m_Connection, song.Path, position);
+            return position + 1;
+        }
+
+        private void AddStreamToPlaylist(StreamMetadata stream)
+        {
+            Protocol.Add(m_Connection, stream.Path);
+        }
+
+        private int AddStreamToPlaylist(StreamMetadata stream, int position)
+        {
+            Protocol.AddId(m_Connection, stream.Path, position);
+            return position + 1;
         }
 
         #endregion
@@ -2192,151 +2290,6 @@ namespace Auremo
             {
                 m_SettingsWindow = null;
             }
-        }
-
-        #endregion
-
-        #region Helpers for adding items to the playlist
-
-        private void AddObjectToPlaylist(object o, bool stringsAreArtists)
-        {
-            if (o is string)
-            {
-                if (stringsAreArtists)
-                {
-                    AddArtistToPlaylist(o as string);
-                }
-                else
-                {
-                    AddGenreToPlaylist(o as string);
-                }
-            }
-            else if (o is AlbumMetadata)
-            {
-                AddAlbumToPlaylist(o as AlbumMetadata);
-            }
-            else if (o is SongMetadata)
-            {
-                AddSongToPlaylist(o as SongMetadata);
-            }
-            else if (o is StreamMetadata)
-            {
-                AddStreamToPlaylist(o as StreamMetadata);
-            }
-        }
-
-        // Template: firstPosition is the position on the playlist to which
-        // the first item is pushed. The return value is the position after
-        // the last item.
-        private int AddObjectToPlaylist(object o, bool stringsAreArtists, int firstPosition)
-        {
-            if (o is string)
-            {
-                if (stringsAreArtists)
-                {
-                    return AddArtistToPlaylist(o as string, firstPosition);
-                }
-                else
-                {
-                    return AddGenreToPlaylist(o as string, firstPosition);
-                }
-            }
-            else if (o is AlbumMetadata)
-            {
-                return AddAlbumToPlaylist(o as AlbumMetadata, firstPosition);
-            }
-            else if (o is SongMetadata)
-            {
-                return AddSongToPlaylist(o as SongMetadata, firstPosition);
-            }
-            else if (o is StreamMetadata)
-            {
-                return AddStreamToPlaylist(o as StreamMetadata, firstPosition);
-            }
-
-            return firstPosition;
-        }
-
-        private void AddArtistToPlaylist(string artist)
-        {
-            foreach (AlbumMetadata album in m_Database.AlbumsByArtist(artist))
-            {
-                AddAlbumToPlaylist(album);
-            }
-        }
-
-        private int AddArtistToPlaylist(string artist, int firstPosition)
-        {
-            int position = firstPosition;
-
-            foreach (AlbumMetadata album in m_Database.AlbumsByArtist(artist))
-            {
-                position = AddAlbumToPlaylist(album, position);
-            }
-
-            return position;
-        }
-
-        private void AddGenreToPlaylist(string genre)
-        {
-            foreach (AlbumMetadata album in m_Database.AlbumsByGenre(genre))
-            {
-                AddAlbumToPlaylist(album);
-            }
-        }
-
-        private int AddGenreToPlaylist(string genre, int firstPosition)
-        {
-            int position = firstPosition;
-
-            foreach (AlbumMetadata album in m_Database.AlbumsByGenre(genre))
-            {
-                position = AddAlbumToPlaylist(album, position);
-            }
-
-            return position;
-        }
-
-        private void AddAlbumToPlaylist(AlbumMetadata album)
-        {
-            foreach (SongMetadata song in m_Database.SongsByAlbum(album))
-            {
-                AddSongToPlaylist(song);
-            }
-        }
-
-        private int AddAlbumToPlaylist(AlbumMetadata album, int firstPosition)
-        {
-            int position = firstPosition;
-
-            foreach (SongMetadata song in m_Database.SongsByAlbum(album))
-            {
-                position = AddSongToPlaylist(song, position);
-            }
-
-            return position;
-        }
-
-        private void AddSongToPlaylist(SongMetadata song)
-        {
-            Protocol.Add(m_Connection, song.Path);
-        }
-
-        private int AddSongToPlaylist(SongMetadata song, int position)
-        {
-            Protocol.AddId(m_Connection, song.Path, position);
-            return position + 1;
-        }
-
-        private void AddStreamToPlaylist(StreamMetadata stream)
-        {
-            Protocol.Add(m_Connection, stream.Path);
-        }
-
-        private int AddStreamToPlaylist(StreamMetadata stream, int position)
-        {
-            Protocol.AddId(m_Connection, stream.Path, position);
-            return position + 1;
         }
 
         #endregion
