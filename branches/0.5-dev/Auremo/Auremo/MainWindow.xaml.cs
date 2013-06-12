@@ -1075,6 +1075,26 @@ namespace Auremo
                         currentChanged = true;
                         e.Handled = true;
                     }
+                    else if (e.Key == Key.Left && EnsureTreeViewHasCurrentNode(controller))
+                    {
+                        if (controller.Current.Parent != null)
+                        {
+                            controller.Current = controller.Current.Parent;
+                            currentChanged = true;
+                        }
+
+                        e.Handled = true;
+                    }
+                    else if (e.Key == Key.Right && EnsureTreeViewHasCurrentNode(controller))
+                    {
+                        if (controller.Current.Children.Count > 0)
+                        {
+                            controller.Current.IsExpanded = true;
+                            controller.Current = controller.Current.Children[0];
+                            currentChanged = true;
+                            e.Handled = true;
+                        }
+                    }
                     else if (e.Key == Key.Enter)
                     {
                         foreach (SongMetadataTreeViewNode leaf in controller.Songs)
