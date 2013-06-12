@@ -16,7 +16,16 @@
         <l:EqualsConverter x:Key="EqualsConverter"/>
     </Window.Resources>
     <Window.ToolTip>
-        <ToolTip Name="m_MousePointerHint" Padding="10" BorderBrush="{StaticResource PassiveGenericBorderBrush}" HasDropShadow="False" BorderThickness="1" Foreground="{StaticResource SelectedTextBrush}" Background="{StaticResource ToolTipBackgroundBrush}" IsOpen="False" Visibility="Hidden" IsHitTestVisible="False"/>
+        <ToolTip Name="m_MousePointerHint"
+                 Padding="10"
+                 BorderBrush="{StaticResource PassiveGenericBorderBrush}"
+                 HasDropShadow="False"
+                 BorderThickness="1"
+                 Foreground="{StaticResource SelectedTextBrush}"
+                 Background="{StaticResource ToolTipBackgroundBrush}"
+                 IsOpen="False"
+                 Visibility="Hidden"
+                 IsHitTestVisible="False"/>
     </Window.ToolTip>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -98,8 +107,9 @@
                             </DataGrid.ContextMenu>
                         </DataGrid>
                         <TextBlock Name="m_SearchResultsHint" Grid.Row="0" Style="{StaticResource CollectionHintTextStyle}" Text="No search results."/>
-                        <TextBox Name="m_SearchBox" Grid.Row="1" Style="{StaticResource TextBoxStyle}" Margin="0,10,0,0" DockPanel.Dock="Top" TextChanged="OnSearchBoxTextChanged" IsEnabled="{Binding Path=IsConnected}" IsEnabledChanged="OnSearchBoxEnabledChanged"
-                                 Height="28" FontSize="15" VerticalContentAlignment="Center"/>
+                        <TextBox Name="m_SearchBox" Grid.Row="1" Style="{StaticResource TextBoxStyle}" Margin="0,10,0,0" DockPanel.Dock="Top"
+                                 Height="28" FontSize="15" VerticalContentAlignment="Center"
+                                 IsEnabled="{Binding Path=IsConnected}" TextChanged="OnSearchBoxTextChanged" IsEnabledChanged="OnSearchBoxEnabledChanged"/>
                         <TextBlock Name="m_SearchBoxHint" Grid.Row="1" Style="{StaticResource TextBoxHintTextStyle}" Margin="10,6,0,0" Text="Type here to start searching."
                                    FontSize="16"/>
                     </Grid>
@@ -185,7 +195,15 @@
                 </TabItem>
                 <TabItem Header="Artist tree">
                     <Grid>
-                        <TreeView Name="m_ArtistTree" ItemsSource="{Binding ArtistTree}" Style="{StaticResource MusicCollectionTreeViewStyle}" PreviewMouseLeftButtonDown="OnTreeViewMouseDown" MouseMove="OnMouseMoveDragDrop" MouseUp="OnTreeViewMouseUp" PreviewKeyDown="OnTreeViewKeyDown" TextInput="OnCollectionTextInput" SelectedItemChanged="OnTreeViewSelectionChanged">
+                        <TreeView Name="m_ArtistTree"
+                                  ItemsSource="{Binding ArtistTree}"
+                                  Style="{StaticResource MusicCollectionTreeViewStyle}"
+                                  PreviewMouseLeftButtonDown="OnTreeViewMouseDown"
+                                  MouseMove="OnMouseMoveDragDrop"
+                                  MouseUp="OnTreeViewMouseUp"
+                                  PreviewKeyDown="OnTreeViewKeyDown"
+                                  TextInput="OnCollectionTextInput"
+                                  SelectedItemChanged="OnTreeViewSelectionChanged">
                             <TreeView.Resources>
                                 <HierarchicalDataTemplate DataType="{x:Type l:TreeViewNode}" ItemsSource="{Binding Children}">
                                     <TextBlock Text="{Binding DisplayString}"/>
@@ -303,7 +321,15 @@
                 </TabItem>
                 <TabItem Header="Filesystem">
                     <Grid>
-                        <TreeView Name="m_DirectoryTree" ItemsSource="{Binding DirectoryTree}" Style="{StaticResource MusicCollectionTreeViewStyle}" PreviewMouseLeftButtonDown="OnTreeViewMouseDown" MouseMove="OnMouseMoveDragDrop" MouseUp="OnTreeViewMouseUp" PreviewKeyDown="OnTreeViewKeyDown" TextInput="OnCollectionTextInput" SelectedItemChanged="OnTreeViewSelectionChanged">
+                        <TreeView Name="m_DirectoryTree"
+                                  ItemsSource="{Binding DirectoryTree}"
+                                  Style="{StaticResource MusicCollectionTreeViewStyle}"
+                                  PreviewMouseLeftButtonDown="OnTreeViewMouseDown"
+                                  MouseMove="OnMouseMoveDragDrop"
+                                  MouseUp="OnTreeViewMouseUp"
+                                  PreviewKeyDown="OnTreeViewKeyDown"
+                                  TextInput="OnCollectionTextInput"
+                                  SelectedItemChanged="OnTreeViewSelectionChanged">
                             <TreeView.Resources>
                                 <HierarchicalDataTemplate DataType="{x:Type l:TreeViewNode}" ItemsSource="{Binding Children}">
                                     <TextBlock Text="{Binding DisplayString}"/>
