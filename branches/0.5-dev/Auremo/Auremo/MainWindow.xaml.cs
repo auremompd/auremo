@@ -98,6 +98,7 @@ namespace Auremo
         private void SetUpDataBindings()
         {
             m_FileMenuSavePlaylistAsItem.DataContext = m_PlaylistView;
+            m_FileMenuRescanMusicCollectionContextMenuItem.DataContext = m_Connection;
             m_ConnectionMenuItem.DataContext = m_Connection;
             m_OutputsMenu.DataContext = m_Outputs;
             

@@ -39,7 +39,7 @@
                 <Separator/>
                 <MenuItem Name="m_FileMenuSavePlaylistAsItem" Header="Save current playlist into collection as..." Click="OnSavePlaylistAsClicked" IsEnabled="{Binding Path=Items.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
                 <Separator/>
-                <MenuItem Header="Rescan music collection" Click="OnRescanMusicCollectionClicked" IsEnabled="{Binding Path=IsConnected}"/>
+                <MenuItem Name="m_FileMenuRescanMusicCollectionContextMenuItem" Header="Rescan music collection" Click="OnRescanMusicCollectionClicked" IsEnabled="{Binding Path=IsConnected}"/>
                 <Separator/>
                 <MenuItem Header="Exit" Click="OnExitClicked"/>
             </MenuItem>
