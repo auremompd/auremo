@@ -595,6 +595,8 @@ namespace Auremo
 
         private void OnDataGridMouseDown(object sender, MouseButtonEventArgs e)
         {
+            (sender as DataGrid).Focus();
+
             if (e.ChangedButton != MouseButton.Left ||
                 Keyboard.Modifiers.HasFlag(ModifierKeys.Shift) ||
                 Keyboard.Modifiers.HasFlag(ModifierKeys.Control) ||
@@ -981,6 +983,7 @@ namespace Auremo
 
         private void OnTreeViewMouseDown(object sender, MouseButtonEventArgs e)
         {
+            (sender as TreeView).Focus();
             TreeViewItem item = TreeViewItemBeingClicked(sender as TreeView, e);
 
             if (item != null && item.Header is TreeViewNode)
