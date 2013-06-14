@@ -451,7 +451,7 @@
                      are done using a more manual event instead. -->
                 <Label Name="m_PlayPosition" DockPanel.Dock="Left" VerticalAlignment="Center" Width="40" FontSize="9" Foreground="{StaticResource ButtonActiveGlyphGlowBrush}" Content="00:00"/>
                 <Label Name="m_SongLength" DockPanel.Dock="Right" VerticalAlignment="Center" Width="40" FontSize="9" Foreground="{StaticResource ButtonActiveGlyphGlowBrush}" Content="{Binding Path=SongLength, Converter={StaticResource IntToTimecodeConverter}}"/>
-                <Slider Name="m_SeekBar" Style="{StaticResource MusicSliderStyle}" Margin="2,2,2,2" VerticalAlignment="Center" Minimum="0" Value="0" Maximum="{Binding Path=SongLength}" ValueChanged="OnSeekBarDrag" PreviewMouseDown="OnSeekBarDragStart" PreviewMouseUp="OnSeekBarDragEnd" MouseWheel="OnSeekBarMouseWheel" IsEnabled="{Binding Path=SongLength, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
+                <Slider Name="m_SeekBar" Style="{StaticResource MusicSliderStyle}" Margin="2" VerticalAlignment="Center" Minimum="0" Value="0" Maximum="{Binding Path=SongLength}" ValueChanged="OnSeekBarDrag" PreviewMouseDown="OnSeekBarDragStart" PreviewMouseUp="OnSeekBarDragEnd" MouseWheel="OnSeekBarMouseWheel" IsEnabled="{Binding Path=SongLength, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
             </DockPanel>
         </Border>
         <Border Grid.Row="3" Padding="20, 5, 20, 5" BorderBrush="{StaticResource SeparatorBorderBrush}" BorderThickness="0,1,0,1" Background="{StaticResource ControlPanelBackgroundBrushBelow}" Grid.ColumnSpan="2" >
