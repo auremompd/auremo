@@ -503,7 +503,7 @@
                 </StatusBarItem>
             </StatusBar>
         </Border>
-        <Border Name="m_StringQueryOverlay" Grid.RowSpan="4" Background="{StaticResource StringQueryOverlayBackgroundBrush}" Visibility="Hidden" Margin="0,-7,0,7" Grid.ColumnSpan="2" MouseDown="m_StringQueryOverlayBackgroundClicked">
+        <Border Name="m_StringQueryOverlay" Grid.RowSpan="4" Background="{StaticResource StringQueryOverlayBackgroundBrush}" Visibility="Hidden" Grid.ColumnSpan="2" MouseDown="m_StringQueryOverlayBackgroundClicked">
             <Border Width="300" Height="120" VerticalAlignment="Center" HorizontalAlignment="Center" Background="{StaticResource WindowBackgroundBrush}" MouseDown="m_StringQueryOverlayForegroundClicked">
                 <Grid>
                     <Grid.ColumnDefinitions>
