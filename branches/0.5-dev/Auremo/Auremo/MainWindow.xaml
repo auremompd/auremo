@@ -262,7 +262,7 @@
                                   MouseDoubleClick="OnMusicCollectionDataGridDoubleClicked">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Artist" MinWidth="60" Width="Auto" Binding="{Binding Path=Artist}"/>
-                                <DataGridTextColumn Header="Title" MinWidth="60" Width="*" Binding="{Binding Path=Title}"/>
+                                <DataGridTextColumn Header="Album" MinWidth="60" Width="*" Binding="{Binding Path=Title}"/>
                             </DataGrid.Columns>
                             <DataGrid.ContextMenu>
                                 <ContextMenu Name="m_AlbumsOfSelectedGenresViewContextMenu">
