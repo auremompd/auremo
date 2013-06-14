@@ -17,15 +17,14 @@
     </Window.Resources>
     <Window.ToolTip>
         <ToolTip Name="m_MousePointerHint"
-                 Padding="10"
-                 BorderBrush="{StaticResource PassiveGenericBorderBrush}"
-                 HasDropShadow="False"
-                 BorderThickness="1"
-                 Foreground="{StaticResource SelectedTextBrush}"
                  Background="{StaticResource ToolTipBackgroundBrush}"
+                 BorderThickness="0"
+                 Foreground="{StaticResource SelectedTextBrush}"
+                 HasDropShadow="False"
+                 IsHitTestVisible="False"
                  IsOpen="False"
-                 Visibility="Hidden"
-                 IsHitTestVisible="False"/>
+                 Padding="10"
+                 Visibility="Hidden"/>
     </Window.ToolTip>
     <Grid>
         <Grid.ColumnDefinitions>
