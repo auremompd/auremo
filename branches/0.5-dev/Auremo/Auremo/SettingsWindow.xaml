@@ -20,7 +20,7 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Border Grid.Row="0" BorderBrush="#DDDDDD" BorderThickness="0,0,0,1" Margin="0,0,0,10">
+        <Border Grid.Row="0" BorderBrush="{StaticResource SeparatorBorderBrush}" BorderThickness="0,0,0,1" Margin="0,0,0,10">
             <TextBlock Style="{StaticResource HeaderStyle}">Auremo Settings</TextBlock>
         </Border>
         <StackPanel Orientation="Horizontal"  Grid.Row="1">
@@ -60,7 +60,7 @@
             <Label Content="seconds (0 - 1800)" Style="{StaticResource OptionLabelStyle}" IsEnabled="{Binding ElementName=m_WheelSongPositioningModeIsSeconds,Path=IsChecked}"/>
         </StackPanel>
         <CheckBox Name="m_EnableVolumeControl" Content="Enable volume control" IsChecked="True" Grid.Row="8" Style="{StaticResource OptionCheckBoxStyle}"/>
-        <Border Grid.Row="9" BorderBrush="#DDDDDD" BorderThickness="0,1,0,0" Margin="0,5,0,0">
+        <Border Grid.Row="9" BorderBrush="{StaticResource SeparatorBorderBrush}" BorderThickness="0,1,0,0" Margin="0,5,0,0">
             <DockPanel LastChildFill="False"  VerticalAlignment="Bottom">
                 <Button Name="m_CancelButton" Style="{StaticResource ActionButtonStyle}" Content="Cancel" Width="90" Margin="4" DockPanel.Dock="Right" Click="OnCancelClicked"/>
                 <Button Name="m_RevertButton" Style="{StaticResource ActionButtonStyle}" Content="Revert" Width="90" Margin="4" DockPanel.Dock="Right" Click="OnRevertClicked"/>
