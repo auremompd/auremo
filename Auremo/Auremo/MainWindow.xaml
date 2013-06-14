@@ -454,9 +454,8 @@
                 <Slider Name="m_SeekBar" Style="{StaticResource MusicSliderStyle}" Margin="2,2,2,2" VerticalAlignment="Center" Minimum="0" Value="0" Maximum="{Binding Path=SongLength}" ValueChanged="OnSeekBarDrag" PreviewMouseDown="OnSeekBarDragStart" PreviewMouseUp="OnSeekBarDragEnd" MouseWheel="OnSeekBarMouseWheel" IsEnabled="{Binding Path=SongLength, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
             </DockPanel>
         </Border>
-        <Border Grid.Row="3" Padding="20, 5, 20, 5" BorderBrush="#FFCBCBCB" BorderThickness="0,1,0,1" Background="{StaticResource ControlPanelBackgroundBrushBelow}" Grid.ColumnSpan="2" >
+        <Border Grid.Row="3" Padding="20, 5, 20, 5" BorderBrush="{StaticResource SeparatorBorderBrush}" BorderThickness="0,1,0,1" Background="{StaticResource ControlPanelBackgroundBrushBelow}" Grid.ColumnSpan="2" >
             <Grid Name="m_PlaybackControlPanel" Grid.Row="3" Height="55">
-                <!--DockPanel Name="m_PlaybackControlPanel" Grid.Row="3" LastChildFill="True" Height="55" HorizontalAlignment="Center"-->
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
@@ -494,17 +493,17 @@
                 </StackPanel>
             </Grid>
         </Border>
-        <Border Grid.Row="4" BorderBrush="#999999" BorderThickness="0,1,0,0" Grid.ColumnSpan="2">
+        <Border Grid.Row="4" BorderBrush="{StaticResource SeparatorBorderBrush}" BorderThickness="0,1,0,0" Grid.ColumnSpan="2">
             <StatusBar Padding="20, 2, 20, 2" Background="{StaticResource WindowBackgroundBrush}" >
                 <StatusBarItem HorizontalAlignment="Left">
-                    <Label Name="m_PlayStatusMessage" Foreground="#333333" Content="{Binding Path=PlayStatusDescription}" Padding="5,2"/>
+                    <Label Name="m_PlayStatusMessage" Foreground="{StaticResource PassiveTextBrush}" Content="{Binding Path=PlayStatusDescription}" Padding="5,2"/>
                 </StatusBarItem>
                 <StatusBarItem Name="m_ConnectionStatusDescription" HorizontalAlignment="Right">
-                    <Label Foreground="#333333" Content="{Binding Path=StatusDescription}" Padding="5,2"/>
+                    <Label Foreground="{StaticResource PassiveTextBrush}" Content="{Binding Path=StatusDescription}" Padding="5,2"/>
                 </StatusBarItem>
             </StatusBar>
         </Border>
-        <Border Name="m_StringQueryOverlay" Grid.RowSpan="4" Background="#CC777777" Visibility="Hidden" Margin="0,-7,0,7" Grid.ColumnSpan="2" MouseDown="m_StringQueryOverlayBackgroundClicked">
+        <Border Name="m_StringQueryOverlay" Grid.RowSpan="4" Background="{StaticResource StringQueryOverlayBackgroundBrush}" Visibility="Hidden" Margin="0,-7,0,7" Grid.ColumnSpan="2" MouseDown="m_StringQueryOverlayBackgroundClicked">
             <Border Width="300" Height="120" VerticalAlignment="Center" HorizontalAlignment="Center" Background="{StaticResource WindowBackgroundBrush}" MouseDown="m_StringQueryOverlayForegroundClicked">
                 <Grid>
                     <Grid.ColumnDefinitions>
