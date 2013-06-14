@@ -314,7 +314,7 @@
 
     <!-- Drop & drop -->
 
-    <SolidColorBrush x:Key="ToolTipBackgroundBrush" Color="#A07090B0"/>
+    <SolidColorBrush x:Key="ToolTipBackgroundBrush" Color="#B0B0B0B0"/>
     
     <LinearGradientBrush x:Key="DropPositionIndicatorBrush" StartPoint="0,0" EndPoint="1,0">
         <LinearGradientBrush.GradientStops>
@@ -323,7 +323,6 @@
             <GradientStop Color="#AAAAAA" Offset="1"/>
         </LinearGradientBrush.GradientStops>
     </LinearGradientBrush>
-
 </ResourceDictionary>
     
     

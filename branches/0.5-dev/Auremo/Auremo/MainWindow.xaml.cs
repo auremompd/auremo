@@ -773,85 +773,40 @@ namespace Auremo
 
         private string DragDropPayloadDescription()
         {
-            if (m_DragSource == null || m_DragDropPayload == null || m_DragDropPayload.Count == 0)
-            {
-                return "";
-            }
-            else if (m_DragSource == m_SearchResultsView)
-            {
-                if (m_DragDropPayload.Count == 1)
-                {
-                    object theItem = m_DragDropPayload[0];
+            const int maxLines = 4;
+            int nameLines = m_DragDropPayload.Count <= maxLines ? m_DragDropPayload.Count : maxLines - 1;
 
-                    if (theItem is string)
-                        return "Adding " + (string)theItem;
-                    else if (theItem is AlbumMetadata)
-                        return "Adding " + ((AlbumMetadata)theItem).Title;
-                    else if (theItem is SongMetadata)
-                        return "Adding " + ((SongMetadata)theItem).Title;
-                }
-                else
-                {
-                    return "Adding " + m_DragDropPayload.Count + " items";
-                }
-            }
-            else
-            {
-                int count = m_DragDropPayload.Count;
-                object firstItem = m_DragDropPayload[0];
+            StringBuilder result = new StringBuilder();
 
-                if (firstItem is string)
+            for (int i = 0; i < nameLines; ++i)
+            {
+                if (i > 0)
                 {
-                    if (m_DragSource == m_ArtistsView)
-                    {
-                        if (count == 1)
-                            return "Adding " + (string)firstItem;
-                        else
-                            return "Adding " + count + " artists";
-                    }
-                    else if (m_DragSource == m_GenresView)
-                    {
-                        if (count == 1)
-                            return "Adding " + (string)firstItem;
-                        else
-                            return "Adding " + count + " genres";
-                    }
-                    else if (m_DragSource == m_SavedPlaylistsView)
-                    {
-                        return (string)firstItem;
-                    }
+                    result.Append("\n");
                 }
-                else if (firstItem is AlbumMetadata)
+
+                object item = m_DragDropPayload[i];
+
+                if (item is string)
                 {
-                    if (m_DragDropPayload.Count == 1)
-                        return "Adding " + ((AlbumMetadata)firstItem).Title;
-                    else
-                        return "Adding " + count + " albums";
+                    result.Append(item as string);
                 }
-                else if (firstItem is SongMetadata)
+                else if (item is AlbumMetadata)
                 {
-                    if (m_DragDropPayload.Count == 1)
-                        return "Adding " + ((SongMetadata)firstItem).Title;
-                    else
-                        return "Adding " + count + " songs";
+                    result.Append((item as AlbumMetadata).Title);
                 }
-                else if (firstItem is StreamMetadata)
+                else if (item is Playable)
                 {
-                    if (m_DragDropPayload.Count == 1)
-                        return "Adding " + ((StreamMetadata)firstItem).Title;
-                    else
-                        return "Adding " + count + " streams";
-                }
-                else if (firstItem is PlaylistItem)
-                {
-                    if (m_DragDropPayload.Count == 1)
-                        return "Moving " + ((PlaylistItem)firstItem).Playable.Title;
-                    else
-                        return "Moving " + count + " songs";
+                    result.Append((item as Playable).Title);
                 }
             }
 
-            return "";
+            if (m_DragDropPayload.Count > nameLines)
+            {
+                result.Append("\n+" + (m_DragDropPayload.Count - nameLines) + " more...");
+            }
+
+            return result.ToString();
         }
 
         private void OnPlaylistViewDragOver(object sender, DragEventArgs e)
