@@ -103,6 +103,11 @@ namespace Auremo
             return SendStringAndGetResponse(connection, "playlistinfo");
         }
 
+        public static ServerResponse Rename(ServerConnection connection, string oldName, string newName)
+        {
+            return SendStringAndGetResponse(connection, "rename " + QuoteString(oldName) + " " + QuoteString(newName));
+        }
+
         public static ServerResponse Rm(ServerConnection connection, string name)
         {
             return SendStringAndGetResponse(connection, "rm " + QuoteString(name));
@@ -170,6 +175,25 @@ namespace Auremo
         public static ServerResponse Stop(ServerConnection connection)
         {
             return SendStringAndGetResponse(connection, "stop");
+        }
+
+        #endregion
+
+        #region Outputs
+
+        public static ServerResponse Outputs(ServerConnection connection)
+        {
+            return SendStringAndGetResponse(connection, "outputs");
+        }
+
+        public static ServerResponse EnableOutput(ServerConnection connection, int index)
+        {
+            return SendStringAndGetResponse(connection, "enableoutput " + index);
+        }
+
+        public static ServerResponse DisableOutput(ServerConnection connection, int index)
+        {
+            return SendStringAndGetResponse(connection, "disableoutput " + index);
         }
 
         #endregion

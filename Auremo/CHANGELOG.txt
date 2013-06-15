@@ -1,10 +1,32 @@
 Version history
 ===============
 
+Auremo 0.5.0
+------------
+
+ * Add a search tab.
+ * Add support for auto-search (finding an element in a list or tree
+   by typing the beginning of the text in it).
+ * Add support for HTTP streams, such as web radio. Supports PLS and M3U
+   playlist files.
+ * Add a menu for viewing and controlling server outputs.
+ * Add support for media keys (play/pause, stop, previous, next, volume
+   up and down).
+ * Shrink minimum window size to 960 x 640 for the benefit of 720p users.
+ * Add support for the shuffle command.
+ * Fix multiple usability issues in the GUI.
+ * Released on 15th June 2013.
+
+
 Auremo 0.4.0
 ------------
 
  * Redesign the GUI.
+ * Add mouse wheel support for seek bar and volume slider.
+ * Remove year property from album data. Sort albums
+   alphabetically instead of chronologically.
+ * Fix multiselecting using shift+click in tree views when
+   there are multiple roots. (Effectively the artist and genre trees.)
  * Released 8th May 2013.
 
 

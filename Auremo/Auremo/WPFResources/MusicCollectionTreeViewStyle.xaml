@@ -35,11 +35,12 @@
                     <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
                     <Style.Triggers>
                         <Trigger Property="IsSelected" Value="True">
-                            <Setter Property="Background" Value="{StaticResource SelectionBackgroundBrush}"/>
-                            <Setter Property="Foreground" Value="{StaticResource PassiveTextBrush}"/>
+                            <Setter Property="Background" Value="{StaticResource CellSelectionBackgroundBrush}"/>
+                            <Setter Property="Foreground" Value="{StaticResource SelectedTextBrush}"/>
                         </Trigger>
                         <DataTrigger Binding="{Binding IsMultiSelected}" Value="True">
-                            <Setter Property="Background" Value="{StaticResource SelectionBackgroundBrush}"/>
+                            <Setter Property="Background" Value="{StaticResource CellSelectionBackgroundBrush}"/>
+                            <Setter Property="Foreground" Value="{StaticResource SelectedTextBrush}"/>
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
