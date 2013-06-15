@@ -68,17 +68,14 @@
         <Setter Property="RowStyle">
             <Setter.Value>
                 <Style TargetType="{x:Type DataGridRow}">
-                    <Setter Property="Background" Value="{StaticResource ItemBrush}"/>
-                    <Setter Property="Foreground" Value="{StaticResource PassiveTextBrush}"/>
+                    <Setter Property="Background" Value="Transparent"/>
                     <Style.Triggers>
-                        <Trigger Property="IsSelected" Value="true">
-                            <Setter Property="Background" Value="{StaticResource SelectionBackgroundBrush}"/>
-                            <Setter Property="Foreground" Value="{StaticResource SelectedTextBrush}"/>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="{StaticResource RowSelectionBackgroundBrush}"/>
                         </Trigger>
-                        <DataTrigger Binding="{Binding Path=IsPlaying}" Value="true">
+                        <DataTrigger Binding="{Binding Path=IsPlaying}" Value="True">
                             <Setter Property="Background" Value="{StaticResource PlayingBackgroundBrush}"/>
                         </DataTrigger>
-
                     </Style.Triggers>
                 </Style>
             </Setter.Value>
@@ -86,20 +83,17 @@
         <Setter Property="CellStyle">
             <Setter.Value>
                 <Style TargetType="{x:Type DataGridCell}">
+                    <Setter Property="Background" Value="{x:Null}"/>
                     <Setter Property="BorderThickness" Value="0"/>
                     <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
                     <Setter Property="Foreground" Value="{StaticResource PassiveTextBrush}"/>
-                    <Setter Property="Margin" Value="10,2,0,2"/>
+                    <Setter Property="Margin" Value="10,1,0,1"/>
                     <Style.Triggers>
                         <Trigger Property="IsSelected" Value="True">
-                            <Setter Property="Background" Value="Transparent"/>
-                            <Setter Property="BorderThickness" Value="0"/>
-                        </Trigger>
-                        <Trigger Property="IsSelected" Value="False">
-                            <Setter Property="Background" Value="Transparent"/>
-                        </Trigger>
-                        <DataTrigger Binding="{Binding Path=IsPlaying}" Value="true">
                             <Setter Property="Foreground" Value="{StaticResource SelectedTextBrush}"/>
+                        </Trigger>
+                        <DataTrigger Binding="{Binding Path=IsPlaying}" Value="True">
+                            <Setter Property="Foreground" Value="{StaticResource PlayingTextBrush}"/>
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
