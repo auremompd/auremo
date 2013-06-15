@@ -23,13 +23,10 @@ using System.Text;
 
 namespace Auremo
 {
-    public class PlaylistItem : INotifyPropertyChanged
+    public class Output : INotifyPropertyChanged
     {
         #region INotifyPropertyChanged implementation
 
-        // At present only the IsPlaying property sends notifications.
-        // All other properties should be set to their final state
-        // before the playlist item is inserted into the ListView.
         public event PropertyChangedEventHandler PropertyChanged;
 
         private void NotifyPropertyChanged(string info)
@@ -42,61 +39,46 @@ namespace Auremo
 
         #endregion
 
-        private bool m_IsPlaying = false;
-
-        public PlaylistItem()
+        public Output(int index, string name, bool isEnabled)
         {
-            Playable = null;
-            Id = -1;
-            Position = -1;
-            IsPlaying = false;
+            Index = index;
+            Name = name;
+            IsEnabled = isEnabled;
         }
-
-        public Playable Playable
+        
+        public int Index
         {
             get;
-            set;
+            private set;
         }
 
-        public int Id
+        public string Name
         {
             get;
-            set;
+            private set;
         }
 
-        public int Position
-        {
-            get;
-            set;
-        }
+        private bool m_IsEnabled = false;
 
-        public bool IsPlaying
+        public bool IsEnabled
         {
             get
             {
-                return m_IsPlaying;
+                return m_IsEnabled;
             }
             set
             {
-                if (m_IsPlaying != value)
+                //if (value != m_IsEnabled)
                 {
-                    m_IsPlaying = value;
-                    NotifyPropertyChanged("IsPlaying");
+                    m_IsEnabled = value;
+                    NotifyPropertyChanged("IsEnabled");
                 }
-            }
-        }
-
-        public bool IsValid
-        {
-            get
-            {
-                return Playable != null && Id >= 0;
             }
         }
 
         public override string ToString()
         {
-            return Id + " - " + Playable.ToString();
+            return Index + ": " + Name + " = " + (IsEnabled ? "on" : "off");
         }
     }
 }

@@ -20,7 +20,7 @@
     <Setting Name="Password" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="MouseWheelAdjustsVolumeBy" Type="System.Int32" Scope="User">
+    <Setting Name="VolumeAdjustmentStep" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">5</Value>
     </Setting>
     <Setting Name="MouseWheelAdjustsSongPositionPercentBy" Type="System.Int32" Scope="User">
@@ -31,6 +31,12 @@
     </Setting>
     <Setting Name="MouseWheelAdjustsSongPositionInPercent" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="KnownStreams" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="InitialSetupDone" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
     </Setting>
   </Settings>
 </SettingsFile>
