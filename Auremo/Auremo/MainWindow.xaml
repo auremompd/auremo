@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:l="clr-namespace:Auremo"
         Title="Auremo MPD Client"
-        MinWidth="1260" MinHeight="700"
+        MinWidth="960" MinHeight="640"
         Background="{StaticResource WindowBackgroundBrush}"
         Icon="Graphics/auremo.ico"
         PreviewKeyDown="OnKeyDown"
@@ -13,9 +13,18 @@
         <l:IntToTimecodeConverter x:Key="IntToTimecodeConverter"/>
         <l:IntToBoolConverter x:Key="IntToBoolConverter"/>
         <l:NegateBoolConverter x:Key="NegateBoolConverter"/>
+        <l:EqualsConverter x:Key="EqualsConverter"/>
     </Window.Resources>
     <Window.ToolTip>
-        <ToolTip Name="m_MousePointerHint" Padding="10" BorderBrush="{StaticResource PassiveGenericBorderBrush}" HasDropShadow="False" BorderThickness="1" Foreground="{StaticResource SelectedTextBrush}" Background="{StaticResource ToolTipBackgroundBrush}" IsOpen="False" Visibility="Hidden" IsHitTestVisible="False"/>
+        <ToolTip Name="m_MousePointerHint"
+                 Background="{StaticResource ToolTipBackgroundBrush}"
+                 BorderThickness="0"
+                 Foreground="{StaticResource SelectedTextBrush}"
+                 HasDropShadow="False"
+                 IsHitTestVisible="False"
+                 IsOpen="False"
+                 Padding="10"
+                 Visibility="Hidden"/>
     </Window.ToolTip>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -33,28 +42,77 @@
             <MenuItem Header="File">
                 <MenuItem Header="Edit settings..." Click="OnEditSettingsClicked"/>
                 <Separator/>
+                <MenuItem Header="Add stream by URL..." Click="OnAddStreamURLClicked"/>
+                <MenuItem Header="Add streams from PLS/M3U file..." Click="OnAddStreamsFromFileClicked"/>
+                <Separator/>
+                <MenuItem Name="m_FileMenuSavePlaylistAsItem" Header="Save current playlist into collection as..." Click="OnSavePlaylistAsClicked" IsEnabled="{Binding Path=Items.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
+                <Separator/>
+                <MenuItem Name="m_FileMenuRescanMusicCollectionContextMenuItem" Header="Rescan music collection" Click="OnRescanMusicCollectionClicked" IsEnabled="{Binding Path=IsConnected}"/>
+                <Separator/>
                 <MenuItem Header="Exit" Click="OnExitClicked"/>
             </MenuItem>
             <MenuItem Name="m_ConnectionMenuItem" Header="Connection">
                 <MenuItem Header="Connect" Click="OnConnectClicked" IsEnabled="{Binding Path=IsConnected,Converter={StaticResource NegateBoolConverter}}"/>
                 <MenuItem Header="Disconnect" Click="OnDisconnectClicked" IsEnabled="{Binding Path=IsConnected}"/>
                 <MenuItem Header="Reset connection" Click="OnResetConnectionClicked" IsEnabled="{Binding Path=IsConnected}"/>
-                <Separator/>
-                <MenuItem Header="Rescan music collection" Click="OnRescanMusicCollectionClicked" IsEnabled="{Binding Path=IsConnected}"/>
+            </MenuItem>
+            <MenuItem Name="m_OutputsMenu" Header="Outputs" ItemsSource="{Binding Path=Items}" IsEnabled="{Binding Path=Items.Count,Converter={StaticResource IntToBoolConverter}}">
+                <MenuItem.ItemTemplate>
+                    <DataTemplate>
+                        <CheckBox Content="{Binding Path=Name}" IsChecked="{Binding Path=IsEnabled, Mode=OneWay}" Click="OnEnableDisbaleOutput"/>
+                    </DataTemplate>
+                </MenuItem.ItemTemplate>
             </MenuItem>
             <MenuItem Header="Help">
                 <MenuItem Header="View license (GPL2)..." Click="OnViewLicenseClicked"/>
                 <MenuItem Header="About..." Click="OnAboutClicked"/>
+                <Separator/>
+                <Hyperlink NavigateUri="https://code.google.com/p/auremo/" RequestNavigate="OnNavigate">Project home page</Hyperlink>
             </MenuItem>
         </Menu>
-        <Image Source="Graphics/Auremo_icon.png" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.RowSpan="5" Grid.ColumnSpan="2" Margin="128,0"/>
+        <Image Source="Graphics/Auremo_icon.png" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.RowSpan="5" Grid.ColumnSpan="2" Margin="32"/>
         <Grid Grid.Row="1" Margin="0,10" Grid.ColumnSpan="2">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="28*"/>
+                <ColumnDefinition Width="47*"/>
                 <ColumnDefinition Width="10"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="75*"/>
             </Grid.ColumnDefinitions>
-            <TabControl Name="m_CollectionBrowsingModes" Style="{StaticResource MusicCollectionTabControlStyle}">
+            <TabControl Name="m_CollectionBrowsingModes" Style="{StaticResource MusicCollectionTabControlStyle}" Grid.ColumnSpan="2" KeyboardNavigation.DirectionalNavigation="None">
+                <TabItem Header="Search">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <DataGrid Name="m_SearchResultsView"
+                                  Style="{StaticResource SearchResultsDataGridStyle}"
+                                  ItemsSource="{Binding Path=SearchResults}"
+                                  PreviewMouseDown="OnDataGridMouseDown"
+                                  MouseMove="OnMouseMoveDragDrop"
+                                  MouseUp="OnDataGridMouseUp"
+                                  MouseDoubleClick="OnSearchResultsViewDoubleClicked">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Title" Width="Auto" Binding="{Binding Path=Song.Title}" CanUserResize="True"/>
+                                <DataGridTextColumn Header="Artist" Width="Auto" Binding="{Binding Path=Artist}" CanUserResize="True"/>
+                                <DataGridTextColumn Header="Album" Width="*" Binding="{Binding Path=Album.Title}" CanUserResize="False"/>
+                            </DataGrid.Columns>
+                            <DataGrid.ContextMenu>
+                                <ContextMenu Name="m_SearchResultsViewContextMenu">
+                                    <MenuItem Header="Add to playlist" Click="OnAddToPlaylistClicked" IsEnabled="{Binding Path=Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
+                                    <Separator/>
+                                    <MenuItem Name="m_SearchResultsViewRescanMusicCollectionContextMenuItem" Header="Rescan music collection" Click="OnRescanMusicCollectionClicked" IsEnabled="{Binding Path=IsConnected}"/>
+                                </ContextMenu>
+                            </DataGrid.ContextMenu>
+                        </DataGrid>
+                        <TextBlock Name="m_SearchResultsHint" Grid.Row="0" Style="{StaticResource CollectionHintTextStyle}" Text="No search results."/>
+                        <TextBox Name="m_SearchBox" Grid.Row="1" Style="{StaticResource TextBoxStyle}" Margin="0,10,0,0" DockPanel.Dock="Top"
+                                 Height="28" FontSize="15" VerticalContentAlignment="Center"
+                                 IsEnabled="{Binding Path=IsConnected}" TextChanged="OnSearchBoxTextChanged" IsEnabledChanged="OnSearchBoxEnabledChanged"/>
+                        <TextBlock Name="m_SearchBoxHint" Grid.Row="1" Style="{StaticResource TextBoxHintTextStyle}" Margin="10,6,0,0" Text="Type here to start searching."
+                                   FontSize="16"/>
+                    </Grid>
+                </TabItem>
                 <TabItem Header="Artist list">
                     <Grid>
                         <Grid.RowDefinitions>
@@ -66,10 +124,12 @@
                                   Style="{StaticResource MusicCollectionDataGridStyle}"
                                   ItemsSource="{Binding Path=Artists}"
                                   SelectionChanged="OnSelectedArtistsChanged"
-                                  PreviewKeyDown="OnArtistViewKeyDown"
+                                  PreviewKeyDown="OnMusicCollectionDataGridKeyDown"
+                                  TextInput="OnCollectionTextInput"
                                   PreviewMouseDown="OnDataGridMouseDown"
                                   MouseMove="OnMouseMoveDragDrop"
-                                  MouseUp="OnDataGridMouseUp">
+                                  MouseUp="OnDataGridMouseUp"
+                                  MouseDoubleClick="OnMusicCollectionDataGridDoubleClicked">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Artist" Width="*" Binding="{Binding}" CanUserResize="True"/>
                             </DataGrid.Columns>
@@ -88,10 +148,12 @@
                                   Margin="0,-1,0,0"
                                   ItemsSource="{Binding Path=AlbumsBySelectedArtists}"
                                   SelectionChanged="OnSelectedAlbumsChanged"
-                                  PreviewKeyDown="OnAlbumViewKeyDown"
+                                  PreviewKeyDown="OnMusicCollectionDataGridKeyDown"
+                                  TextInput="OnCollectionTextInput"
                                   PreviewMouseDown="OnDataGridMouseDown"
                                   MouseMove="OnMouseMoveDragDrop"
-                                  MouseUp="OnDataGridMouseUp">
+                                  MouseUp="OnDataGridMouseUp"
+                                  MouseDoubleClick="OnMusicCollectionDataGridDoubleClicked">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Title" Width="*" Binding="{Binding Path=Title}"/>
                             </DataGrid.Columns>
@@ -109,14 +171,15 @@
                                   Grid.Row="2"
                                   Margin="0,-1,0,0"
                                   ItemsSource="{Binding Path=SongsOnSelectedAlbumsBySelectedArtists}"
-                                  PreviewKeyDown="OnSongViewKeyDown"
-                                  MouseDoubleClick="OnSongsOnAlbumsViewDoubleClicked"
+                                  PreviewKeyDown="OnMusicCollectionDataGridKeyDown"
+                                  TextInput="OnCollectionTextInput"
                                   PreviewMouseDown="OnDataGridMouseDown"
                                   MouseMove="OnMouseMoveDragDrop"
-                                  MouseUp="OnDataGridMouseUp">
+                                  MouseUp="OnDataGridMouseUp"
+                                  MouseDoubleClick="OnMusicCollectionDataGridDoubleClicked">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Track#" MinWidth="50"  Binding="{Binding Track}"/>
-                                <DataGridTextColumn Header="Title" MinWidth="200" Binding="{Binding Title}"/>
+                                <DataGridTextColumn Header="Track#" MinWidth="60" Width="Auto" Binding="{Binding Track}"/>
+                                <DataGridTextColumn Header="Title" MinWidth="60" Width="*" Binding="{Binding Title}"/>
                             </DataGrid.Columns>
                             <DataGrid.ContextMenu>
                                 <ContextMenu Name="m_SongsOnSelectedAlbumsViewContextMenu">
@@ -131,7 +194,15 @@
                 </TabItem>
                 <TabItem Header="Artist tree">
                     <Grid>
-                        <TreeView Name="m_ArtistTree" ItemsSource="{Binding ArtistTree}" Style="{StaticResource MusicCollectionTreeViewStyle}" PreviewMouseLeftButtonDown="OnTreeViewMouseDown" MouseMove="OnMouseMoveDragDrop" MouseUp="OnTreeViewMouseUp" PreviewKeyDown="OnTreeViewKeyDown" SelectedItemChanged="OnTreeViewSelectionChanged">
+                        <TreeView Name="m_ArtistTree"
+                                  ItemsSource="{Binding ArtistTree}"
+                                  Style="{StaticResource MusicCollectionTreeViewStyle}"
+                                  PreviewKeyDown="OnTreeViewKeyDown"
+                                  TextInput="OnCollectionTextInput"
+                                  PreviewMouseLeftButtonDown="OnTreeViewMouseDown"
+                                  MouseMove="OnMouseMoveDragDrop"
+                                  MouseUp="OnTreeViewMouseUp"
+                                  SelectedItemChanged="OnTreeViewSelectionChanged">
                             <TreeView.Resources>
                                 <HierarchicalDataTemplate DataType="{x:Type l:TreeViewNode}" ItemsSource="{Binding Children}">
                                     <TextBlock Text="{Binding DisplayString}"/>
@@ -159,10 +230,12 @@
                                   Style="{StaticResource MusicCollectionDataGridStyle}"
                                   ItemsSource="{Binding Path=Genres}"
                                   SelectionChanged="OnSelectedGenresChanged"
-                                  PreviewKeyDown="OnGenreViewKeyDown"
+                                  PreviewKeyDown="OnMusicCollectionDataGridKeyDown"
+                                  TextInput="OnCollectionTextInput"
                                   PreviewMouseDown="OnDataGridMouseDown"
                                   MouseMove="OnMouseMoveDragDrop"
-                                  MouseUp="OnDataGridMouseUp">
+                                  MouseUp="OnDataGridMouseUp"
+                                  MouseDoubleClick="OnMusicCollectionDataGridDoubleClicked">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Genre" Width="*" Binding="{Binding}" CanUserResize="True"/>
                             </DataGrid.Columns>
@@ -181,13 +254,15 @@
                                   Grid.Row="1"
                                   ItemsSource="{Binding Path=AlbumsOfSelectedGenres}"
                                   SelectionChanged="OnSelectedGenreAlbumsChanged"
-                                  PreviewKeyDown="OnGenreAlbumsViewKeyDown"
+                                  PreviewKeyDown="OnMusicCollectionDataGridKeyDown"
+                                  TextInput="OnCollectionTextInput"
                                   PreviewMouseDown="OnDataGridMouseDown"
                                   MouseMove="OnMouseMoveDragDrop"
-                                  MouseUp="OnDataGridMouseUp">
+                                  MouseUp="OnDataGridMouseUp"
+                                  MouseDoubleClick="OnMusicCollectionDataGridDoubleClicked">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Artist" Width="Auto" Binding="{Binding Path=Artist}"/>
-                                <DataGridTextColumn Header="Title" Width="*" Binding="{Binding Path=Title}"/>
+                                <DataGridTextColumn Header="Artist" MinWidth="60" Width="Auto" Binding="{Binding Path=Artist}"/>
+                                <DataGridTextColumn Header="Album" MinWidth="60" Width="*" Binding="{Binding Path=Title}"/>
                             </DataGrid.Columns>
                             <DataGrid.ContextMenu>
                                 <ContextMenu Name="m_AlbumsOfSelectedGenresViewContextMenu">
@@ -203,14 +278,15 @@
                                   Margin="0,-1,0,0"
                                   Grid.Row="2"
                                   ItemsSource="{Binding Path=SongsOnSelectedAlbumsOfSelectedGenres}"
-                                  PreviewKeyDown="OnSongViewKeyDown"
-                                  MouseDoubleClick="OnSongsOnSelectedAlbumsOfSelectedGenresViewDoubleClicked"
+                                  PreviewKeyDown="OnMusicCollectionDataGridKeyDown"
+                                  TextInput="OnCollectionTextInput"
                                   PreviewMouseDown="OnDataGridMouseDown"
                                   MouseMove="OnMouseMoveDragDrop"
-                                  MouseUp="OnDataGridMouseUp">
+                                  MouseUp="OnDataGridMouseUp"
+                                  MouseDoubleClick="OnMusicCollectionDataGridDoubleClicked">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Track#" MinWidth="50"  Binding="{Binding Track}"/>
-                                <DataGridTextColumn Header="Title" MinWidth="200" Binding="{Binding Title}"/>
+                                <DataGridTextColumn Header="Track#" MinWidth="60" Width="Auto" Binding="{Binding Track}"/>
+                                <DataGridTextColumn Header="Title" MinWidth="60" Width="*" Binding="{Binding Title}"/>
                             </DataGrid.Columns>
                             <DataGrid.ContextMenu>
                                 <ContextMenu Name="m_SongsOnSelectedGenreAlbumsViewContextMenu">
@@ -225,7 +301,15 @@
                 </TabItem>
                 <TabItem Header="Genre tree" Height="Auto" VerticalAlignment="Bottom">
                     <Grid>
-                        <TreeView Name="m_GenreTree" ItemsSource="{Binding GenreTree}" Style="{StaticResource MusicCollectionTreeViewStyle}" PreviewMouseLeftButtonDown="OnTreeViewMouseDown" MouseMove="OnMouseMoveDragDrop" MouseUp="OnTreeViewMouseUp" PreviewKeyDown="OnTreeViewKeyDown" SelectedItemChanged="OnTreeViewSelectionChanged">
+                        <TreeView Name="m_GenreTree"
+                                  ItemsSource="{Binding GenreTree}"
+                                  Style="{StaticResource MusicCollectionTreeViewStyle}"
+                                  PreviewKeyDown="OnTreeViewKeyDown"
+                                  TextInput="OnCollectionTextInput"
+                                  PreviewMouseLeftButtonDown="OnTreeViewMouseDown"
+                                  MouseMove="OnMouseMoveDragDrop"
+                                  MouseUp="OnTreeViewMouseUp"
+                                  SelectedItemChanged="OnTreeViewSelectionChanged">
                             <TreeView.Resources>
                                 <HierarchicalDataTemplate DataType="{x:Type l:TreeViewNode}" ItemsSource="{Binding Children}">
                                     <TextBlock Text="{Binding DisplayString}"/>
@@ -244,7 +328,15 @@
                 </TabItem>
                 <TabItem Header="Filesystem">
                     <Grid>
-                        <TreeView Name="m_DirectoryTree" ItemsSource="{Binding DirectoryTree}" Style="{StaticResource MusicCollectionTreeViewStyle}" PreviewMouseLeftButtonDown="OnTreeViewMouseDown" MouseMove="OnMouseMoveDragDrop" MouseUp="OnTreeViewMouseUp" PreviewKeyDown="OnTreeViewKeyDown" SelectedItemChanged="OnTreeViewSelectionChanged">
+                        <TreeView Name="m_DirectoryTree"
+                                  ItemsSource="{Binding DirectoryTree}"
+                                  Style="{StaticResource MusicCollectionTreeViewStyle}"
+                                  PreviewKeyDown="OnTreeViewKeyDown"
+                                  TextInput="OnCollectionTextInput"
+                                  PreviewMouseLeftButtonDown="OnTreeViewMouseDown"
+                                  MouseMove="OnMouseMoveDragDrop"
+                                  MouseUp="OnTreeViewMouseUp"
+                                  SelectedItemChanged="OnTreeViewSelectionChanged">
                             <TreeView.Resources>
                                 <HierarchicalDataTemplate DataType="{x:Type l:TreeViewNode}" ItemsSource="{Binding Children}">
                                     <TextBlock Text="{Binding DisplayString}"/>
@@ -261,6 +353,37 @@
                         <TextBlock Name="m_DirectoryTreeHint" Style="{StaticResource CollectionHintTextStyle}" Text="Music collection is not available."/>
                     </Grid>
                 </TabItem>
+                <TabItem Header="Streams">
+                    <Grid>
+                        <DataGrid Name="m_StreamsView"
+                                  Style="{StaticResource MusicCollectionDataGridStyle}"
+                                  ItemsSource="{Binding Path=Streams}"
+                                  PreviewKeyDown="OnMusicCollectionDataGridKeyDown"
+                                  TextInput="OnCollectionTextInput"
+                                  PreviewMouseDown="OnDataGridMouseDown"
+                                  MouseMove="OnMouseMoveDragDrop"
+                                  MouseUp="OnDataGridMouseUp"
+                                  MouseDoubleClick="OnMusicCollectionDataGridDoubleClicked">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Stream" Width="*" Binding="{Binding Title}"/>
+                            </DataGrid.Columns>
+                            <DataGrid.ContextMenu>
+                                <ContextMenu Name="m_StreamsViewContextMenu">
+                                    <MenuItem Header="Add to playlist" Click="OnAddToPlaylistClicked" IsEnabled="{Binding Path=Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
+                                    <Separator/>
+                                    <MenuItem Header="Rename stream..." Click="OnRenameSelectedStreamClicked" IsEnabled="{Binding Path=Count, Converter={StaticResource EqualsConverter}, Mode=OneWay, ConverterParameter=1}"/>
+                                    <MenuItem Header="Delete streams" Click="OnDeleteSelectedStreamsClicked" IsEnabled="{Binding Path=Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
+                                    <Separator/>
+                                    <MenuItem Header="Add stream by URL..." Click="OnAddStreamURLClicked"/>
+                                    <MenuItem Header="Add streams from PLS/M3U file..." Click="OnAddStreamsFromFileClicked"/>
+                                    <Separator/>
+                                    <MenuItem Header="Save selection to file..." Click="OnSaveSelectedStreamsToFileClicked"/>
+                                </ContextMenu>
+                            </DataGrid.ContextMenu>
+                        </DataGrid>
+                        <TextBlock Name="m_StreamsHint" Style="{StaticResource CollectionHintTextStyle}" Text="Right-click here to add streams."/>
+                    </Grid>
+                </TabItem>
                 <TabItem Name="m_SavedPlaylistsTab" Header="Playlists">
                     <Grid>
                         <DataGrid Name="m_SavedPlaylistsView"
@@ -268,18 +391,19 @@
                                   SelectionMode="Single"
                                   ItemsSource="{Binding Path=Playlists}"
                                   PreviewKeyDown="OnSavedPlaylistsViewKeyDown"
-                                  MouseDoubleClick="OnSavedPlaylistsViewDoubleClicked"
+                                  TextInput="OnCollectionTextInput"
                                   PreviewMouseDown="OnDataGridMouseDown"
                                   MouseMove="OnMouseMoveDragDrop"
-                                  MouseUp="OnDataGridMouseUp">
+                                  MouseUp="OnDataGridMouseUp"
+                                  MouseDoubleClick="OnSavedPlaylistsViewDoubleClicked">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Playlist" Width="*" Binding="{Binding}"/>
                             </DataGrid.Columns>
                             <DataGrid.ContextMenu>
                                 <ContextMenu Name="m_SavedPlaylistsViewContextMenu">
-                                    <MenuItem Header="Add to playlist" Click="OnAddToPlaylistClicked" IsEnabled="{Binding Path=Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
-                                    <Separator/>
-                                    <MenuItem Name="m_SavedPlaylistsViewRescanMusicCollectionContextMenuItem" Header="Rescan music collection" Click="OnRescanMusicCollectionClicked" IsEnabled="{Binding Path=IsConnected}"/>
+                                    <MenuItem Header="Send to playlist" Click="OnSendSavedPlaylistToPlaylistClicked" IsEnabled="{Binding Path=Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
+                                    <MenuItem Header="Rename..." Click="OnRenameSavedPlaylistClicked" IsEnabled="{Binding Path=Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
+                                    <MenuItem Header="Delete" Click="OnDeleteSavedPlaylistClicked" IsEnabled="{Binding Path=Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
                                 </ContextMenu>
                             </DataGrid.ContextMenu>
                         </DataGrid>
@@ -287,7 +411,7 @@
                     </Grid>
                 </TabItem>
             </TabControl>
-            <GridSplitter HorizontalAlignment="Left" Width="10" VerticalAlignment="Stretch" Grid.Row="1" Grid.Column="1" ResizeBehavior="PreviousAndNext" Height="Auto" Background="Transparent" Margin="0,0,0,5" IsEnabled="True" ResizeDirection="Columns" Cursor="SizeWE"/>
+            <GridSplitter HorizontalAlignment="Left" Width="10" VerticalAlignment="Stretch" Grid.Column="2" ResizeBehavior="PreviousAndNext" Height="Auto" Background="Transparent" Margin="0,0,0,5" IsEnabled="True" ResizeDirection="Columns" Cursor="SizeWE"/>
             <DataGrid Name="m_PlaylistView"
                       Style="{StaticResource PlaylistStyle}"
                       ItemsSource="{Binding Path=Items}"
@@ -300,24 +424,25 @@
                       DragLeave="OnPlaylistViewDragLeave"
                       Drop="OnPlaylistViewDrop"
                       MouseUp="OnDataGridMouseUp"
-                      Grid.Column="2">
+                      Grid.Column="3">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Artist" Width="Auto" Binding="{Binding Path=Song.Artist}"/>
-                    <DataGridTextColumn Header="Album" Width="Auto" Binding="{Binding Path=Song.Album}"/>
-                    <DataGridTextColumn Header="Title" Width="*" Binding="{Binding Path=Song.Title}"/>
+                    <DataGridTextColumn Header="Title" MinWidth="60" Width="Auto" Binding="{Binding Path=Playable.Title}"/>
+                    <DataGridTextColumn Header="Artist" MinWidth="60" Width="Auto" Binding="{Binding Path=Playable.Artist}"/>
+                    <DataGridTextColumn Header="Album" MinWidth="60" Width="*" Binding="{Binding Path=Playable.Album}"/>
                 </DataGrid.Columns>
                 <DataGrid.ContextMenu>
                     <ContextMenu Name="m_PlaylistViewContextMenu">
                         <MenuItem Header="Clear" Click="OnClearPlaylistViewClicked" IsEnabled="{Binding Path=SelectedItems.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
                         <MenuItem Header="Remove selected items" Click="OnRemoveSelectedPlaylistItemsClicked" IsEnabled="{Binding Path=SelectedItems.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
                         <MenuItem Header="Remove everything but selected items" Click="OnCropToSelectedPlaylistItemsClicked" IsEnabled="{Binding Path=SelectedItems.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
-                        <MenuItem Header="Save as..." Click="OnSavePlaylistAsClicked" IsEnabled="{Binding Path=SelectedItems.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
+                        <MenuItem Header="Save playlist into collection as..." Click="OnSavePlaylistAsClicked" IsEnabled="{Binding Path=Items.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
                         <MenuItem Header="Remove duplicate items" Click="OnDedupPlaylistViewClicked" IsEnabled="{Binding Path=SelectedItems.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
+                        <MenuItem Header="Shuffle" Click="OnShufflePlaylistClicked" IsEnabled="{Binding Path=Items.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
                     </ContextMenu>
                 </DataGrid.ContextMenu>
             </DataGrid>
-            <TextBlock Name="m_PlaylistViewHint" Grid.Column="2" Style="{StaticResource CollectionHintTextStyle}" Text="Drag music here to add it to the playlist."/>
-            <Line Name="m_DropPositionIndicator" Grid.Column="2" X1="0" X2="464" Y1="80" Y2="80" IsHitTestVisible="False" Visibility="Hidden" StrokeThickness="1" Stroke="{StaticResource DropPositionIndicatorBrush}"/>
+            <TextBlock Name="m_PlaylistViewHint" Grid.Column="3" Style="{StaticResource CollectionHintTextStyle}" Text="Drag music here to add it to the playlist."/>
+            <Line Name="m_DropPositionIndicator" Grid.Column="3" X1="0" X2="464" Y1="80" Y2="80" IsHitTestVisible="False" Visibility="Hidden" StrokeThickness="1" Stroke="{StaticResource DropPositionIndicatorBrush}"/>
         </Grid>
         <Border Grid.Row="2" Padding="20,4" BorderBrush="{StaticResource HeaderBorderBrush }" BorderThickness="0,1,0,0" Background="{StaticResource ControlPanelBackgroundBrush}" Grid.ColumnSpan="2">
             <DockPanel Name="m_SeekPanel" LastChildFill="True" Margin="0,5,0,0">
@@ -326,12 +451,11 @@
                      are done using a more manual event instead. -->
                 <Label Name="m_PlayPosition" DockPanel.Dock="Left" VerticalAlignment="Center" Width="40" FontSize="9" Foreground="{StaticResource ButtonActiveGlyphGlowBrush}" Content="00:00"/>
                 <Label Name="m_SongLength" DockPanel.Dock="Right" VerticalAlignment="Center" Width="40" FontSize="9" Foreground="{StaticResource ButtonActiveGlyphGlowBrush}" Content="{Binding Path=SongLength, Converter={StaticResource IntToTimecodeConverter}}"/>
-                <Slider Name="m_SeekBar" Style="{StaticResource MusicSliderStyle}" Margin="2,2,2,2" VerticalAlignment="Center" Minimum="0" Value="0" Maximum="{Binding Path=SongLength}" ValueChanged="OnSeekBarDrag" PreviewMouseDown="OnSeekBarDragStart" PreviewMouseUp="OnSeekBarDragEnd" MouseWheel="OnSeekBarMouseWheel"/>
+                <Slider Name="m_SeekBar" Style="{StaticResource MusicSliderStyle}" Margin="2" VerticalAlignment="Center" Minimum="0" Value="0" Maximum="{Binding Path=SongLength}" ValueChanged="OnSeekBarDrag" PreviewMouseDown="OnSeekBarDragStart" PreviewMouseUp="OnSeekBarDragEnd" MouseWheel="OnSeekBarMouseWheel" IsEnabled="{Binding Path=SongLength, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
             </DockPanel>
         </Border>
-        <Border Grid.Row="3" Padding="20, 5, 20, 5" BorderBrush="#FFCBCBCB" BorderThickness="0,1,0,1" Background="{StaticResource ControlPanelBackgroundBrushBelow}" Grid.ColumnSpan="2" >
+        <Border Grid.Row="3" Padding="20, 5, 20, 5" BorderBrush="{StaticResource SeparatorBorderBrush}" BorderThickness="0,1,0,1" Background="{StaticResource ControlPanelBackgroundBrushBelow}" Grid.ColumnSpan="2" >
             <Grid Name="m_PlaybackControlPanel" Grid.Row="3" Height="55">
-                <!--DockPanel Name="m_PlaybackControlPanel" Grid.Row="3" LastChildFill="True" Height="55" HorizontalAlignment="Center"-->
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
@@ -369,19 +493,18 @@
                 </StackPanel>
             </Grid>
         </Border>
-        <Border Grid.Row="4" BorderBrush="#999999" BorderThickness="0,1,0,0" Grid.ColumnSpan="2">
+        <Border Grid.Row="4" BorderBrush="{StaticResource SeparatorBorderBrush}" BorderThickness="0,1,0,0" Grid.ColumnSpan="2">
             <StatusBar Padding="20, 2, 20, 2" Background="{StaticResource WindowBackgroundBrush}" >
                 <StatusBarItem HorizontalAlignment="Left">
-                    <Label Name="m_PlayStatusMessage" Foreground="#333333" Content="{Binding Path=PlayStatusDescription}" Padding="5,2"/>
+                    <Label Name="m_PlayStatusMessage" Foreground="{StaticResource PassiveTextBrush}" Content="{Binding Path=PlayStatusDescription}" Padding="5,2"/>
                 </StatusBarItem>
                 <StatusBarItem Name="m_ConnectionStatusDescription" HorizontalAlignment="Right">
-                    <Label Foreground="#333333" Content="{Binding Path=StatusDescription}" Padding="5,2"/>
+                    <Label Foreground="{StaticResource PassiveTextBrush}" Content="{Binding Path=StatusDescription}" Padding="5,2"/>
                 </StatusBarItem>
             </StatusBar>
         </Border>
-        <!-- Background="#A0000000" -->
-        <Border Name="m_StringQueryOverlay" Grid.RowSpan="4" Background="#00000000" Visibility="Hidden" Margin="0,-7,0,7" Grid.ColumnSpan="2">
-            <Border Width="300" Height="120" VerticalAlignment="Center" HorizontalAlignment="Center" Background="{StaticResource WindowBackgroundBrush}">
+        <Border Name="m_StringQueryOverlay" Grid.RowSpan="4" Background="{StaticResource StringQueryOverlayBackgroundBrush}" Visibility="Hidden" Grid.ColumnSpan="2" MouseDown="m_StringQueryOverlayBackgroundClicked">
+            <Border Width="300" Height="120" VerticalAlignment="Center" HorizontalAlignment="Center" Background="{StaticResource WindowBackgroundBrush}" MouseDown="m_StringQueryOverlayForegroundClicked">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -394,8 +517,8 @@
                     </Grid.RowDefinitions>
                     <TextBlock Name="m_StringQueryOverlayCaption" Text="Overlay for querying strings." TextWrapping="Wrap" Grid.ColumnSpan="2" Margin="10"/>
                     <TextBox Name="m_StringQueryOverlayInput" Text="Sample input" Margin="10,0" Height="20" Grid.Row="1" Grid.ColumnSpan="2" VerticalAlignment="Center"/>
-                    <Button Name="m_StringQueryOverlayCancel" Content="Cancel" Grid.Row="2" Margin="10,5" Width="80" HorizontalAlignment="Left" Click="OnStringQueryOverlayButtonClicked"/>
-                    <Button Name="m_StringQueryOverlayOK" Content="OK" Grid.Row="2" Grid.Column="1" Margin="10,5" Width="80" HorizontalAlignment="Right" Click="OnStringQueryOverlayButtonClicked"/>
+                    <Button Name="m_StringQueryOverlayCancel" Content="Cancel" IsCancel="True"  Grid.Row="2" Margin="10,5" Width="80" HorizontalAlignment="Left" Click="OnStringQueryOverlayButtonClicked"/>
+                    <Button Name="m_StringQueryOverlayOK" Content="OK" IsDefault="True" Grid.Row="2" Grid.Column="1" Margin="10,5" Width="80" HorizontalAlignment="Right" Click="OnStringQueryOverlayButtonClicked"/>
                 </Grid>
             </Border>
         </Border>

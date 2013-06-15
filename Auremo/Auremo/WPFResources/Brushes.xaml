@@ -7,20 +7,15 @@
          active when a song is playing, the timecode readouts are active when
          they are ticking, etc. MouseAbove and MouseDown should be obvious. -->
 
-    <!-- Fonts -->
-
-
     <!-- Base colors -->
 
-    <SolidColorBrush x:Key="PassiveBackgroundBrush" Color="#EEEEFF"/>
     <SolidColorBrush x:Key="MouseOverBackgroundBrush" Color="#FFFFFF"/>
-    <SolidColorBrush x:Key="SelectedBackgroundBrush" Color="#EEEEF4"/>
     <SolidColorBrush x:Key="PassiveGenericBorderBrush" Color="#DDDDDD"/>
-    <SolidColorBrush x:Key="MouseOverGenericBorderBrush" Color="#D942FF"/>
-    <SolidColorBrush x:Key="SelectedGenericBorderBrush" Color="#9836a2"/>
+    <SolidColorBrush x:Key="SelectedGenericBorderBrush" Color="#9836A2"/>
+    <SolidColorBrush x:Key="SeparatorBorderBrush" Color="#CBCBCB"/>
     <SolidColorBrush x:Key="PassiveTextBrush" Color="#333333"/>
-    <SolidColorBrush x:Key="SelectedTextBrush" Color="#9836a2"/>
-    <SolidColorBrush x:Key="DisabledTextBrush" Color="#888888"/>
+    <SolidColorBrush x:Key="SelectedTextBrush" Color="#9836A2"/>
+    <SolidColorBrush x:Key="PlayingTextBrush" Color="#652492"/>
     <SolidColorBrush x:Key="MouseOverTextBrush" Color="#3333BB"/>
     <SolidColorBrush x:Key="PressedTextBrush" Color="#2222AA"/>
     <SolidColorBrush x:Key="TabControlBorderBrush" Color="#DDDDDD"/>
@@ -35,45 +30,41 @@
         </LinearGradientBrush.GradientStops>
     </LinearGradientBrush>
 
-    <LinearGradientBrush x:Key="PopupWindowBackgroundBrush" StartPoint="0,0" EndPoint="0,1">
+    <LinearGradientBrush x:Key="ListBackgroundBrush" StartPoint="0,0" EndPoint="0,1">
         <LinearGradientBrush.GradientStops>
-            <GradientStop Color="#F0F0F6" Offset="0"/>
-            <GradientStop Color="#E0E0EA" Offset="1"/>
+            <GradientStop Color="#D0FFFFFF" Offset="0"/>
+            <GradientStop Color="#D0FFFFFF" Offset="0.6"/>
+            <GradientStop Color="#D0F2F2F2" Offset="1"/>
         </LinearGradientBrush.GradientStops>
     </LinearGradientBrush>
 
-    <LinearGradientBrush x:Key="ListBackgroundBrush" StartPoint="0,0" EndPoint="0,1">
+    <LinearGradientBrush x:Key="TextBoxBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
         <LinearGradientBrush.GradientStops>
-            <GradientStop Color="#FFFFFF" Offset="0"/>
-            <GradientStop Color="#FFFFFF" Offset="0.6"/>
-            <GradientStop Color="#F2F2F2" Offset="1"/>
+            <GradientStop Color="#D0FFFFFF" Offset="0"/>
+            <GradientStop Color="#D0FFFFFF" Offset="0.6"/>
+            <GradientStop Color="#D0F2F2F2" Offset="1"/>
         </LinearGradientBrush.GradientStops>
     </LinearGradientBrush>
 
     <LinearGradientBrush x:Key="HeaderBorderBrush" StartPoint="0,0" EndPoint="1,0">
         <LinearGradientBrush.GradientStops>
             <GradientStop Offset="0" Color="#DDDDDD"/>
-            <GradientStop Offset="0.45" Color="#ac4ab5"/>
-            <GradientStop Offset="0.65" Color="#ac4ab5"/>
+            <GradientStop Offset="0.45" Color="#AC4AB5"/>
+            <GradientStop Offset="0.65" Color="#AC4AB5"/>
             <GradientStop Offset="1" Color="#DDDDDD"/>
-        </LinearGradientBrush.GradientStops>
-    </LinearGradientBrush>
-
-    <LinearGradientBrush x:Key="MouseOverTabHeaderBackgroundBrush" StartPoint="0,0" EndPoint="0,1">
-        <LinearGradientBrush.GradientStops>
-            <GradientStop Offset="0" Color="#124020FF"/>
-            <GradientStop Offset="1" Color="#034020FF"/>
         </LinearGradientBrush.GradientStops>
     </LinearGradientBrush>
 
     <LinearGradientBrush x:Key="ItemBrush" StartPoint="0,0" EndPoint="1,0">
         <LinearGradientBrush.GradientStops>
-            <GradientStop Offset="0" Color="#00D0D0D0"/>
-            <GradientStop Offset="1" Color="#00C0D0E0"/>
+            <GradientStop Offset="0" Color="#D0D0D0"/>
+            <GradientStop Offset="1" Color="#C0D0E0"/>
         </LinearGradientBrush.GradientStops>
     </LinearGradientBrush>
 
-    <LinearGradientBrush x:Key="SelectionBackgroundBrush" StartPoint="0,0" EndPoint="1,0">
+    <SolidColorBrush x:Key="CellSelectionBackgroundBrush" Color="#E0E0E0"/>
+
+    <LinearGradientBrush x:Key="RowSelectionBackgroundBrush" StartPoint="0,0" EndPoint="1,0">
         <LinearGradientBrush.GradientStops>
             <GradientStop Offset="0" Color="#EEEEEE"/>
             <GradientStop Offset="1" Color="#CCCCCC"/>
@@ -86,12 +77,12 @@
             <GradientStop Color="#BBBBBB" Offset="1"/>
         </LinearGradientBrush.GradientStops>
     </LinearGradientBrush>
-
+    
     <LinearGradientBrush x:Key="PlaylistBackgroundBrush" StartPoint="0,0" EndPoint="0,1">
         <LinearGradientBrush.GradientStops>
-            <GradientStop Color="#FFFFFF" Offset="0"/>
-            <GradientStop Color="#FFFFFF" Offset="0.65"/>
-            <GradientStop Color="#F2F2F2" Offset="1"/>
+            <GradientStop Color="#D0FFFFFF" Offset="0"/>
+            <GradientStop Color="#D0FFFFFF" Offset="0.65"/>
+            <GradientStop Color="#D0F2F2F2" Offset="1"/>
         </LinearGradientBrush.GradientStops>
     </LinearGradientBrush>
 
@@ -104,26 +95,26 @@
 
     <LinearGradientBrush x:Key="SelectedTabHeaderBorderBrush" StartPoint="0,0" EndPoint="1,0">
         <LinearGradientBrush.GradientStops>
-            <GradientStop Offset="0" Color="#ac4ab5"/>
+            <GradientStop Offset="0" Color="#AC4AB5"/>
             <GradientStop Offset="1" Color="#DDDDDD"/>
         </LinearGradientBrush.GradientStops>
     </LinearGradientBrush>
  
     <LinearGradientBrush x:Key="SelectedTabHeaderTextBrush" StartPoint="0,0" EndPoint="1,0">
         <LinearGradientBrush.GradientStops>
-            <GradientStop Offset="0" Color="#ac4ab5"/>
+            <GradientStop Offset="0" Color="#AC4AB5"/>
             <GradientStop Offset="1" Color="#333333"/>
         </LinearGradientBrush.GradientStops>
     </LinearGradientBrush>
  
-    <LinearGradientBrush x:Key="tabContainerBackgroundBrush" StartPoint="0,0" EndPoint="0,1">
+    <LinearGradientBrush x:Key="TabContainerBackgroundBrush" StartPoint="0,0" EndPoint="0,1">
         <LinearGradientBrush.GradientStops>
             <GradientStop Offset="0" Color="#00DDDDDD"/>
             <GradientStop Offset="1" Color="#00EEEEEE"/>
         </LinearGradientBrush.GradientStops>
     </LinearGradientBrush>
 
-    <LinearGradientBrush x:Key="PlayingBackgroundBrush" StartPoint="0,.4" EndPoint="1,.6">
+    <LinearGradientBrush x:Key="PlayingBackgroundBrush" StartPoint="0,0.4" EndPoint="1,0.6">
         <LinearGradientBrush.GradientStops>
             <GradientStop Offset="0" Color="#FFF6F6F6"/>
             <GradientStop Offset="1" Color="#FFEDEDED"/>
@@ -144,6 +135,8 @@
         </LinearGradientBrush.GradientStops>
     </LinearGradientBrush>
 
+    <SolidColorBrush x:Key="StringQueryOverlayBackgroundBrush" Color="#CC777777"/>
+    
     <!-- Headers -->
 
     <LinearGradientBrush x:Key="ListHeaderBackgroundBrush" StartPoint="0,0" EndPoint="0,1">
@@ -154,14 +147,12 @@
         </LinearGradientBrush.GradientStops>
     </LinearGradientBrush>
     
-    <SolidColorBrush x:Key="ListHeaderBackgroundBrush2" Color="#BBBBBB"/>
-    
     <!-- Playback buttons -->
 
     <RadialGradientBrush x:Key="PlaybackButtonNormalBackgroundBrush" GradientOrigin="0.5,0.5" Center="0.5,0.25" RadiusX="0.8" RadiusY="0.3">
         <RadialGradientBrush.GradientStops>
-            <GradientStop Color="#e8e8e8" Offset="0"/>
-            <GradientStop Color="#dfdede" Offset=".3"/>
+            <GradientStop Color="#E8E8E8" Offset="0"/>
+            <GradientStop Color="#DFDEDE" Offset=".3"/>
             <GradientStop Color="#CFCFCF" Offset="1"/>
         </RadialGradientBrush.GradientStops>
     </RadialGradientBrush>
@@ -170,7 +161,7 @@
         <LinearGradientBrush.GradientStops>
             <GradientStop Color="#BCBCBC" Offset="0"/>
             <GradientStop Color="#DDDDDD" Offset=".73"/>
-            <GradientStop Color="#ebebeb" Offset="1"/>
+            <GradientStop Color="#EBEBEB" Offset="1"/>
         </LinearGradientBrush.GradientStops>
     </LinearGradientBrush>
 
@@ -178,7 +169,7 @@
         <LinearGradientBrush.GradientStops>
             <GradientStop Color="#ABABAB" Offset="0"/>
             <GradientStop Color="#DDDDDD" Offset=".73"/>
-            <GradientStop Color="#ebebeb" Offset="1"/>
+            <GradientStop Color="#EBEBEB" Offset="1"/>
         </LinearGradientBrush.GradientStops>
     </LinearGradientBrush>
 
@@ -203,7 +194,7 @@
         </LinearGradientBrush.GradientStops>
     </LinearGradientBrush>
 
-    <SolidColorBrush x:Key="PlaybackButtonPassiveBorderGlowBrush" Color="#00DDDDDD"/>
+    <SolidColorBrush x:Key="PlaybackButtonPassiveBorderGlowBrush" Color="Transparent"/>
 
     <RadialGradientBrush x:Key="PlaybackButtonActiveBorderGlowBrush" GradientOrigin="0.5,0.5" Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
         <RadialGradientBrush.GradientStops>
@@ -215,9 +206,9 @@
 
     <RadialGradientBrush x:Key="PlaybackButtonMouseOverBorderGlowBrush" GradientOrigin="0.5,0.5" Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
         <RadialGradientBrush.GradientStops>
-            <GradientStop Color="#40ac4ab5" Offset="0"/>
-            <GradientStop Color="#40ac4ab5" Offset=".55"/>
-            <GradientStop Color="#00ac4ab5" Offset="1"/>
+            <GradientStop Color="#40AC4AB5" Offset="0"/>
+            <GradientStop Color="#40AC4AB5" Offset=".55"/>
+            <GradientStop Color="#00AC4AB5" Offset="1"/>
         </RadialGradientBrush.GradientStops>
     </RadialGradientBrush>
 
@@ -230,7 +221,7 @@
     </RadialGradientBrush>
 
     <SolidColorBrush x:Key="ButtonPassiveGlyphGlowBrush" Color="#FF404040"/>
-    <SolidColorBrush x:Key="ButtonActiveGlyphGlowBrush" Color="#ac4ab5"/>
+    <SolidColorBrush x:Key="ButtonActiveGlyphGlowBrush" Color="#AC4AB5"/>
     <SolidColorBrush x:Key="ButtonMouseOverGlyphGlowBrush" Color="#9F01FA"/>
     <SolidColorBrush x:Key="ButtonPressedGlyphGlowBrush" Color="#9F01FA"/>
 
@@ -282,14 +273,14 @@
     <RadialGradientBrush x:Key="MusicSliderButtonNormalBackgroundBrush" GradientOrigin="0.5,0.2" Center="0.5,0.1" RadiusX="0.5" RadiusY="0.8">
         <RadialGradientBrush.GradientStops>
             <GradientStop Color="#F0F0F0" Offset="0"/>
-            <GradientStop Color="#bcbcbc" Offset="1"/>
+            <GradientStop Color="#BCBCBC" Offset="1"/>
         </RadialGradientBrush.GradientStops>
     </RadialGradientBrush>
 
     <RadialGradientBrush x:Key="MusicSliderButtonMouseOverBackgroundBrush" GradientOrigin="0.5,0.2" Center="0.5,0.1" RadiusX="0.5" RadiusY="0.8">
         <RadialGradientBrush.GradientStops>
             <GradientStop Color="#EEEEEE" Offset="0"/>
-            <GradientStop Color="#bcbcbc" Offset="1"/>
+            <GradientStop Color="#BCBCBC" Offset="1"/>
         </RadialGradientBrush.GradientStops>
     </RadialGradientBrush>
 
@@ -300,15 +291,14 @@
         </RadialGradientBrush.GradientStops>
     </RadialGradientBrush>
 
-    <SolidColorBrush x:Key="MusicSliderKnobPassiveBorderGlowBrush" Color="#00000000"/>
+    <SolidColorBrush x:Key="MusicSliderKnobPassiveBorderGlowBrush" Color="Transparent"/>
 
-    <SolidColorBrush x:Key="MusicSliderKnobActiveBorderGlowBrush" Color="#66ac4ab5"/>
+    <SolidColorBrush x:Key="MusicSliderKnobActiveBorderGlowBrush" Color="#66AC4AB5"/>
 
     <!-- Drop & drop -->
 
-    <SolidColorBrush x:Key="ToolTipBackgroundBrush" Color="#A07090B0"/>
-    <SolidColorBrush x:Key="TextBoxBackgroundBrush" Color="#FFD0D8E8"/>
-
+    <SolidColorBrush x:Key="ToolTipBackgroundBrush" Color="#B0B0B0B0"/>
+    
     <LinearGradientBrush x:Key="DropPositionIndicatorBrush" StartPoint="0,0" EndPoint="1,0">
         <LinearGradientBrush.GradientStops>
             <GradientStop Color="#AAAAAA" Offset="0"/>
@@ -316,7 +306,6 @@
             <GradientStop Color="#AAAAAA" Offset="1"/>
         </LinearGradientBrush.GradientStops>
     </LinearGradientBrush>
-
 </ResourceDictionary>
     
     

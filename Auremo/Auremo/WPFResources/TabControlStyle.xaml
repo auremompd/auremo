@@ -17,7 +17,7 @@
                                 Margin="0,36,0,0" 
                                 IsItemsHost="True"
                                 Background="Transparent"/>
-                        <Border Name="Border" Grid.Column="1" Background="{StaticResource tabContainerBackgroundBrush}" 
+                        <Border Name="Border" Grid.Column="1" Background="{StaticResource TabContainerBackgroundBrush}" 
                             BorderBrush="{StaticResource PassiveGenericBorderBrush}" BorderThickness="0" CornerRadius="0">
                             <ContentPresenter Name="PART_SelectedContentHost" Margin="0" ContentSource="SelectedContent"/>
                         </Border>

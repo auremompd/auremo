@@ -95,7 +95,7 @@ namespace Auremo
             m_PasswordEntry.Password = Crypto.DecryptPassword(Settings.Default.Password);
             m_UpdateIntervalEntry.Text = Settings.Default.ViewUpdateInterval.ToString();
             m_EnableVolumeControl.IsChecked = Settings.Default.EnableVolumeControl;
-            m_WheelVolumeStepEntry.Text = Settings.Default.MouseWheelAdjustsVolumeBy.ToString();
+            m_WheelVolumeStepEntry.Text = Settings.Default.VolumeAdjustmentStep.ToString();
             m_WheelSongPositioningModeIsPercent.IsChecked = Settings.Default.MouseWheelAdjustsSongPositionInPercent;
             m_WheelSongPositioningModeIsSeconds.IsChecked = !m_WheelSongPositioningModeIsPercent.IsChecked;
             m_WheelSongPositioningPercentEntry.Text = Settings.Default.MouseWheelAdjustsSongPositionPercentBy.ToString();
@@ -117,10 +117,12 @@ namespace Auremo
             Settings.Default.Password = password;
             Settings.Default.ViewUpdateInterval = Utils.StringToInt(m_UpdateIntervalEntry.Text, 500);
             Settings.Default.EnableVolumeControl = m_EnableVolumeControl.IsChecked == null || m_EnableVolumeControl.IsChecked.Value;
-            Settings.Default.MouseWheelAdjustsVolumeBy = Utils.StringToInt(m_WheelVolumeStepEntry.Text, 5);
+            Settings.Default.VolumeAdjustmentStep = Utils.StringToInt(m_WheelVolumeStepEntry.Text, 5);
             Settings.Default.MouseWheelAdjustsSongPositionInPercent = m_WheelSongPositioningModeIsPercent.IsChecked.Value;
             Settings.Default.MouseWheelAdjustsSongPositionPercentBy = Utils.StringToInt(m_WheelSongPositioningPercentEntry.Text, 5);
             Settings.Default.MouseWheelAdjustsSongPositionSecondsBy = Utils.StringToInt(m_WheelSongPositioningSecondsEntry.Text, 5);
+
+            Settings.Default.InitialSetupDone = true;
 
             Settings.Default.Save();
 
