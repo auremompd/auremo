@@ -1,4 +1,5 @@
 #summary Features available in the current release
+#labels Featured
 
 = Auremo features =
 
