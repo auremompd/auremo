@@ -1,4 +1,5 @@
 #summary Version history and change log
+#labels Featured
 
 = Version history =
 
