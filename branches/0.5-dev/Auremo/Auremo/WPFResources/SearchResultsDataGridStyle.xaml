@@ -59,25 +59,18 @@
             <Setter.Value>
                 <Style TargetType="{x:Type DataGridColumnHeader}">
                     <Setter Property="Background" Value="{StaticResource ListHeaderBackgroundBrush}"/>
-                    <Setter Property="Foreground" Value="{StaticResource PassiveTextBrush}"/>
                     <Setter Property="BorderBrush" Value="{StaticResource HeaderBorderBrush}"/>
                     <Setter Property="BorderThickness" Value="0,0,0.75,1"/>
-                    <Setter Property="Height" Value="Auto"/>
-                    <Setter Property="Padding" Value="10,10,10,10"/>
-                    <Setter Property="FontWeight" Value="Normal"/>
+                    <Setter Property="Foreground" Value="{StaticResource PassiveTextBrush}"/>
+                    <Setter Property="Padding" Value="10"/>
                 </Style>
             </Setter.Value>
         </Setter>
         <Setter Property="RowStyle">
             <Setter.Value>
                 <Style TargetType="{x:Type DataGridRow}">
-                    <Setter Property="Background" Value="{StaticResource ItemBrush}"/>
-                    <Setter Property="Foreground" Value="{StaticResource PassiveTextBrush}"/>
+                    <Setter Property="Background" Value="Transparent"/>
                     <Style.Triggers>
-                        <Trigger Property="IsSelected" Value="true">
-                            <Setter Property="Background" Value="{StaticResource SelectionBackgroundBrush}"/>
-                            <Setter Property="Foreground" Value="{StaticResource SelectedTextBrush}"/>
-                        </Trigger>
                     </Style.Triggers>
                 </Style>
             </Setter.Value>
@@ -85,12 +78,14 @@
         <Setter Property="CellStyle">
             <Setter.Value>
                 <Style TargetType="{x:Type DataGridCell}">
+                    <Setter Property="Background" Value="{x:Null}"/>
                     <Setter Property="BorderThickness" Value="0"/>
+                    <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
                     <Setter Property="Foreground" Value="{StaticResource PassiveTextBrush}"/>
                     <Setter Property="Margin" Value="10,1,0,1"/>
                     <Style.Triggers>
                         <Trigger Property="IsSelected" Value="True">
-                            <Setter Property="Background" Value="{StaticResource SelectionBackgroundBrush}"/>
+                            <Setter Property="Background" Value="{StaticResource CellSelectionBackgroundBrush}"/>
                             <Setter Property="Foreground" Value="{StaticResource SelectedTextBrush}"/>
                         </Trigger>
                     </Style.Triggers>

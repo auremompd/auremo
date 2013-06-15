@@ -7,9 +7,6 @@
          active when a song is playing, the timecode readouts are active when
          they are ticking, etc. MouseAbove and MouseDown should be obvious. -->
 
-    <!-- Fonts -->
-
-
     <!-- Base colors -->
 
     <SolidColorBrush x:Key="MouseOverBackgroundBrush" Color="#FFFFFF"/>
@@ -18,6 +15,7 @@
     <SolidColorBrush x:Key="SeparatorBorderBrush" Color="#CBCBCB"/>
     <SolidColorBrush x:Key="PassiveTextBrush" Color="#333333"/>
     <SolidColorBrush x:Key="SelectedTextBrush" Color="#9836A2"/>
+    <SolidColorBrush x:Key="PlayingTextBrush" Color="#652492"/>
     <SolidColorBrush x:Key="MouseOverTextBrush" Color="#3333BB"/>
     <SolidColorBrush x:Key="PressedTextBrush" Color="#2222AA"/>
     <SolidColorBrush x:Key="TabControlBorderBrush" Color="#DDDDDD"/>
@@ -59,12 +57,14 @@
 
     <LinearGradientBrush x:Key="ItemBrush" StartPoint="0,0" EndPoint="1,0">
         <LinearGradientBrush.GradientStops>
-            <GradientStop Offset="0" Color="#00D0D0D0"/>
-            <GradientStop Offset="1" Color="#00C0D0E0"/>
+            <GradientStop Offset="0" Color="#D0D0D0"/>
+            <GradientStop Offset="1" Color="#C0D0E0"/>
         </LinearGradientBrush.GradientStops>
     </LinearGradientBrush>
 
-    <LinearGradientBrush x:Key="SelectionBackgroundBrush" StartPoint="0,0" EndPoint="1,0">
+    <SolidColorBrush x:Key="CellSelectionBackgroundBrush" Color="#E0E0E0"/>
+
+    <LinearGradientBrush x:Key="RowSelectionBackgroundBrush" StartPoint="0,0" EndPoint="1,0">
         <LinearGradientBrush.GradientStops>
             <GradientStop Offset="0" Color="#EEEEEE"/>
             <GradientStop Offset="1" Color="#CCCCCC"/>
