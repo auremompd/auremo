@@ -1,4 +1,5 @@
 #summary Planned future features
+#labels Featured
 
 =Roadmap=
 
@@ -8,12 +9,13 @@ There is no absolute guarantee that features will appear in the exact version un
 
 Suggestions are welcome! None of these features or software versions are being developed yet, so if you have ideas about how they should work, or would like to see something added to the lists, there is still time to let me know. Please [mailto:auremompd@gmail.com e-mail] the author.
 
-==0.6 release==
+==Near future releases==
 
   * Use MPD command lists for playlist control for speed and atomicity.
   * Improve saved playlist interface.
   * Add optional criteria for sorting albums. For example, the user should be able to choose alphabetical, chronological or filesystem ordering.
   * Add support for choosing between artist and album artist when parsing the collection.
+  * Add settings for hiding individual music collection tabs.
 
 ==Later releases==
 
@@ -21,6 +23,5 @@ Suggestions are welcome! None of these features or software versions are being d
   * Look into the possibility of supporting multiple genres per song.
   * Maybe add more ways to browse the music collection.
   * Maybe create a cool custom control for the volume knob. The slider is typical but not very pretty, plus it takes a lot of space.
-  * Maybe add settings for hiding individual music collection tabs and, if feasible, disabling the data model behind them entirely. This would make the GUI quicker and less cluttered.
   * Maybe add album art, supposing that it can be incorporated in the GUI in a meaningful way. This should probably be an opt-in feature because it can be heavy and not useful for all users.
   * Maybe add lyrics. This must definitely be an opt-in feature.
