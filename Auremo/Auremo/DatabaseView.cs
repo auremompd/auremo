@@ -41,9 +41,7 @@ namespace Auremo
 
         #endregion
 
-        private Database m_Database = null;
-        private StreamsCollection m_StreamsCollection = null;
-        private CollectionSearch m_CollectionSearchThread = null;
+        private DataModel m_DataModel = null;
 
         private IList<object> m_SelectedSearchResults = new List<object>();
         private IList<string> m_SelectedArtists = new List<string>();
@@ -58,12 +56,10 @@ namespace Auremo
 
         #region Construction and setup
 
-        public DatabaseView(Database database, StreamsCollection streamsCollection, CollectionSearch collectionSeachThread)
+        public DatabaseView(DataModel dataModel)
         {
-            m_Database = database;
-            m_StreamsCollection = streamsCollection;
+            m_DataModel = dataModel;
 
-            m_CollectionSearchThread = collectionSeachThread;
             SearchResults = new ObservableCollection<CollectionSearch.SearchResultTuple>();
 
             Artists = new ObservableCollection<string>();
@@ -85,8 +81,8 @@ namespace Auremo
             DirectoryTree = new ObservableCollection<TreeViewNode>();
             DirectoryTreeController = new TreeViewController(DirectoryTree);
 
-            m_StreamsCollection.PropertyChanged += new PropertyChangedEventHandler(OnStreamsCollectionPropertyChanged);
-            m_CollectionSearchThread.PropertyChanged += new PropertyChangedEventHandler(OnCollectionSearchResultsPropertyChanged);
+            m_DataModel.StreamsCollection.PropertyChanged += new PropertyChangedEventHandler(OnStreamsCollectionPropertyChanged);
+            m_DataModel.CollectionSearch.PropertyChanged += new PropertyChangedEventHandler(OnCollectionSearchResultsPropertyChanged);
             PopulateStreams();
         }
 
@@ -107,7 +103,7 @@ namespace Auremo
         {
             Artists.Clear();
 
-            foreach (string artist in m_Database.Artists)
+            foreach (string artist in m_DataModel.Database.Artists)
             {
                 Artists.Add(artist);
             }
@@ -117,7 +113,7 @@ namespace Auremo
         {
             Genres.Clear();
 
-            foreach (string genre in m_Database.Genres)
+            foreach (string genre in m_DataModel.Database.Genres)
             {
                 Genres.Add(genre);
             }
@@ -132,12 +128,12 @@ namespace Auremo
             {
                 ArtistTreeViewNode artistNode = new ArtistTreeViewNode(artist, null, ArtistTreeController);
 
-                foreach (AlbumMetadata album in m_Database.AlbumsByArtist(artist))
+                foreach (AlbumMetadata album in m_DataModel.Database.AlbumsByArtist(artist))
                 {
                     AlbumMetadataTreeViewNode albumNode = new AlbumMetadataTreeViewNode(album, artistNode, ArtistTreeController);
                     artistNode.AddChild(albumNode);
 
-                    foreach (SongMetadata song in m_Database.SongsByAlbum(album))
+                    foreach (SongMetadata song in m_DataModel.Database.SongsByAlbum(album))
                     {
                         SongMetadataTreeViewNode songNode = new SongMetadataTreeViewNode("", song, albumNode, ArtistTreeController);
                         albumNode.AddChild(songNode);
@@ -164,12 +160,12 @@ namespace Auremo
             {
                 GenreTreeViewNode genreNode = new GenreTreeViewNode(genre, null, GenreTreeController);
 
-                foreach (AlbumMetadata album in m_Database.AlbumsByGenre(genre))
+                foreach (AlbumMetadata album in m_DataModel.Database.AlbumsByGenre(genre))
                 {
                     AlbumMetadataTreeViewNode albumNode = new AlbumMetadataTreeViewNode(album, genreNode, GenreTreeController);
                     genreNode.AddChild(albumNode);
 
-                    foreach (SongMetadata song in m_Database.SongsByAlbum(album))
+                    foreach (SongMetadata song in m_DataModel.Database.SongsByAlbum(album))
                     {
                         SongMetadataTreeViewNode songNode = new SongMetadataTreeViewNode("", song, albumNode, GenreTreeController);
                         albumNode.AddChild(songNode);
@@ -196,7 +192,7 @@ namespace Auremo
             IDictionary<string, TreeViewNode> directoryLookup = new SortedDictionary<string, TreeViewNode>();
             directoryLookup[rootNode.DisplayString] = rootNode;
 
-            foreach (SongMetadata song in m_Database.Songs)
+            foreach (SongMetadata song in m_DataModel.Database.Songs)
             {
                 Tuple<string, string> directoryAndFile = Utils.SplitPath(song.Path);
                 TreeViewNode parent = FindDirectoryNode(directoryAndFile.Item1, directoryLookup, rootNode);
@@ -255,7 +251,7 @@ namespace Auremo
         {
             if (e.PropertyName == "SearchResults")
             {
-                SearchResults = new ObservableCollection<CollectionSearch.SearchResultTuple>(m_CollectionSearchThread.SearchResults);
+                SearchResults = new ObservableCollection<CollectionSearch.SearchResultTuple>(m_DataModel.CollectionSearch.SearchResults);
                 NotifyPropertyChanged("SearchResults");
             }
         }
@@ -314,7 +310,7 @@ namespace Auremo
 
                 foreach (string artist in value)
                 {
-                    foreach (AlbumMetadata album in m_Database.AlbumsByArtist(artist))
+                    foreach (AlbumMetadata album in m_DataModel.Database.AlbumsByArtist(artist))
                     {
                         AlbumsBySelectedArtists.Add(album);
                     }
@@ -337,7 +333,7 @@ namespace Auremo
 
                 foreach (AlbumMetadata album in value)
                 {
-                    foreach (SongMetadata song in m_Database.SongsByAlbum(album))
+                    foreach (SongMetadata song in m_DataModel.Database.SongsByAlbum(album))
                     {
                         SongsOnSelectedAlbumsBySelectedArtists.Add(song);
                     }
@@ -395,7 +391,7 @@ namespace Auremo
 
                 foreach (string genre in value)
                 {
-                    foreach (AlbumMetadata album in m_Database.AlbumsByGenre(genre))
+                    foreach (AlbumMetadata album in m_DataModel.Database.AlbumsByGenre(genre))
                     {
                         AlbumsOfSelectedGenres.Add(album);
                     }
@@ -418,7 +414,7 @@ namespace Auremo
 
                 foreach (AlbumMetadata album in value)
                 {
-                    foreach (SongMetadata song in m_Database.SongsByAlbum(album))
+                    foreach (SongMetadata song in m_DataModel.Database.SongsByAlbum(album))
                     {
                         SongsOnSelectedAlbumsOfSelectedGenres.Add(song);
                     }
@@ -533,7 +529,7 @@ namespace Auremo
 
         private void PopulateStreams()
         {
-            ISet<StreamMetadata> sortedStreams = new SortedSet<StreamMetadata>(m_StreamsCollection.Streams);
+            ISet<StreamMetadata> sortedStreams = new SortedSet<StreamMetadata>(m_DataModel.StreamsCollection.Streams);
             Streams = new ObservableCollection<StreamMetadata>(sortedStreams);
             NotifyPropertyChanged("Streams");
         }

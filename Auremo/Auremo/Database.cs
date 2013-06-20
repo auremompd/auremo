@@ -27,16 +27,16 @@ namespace Auremo
 {
     public class Database
     {
-        private ServerConnection m_Connection = null;
+        private DataModel m_DataModel = null;
         private IDictionary<string, ISet<AlbumMetadata>> m_AlbumsByArtist = new SortedDictionary<string, ISet<AlbumMetadata>>();
         private IDictionary<string, ISet<AlbumMetadata>> m_AlbumsByGenre = new SortedDictionary<string, ISet<AlbumMetadata>>();
         private IDictionary<AlbumMetadata, ISet<string>> m_SongPathsByAlbum = new SortedDictionary<AlbumMetadata, ISet<string>>();
         private IDictionary<SongMetadata, AlbumMetadata> m_AlbumBySong = new SortedDictionary<SongMetadata, AlbumMetadata>();
         private IDictionary<string, SongMetadata> m_SongInfo = new SortedDictionary<string, SongMetadata>();
         
-        public Database(ServerConnection connection, ServerStatus status)
+        public Database(DataModel dataModel)
         {
-            m_Connection = connection;
+            m_DataModel = dataModel;
             Artists = new List<string>();
             Genres = new List<string>();
         }
@@ -52,9 +52,9 @@ namespace Auremo
             Artists = new List<string>();
             Genres = new List<string>();
 
-            if (m_Connection.Status == ServerConnection.State.Connected)
+            if (m_DataModel.ServerConnection.Status == ServerConnection.State.Connected)
             {
-                PopulateSongInfo(m_Connection);
+                PopulateSongInfo(m_DataModel.ServerConnection);
                 
                 PopulateArtists();
                 PopulateGenres();
