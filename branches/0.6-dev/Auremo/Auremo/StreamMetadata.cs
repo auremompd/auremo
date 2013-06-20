@@ -1,12 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 
 namespace Auremo
 {
-    public class StreamMetadata : Playable, IComparable
+    public class StreamMetadata : Playable, IComparable, INotifyPropertyChanged
     {
+        #region INotifyPropertyChanged
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChanged(string info)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(info));
+            }
+        }
+
+        #endregion
+
         public StreamMetadata()
         {
             Path = null;
@@ -36,7 +51,11 @@ namespace Auremo
             }
             set
             {
-                m_Title = value;
+                if (m_Title != value)
+                {
+                    m_Title = value;
+                    NotifyPropertyChanged("Title");
+                }
             }
         }
 

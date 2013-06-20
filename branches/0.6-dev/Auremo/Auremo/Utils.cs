@@ -98,7 +98,7 @@ namespace Auremo
             return min < value ? (max > value ? value : max) : min;
         }
 
-        public static IEnumerable<T> ToTypedList<T>(System.Collections.IEnumerable source)
+        public static IList<T> ToTypedList<T>(System.Collections.IEnumerable source)
         {
             IList<T> result = new List<T>();
 

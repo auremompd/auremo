@@ -7,9 +7,9 @@
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="Visibility" Value="Collapsed"/>
         <Style.Triggers>
-            <DataTrigger Binding="{Binding Count}" Value="0">
+            <Trigger Property="IsEnabled" Value="False">
                 <Setter Property="Visibility" Value="Visible"/>
-            </DataTrigger>
+            </Trigger>
         </Style.Triggers>
     </Style>
 </ResourceDictionary>

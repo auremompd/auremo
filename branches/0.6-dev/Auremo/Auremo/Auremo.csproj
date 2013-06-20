@@ -122,6 +122,7 @@
     <Compile Include="CollectionSearch.cs" />
     <Compile Include="Crypto.cs" />
     <Compile Include="DatabaseView.cs" />
+    <Compile Include="DataModel.cs" />
     <Compile Include="DirectoryTreeViewNode.cs" />
     <Compile Include="EqualsConverter.cs" />
     <Compile Include="GenreTreeViewNode.cs" />
