@@ -360,7 +360,7 @@
                     <Grid>
                         <DataGrid Name="m_StreamsView"
                                   Style="{StaticResource MusicCollectionDataGridStyle}"
-                                  ItemsSource="{Binding Path=DatabaseView.Streams}"
+                                  ItemsSource="{Binding Path=StreamsCollection.Streams}"
                                   PreviewKeyDown="OnMusicCollectionDataGridKeyDown"
                                   TextInput="OnCollectionTextInput"
                                   PreviewMouseDown="OnDataGridMouseDown"

@@ -81,9 +81,7 @@ namespace Auremo
             DirectoryTree = new ObservableCollection<TreeViewNode>();
             DirectoryTreeController = new TreeViewController(DirectoryTree);
 
-            m_DataModel.StreamsCollection.PropertyChanged += new PropertyChangedEventHandler(OnStreamsCollectionPropertyChanged);
             m_DataModel.CollectionSearch.PropertyChanged += new PropertyChangedEventHandler(OnCollectionSearchResultsPropertyChanged);
-            PopulateStreams();
         }
 
         public void RefreshCollection()
@@ -509,31 +507,6 @@ namespace Auremo
             }
         }
 
-        #endregion
-
-        #region Streams view
-        
-        private void OnStreamsCollectionPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == "Streams")
-            {
-                PopulateStreams();
-            }
-        }
-
-        public IList<StreamMetadata> Streams
-        {
-            get;
-            private set;
-        }
-
-        private void PopulateStreams()
-        {
-            ISet<StreamMetadata> sortedStreams = new SortedSet<StreamMetadata>(m_DataModel.StreamsCollection.Streams);
-            Streams = new ObservableCollection<StreamMetadata>(sortedStreams);
-            NotifyPropertyChanged("Streams");
-        }
-        
         #endregion
     }
 }

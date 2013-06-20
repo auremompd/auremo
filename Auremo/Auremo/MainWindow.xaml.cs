@@ -1105,7 +1105,6 @@ namespace Auremo
         {
             DataModel.CollectionSearch.SearchString = m_SearchBox.Text;
         }
-              
 
         #region Streams collection
 

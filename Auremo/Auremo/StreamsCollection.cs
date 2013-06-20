@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -40,7 +41,8 @@ namespace Auremo
 
         #endregion
 
-        private IDictionary<string, StreamMetadata> m_Streams = null;
+        private IDictionary<string, StreamMetadata> m_StreamsCollection = new SortedDictionary<string, StreamMetadata>();
+        private ObservableCollection<StreamMetadata> m_Streams = new ObservableCollection<StreamMetadata>();
 
         public StreamsCollection()
         {
@@ -49,7 +51,7 @@ namespace Auremo
 
         public void Load()
         {
-            m_Streams = new SortedDictionary<string, StreamMetadata>();
+            m_StreamsCollection.Clear();
 
             if (Settings.Default.KnownStreams.Length > 0)
             {
@@ -58,19 +60,16 @@ namespace Auremo
 
                 if (streams != null)
                 {
-                    foreach (StreamMetadata stream in streams)
-                    {
-                        Add(stream);
-                    }
+                    Add(streams);
                 }
             }
 
-            NotifyPropertyChanged("Streams");
+            SynStreamsView();
         }
 
         public void Save()
         {
-            string playlist = PlaylistWriter.Write(m_Streams.Values);
+            string playlist = PlaylistWriter.Write(m_StreamsCollection.Values);
             Settings.Default.KnownStreams = playlist == null ? "" : playlist;
             Settings.Default.Save();
         }
@@ -80,7 +79,7 @@ namespace Auremo
             if (AddWithoutNotification(stream))
             {
                 Save();
-                NotifyPropertyChanged("Streams");
+                SynStreamsView();
                 return true;
             }
             else
@@ -100,7 +99,7 @@ namespace Auremo
             }
 
             Save();
-            NotifyPropertyChanged("Streams");
+            SynStreamsView();
             return allSucceeded;
         }
         
@@ -109,7 +108,7 @@ namespace Auremo
             if (DeleteWithoutNotification(stream))
             {
                 Save();
-                NotifyPropertyChanged("Streams");
+                SynStreamsView();
                 return true;
             }
             else
@@ -129,32 +128,44 @@ namespace Auremo
             }
 
             Save();
-            NotifyPropertyChanged("Streams");
+            SynStreamsView();
             return allSucceeded;
         }
         
         public void Rename(StreamMetadata stream, string newName)
         {
-            m_Streams.Remove(stream.Path);
+            m_StreamsCollection.Remove(stream.Path);
             stream.Title = newName;
-            m_Streams.Add(stream.Path, stream);
+            m_StreamsCollection.Add(stream.Path, stream);
             Save();
-            NotifyPropertyChanged("Streams");
+            SynStreamsView();
         }
 
         public IEnumerable<StreamMetadata> Streams
         {
             get
             {
-                return m_Streams.Values;
+                return m_Streams;
             }
+        }
+
+        private void SynStreamsView()
+        {
+            m_Streams.Clear();
+
+            foreach (StreamMetadata stream in m_StreamsCollection.Values)
+            {
+                m_Streams.Add(stream);
+            }
+
+            NotifyPropertyChanged("Streams");
         }
 
         public StreamMetadata StreamByPath(string path)
         {
             StreamMetadata result;
 
-            if (m_Streams.TryGetValue(path, out result))
+            if (m_StreamsCollection.TryGetValue(path, out result))
             {
                 return result;
             }
@@ -164,23 +175,23 @@ namespace Auremo
 
         private bool AddWithoutNotification(StreamMetadata stream)
         {
-            if (m_Streams.ContainsKey(stream.Path))
+            if (m_StreamsCollection.ContainsKey(stream.Path))
             {
                 return false;
             }
 
-            m_Streams.Add(stream.Path, stream);
+            m_StreamsCollection.Add(stream.Path, stream);
             return true;
         }
 
         private bool DeleteWithoutNotification(StreamMetadata stream)
         {
-            if (!m_Streams.ContainsKey(stream.Path))
+            if (!m_StreamsCollection.ContainsKey(stream.Path))
             {
                 return false;
             }
 
-            m_Streams.Remove(stream.Path);
+            m_StreamsCollection.Remove(stream.Path);
             return true;
         }
     }
