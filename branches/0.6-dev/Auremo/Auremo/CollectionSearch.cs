@@ -31,7 +31,7 @@ namespace Auremo
             public AlbumMetadata Album { get; set; }
         };
 
-        private Database m_Database = null;
+        private DataModel m_DataModel = null;
         private CollectionSearchThread m_Searcher = null;
         private Thread m_Thread = null;
 
@@ -43,10 +43,10 @@ namespace Auremo
         object m_ThreadOutputLock = new object();
         IEnumerable<SearchResultTuple> m_SearchResults = new List<SearchResultTuple>();
 
-        public CollectionSearch(Database database)
+        public CollectionSearch(DataModel dataModel)
         {
-            m_Database = database;
-            m_Searcher = new CollectionSearchThread(this, m_Database);
+            m_DataModel = dataModel;
+            m_Searcher = new CollectionSearchThread(this, m_DataModel.Database);
             m_Thread = new Thread(new ThreadStart(m_Searcher.Start));
             m_Thread.Start();
         }

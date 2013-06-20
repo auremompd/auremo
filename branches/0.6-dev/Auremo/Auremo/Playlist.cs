@@ -40,22 +40,14 @@ namespace Auremo
 
         #endregion
 
-        ServerConnection m_Connection = null;
-        ServerStatus m_ServerStatus = null;
-        Database m_Database = null;
-        StreamsCollection m_StreamsCollection = null;
+        DataModel m_DataModel = null;
         PlaylistItem m_ItemMarkedAsCurrent = null;
 
-        public Playlist(ServerConnection connection, ServerStatus serverStatus, Database database, StreamsCollection streamsCollection)
+        public Playlist(DataModel dataModel)
         {
-            m_Connection = connection;
-            m_ServerStatus = serverStatus;
-            m_Database = database;
-            m_StreamsCollection = streamsCollection;
-
+            m_DataModel = dataModel;
             Items = new ObservableCollection<PlaylistItem>();
-
-            m_ServerStatus.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(OnServerStatusPropertyChanged);
+            m_DataModel.ServerStatus.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(OnServerStatusPropertyChanged);
         }
 
         public IList<PlaylistItem> Items
@@ -87,10 +79,10 @@ namespace Auremo
             Items.Clear();
             m_ItemMarkedAsCurrent = null;
 
-            if (!m_ServerStatus.OK)
+            if (!m_DataModel.ServerStatus.OK)
                 return;
 
-            ServerResponse response = Protocol.PlaylistInfo(m_Connection);
+            ServerResponse response = Protocol.PlaylistInfo(m_DataModel.ServerConnection);
 
             if (response == null || !response.IsOK)
                 return;
@@ -133,10 +125,12 @@ namespace Auremo
         {
             PlaylistItem itemToMarkCurrent = null;
 
-            if (m_ServerStatus.OK && (m_ServerStatus.IsPaused.Value || m_ServerStatus.IsPlaying.Value) &&
-                m_ServerStatus.CurrentSongIndex >= 0 && m_ServerStatus.CurrentSongIndex < Items.Count)
+            if (m_DataModel.ServerStatus.OK && 
+                (m_DataModel.ServerStatus.IsPaused.Value || m_DataModel.ServerStatus.IsPlaying.Value) &&
+                m_DataModel.ServerStatus.CurrentSongIndex >= 0 &&
+                m_DataModel.ServerStatus.CurrentSongIndex < Items.Count)
             {
-                itemToMarkCurrent = Items[m_ServerStatus.CurrentSongIndex];
+                itemToMarkCurrent = Items[m_DataModel.ServerStatus.CurrentSongIndex];
             }
 
             if (itemToMarkCurrent != m_ItemMarkedAsCurrent)
@@ -154,17 +148,17 @@ namespace Auremo
                 }
             }
 
-            if (!m_ServerStatus.OK)
+            if (!m_DataModel.ServerStatus.OK)
             {
                 PlayStatusDescription = "";
             }
-            else if (m_ItemMarkedAsCurrent == null || m_ServerStatus.IsStopped.Value)
+            else if (m_ItemMarkedAsCurrent == null || m_DataModel.ServerStatus.IsStopped.Value)
             {
                 PlayStatusDescription = "Stopped.";
             }
             else
             {
-                string status = m_ServerStatus.IsPlaying.Value ? "Playing " : "Paused - ";
+                string status = m_DataModel.ServerStatus.IsPlaying.Value ? "Playing " : "Paused - ";
 
                 if (m_ItemMarkedAsCurrent.Playable is SongMetadata)
                 {
@@ -183,7 +177,7 @@ namespace Auremo
                 else
                 {
                     status =
-                         (m_ServerStatus.IsPlaying.Value ? "Playing " : "Paused - ") +
+                         (m_DataModel.ServerStatus.IsPlaying.Value ? "Playing " : "Paused - ") +
                           m_ItemMarkedAsCurrent.Playable.Title + ".";
                 }
 
@@ -195,11 +189,11 @@ namespace Auremo
 
         private Playable PlayableByPath(string path)
         {
-            Playable result = m_Database.SongByPath(path);
+            Playable result = m_DataModel.Database.SongByPath(path);
 
             if (result == null)
             {
-                result = m_StreamsCollection.StreamByPath(path);
+                result = m_DataModel.StreamsCollection.StreamByPath(path);
             }
 
             if (result == null)

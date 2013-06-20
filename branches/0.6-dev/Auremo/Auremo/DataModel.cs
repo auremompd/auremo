@@ -28,11 +28,11 @@ namespace Auremo
         {
             ServerConnection = new ServerConnection();
             ServerStatus = new ServerStatus();
-            Database = new Database(ServerConnection, ServerStatus);
-            CollectionSearch = new CollectionSearch(Database);
+            Database = new Database(this);
+            CollectionSearch = new CollectionSearch(this);
             StreamsCollection = new StreamsCollection();
-            Playlist = new Playlist(ServerConnection, ServerStatus, Database, StreamsCollection);
-            DatabaseView = new DatabaseView(Database, StreamsCollection, CollectionSearch);
+            Playlist = new Playlist(this);
+            DatabaseView = new DatabaseView(this);
             SavedPlaylists = new SavedPlaylists();
             OutputCollection = new OutputCollection();
         }
