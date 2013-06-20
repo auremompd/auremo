@@ -45,6 +45,14 @@ namespace Auremo
         private StreamsCollection m_StreamsCollection = null;
         private CollectionSearch m_CollectionSearchThread = null;
 
+        private IList<object> m_SelectedSearchResults = new List<object>();
+        private IList<string> m_SelectedArtists = new List<string>();
+        private IList<AlbumMetadata> m_SelectedAlbumsBySelectedArtists = new List<AlbumMetadata>();
+        private IList<SongMetadata> m_SelectedSongsOnSelectedAlbumsBySelectedArtists = new List<SongMetadata>();
+        private IList<string> m_SelectedGenres = new List<string>();
+        private IList<AlbumMetadata> m_SelectedAlbumsOfSelectedGenres = new List<AlbumMetadata>();
+        private IList<SongMetadata> m_SelectedSongsOnSelectedAlbumsOfSelectedGenres = new List<SongMetadata>();
+
         public delegate ISet<AlbumMetadata> AlbumsUnderRoot(string root);
         public delegate ISet<SongMetadata> SongsOnAlbum(AlbumMetadata album);
 
@@ -61,10 +69,12 @@ namespace Auremo
             Artists = new ObservableCollection<string>();
             AlbumsBySelectedArtists = new ObservableCollection<AlbumMetadata>();
             SongsOnSelectedAlbumsBySelectedArtists = new ObservableCollection<SongMetadata>();
+            SelectedSongsOnSelectedAlbumsBySelectedArtists = new ObservableCollection<SongMetadata>();
 
             Genres = new ObservableCollection<string>();
             AlbumsOfSelectedGenres = new ObservableCollection<AlbumMetadata>();
             SongsOnSelectedAlbumsOfSelectedGenres = new ObservableCollection<SongMetadata>();
+            SelectedSongsOnSelectedAlbumsOfSelectedGenres = new ObservableCollection<SongMetadata>();
 
             ArtistTree = new ObservableCollection<TreeViewNode>();
             ArtistTreeController = new TreeViewController(ArtistTree);
@@ -91,11 +101,6 @@ namespace Auremo
             PopulateDirectoryTree();
             PopulateArtistTree();
             PopulateGenreTree();
-        }
-
-        public void RefreshStreams()
-        {
-            //PopulateStreams();
         }
 
         private void PopulateArtists()
@@ -244,7 +249,7 @@ namespace Auremo
 
         #endregion
 
-        #region Seach
+        #region Search
 
         private void OnCollectionSearchResultsPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
@@ -261,6 +266,19 @@ namespace Auremo
             private set;
         }
 
+        public IList<object> SelectedSearchResults
+        {
+            get
+            {
+                return m_SelectedSearchResults;
+            }
+            set
+            {
+                m_SelectedSearchResults = value;
+                NotifyPropertyChanged("SelectedSearchResults");
+            }
+        }
+
         #endregion
 
         #region Artist/album/song view
@@ -271,28 +289,77 @@ namespace Auremo
             private set;
         }
 
-        public IList<AlbumMetadata> AlbumsBySelectedArtists
+        public ObservableCollection<AlbumMetadata> AlbumsBySelectedArtists
         {
             get;
             private set;
         }
 
-        public IList<SongMetadata> SongsOnSelectedAlbumsBySelectedArtists
+        public ObservableCollection<SongMetadata> SongsOnSelectedAlbumsBySelectedArtists
         {
             get;
             private set;
         }
-
-        public void OnSelectedArtistsChanged(IList selection)
+        
+        public IList<string> SelectedArtists
         {
-            OnRootLevelSelectionChanged(selection, AlbumsBySelectedArtists, m_Database.AlbumsByArtist);
+            get
+            {
+                return m_SelectedArtists;
+            }
+            set
+            {
+                m_SelectedArtists = value;
+                AlbumsBySelectedArtists.Clear();
+
+                foreach (string artist in value)
+                {
+                    foreach (AlbumMetadata album in m_Database.AlbumsByArtist(artist))
+                    {
+                        AlbumsBySelectedArtists.Add(album);
+                    }
+                }
+
+                NotifyPropertyChanged("SelectedArtists");
+            }
         }
 
-        public void OnSelectedAlbumsBySelectedArtistsChanged(IList selection)
+        public IList<AlbumMetadata> SelectedAlbumsBySelectedArtists
         {
-            OnAlbumLevelSelectionChanged(selection, SongsOnSelectedAlbumsBySelectedArtists, m_Database.SongsByAlbum);
+            get
+            {
+                return m_SelectedAlbumsBySelectedArtists;
+            }
+            set
+            {
+                m_SelectedAlbumsBySelectedArtists = value;
+                SongsOnSelectedAlbumsBySelectedArtists.Clear();
+
+                foreach (AlbumMetadata album in value)
+                {
+                    foreach (SongMetadata song in m_Database.SongsByAlbum(album))
+                    {
+                        SongsOnSelectedAlbumsBySelectedArtists.Add(song);
+                    }
+                }
+
+                NotifyPropertyChanged("SelectedAlbumsBySelectedArtists");
+            }
         }
 
+        public IList<SongMetadata> SelectedSongsOnSelectedAlbumsBySelectedArtists
+        {
+            get
+            {
+                return m_SelectedSongsOnSelectedAlbumsBySelectedArtists;
+            }
+            set
+            {
+                m_SelectedSongsOnSelectedAlbumsBySelectedArtists = new ObservableCollection<SongMetadata>(value);
+                NotifyPropertyChanged("SelectedSongsOnSelectedAlbumsBySelectedArtists");
+            }
+        }
+                
         #endregion
 
         #region Genre/album/artist view
@@ -303,26 +370,75 @@ namespace Auremo
             private set;
         }
 
-        public IList<AlbumMetadata> AlbumsOfSelectedGenres
+        public ObservableCollection<AlbumMetadata> AlbumsOfSelectedGenres
         {
             get;
             private set;
         }
 
-        public IList<SongMetadata> SongsOnSelectedAlbumsOfSelectedGenres
+        public ObservableCollection<SongMetadata> SongsOnSelectedAlbumsOfSelectedGenres
         {
             get;
             private set;
         }
 
-        public void OnSelectedGenresChanged(IList selection)
+        public IList<string> SelectedGenres
         {
-            OnRootLevelSelectionChanged(selection, AlbumsOfSelectedGenres, m_Database.AlbumsByGenre);
+            get
+            {
+                return m_SelectedGenres;
+            }
+            set
+            {
+                m_SelectedGenres = value;
+                AlbumsOfSelectedGenres.Clear();
+
+                foreach (string genre in value)
+                {
+                    foreach (AlbumMetadata album in m_Database.AlbumsByGenre(genre))
+                    {
+                        AlbumsOfSelectedGenres.Add(album);
+                    }
+                }
+
+                NotifyPropertyChanged("SelectedGenres");
+            }
         }
 
-        public void OnSelectedAlbumsOfSelectedGenresChanged(IList selection)
+        public IList<AlbumMetadata> SelectedAlbumsOfSelectedGenres
         {
-            OnAlbumLevelSelectionChanged(selection, SongsOnSelectedAlbumsOfSelectedGenres, m_Database.SongsByAlbum);
+            get
+            {
+                return m_SelectedAlbumsOfSelectedGenres;
+            }
+            set
+            {
+                m_SelectedAlbumsOfSelectedGenres = value;
+                SongsOnSelectedAlbumsOfSelectedGenres.Clear();
+
+                foreach (AlbumMetadata album in value)
+                {
+                    foreach (SongMetadata song in m_Database.SongsByAlbum(album))
+                    {
+                        SongsOnSelectedAlbumsOfSelectedGenres.Add(song);
+                    }
+                }
+
+                NotifyPropertyChanged("SelectedAlbumsOfSelectedGenres");
+            }
+        }
+
+        public IList<SongMetadata> SelectedSongsOnSelectedAlbumsOfSelectedGenres
+        {
+            get
+            {
+                return m_SelectedSongsOnSelectedAlbumsOfSelectedGenres;
+            }
+            set
+            {
+                m_SelectedSongsOnSelectedAlbumsOfSelectedGenres = new ObservableCollection<SongMetadata>(value);
+                NotifyPropertyChanged("SelectedSongsOnSelectedAlbumsOfSelectedGenres");
+            }
         }
 
         #endregion
@@ -400,13 +516,12 @@ namespace Auremo
         #endregion
 
         #region Streams view
-
+        
         private void OnStreamsCollectionPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "Streams")
             {
                 PopulateStreams();
-                Streams = new ObservableCollection<StreamMetadata>(m_StreamsCollection.Streams);
             }
         }
 
@@ -422,49 +537,7 @@ namespace Auremo
             Streams = new ObservableCollection<StreamMetadata>(sortedStreams);
             NotifyPropertyChanged("Streams");
         }
-
-        #endregion
-
-        #region Helpers
-
-        private void OnRootLevelSelectionChanged(IList newSelection, IList<AlbumMetadata> albumView, AlbumsUnderRoot Albums)
-        {
-            albumView.Clear();
-            ISet<string> sortedItems = new SortedSet<string>();
-
-            foreach (object o in newSelection)
-            {
-                sortedItems.Add(o as string);
-            }
-
-            foreach (string item in sortedItems)
-            {
-                foreach (AlbumMetadata album in Albums(item))
-                {
-                    albumView.Add(album);
-                }
-            }
-        }
-
-        private void OnAlbumLevelSelectionChanged(IList newSelection, IList<SongMetadata> songView, SongsOnAlbum Songs)
-        {
-            songView.Clear();
-            ISet<AlbumMetadata> sortedAlbums = new SortedSet<AlbumMetadata>();
-
-            foreach (object o in newSelection)
-            {
-                sortedAlbums.Add(o as AlbumMetadata);
-            }
-
-            foreach (AlbumMetadata album in sortedAlbums)
-            {
-                foreach (SongMetadata song in Songs(album))
-                {
-                    songView.Add(song);
-                }
-            }
-        }
-
+        
         #endregion
     }
 }

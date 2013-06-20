@@ -68,7 +68,7 @@ namespace Auremo
             }
             set
             {
-                //if (value != m_IsEnabled)
+                if (value != m_IsEnabled)
                 {
                     m_IsEnabled = value;
                     NotifyPropertyChanged("IsEnabled");
