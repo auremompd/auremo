@@ -30,13 +30,12 @@ namespace Auremo
             ServerStatus = new ServerStatus();
             Database = new Database(this);
             CollectionSearch = new CollectionSearch(this);
-            StreamsCollection = new StreamsCollection();
-            Playlist = new Playlist(this);
             DatabaseView = new DatabaseView(this);
+            StreamsCollection = new StreamsCollection();
             SavedPlaylists = new SavedPlaylists();
+            Playlist = new Playlist(this);
             OutputCollection = new OutputCollection();
         }
-
 
         public ServerConnection ServerConnection
         {
@@ -56,13 +55,7 @@ namespace Auremo
             private set;
         }
 
-        public StreamsCollection StreamsCollection
-        {
-            get;
-            private set;
-        }
-
-        public Playlist Playlist
+        public CollectionSearch CollectionSearch
         {
             get;
             private set;
@@ -74,13 +67,19 @@ namespace Auremo
             private set;
         }
 
-        public CollectionSearch CollectionSearch
+        public StreamsCollection StreamsCollection
         {
             get;
             private set;
         }
 
         public SavedPlaylists SavedPlaylists
+        {
+            get;
+            private set;
+        }
+
+        public Playlist Playlist
         {
             get;
             private set;
