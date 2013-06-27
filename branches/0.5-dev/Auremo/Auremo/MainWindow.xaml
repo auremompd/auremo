@@ -88,9 +88,9 @@
                         <DataGrid Name="m_SearchResultsView"
                                   Style="{StaticResource SearchResultsDataGridStyle}"
                                   ItemsSource="{Binding Path=SearchResults}"
-                                  PreviewMouseDown="OnDataGridMouseDown"
+                                  PreviewMouseLeftButtonDown="OnDataGridCellMouseDown"
                                   MouseMove="OnMouseMoveDragDrop"
-                                  MouseUp="OnDataGridMouseUp"
+                                  MouseLeftButtonUp="OnDataGridCellMouseUp"
                                   MouseDoubleClick="OnSearchResultsViewDoubleClicked">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Title" Width="Auto" Binding="{Binding Path=Song.Title}" CanUserResize="True"/>
@@ -126,9 +126,9 @@
                                   SelectionChanged="OnSelectedArtistsChanged"
                                   PreviewKeyDown="OnMusicCollectionDataGridKeyDown"
                                   TextInput="OnCollectionTextInput"
-                                  PreviewMouseDown="OnDataGridMouseDown"
+                                  PreviewMouseLeftButtonDown="OnDataGridRowMouseDown"
                                   MouseMove="OnMouseMoveDragDrop"
-                                  MouseUp="OnDataGridMouseUp"
+                                  MouseLeftButtonUp="OnDataGridRowMouseUp"
                                   MouseDoubleClick="OnMusicCollectionDataGridDoubleClicked">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Artist" Width="*" Binding="{Binding}" CanUserResize="True"/>
@@ -150,9 +150,9 @@
                                   SelectionChanged="OnSelectedAlbumsChanged"
                                   PreviewKeyDown="OnMusicCollectionDataGridKeyDown"
                                   TextInput="OnCollectionTextInput"
-                                  PreviewMouseDown="OnDataGridMouseDown"
+                                  PreviewMouseLeftButtonDown="OnDataGridRowMouseDown"
                                   MouseMove="OnMouseMoveDragDrop"
-                                  MouseUp="OnDataGridMouseUp"
+                                  MouseLeftButtonUp="OnDataGridRowMouseUp"
                                   MouseDoubleClick="OnMusicCollectionDataGridDoubleClicked">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Title" Width="*" Binding="{Binding Path=Title}"/>
@@ -173,9 +173,9 @@
                                   ItemsSource="{Binding Path=SongsOnSelectedAlbumsBySelectedArtists}"
                                   PreviewKeyDown="OnMusicCollectionDataGridKeyDown"
                                   TextInput="OnCollectionTextInput"
-                                  PreviewMouseDown="OnDataGridMouseDown"
+                                  PreviewMouseLeftButtonDown="OnDataGridRowMouseDown"
                                   MouseMove="OnMouseMoveDragDrop"
-                                  MouseUp="OnDataGridMouseUp"
+                                  MouseLeftButtonUp="OnDataGridRowMouseUp"
                                   MouseDoubleClick="OnMusicCollectionDataGridDoubleClicked">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Track#" MinWidth="60" Width="Auto" Binding="{Binding Track}"/>
@@ -201,7 +201,7 @@
                                   TextInput="OnCollectionTextInput"
                                   PreviewMouseLeftButtonDown="OnTreeViewMouseDown"
                                   MouseMove="OnMouseMoveDragDrop"
-                                  MouseUp="OnTreeViewMouseUp"
+                                  MouseLeftButtonUp="OnTreeViewMouseUp"
                                   SelectedItemChanged="OnTreeViewSelectionChanged">
                             <TreeView.Resources>
                                 <HierarchicalDataTemplate DataType="{x:Type l:TreeViewNode}" ItemsSource="{Binding Children}">
@@ -232,9 +232,9 @@
                                   SelectionChanged="OnSelectedGenresChanged"
                                   PreviewKeyDown="OnMusicCollectionDataGridKeyDown"
                                   TextInput="OnCollectionTextInput"
-                                  PreviewMouseDown="OnDataGridMouseDown"
+                                  PreviewMouseLeftButtonDown="OnDataGridRowMouseDown"
                                   MouseMove="OnMouseMoveDragDrop"
-                                  MouseUp="OnDataGridMouseUp"
+                                  MouseLeftButtonUp="OnDataGridRowMouseUp"
                                   MouseDoubleClick="OnMusicCollectionDataGridDoubleClicked">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Genre" Width="*" Binding="{Binding}" CanUserResize="True"/>
@@ -256,9 +256,9 @@
                                   SelectionChanged="OnSelectedGenreAlbumsChanged"
                                   PreviewKeyDown="OnMusicCollectionDataGridKeyDown"
                                   TextInput="OnCollectionTextInput"
-                                  PreviewMouseDown="OnDataGridMouseDown"
+                                  PreviewMouseLeftButtonDown="OnDataGridRowMouseDown"
                                   MouseMove="OnMouseMoveDragDrop"
-                                  MouseUp="OnDataGridMouseUp"
+                                  MouseLeftButtonUp="OnDataGridRowMouseUp"
                                   MouseDoubleClick="OnMusicCollectionDataGridDoubleClicked">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Artist" MinWidth="60" Width="Auto" Binding="{Binding Path=Artist}"/>
@@ -280,9 +280,9 @@
                                   ItemsSource="{Binding Path=SongsOnSelectedAlbumsOfSelectedGenres}"
                                   PreviewKeyDown="OnMusicCollectionDataGridKeyDown"
                                   TextInput="OnCollectionTextInput"
-                                  PreviewMouseDown="OnDataGridMouseDown"
+                                  PreviewMouseLeftButtonDown="OnDataGridRowMouseDown"
                                   MouseMove="OnMouseMoveDragDrop"
-                                  MouseUp="OnDataGridMouseUp"
+                                  MouseLeftButtonUp="OnDataGridRowMouseUp"
                                   MouseDoubleClick="OnMusicCollectionDataGridDoubleClicked">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Track#" MinWidth="60" Width="Auto" Binding="{Binding Track}"/>
@@ -308,7 +308,7 @@
                                   TextInput="OnCollectionTextInput"
                                   PreviewMouseLeftButtonDown="OnTreeViewMouseDown"
                                   MouseMove="OnMouseMoveDragDrop"
-                                  MouseUp="OnTreeViewMouseUp"
+                                  MouseLeftButtonUp="OnTreeViewMouseUp"
                                   SelectedItemChanged="OnTreeViewSelectionChanged">
                             <TreeView.Resources>
                                 <HierarchicalDataTemplate DataType="{x:Type l:TreeViewNode}" ItemsSource="{Binding Children}">
@@ -335,7 +335,7 @@
                                   TextInput="OnCollectionTextInput"
                                   PreviewMouseLeftButtonDown="OnTreeViewMouseDown"
                                   MouseMove="OnMouseMoveDragDrop"
-                                  MouseUp="OnTreeViewMouseUp"
+                                  MouseLeftButtonUp="OnTreeViewMouseUp"
                                   SelectedItemChanged="OnTreeViewSelectionChanged">
                             <TreeView.Resources>
                                 <HierarchicalDataTemplate DataType="{x:Type l:TreeViewNode}" ItemsSource="{Binding Children}">
@@ -360,9 +360,9 @@
                                   ItemsSource="{Binding Path=Streams}"
                                   PreviewKeyDown="OnMusicCollectionDataGridKeyDown"
                                   TextInput="OnCollectionTextInput"
-                                  PreviewMouseDown="OnDataGridMouseDown"
+                                  PreviewMouseLeftButtonDown="OnDataGridRowMouseDown"
                                   MouseMove="OnMouseMoveDragDrop"
-                                  MouseUp="OnDataGridMouseUp"
+                                  MouseLeftButtonUp="OnDataGridRowMouseUp"
                                   MouseDoubleClick="OnMusicCollectionDataGridDoubleClicked">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Stream" Width="*" Binding="{Binding Title}"/>
@@ -392,9 +392,9 @@
                                   ItemsSource="{Binding Path=Playlists}"
                                   PreviewKeyDown="OnSavedPlaylistsViewKeyDown"
                                   TextInput="OnCollectionTextInput"
-                                  PreviewMouseDown="OnDataGridMouseDown"
+                                  PreviewMouseLeftButtonDown="OnDataGridRowMouseDown"
                                   MouseMove="OnMouseMoveDragDrop"
-                                  MouseUp="OnDataGridMouseUp"
+                                  MouseLeftButtonUp="OnDataGridRowMouseUp"
                                   MouseDoubleClick="OnSavedPlaylistsViewDoubleClicked">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Playlist" Width="*" Binding="{Binding}"/>
@@ -417,13 +417,13 @@
                       ItemsSource="{Binding Path=Items}"
                       AllowDrop="True"
                       PreviewKeyDown="OnPlaylistViewKeyDown"
-                      MouseDoubleClick="OnPlaylistViewDoubleClicked"
-                      PreviewMouseDown="OnDataGridMouseDown"
+                      PreviewMouseLeftButtonDown="OnDataGridRowMouseDown"
                       MouseMove="OnMouseMoveDragDrop"
+                      MouseLeftButtonUp="OnDataGridRowMouseUp"
+                      MouseDoubleClick="OnPlaylistViewDoubleClicked"
                       DragOver="OnPlaylistViewDragOver"
                       DragLeave="OnPlaylistViewDragLeave"
                       Drop="OnPlaylistViewDrop"
-                      MouseUp="OnDataGridMouseUp"
                       Grid.Column="3">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Title" MinWidth="60" Width="Auto" Binding="{Binding Path=Playable.Title}"/>
@@ -494,7 +494,7 @@
             </Grid>
         </Border>
         <Border Grid.Row="4" BorderBrush="{StaticResource SeparatorBorderBrush}" BorderThickness="0,1,0,0" Grid.ColumnSpan="2">
-            <StatusBar Padding="20, 2, 20, 2" Background="{StaticResource WindowBackgroundBrush}" >
+            <StatusBar Padding="20, 2, 20, 2" Background="{StaticResource WindowBackgroundBrush}">
                 <StatusBarItem HorizontalAlignment="Left">
                     <Label Name="m_PlayStatusMessage" Foreground="{StaticResource PassiveTextBrush}" Content="{Binding Path=PlayStatusDescription}" Padding="5,2"/>
                 </StatusBarItem>
