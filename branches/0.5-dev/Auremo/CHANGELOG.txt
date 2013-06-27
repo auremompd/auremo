@@ -1,6 +1,16 @@
 Version history
 ===============
 
+Auremo 0.5.1
+------------
+
+ * Revise list and tree item selection and dragging behavior.
+ * Make song and stream path handling locale-agnostic.
+ * Shrink minimum window size to 960 x 590 for the further benefit
+   of 720p users.
+ * Released on 27th June 2013.
+
+
 Auremo 0.5.0
 ------------
 
