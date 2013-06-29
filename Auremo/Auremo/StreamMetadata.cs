@@ -69,7 +69,7 @@ namespace Auremo
             if (o is StreamMetadata)
             {
                 StreamMetadata rhs = (StreamMetadata)o;
-                return Path.ToLowerInvariant().CompareTo(rhs.Path.ToLowerInvariant());
+                return StringComparer.Ordinal.Compare(Path, rhs.Path);
             }
             else if (o is SongMetadata)
             {
