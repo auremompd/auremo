@@ -32,7 +32,7 @@ namespace Auremo
         private IDictionary<string, ISet<AlbumMetadata>> m_AlbumsByGenre = new SortedDictionary<string, ISet<AlbumMetadata>>();
         private IDictionary<AlbumMetadata, ISet<string>> m_SongPathsByAlbum = new SortedDictionary<AlbumMetadata, ISet<string>>();
         private IDictionary<SongMetadata, AlbumMetadata> m_AlbumBySong = new SortedDictionary<SongMetadata, AlbumMetadata>();
-        private IDictionary<string, SongMetadata> m_SongInfo = new SortedDictionary<string, SongMetadata>();
+        private IDictionary<string, SongMetadata> m_SongInfo = new SortedDictionary<string, SongMetadata>(StringComparer.Ordinal);
         
         public Database(ServerConnection connection, ServerStatus status)
         {
