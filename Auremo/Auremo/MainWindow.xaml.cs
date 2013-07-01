@@ -1149,9 +1149,7 @@ namespace Auremo
         {
             if (succeeded)
             {
-                StreamMetadata stream = new StreamMetadata();
-                stream.Path = address;
-                stream.Title = name;
+                StreamMetadata stream = new StreamMetadata(address, name);
                 DataModel.StreamsCollection.Add(stream);
             }
         }
