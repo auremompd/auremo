@@ -42,7 +42,7 @@ namespace Auremo
         private TextWindow m_LicenseWindow = null;
         private TextWindow m_AboutWindow = null;
         private DispatcherTimer m_Timer = null;
-        private Object m_DragSource = null;
+        private object m_DragSource = null;
         private IList<object> m_DragDropPayload = null;
         private string m_DragDropData = null;
         private Nullable<Point> m_DragStartPosition = null;
@@ -479,35 +479,6 @@ namespace Auremo
             }
         }
 
-        private void OnDataGridMouseUp(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ChangedButton == MouseButton.Left && Keyboard.Modifiers == ModifierKeys.None)
-            {
-                DataGrid grid = sender as DataGrid;
-
-                if (grid == m_SearchResultsView)
-                {
-                    DataGridCell cell = DataGridCellBeingClicked(grid, e);
-
-                    if (cell != null)
-                    {
-                        grid.SelectedCells.Clear();
-                        cell.IsSelected = true;
-                    }
-                }
-                else
-                {
-                    DataGridRow row = DataGridRowBeingClicked(grid, e);
-
-                    if (row != null)
-                    {
-                        grid.SelectedIndex = -1;
-                        row.IsSelected = true;
-                    }
-                }
-            }
-        }
-
         private void OnMusicCollectionDataGridDoubleClicked(object sender, MouseButtonEventArgs e)
         {
             if (!e.Handled)
@@ -563,46 +534,203 @@ namespace Auremo
 
         #endregion
 
-        #region List drag & drop
+        #region List selection and drag & drop
 
-        private void OnDataGridMouseDown(object sender, MouseButtonEventArgs e)
+        private void OnDataGridRowMouseDown(object sender, MouseButtonEventArgs e)
         {
-            (sender as DataGrid).Focus();
+            DataGrid dataGrid = sender as DataGrid;
+            dataGrid.Focus();
 
-            if (e.ChangedButton != MouseButton.Left ||
-                Keyboard.Modifiers.HasFlag(ModifierKeys.Shift) ||
-                Keyboard.Modifiers.HasFlag(ModifierKeys.Control) ||
-                e.ClickCount > 1)
+            if (e.ClickCount == 1)
             {
-                // Don't mess up multi-select or multiple-click.
-                return;
-            }
+                DataGridRow row = DataGridRowBeingClicked(dataGrid, e);
 
-            DataGrid grid = sender as DataGrid;
-            bool dragStarting = false;
+                if (Keyboard.Modifiers == ModifierKeys.None)
+                {
+                    if (row == null)
+                    {
+                        dataGrid.UnselectAll();
+                        dataGrid.CurrentItem = null;
+                    }
+                    else
+                    {
+                        if (row.IsSelected)
+                        {
+                            e.Handled = true;
+                        }
+                        else
+                        {
+                            dataGrid.UnselectAll();
+                            row.IsSelected = true;
+                        }
 
-            if (sender == m_SearchResultsView)
-            {
-                DataGridCell cell = DataGridCellBeingClicked(grid, e);
-                dragStarting = cell != null && cell.IsSelected;
-            }
-            else
-            {
-                DataGridRow row = DataGridRowBeingClicked(grid, e);
-                dragStarting = row != null && row.IsSelected;
-            }
+                        dataGrid.CurrentItem = row.Item;
+                    }
+                }
+                else if (Keyboard.Modifiers == ModifierKeys.Shift)
+                {
+                    if (row != null)
+                    {
+                        if (dataGrid.CurrentItem == null)
+                        {
+                            dataGrid.UnselectAll();
+                            row.IsSelected = true;
+                            dataGrid.CurrentItem = row.Item;
+                        }
+                        else
+                        {
+                            int startIndex = (dataGrid.ItemContainerGenerator.ContainerFromItem(dataGrid.CurrentItem) as DataGridRow).GetIndex();
+                            int endIndex = row.GetIndex();
+                            dataGrid.UnselectAll();
 
-            if (dragStarting)
-            {
-                m_DragSource = grid;
-                m_DragStartPosition = e.GetPosition(null);
-                // Again, don't mess up multi-select.
-                e.Handled = true;
+                            int minIndex = Math.Min(startIndex, endIndex);
+                            int maxIndex = Math.Max(startIndex, endIndex);
+
+                            for (int i = minIndex; i <= maxIndex; ++i)
+                            {
+                                (dataGrid.ItemContainerGenerator.ContainerFromIndex(i) as DataGridRow).IsSelected = true;
+                            }
+                        }
+                    }
+                }
+                else if (Keyboard.Modifiers == ModifierKeys.Control)
+                {
+                    if (row != null)
+                    {
+                        dataGrid.CurrentItem = row.Item;
+                        row.IsSelected = !row.IsSelected;
+                        e.Handled = true;
+                    }
+                }
+
+                if (row != null && row.IsSelected)
+                {
+                    m_DragSource = dataGrid;
+                    m_DragStartPosition = e.GetPosition(null);
+                }
             }
-            else
+        }
+
+        private void OnDataGridRowMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ClickCount == 1)
             {
+                DataGrid dataGrid = sender as DataGrid;
+                DataGridRow row = DataGridRowBeingClicked(dataGrid, e);
+
+                if (row != null && Keyboard.Modifiers == ModifierKeys.None)
+                {
+                    dataGrid.UnselectAll();
+                    dataGrid.SelectedItem = dataGrid.CurrentItem;
+                }
+
                 m_DragSource = null;
                 m_DragStartPosition = null;
+            }
+        }
+
+        private void OnDataGridCellMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            DataGrid dataGrid = sender as DataGrid;
+            dataGrid.Focus();
+            
+            if (e.ClickCount == 1)
+            {
+                DataGridCell cell = DataGridCellBeingClicked(dataGrid, e);
+
+                if (Keyboard.Modifiers == ModifierKeys.None)
+                {
+                    if (cell == null)
+                    {
+                        dataGrid.UnselectAllCells();
+                        dataGrid.CurrentCell = new DataGridCellInfo();
+                    }
+                    else
+                    {
+                        if (cell.IsSelected)
+                        {
+                            e.Handled = true;
+                        }
+                        else
+                        {
+                            dataGrid.UnselectAllCells();
+                            cell.IsSelected = true;
+                        }
+
+                        dataGrid.CurrentCell = new DataGridCellInfo(cell);
+                        cell.IsSelected = true;
+                    }
+                }
+                else if (Keyboard.Modifiers == ModifierKeys.Shift)
+                {
+                    if (cell != null)
+                    {
+                        if (!dataGrid.CurrentCell.IsValid)
+                        {
+                            dataGrid.UnselectAllCells();
+                            cell.IsSelected = true;
+                            dataGrid.CurrentCell = new DataGridCellInfo(cell);
+                        }
+                        else
+                        {
+                            int startRowIndex = (dataGrid.ItemContainerGenerator.ContainerFromItem(dataGrid.CurrentCell.Item) as DataGridRow).GetIndex();
+                            int endRowIndex = (dataGrid.ItemContainerGenerator.ContainerFromItem(new DataGridCellInfo(cell).Item) as DataGridRow).GetIndex();
+                            int startColumnIndex = dataGrid.CurrentCell.Column.DisplayIndex;
+                            int endColumnIndex = cell.Column.DisplayIndex;
+
+                            dataGrid.UnselectAllCells();
+
+                            int minRowIndex = Math.Min(startRowIndex, endRowIndex);
+                            int maxRowIndex = Math.Max(startRowIndex, endRowIndex);
+                            int minColumnIndex = Math.Min(startColumnIndex, endColumnIndex);
+                            int maxColumnIndex = Math.Max(startColumnIndex, endColumnIndex);
+
+                            for (int y = minRowIndex; y <= maxRowIndex; ++y)
+                            {
+                                DataGridRow row = dataGrid.ItemContainerGenerator.ContainerFromIndex(y) as DataGridRow;
+
+                                for (int x = minColumnIndex; x <= maxColumnIndex; ++x)
+                                {
+                                    (dataGrid.ColumnFromDisplayIndex(x).GetCellContent(row).Parent as DataGridCell).IsSelected = true;
+                                }
+                            }
+                        }
+                    }
+                }
+                else if (Keyboard.Modifiers == ModifierKeys.Control)
+                {
+                    if (cell != null)
+                    {
+                        cell.IsSelected = !cell.IsSelected;
+                    }
+                }
+
+                if (cell != null && cell.IsSelected)
+                {
+                    m_DragSource = dataGrid;
+                    m_DragStartPosition = e.GetPosition(null);
+                }
+
+                e.Handled = cell != null;
+            }
+        }
+
+        private void OnDataGridCellMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ClickCount == 1)
+            {
+                DataGrid dataGrid = sender as DataGrid;
+                DataGridCell cell = DataGridCellBeingClicked(dataGrid, e);
+
+                if (cell != null && Keyboard.Modifiers == ModifierKeys.None)
+                {
+                    dataGrid.UnselectAllCells();
+                    cell.IsSelected = true;
+                }
+
+                m_DragSource = null;
+                m_DragStartPosition = null;
+                e.Handled = cell != null;
             }
         }
 
@@ -906,14 +1034,22 @@ namespace Auremo
 
         #endregion
 
-        #region TreeView handling (browsing, drag & drop)
+        #region TreeView handling (browsing, selection, drag & drop)
 
         private void OnTreeViewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            (sender as TreeView).Focus();
-            TreeViewItem item = TreeViewItemBeingClicked(sender as TreeView, e);
+            TreeView tree = sender as TreeView;
+            TreeViewItem item = TreeViewItemBeingClicked(tree, e);
+            tree.Focus();
 
-            if (item != null && item.Header is TreeViewNode)
+            if (item == null)
+            {
+                if (!TreeViewExpanderBeingClicked(tree, e))
+                {
+                    (tree.Tag as TreeViewController).ClearMultiSelection();
+                }
+            }
+            else if (item.Header is TreeViewNode)
             {
                 TreeViewNode node = item.Header as TreeViewNode;
 
@@ -932,12 +1068,14 @@ namespace Auremo
                         m_DragSource = sender;
                         m_DragStartPosition = e.GetPosition(null);
                     }
-                    else if (e.ClickCount == 2)
+                    else
                     {
                         foreach (SongMetadataTreeViewNode leaf in node.Controller.Songs)
                         {
                             AddSongToPlaylist(leaf.Song);
                         }
+
+                        Update();
                     }
                 }
                 else if (Keyboard.Modifiers == ModifierKeys.Control)
@@ -960,6 +1098,12 @@ namespace Auremo
                     {
                         node.Controller.SelectRange(node);
                     }
+                }
+
+                if (e.ClickCount == 1 && node.IsMultiSelected)
+                {
+                    m_DragSource = sender;
+                    m_DragStartPosition = e.GetPosition(null);
                 }
 
                 e.Handled = true;
@@ -1095,7 +1239,7 @@ namespace Auremo
 
         private void OnSearchBoxEnabledChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            if (m_SearchBox.Focusable)
+            if (m_SearchBox.IsEnabled)
             {
                 m_SearchBox.Focus();
             }
@@ -1327,25 +1471,29 @@ namespace Auremo
 
         private void OnPlaylistViewKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Enter)
+            if (!e.Handled)
             {
-                if (m_PlaylistView.SelectedItems.Count == 1)
+                if (e.Key == Key.Enter)
                 {
-                    object o = m_PlaylistView.SelectedItems[0];
-
-                    if (o is PlaylistItem)
+                    if (m_PlaylistView.SelectedItems.Count == 1)
                     {
-                        PlaylistItem item = o as PlaylistItem;
-                        Protocol.PlayId(DataModel.ServerConnection, item.Id);
-                        Update();
+                        object o = m_PlaylistView.SelectedItems[0];
+
+                        if (o is PlaylistItem)
+                        {
+                            PlaylistItem item = o as PlaylistItem;
+                            Protocol.PlayId(DataModel.ServerConnection, item.Id);
+                            Update();
+                        }
+
+                        e.Handled = true;
                     }
                 }
-
-                e.Handled = true;
-            }
-            else if (e.Key == Key.Delete)
-            {
-                DeleteSelectedItemsFromPlaylist();
+                else if (e.Key == Key.Delete)
+                {
+                    DeleteSelectedItemsFromPlaylist();
+                    e.Handled = true;
+                }
             }
         }
 
@@ -2281,6 +2429,12 @@ namespace Auremo
             }
 
             return null;
+        }
+
+        private bool TreeViewExpanderBeingClicked(TreeView tree, MouseButtonEventArgs e)
+        {
+            HitTestResult hit = VisualTreeHelper.HitTest(tree, e.GetPosition(tree));
+            return hit != null && hit.VisualHit is System.Windows.Shapes.Path;
         }
 
         private IList<object> SearchResultsCellsToObjects()
