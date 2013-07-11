@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO.IsolatedStorage;
 using System.Linq;
 using System.Text;
 using Auremo.Properties;
@@ -42,6 +43,7 @@ namespace Auremo
         #endregion
 
         private IDictionary<string, StreamMetadata> m_StreamsByTitle = new SortedDictionary<string, StreamMetadata>(StringComparer.CurrentCultureIgnoreCase);
+        const string m_Filename = "saved_streams.pls";
 
         public StreamsCollection()
         {
@@ -58,24 +60,52 @@ namespace Auremo
         public void Load()
         {
             m_StreamsByTitle.Clear();
+            IsolatedStorageFile store = IsolatedStorageFile.GetStore(IsolatedStorageScope.User | IsolatedStorageScope.Assembly | IsolatedStorageScope.Domain, null, null);
 
-            if (Settings.Default.KnownStreams.Length > 0)
+            if (store.FileExists(m_Filename))
             {
-                PLSParser parser = new PLSParser();
-                IEnumerable<StreamMetadata> streams = parser.ParseString(Settings.Default.KnownStreams);
+                IsolatedStorageFileStream file = store.OpenFile(m_Filename, System.IO.FileMode.Open);
+                byte[] data = new byte[file.Length];
+                int bytesRead = file.Read(data, 0, data.Length);
 
-                if (streams != null)
+                if (bytesRead == data.Length)
                 {
-                    Add(streams);
+                    PLSParser parser = new PLSParser();
+                    string playlist = System.Text.Encoding.UTF8.GetString(data);
+                    IEnumerable<StreamMetadata> streams = parser.ParseString(playlist);
+
+                    if (streams != null)
+                    {
+                        foreach (StreamMetadata stream in streams)
+                        {
+                            AddWithoutNotification(stream);
+                        }
+
+                        UpdateStreamsView();
+                    }
                 }
             }
+
+            store.Close();
         }
 
         public void Save()
         {
-            string playlist = PlaylistWriter.Write(m_StreamsByTitle.Values);
-            Settings.Default.KnownStreams = playlist == null ? "" : playlist;
-            Settings.Default.Save();
+            IsolatedStorageFile store = IsolatedStorageFile.GetStore(IsolatedStorageScope.User | IsolatedStorageScope.Assembly | IsolatedStorageScope.Domain, null, null);
+
+            if (m_StreamsByTitle.Count > 0)
+            {
+                IsolatedStorageFileStream file = store.OpenFile(m_Filename, System.IO.FileMode.Create);
+                string playlist = PlaylistWriter.Write(m_StreamsByTitle.Values);
+                byte[] data = System.Text.Encoding.UTF8.GetBytes(playlist);
+                file.Write(data, 0, data.Length);
+            }
+            else
+            {
+                store.DeleteFile(m_Filename);
+            }
+
+            store.Close();
         }
 
         public bool Add(StreamMetadata stream)
