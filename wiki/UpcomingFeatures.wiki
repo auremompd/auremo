@@ -7,6 +7,7 @@ The 0.6 version will add new features. The release goals are still being planned
 ==Committed features and fixes==
  
   * Refactor the data model.
+  * Move streams collection to isolated storage so it won't be cleared during version upgrades, etc.
 
 == Bugs ==
 
@@ -16,4 +17,9 @@ The 0.6 version will add new features. The release goals are still being planned
 
 These features will be added before the release.
 
-  * (still being planned)
+  * Make media keys apply even when Auremo is not focused.
+  * Offer alternatives meanings to double-click or pressing Enter besides "add to back on playlist".
+  * Add optional criteria for sorting albums. For example, the user should be able to choose alphabetical, chronological or filesystem ordering.
+  * Add proper support for album date parsing, particularly support for formats other that YYYY.
+  * Improve saved playlist interface.
+  * Add settings for hiding individual music collection tabs.
