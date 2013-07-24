@@ -126,7 +126,7 @@ namespace Auremo
             PlaylistItem itemToMarkCurrent = null;
 
             if (m_DataModel.ServerStatus.OK && 
-                (m_DataModel.ServerStatus.IsPaused.Value || m_DataModel.ServerStatus.IsPlaying.Value) &&
+                (m_DataModel.ServerStatus.IsPaused || m_DataModel.ServerStatus.IsPlaying) &&
                 m_DataModel.ServerStatus.CurrentSongIndex >= 0 &&
                 m_DataModel.ServerStatus.CurrentSongIndex < Items.Count)
             {
@@ -152,13 +152,13 @@ namespace Auremo
             {
                 PlayStatusDescription = "";
             }
-            else if (m_ItemMarkedAsCurrent == null || m_DataModel.ServerStatus.IsStopped.Value)
+            else if (m_ItemMarkedAsCurrent == null || m_DataModel.ServerStatus.IsStopped)
             {
                 PlayStatusDescription = "Stopped.";
             }
             else
             {
-                string status = m_DataModel.ServerStatus.IsPlaying.Value ? "Playing " : "Paused - ";
+                string status = m_DataModel.ServerStatus.IsPlaying ? "Playing " : "Paused - ";
 
                 if (m_ItemMarkedAsCurrent.Playable is SongMetadata)
                 {
@@ -177,7 +177,7 @@ namespace Auremo
                 else
                 {
                     status =
-                         (m_DataModel.ServerStatus.IsPlaying.Value ? "Playing " : "Paused - ") +
+                         (m_DataModel.ServerStatus.IsPlaying ? "Playing " : "Paused - ") +
                           m_ItemMarkedAsCurrent.Playable.Title + ".";
                 }
 

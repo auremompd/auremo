@@ -465,34 +465,34 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Name="m_BackButton" Style="{StaticResource PlaybackButtonStyle}" VerticalAlignment="Center" Click="OnBackButtonClicked">
+                    <Button Name="m_BackButton" Style="{StaticResource PlaybackButtonStyle}" Click="OnBackButtonClicked">
                         <Path Data="M 0,0 1,0 1,4 2,4 6,0 6,4 7,4 11,0 11,9 7,5 6,5 6,9 2,5 1,5 1,9 0,9" StrokeThickness="0" Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Button}, Path=Foreground}" Stretch="None"/>
                     </Button>
-                    <Button Name="m_PlayButton" Style="{StaticResource PlaybackButtonStyle}" VerticalAlignment="Center" Click="OnPlayButtonClicked">
-                        <Path Data="M 0,0 7,5 0,10" StrokeThickness="0" Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Button}, Path=Foreground}" Stretch="None"/>
-                    </Button>
-                    <Button Name="m_PauseButton" Style="{StaticResource PlaybackButtonStyle}" VerticalAlignment="Center" Click="OnPauseButtonClicked">
-                        <Path Data="M 0,0 3,0 3,9 0,9 M 5,0 8,0 8,9 5,9" StrokeThickness="0" Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Button}, Path=Foreground}" Stretch="None"/>
-                    </Button>
-                    <Button Name="m_StopButton" Style="{StaticResource PlaybackButtonStyle}" VerticalAlignment="Center" Click="OnStopButtonClicked">
-                        <Path Data="M 0,0 6,0 6,7 0,7" StrokeThickness="0" Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Button}, Path=Foreground}" Stretch="None"/>
-                    </Button>
-                    <Button Name="m_SkipButton" Style="{StaticResource PlaybackButtonStyle}" VerticalAlignment="Center" Click="OnSkipButtonClicked">
+                    <l:StickyButton x:Name="m_PlayButton" Style="{StaticResource PlaybackStickyButtonStyle}" IsDown="{Binding Path=ServerStatus.IsPlaying}" Click="OnPlayButtonClicked">
+                        <Path Data="M 0,0 7,5 0,10" StrokeThickness="0" Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=l:StickyButton}, Path=Foreground}" Stretch="None"/>
+                    </l:StickyButton>
+                    <l:StickyButton x:Name="m_PauseButton" Style="{StaticResource PlaybackStickyButtonStyle}" IsDown="{Binding Path=ServerStatus.IsPaused}" Click="OnPauseButtonClicked">
+                        <Path Data="M 0,0 3,0 3,9 0,9 M 5,0 8,0 8,9 5,9" Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=l:StickyButton}, Path=Foreground}" Stretch="None"/>
+                    </l:StickyButton>
+                    <l:StickyButton x:Name="m_StopButton" Style="{StaticResource PlaybackStickyButtonStyle}" IsDown="{Binding Path=ServerStatus.IsStopped}" Click="OnStopButtonClicked">
+                        <Path Data="M 0,0 6,0 6,7 0,7" StrokeThickness="0" Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=l:StickyButton}, Path=Foreground}" Stretch="None"/>
+                    </l:StickyButton>
+                    <Button Name="m_SkipButton" Style="{StaticResource PlaybackButtonStyle}" Click="OnSkipButtonClicked">
                         <Path Data="M 0,0 4,4 5,4 5,0 9,4 10,4 10,0 11,0 11,9 10,9 10,5 9,5 5,9 5,5 4,5 0,9" StrokeThickness="0" Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Button}, Path=Foreground}" Stretch="None"/>
                     </Button>
                 </StackPanel>
                 <!-- The volume slider cannot use straight property bindings, just like the seek bar. -->
                 <Slider Name="m_VolumeControl" Style="{StaticResource MusicSliderStyle}" Grid.Column="1" Width="200" Minimum="0" Maximum="100" TickFrequency="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="10,0" ValueChanged="OnVolumeSliderDragged" MouseWheel="OnVolumeMouseWheel"/>
                 <StackPanel Grid.Column="2" Orientation="Horizontal">
-                    <Button Name="m_RepeatButton" Style="{StaticResource PlaybackButtonStyle}" FontSize="10" DockPanel.Dock="Right" VerticalAlignment="Center" Click="OnToggleRepeatClicked">
-                        <Path Margin="0,1,0,0" Data="M 8,12 11,9 11,15 M 11,13 Q 17,13 17,9 L 17,6 Q 17,0 10,0 L 7,0 Q 0,0 0,6 L 0,9 Q 0,13 6,13 L 6,11 Q 2,11 2,9 L 2,6 Q 2,2 7,2 L 10,2 Q 15,2 15,6 L 15,9 Q 15,11 11,11" StrokeThickness="0" Stroke="Transparent" Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Button}, Path=Foreground}"/>
-                    </Button>
-                    <Button Name="m_RandomButton" Style="{StaticResource PlaybackButtonStyle}" DockPanel.Dock="Right" VerticalAlignment="Center" Click="OnToggleRandomClicked">
+                    <l:StickyButton x:Name="m_RepeatButton" Style="{StaticResource PlaybackStickyButtonStyle}" IsDown="{Binding Path=ServerStatus.IsOnRepeat}" Click="OnToggleRepeatClicked">
+                        <Path Margin="0,1,0,0" Data="M 8,12 11,9 11,15 M 11,13 Q 17,13 17,9 L 17,6 Q 17,0 10,0 L 7,0 Q 0,0 0,6 L 0,9 Q 0,13 6,13 L 6,11 Q 2,11 2,9 L 2,6 Q 2,2 7,2 L 10,2 Q 15,2 15,6 L 15,9 Q 15,11 11,11" StrokeThickness="0" Stroke="Transparent" Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=l:StickyButton}, Path=Foreground}"/>
+                    </l:StickyButton>
+                    <l:StickyButton x:Name="m_RandomButton" Style="{StaticResource PlaybackStickyButtonStyle}" IsDown="{Binding Path=ServerStatus.IsOnRandom}" Click="OnToggleRandomClicked">
                         <Grid>
-                            <Path Data="M 17,3 14,0 14,6 M 14,2 C 10,2 9,9 4,11 L 0,11 0,13 3,13 C 8,13 11,4 14,4" StrokeThickness="0" Stroke="Transparent" Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Button}, Path=Foreground}"/>
-                            <Path Data="M 17,12 14,15 14,9 M 14,13 C 10,13 9,6 4,4 L 0,4 0,2 3,2 C 8,2 11,11 14,11" StrokeThickness="0" Stroke="Transparent" Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Button}, Path=Foreground}"/>
+                            <Path Data="M 17,3 14,0 14,6 M 14,2 C 10,2 9,9 4,11 L 0,11 0,13 3,13 C 8,13 11,4 14,4" StrokeThickness="0" Stroke="Transparent" Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=l:StickyButton}, Path=Foreground}"/>
+                            <Path Data="M 17,12 14,15 14,9 M 14,13 C 10,13 9,6 4,4 L 0,4 0,2 3,2 C 8,2 11,11 14,11" StrokeThickness="0" Stroke="Transparent" Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=l:StickyButton}, Path=Foreground}"/>
                         </Grid>
-                    </Button>
+                    </l:StickyButton>
                 </StackPanel>
             </Grid>
         </Border>

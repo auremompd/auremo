@@ -47,11 +47,6 @@ namespace Auremo
         private int m_SongLength = 0;
         private string m_State = "";
         private int m_DatabaseUpdateTime = 0;
-        private NestedProperty<bool> m_IsPlaying = new NestedProperty<bool>(false);
-        private NestedProperty<bool> m_IsPaused = new NestedProperty<bool>(false);
-        private NestedProperty<bool> m_IsStopped = new NestedProperty<bool>(false);
-        private NestedProperty<bool> m_IsOnRandom = new NestedProperty<bool>(false);
-        private NestedProperty<bool> m_IsOnRepeat = new NestedProperty<bool>(false);
 
         public ServerStatus()
         {
@@ -142,11 +137,11 @@ namespace Auremo
                     }
                     else if (line.Name == "random")
                     {
-                        m_IsOnRandom.Value = line.Value == "1";
+                        IsOnRandom = line.Value == "1";
                     }
                     else if (line.Name == "repeat")
                     {
-                        m_IsOnRepeat.Value = line.Value == "1";
+                        IsOnRepeat = line.Value == "1";
                     }
                 }
 
@@ -216,51 +211,96 @@ namespace Auremo
                 if (m_State != value)
                 {
                     m_State = value;
-                    IsPlaying.Value = m_State == "play";
-                    IsPaused.Value = m_State == "pause";
-                    IsStopped.Value = m_State == "stop";
+                    IsPlaying = m_State == "play";
+                    IsPaused = m_State == "pause";
+                    IsStopped = m_State == "stop";
                     NotifyPropertyChanged("State");
                 }
             }
         }
 
-        public NestedProperty<bool> IsPlaying
+        bool m_IsPlaying = false;
+        public bool IsPlaying
         {
             get
             {
                 return m_IsPlaying;
             }
+            private set
+            {
+                if (value != m_IsPlaying)
+                {
+                    m_IsPlaying = value;
+                    NotifyPropertyChanged("IsPlaying");
+                }
+            }
         }
 
-        public NestedProperty<bool> IsPaused
+        bool m_IsPaused = false;
+        public bool IsPaused
         {
             get
             {
                 return m_IsPaused;
             }
+            private set
+            {
+                if (value != m_IsPaused)
+                {
+                    m_IsPaused = value;
+                    NotifyPropertyChanged("IsPaused");
+                }
+            }
         }
 
-        public NestedProperty<bool> IsStopped
+        bool m_IsStopped = false;
+        public bool IsStopped
         {
             get
             {
                 return m_IsStopped;
             }
+            private set
+            {
+                if (value != m_IsStopped)
+                {
+                    m_IsStopped = value;
+                    NotifyPropertyChanged("IsStopped");
+                }
+            }
         }
 
-        public NestedProperty<bool> IsOnRepeat
+        bool m_IsOnRepeat = false;
+        public bool IsOnRepeat
         {
             get
             {
                 return m_IsOnRepeat;
             }
+            private set
+            {
+                if (value != m_IsOnRepeat)
+                {
+                    m_IsOnRepeat = value;
+                    NotifyPropertyChanged("IsOnRepeat");
+                }
+            }
         }
 
-        public NestedProperty<bool> IsOnRandom
+        bool m_IsOnRandom = false;
+        public bool IsOnRandom
         {
             get
             {
                 return m_IsOnRandom;
+            }
+            private set
+            {
+                if (value != m_IsOnRandom)
+                {
+                    m_IsOnRandom = value;
+                    NotifyPropertyChanged("IsOnRandom");
+                }
             }
         }
 
@@ -368,11 +408,11 @@ namespace Auremo
             CurrentSongIndex = -1;
             PlayPosition = 0;
             SongLength = 0;
-            IsPlaying.Value = false;
-            IsPaused.Value = false;
-            IsStopped.Value = false;
-            IsOnRandom.Value = false;
-            IsOnRepeat.Value = false;
+            IsPlaying = false;
+            IsPaused = false;
+            IsStopped = false;
+            IsOnRandom = false;
+            IsOnRepeat = false;
             State = "";
             DatabaseUpdateTime = 0;
         }

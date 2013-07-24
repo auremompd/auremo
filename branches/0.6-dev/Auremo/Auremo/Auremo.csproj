@@ -129,7 +129,6 @@
     <Compile Include="IntToBoolConverter.cs" />
     <Compile Include="M3UParser.cs" />
     <Compile Include="NegateBoolConverter.cs" />
-    <Compile Include="NestedProperty.cs" />
     <Compile Include="Output.cs" />
     <Compile Include="OutputCollection.cs" />
     <Compile Include="Playable.cs" />
@@ -147,6 +146,7 @@
     <Compile Include="SongMetadata.cs" />
     <Compile Include="SongMetadataTreeViewNode.cs" />
     <Compile Include="PLSParser.cs" />
+    <Compile Include="StickyButton.cs" />
     <Compile Include="StreamMetadata.cs" />
     <Compile Include="StreamsCollection.cs" />
     <Compile Include="TextWindow.xaml.cs">

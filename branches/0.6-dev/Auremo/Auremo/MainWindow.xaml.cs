@@ -1978,12 +1978,12 @@ namespace Auremo
 
         private void OnToggleRandomClicked(object sender, RoutedEventArgs e)
         {
-            Protocol.Random(DataModel.ServerConnection, !DataModel.ServerStatus.IsOnRandom.Value);
+            Protocol.Random(DataModel.ServerConnection, !DataModel.ServerStatus.IsOnRandom);
         }
 
         private void OnToggleRepeatClicked(object sender, RoutedEventArgs e)
         {
-            Protocol.Repeat(DataModel.ServerConnection, !DataModel.ServerStatus.IsOnRepeat.Value);
+            Protocol.Repeat(DataModel.ServerConnection, !DataModel.ServerStatus.IsOnRepeat);
         }
 
         #endregion
@@ -2012,7 +2012,7 @@ namespace Auremo
         {
             if (DataModel.ServerStatus != null && DataModel.ServerStatus.OK)
             {
-                if (DataModel.ServerStatus.IsPlaying.Value)
+                if (DataModel.ServerStatus.IsPlaying)
                 {
                     Protocol.Pause(DataModel.ServerConnection);
                 }
