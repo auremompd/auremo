@@ -1979,11 +1979,13 @@ namespace Auremo
         private void OnToggleRandomClicked(object sender, RoutedEventArgs e)
         {
             Protocol.Random(DataModel.ServerConnection, !DataModel.ServerStatus.IsOnRandom);
+            Update();
         }
 
         private void OnToggleRepeatClicked(object sender, RoutedEventArgs e)
         {
             Protocol.Repeat(DataModel.ServerConnection, !DataModel.ServerStatus.IsOnRepeat);
+            Update();
         }
 
         #endregion
