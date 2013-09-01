@@ -26,10 +26,5 @@ namespace Auremo
         {
             get;
         }
-
-        int? Year
-        {
-            get;
-        }
     }
 }

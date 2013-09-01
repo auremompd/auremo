@@ -117,12 +117,16 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AlbumByTitleComparer.cs" />
     <Compile Include="AlbumMetadataTreeViewNode.cs" />
     <Compile Include="ArtistTreeViewNode.cs" />
     <Compile Include="CollectionSearch.cs" />
     <Compile Include="Crypto.cs" />
     <Compile Include="DatabaseView.cs" />
     <Compile Include="DataModel.cs" />
+    <Compile Include="AlbumByDateComparer.cs" />
+    <Compile Include="DateNormalizer.cs" />
+    <Compile Include="DateTemplate.cs" />
     <Compile Include="DirectoryTreeViewNode.cs" />
     <Compile Include="EqualsConverter.cs" />
     <Compile Include="GenreTreeViewNode.cs" />
