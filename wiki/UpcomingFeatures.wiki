@@ -24,3 +24,5 @@ These features will be added before the release.
   * Add proper support for album date parsing, particularly support for formats other that YYYY.
   * Improve saved playlist interface.
   * Add settings for hiding individual music collection tabs.
+  * Add version number to about window.
+  * Add audio quality info to status bar.
