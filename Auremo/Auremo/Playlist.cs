@@ -167,9 +167,14 @@ namespace Auremo
                           m_ItemMarkedAsCurrent.Playable.Title + " (" +
                           m_ItemMarkedAsCurrent.Playable.Album;
 
-                    if (m_ItemMarkedAsCurrent.Playable.Year.HasValue)
+                    if (m_ItemMarkedAsCurrent.Playable is SongMetadata)
                     {
-                        status += ", " + m_ItemMarkedAsCurrent.Playable.Year.Value;
+                        SongMetadata song = (SongMetadata)m_ItemMarkedAsCurrent.Playable;
+
+                        if (song.Year != null)
+                        {
+                            status += ", " + song.Year;
+                        }
                     }
 
                     status += ").";

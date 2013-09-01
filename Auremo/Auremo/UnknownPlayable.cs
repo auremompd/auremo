@@ -54,13 +54,5 @@ namespace Auremo
                 return null;
             }
         }
-
-        public int? Year
-        {
-            get
-            {
-                return null;
-            }
-        }
     }
 }
