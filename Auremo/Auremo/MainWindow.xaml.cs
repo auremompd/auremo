@@ -40,7 +40,7 @@ namespace Auremo
     {
         private SettingsWindow m_SettingsWindow = null;
         private TextWindow m_LicenseWindow = null;
-        private TextWindow m_AboutWindow = null;
+        private AboutWindow m_AboutWindow = null;
         private DispatcherTimer m_Timer = null;
         private object m_DragSource = null;
         private IList<object> m_DragDropPayload = null;
@@ -2297,8 +2297,7 @@ namespace Auremo
                 Stream stream = assembly.GetManifestResourceStream("Auremo.Text.AUTHORS.txt");
                 StreamReader reader = new StreamReader(stream, Encoding.UTF8);
                 string about = reader.ReadToEnd();
-
-                m_AboutWindow = new TextWindow("About - Auremo MPD Client", about, this);
+                m_AboutWindow = new AboutWindow(this);
             }
             else
             {

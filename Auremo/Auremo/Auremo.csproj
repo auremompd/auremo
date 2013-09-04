@@ -117,6 +117,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AboutWindow.xaml.cs">
+      <DependentUpon>AboutWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="AlbumByTitleComparer.cs" />
     <Compile Include="AlbumMetadataTreeViewNode.cs" />
     <Compile Include="ArtistTreeViewNode.cs" />
@@ -160,6 +163,10 @@
     <Compile Include="TreeViewNode.cs" />
     <Compile Include="UnknownPlayable.cs" />
     <Compile Include="Utils.cs" />
+    <Page Include="AboutWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -310,14 +317,15 @@
     <Resource Include="Graphics\Auremo_icon_48.png" />
     <Resource Include="Graphics\Auremo_icon_64.png" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Resources\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Resource Include="Graphics\Auremo_icon.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Graphics\Auremo.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icon48.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
