@@ -9,8 +9,8 @@ The 0.6 version will add new features. The release goals are still being planned
   * Move streams collection to isolated storage so it won't be cleared during version upgrades, etc.
   * Refactor the data model.
   * Clean up the button glow implementation.
-  * Add an option for sorting albums alphabetically or chronologically. (Not accessible in the GUI yet.)
-  * Add support for date formats other than YYYY.
+  * Add an option for sorting albums alphabetically or chronologically.
+  * Add support for date formats other than YYYY. (Not accessible in the GUI yet.)
   * Add a new About window with the current version number included.
 
 == Bugs ==
