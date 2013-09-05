@@ -122,6 +122,7 @@
     </Compile>
     <Compile Include="AlbumByTitleComparer.cs" />
     <Compile Include="AlbumMetadataTreeViewNode.cs" />
+    <Compile Include="AlbumSortingMode.cs" />
     <Compile Include="ArtistTreeViewNode.cs" />
     <Compile Include="CollectionSearch.cs" />
     <Compile Include="Crypto.cs" />
