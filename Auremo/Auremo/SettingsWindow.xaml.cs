@@ -94,33 +94,37 @@ namespace Auremo
             m_PortEntry.Text = Settings.Default.Port.ToString();
             m_PasswordEntry.Password = Crypto.DecryptPassword(Settings.Default.Password);
             m_UpdateIntervalEntry.Text = Settings.Default.ViewUpdateInterval.ToString();
-            m_EnableVolumeControl.IsChecked = Settings.Default.EnableVolumeControl;
             m_WheelVolumeStepEntry.Text = Settings.Default.VolumeAdjustmentStep.ToString();
             m_WheelSongPositioningModeIsPercent.IsChecked = Settings.Default.MouseWheelAdjustsSongPositionInPercent;
             m_WheelSongPositioningModeIsSeconds.IsChecked = !m_WheelSongPositioningModeIsPercent.IsChecked;
             m_WheelSongPositioningPercentEntry.Text = Settings.Default.MouseWheelAdjustsSongPositionPercentBy.ToString();
             m_WheelSongPositioningSecondsEntry.Text = Settings.Default.MouseWheelAdjustsSongPositionSecondsBy.ToString();
+            m_SortAlbumsByDate.IsChecked = Settings.Default.AlbumSortingMode == AlbumSortingMode.ByDate.ToString();
+            m_EnableVolumeControl.IsChecked = Settings.Default.EnableVolumeControl;
         }
 
         private void SaveSettings()
         {
             int port = Utils.StringToInt(m_PortEntry.Text, 6600);
             string password = Crypto.EncryptPassword(m_PasswordEntry.Password);
+            AlbumSortingMode albumSortingMode = m_SortAlbumsByDate.IsChecked.Value ? AlbumSortingMode.ByDate : AlbumSortingMode.ByName;
 
             bool reconnectNeeded =
                 m_ServerEntry.Text != Settings.Default.Server ||
                 port != Settings.Default.Port ||
-                password != Settings.Default.Password;
+                password != Settings.Default.Password ||
+                albumSortingMode.ToString() != Settings.Default.AlbumSortingMode;
 
             Settings.Default.Server = m_ServerEntry.Text;
             Settings.Default.Port = port;
             Settings.Default.Password = password;
             Settings.Default.ViewUpdateInterval = Utils.StringToInt(m_UpdateIntervalEntry.Text, 500);
-            Settings.Default.EnableVolumeControl = m_EnableVolumeControl.IsChecked == null || m_EnableVolumeControl.IsChecked.Value;
             Settings.Default.VolumeAdjustmentStep = Utils.StringToInt(m_WheelVolumeStepEntry.Text, 5);
             Settings.Default.MouseWheelAdjustsSongPositionInPercent = m_WheelSongPositioningModeIsPercent.IsChecked.Value;
             Settings.Default.MouseWheelAdjustsSongPositionPercentBy = Utils.StringToInt(m_WheelSongPositioningPercentEntry.Text, 5);
             Settings.Default.MouseWheelAdjustsSongPositionSecondsBy = Utils.StringToInt(m_WheelSongPositioningSecondsEntry.Text, 5);
+            Settings.Default.AlbumSortingMode = albumSortingMode.ToString();
+            Settings.Default.EnableVolumeControl = m_EnableVolumeControl.IsChecked == null || m_EnableVolumeControl.IsChecked.Value;
 
             Settings.Default.InitialSetupDone = true;
 

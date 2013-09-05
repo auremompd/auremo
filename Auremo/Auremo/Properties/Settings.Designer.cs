@@ -157,7 +157,7 @@ namespace Auremo.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Chronological")]
+        [global::System.Configuration.DefaultSettingValueAttribute("ByDate")]
         public string AlbumSortingMode {
             get {
                 return ((string)(this["AlbumSortingMode"]));

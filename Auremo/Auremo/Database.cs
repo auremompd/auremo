@@ -181,7 +181,7 @@ namespace Auremo
 
             m_DateNormalizer = new DateNormalizer(formatList);
 
-            if (Settings.Default.AlbumSortingMode == "Chronological")
+            if (Settings.Default.AlbumSortingMode == AlbumSortingMode.ByDate.ToString())
             {
                 m_AlbumSortRule = new AlbumByDateComparer();
             }
