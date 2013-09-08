@@ -103,14 +103,7 @@ namespace Auremo
         {
             get
             {
-                if (Date == null)
-                {
-                    return null;
-                }
-                else
-                {
-                    return Date.Substring(0, 4);
-                }
+                return Utils.ExtractYearFromDateString(Date);
             }
         }
 

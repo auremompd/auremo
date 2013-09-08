@@ -29,10 +29,11 @@ namespace Auremo
             Title = "Unknown Album";
         }
 
-        public AlbumMetadata(string artist, string albumTitle)
+        public AlbumMetadata(string artist, string albumTitle, string date)
         {
             Artist = artist;
             Title = albumTitle;
+            Date = date;
         }
 
         public string Artist
@@ -51,6 +52,14 @@ namespace Auremo
         {
             get;
             set;
+        }
+
+        public string Year
+        {
+            get
+            {
+                return Utils.ExtractYearFromDateString(Date);
+            }
         }
 
         public override string ToString()
