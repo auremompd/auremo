@@ -118,5 +118,17 @@ namespace Auremo
 
             return result;
         }
+
+        public static string ExtractYearFromDateString(string date)
+        {
+            if (date == null)
+            {
+                return null;
+            }
+            else
+            {
+                return date.Substring(0, 4);
+            }
+        }
     }
 }

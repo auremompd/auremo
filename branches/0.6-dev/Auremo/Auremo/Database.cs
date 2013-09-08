@@ -20,7 +20,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -324,7 +323,7 @@ namespace Auremo
             {
                 // Note that we are now making copies of all album metadata. We
                 // could reference the metadata in m_AlbumsByArtist instead.
-                AlbumMetadata album = new AlbumMetadata(song.Artist, song.Album);
+                AlbumMetadata album = new AlbumMetadata(song.Artist, song.Album, song.Date);
 
                 if (!m_SongPathsByAlbum.ContainsKey(album))
                 {
