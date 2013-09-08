@@ -1,7 +1,7 @@
 ﻿<Window x:Class="Auremo.SettingsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Settings - Auremo" Width="700" Height="415"
+        Title="Settings - Auremo" Width="640" Height="460"
         ResizeMode="NoResize"
         Background="{StaticResource WindowBackgroundBrush}"
         Closing="OnClose">
@@ -52,12 +52,21 @@
                 <Label Content="seconds (0 - 1800)" Style="{StaticResource OptionLabelStyle}" IsEnabled="{Binding ElementName=m_WheelSongPositioningModeIsSeconds,Path=IsChecked}"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Height="30">
-                <Label Content="Sort albums by an artist by" Style="{StaticResource OptionLabelStyle}" Width="350"/>
+                <CheckBox Name="m_EnableVolumeControl" Content="Enable volume control" IsChecked="True" VerticalAlignment="Center" Style="{StaticResource OptionCheckBoxStyle}" Margin="4,6,0,8"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Height="30">
+                <Label Content="Sort albums by an artist by" Style="{StaticResource OptionLabelStyle}" Width="349"/>
                 <RadioButton Name="m_SortAlbumsByDate" Content="Date, then name" IsChecked="True" GroupName="AlbumSortMode" VerticalAlignment="Center" Margin="0,0,20,0"/>
                 <RadioButton Name="m_SortAlbumsByName" Content="Name only" IsChecked="False" GroupName="AlbumSortMode" VerticalAlignment="Center"/>
             </StackPanel>
-            <StackPanel Orientation="Horizontal" Height="30">
-                <CheckBox Name="m_EnableVolumeControl" Content="Enable volume control" IsChecked="True" VerticalAlignment="Center" Style="{StaticResource OptionCheckBoxStyle}" Margin="4,6,0,8"/>
+            <StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Style="{StaticResource OptionTextBlockStyle}" Width="345" Height="45">
+                        Date formats in the music collection, separated by semicolons.<LineBreak/>
+                        Y = year, M = month, D = day, N = arbitrary number.
+                    </TextBlock>
+                    <TextBox Name="m_DateFormatsEntry" Text="YYYY;YYYY.N;YYYY.NN" Style="{StaticResource OptionTextBoxStyle}" Width="250" VerticalAlignment="Top" Margin="0,5,0,7"/>
+                </StackPanel>
             </StackPanel>
         </StackPanel>
         <Border Grid.Row="2" BorderBrush="{StaticResource SeparatorBorderBrush}" BorderThickness="0,1,0,0" Margin="0,5,0,0">
@@ -65,7 +74,6 @@
                 <Button Name="m_CancelButton" Style="{StaticResource ActionButtonStyle}" Content="Cancel" Width="90" Margin="4" DockPanel.Dock="Right" Click="OnCancelClicked"/>
                 <Button Name="m_RevertButton" Style="{StaticResource ActionButtonStyle}" Content="Revert" Width="90" Margin="4" DockPanel.Dock="Right" Click="OnRevertClicked"/>
                 <Button Name="m_ApplyButton" Style="{StaticResource ActionButtonStyle}" Content="Apply" Width="90" Margin="4" DockPanel.Dock="Right" Click="OnApplyClicked"/>
-
                 <Button Name="m_OKButton" Style="{StaticResource ActionButtonStyle}" Content="OK" Width="90" Margin="4" DockPanel.Dock="Right" Click="OnOKClicked"/>
             </DockPanel>
         </Border>

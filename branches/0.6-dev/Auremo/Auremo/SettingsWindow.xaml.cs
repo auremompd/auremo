@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -35,6 +36,7 @@ namespace Auremo
     public partial class SettingsWindow : Window
     {
         MainWindow m_Parent = null;
+        const char m_StringCollectionSeparator = ';';
 
         public SettingsWindow(MainWindow parent)
         {
@@ -101,6 +103,20 @@ namespace Auremo
             m_WheelSongPositioningSecondsEntry.Text = Settings.Default.MouseWheelAdjustsSongPositionSecondsBy.ToString();
             m_SortAlbumsByDate.IsChecked = Settings.Default.AlbumSortingMode == AlbumSortingMode.ByDate.ToString();
             m_EnableVolumeControl.IsChecked = Settings.Default.EnableVolumeControl;
+
+            string formats = "";
+
+            foreach (string s in Settings.Default.AlbumDateFormats)
+            {
+                if (formats.Length > 0)
+                {
+                    formats += ";";
+                }
+
+                formats += s;
+            }
+
+            m_DateFormatsEntry.Text = formats;
         }
 
         private void SaveSettings()
@@ -113,7 +129,8 @@ namespace Auremo
                 m_ServerEntry.Text != Settings.Default.Server ||
                 port != Settings.Default.Port ||
                 password != Settings.Default.Password ||
-                albumSortingMode.ToString() != Settings.Default.AlbumSortingMode;
+                albumSortingMode.ToString() != Settings.Default.AlbumSortingMode ||
+                m_DateFormatsEntry.Text != StringCollectionAsString(Settings.Default.AlbumDateFormats);
 
             Settings.Default.Server = m_ServerEntry.Text;
             Settings.Default.Port = port;
@@ -125,12 +142,43 @@ namespace Auremo
             Settings.Default.MouseWheelAdjustsSongPositionSecondsBy = Utils.StringToInt(m_WheelSongPositioningSecondsEntry.Text, 5);
             Settings.Default.AlbumSortingMode = albumSortingMode.ToString();
             Settings.Default.EnableVolumeControl = m_EnableVolumeControl.IsChecked == null || m_EnableVolumeControl.IsChecked.Value;
+            Settings.Default.AlbumDateFormats = StringAsStringCollection(m_DateFormatsEntry.Text);
 
             Settings.Default.InitialSetupDone = true;
 
             Settings.Default.Save();
 
             m_Parent.SettingsChanged(reconnectNeeded);
+        }
+
+        private string StringCollectionAsString(StringCollection strings)
+        {
+            string result = "";
+
+            foreach (string str in strings)
+            {
+                if (result.Length > 0)
+                {
+                    result += m_StringCollectionSeparator;
+                }
+
+                result += str;
+            }
+
+            return result;
+        }
+
+        private StringCollection StringAsStringCollection(string mergedString)
+        {
+            StringCollection result = new StringCollection();
+            string[] parts = mergedString.Split(m_StringCollectionSeparator);
+
+            foreach (string part in parts)
+            {
+                result.Add(part);
+            }
+
+            return result;
         }
 
         private void OnClose(object sender, System.ComponentModel.CancelEventArgs e)
