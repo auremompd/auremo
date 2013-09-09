@@ -284,9 +284,9 @@ namespace Auremo
                 {
                     IDictionary<string, string> titleAndDate = artistTitleAndDate[song.Artist];
                     string existingDate = null;
-                    bool exists = titleAndDate.TryGetValue(song.Album, out existingDate);
+                    titleAndDate.TryGetValue(song.Album, out existingDate);
 
-                    if (!exists || existingDate.CompareTo(song.Date) < 0)
+                    if (existingDate == null || song.Date != null && existingDate.CompareTo(song.Date) < 0)
                     {
                         titleAndDate[song.Album] = song.Date;
                     }
