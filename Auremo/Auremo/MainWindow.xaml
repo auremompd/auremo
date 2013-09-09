@@ -497,12 +497,18 @@
             </Grid>
         </Border>
         <Border Grid.Row="4" BorderBrush="{StaticResource SeparatorBorderBrush}" BorderThickness="0,1,0,0" Grid.ColumnSpan="2">
-            <StatusBar Padding="20, 2, 20, 2" Background="{StaticResource WindowBackgroundBrush}">
+            <StatusBar Padding="20, 0" Background="{StaticResource WindowBackgroundBrush}" Height="50">
                 <StatusBarItem HorizontalAlignment="Left">
-                    <Label Name="m_PlayStatusMessage" Foreground="{StaticResource PassiveTextBrush}" Content="{Binding Path=Playlist.PlayStatusDescription}" Padding="5,2"/>
+                    <StackPanel>
+                        <Label Foreground="{StaticResource PassiveTextBrush}" Content="{Binding Path=Playlist.PlayStatusDescription}" Padding="5,2"/>
+                        <Label Foreground="{StaticResource PassiveTextBrush}" Content="{Binding Path=ServerStatus.AudioQuality}" Padding="5,2"/>
+                    </StackPanel>
                 </StatusBarItem>
-                <StatusBarItem Name="m_ConnectionStatusDescription" HorizontalAlignment="Right">
-                    <Label Foreground="{StaticResource PassiveTextBrush}" Content="{Binding Path=ServerConnection.StatusDescription}" Padding="5,2"/>
+                <StatusBarItem HorizontalAlignment="Right">
+                    <StackPanel>
+                        <Label Foreground="{StaticResource PassiveTextBrush}" Content="{Binding Path=ServerConnection.StatusDescription}" HorizontalAlignment="Right" Padding="5,2"/>
+                        <Label Foreground="{StaticResource PassiveTextBrush}" Content="{Binding Path=ServerStatus.ErrorMessage}" HorizontalAlignment="Right" Padding="5,2"/>
+                    </StackPanel>
                 </StatusBarItem>
             </StatusBar>
         </Border>
