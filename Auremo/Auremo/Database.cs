@@ -67,9 +67,9 @@ namespace Auremo
                 PopulateGenres();
                                 
                 PopulateAlbumsByArtist();
-                PopulateAlbumsByGenre();
                 PopulateSongPathsByAlbum();
                 PopulateAlbumsBySong();
+                PopulateAlbumsByGenre();
             }
 
             return true;
@@ -299,7 +299,8 @@ namespace Auremo
                 }
             }
 
-            // Now create the proper AlbumMetadata objects.
+            // Now create the proper AlbumMetadata objects and add them to
+            // the various lookups.
             foreach (string artist in artistTitleAndDate.Keys)
             {
                 IDictionary<string, string> titleAndDate = artistTitleAndDate[artist];
@@ -317,20 +318,18 @@ namespace Auremo
             }
         }
 
-        private void PopulateAlbumsByGenre()
+        private void PopulateSongPathsByAlbum()
         {
             foreach (SongMetadata song in m_SongInfo.Values)
             {
-                if (!m_AlbumsByGenre.ContainsKey(song.Genre))
+                AlbumMetadata album = m_AlbumsByArtistAndName[song.Artist][song.Album];
+
+                if (!m_SongPathsByAlbum.ContainsKey(album))
                 {
-                    m_AlbumsByGenre[song.Genre] = new SortedSet<AlbumMetadata>(m_AlbumSortRule);
+                    m_SongPathsByAlbum[album] = new SortedSet<string>();
                 }
 
-                AlbumMetadata album = new AlbumMetadata();
-                album.Artist = song.Artist;
-                album.Title = song.Album;
-
-                m_AlbumsByGenre[song.Genre].Add(album);
+                m_SongPathsByAlbum[album].Add(song.Path);
             }
         }
 
@@ -345,18 +344,16 @@ namespace Auremo
             }
         }
 
-        private void PopulateSongPathsByAlbum()
+        private void PopulateAlbumsByGenre()
         {
             foreach (SongMetadata song in m_SongInfo.Values)
             {
-                AlbumMetadata album = m_AlbumsByArtistAndName[song.Artist][song.Album];
-
-                if (!m_SongPathsByAlbum.ContainsKey(album))
+                if (!m_AlbumsByGenre.ContainsKey(song.Genre))
                 {
-                    m_SongPathsByAlbum[album] = new SortedSet<string>();
+                    m_AlbumsByGenre[song.Genre] = new SortedSet<AlbumMetadata>(m_AlbumSortRule);
                 }
 
-                m_SongPathsByAlbum[album].Add(song.Path);
+                m_AlbumsByGenre[song.Genre].Add(m_AlbumBySong[song]);
             }
         }
     }
