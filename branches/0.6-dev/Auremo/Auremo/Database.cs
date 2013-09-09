@@ -33,6 +33,7 @@ namespace Auremo
 
         private DataModel m_DataModel = null;
         private IDictionary<string, ISet<AlbumMetadata>> m_AlbumsByArtist = new SortedDictionary<string, ISet<AlbumMetadata>>();
+        private IDictionary<string, IDictionary<string, AlbumMetadata>> m_AlbumsByArtistAndName = new SortedDictionary<string, IDictionary<string, AlbumMetadata>>();
         private IDictionary<string, ISet<AlbumMetadata>> m_AlbumsByGenre = new SortedDictionary<string, ISet<AlbumMetadata>>();
         private IDictionary<AlbumMetadata, ISet<string>> m_SongPathsByAlbum = new SortedDictionary<AlbumMetadata, ISet<string>>();
         private IDictionary<SongMetadata, AlbumMetadata> m_AlbumBySong = new SortedDictionary<SongMetadata, AlbumMetadata>();
@@ -273,19 +274,46 @@ namespace Auremo
         
         private void PopulateAlbumsByArtist()
         {
+            // Create a lookup table of unique artist/album pairs. Find
+            // the last timestamp for each.
+            IDictionary<string, IDictionary<string, string>> artistTitleAndDate = new SortedDictionary<string, IDictionary<string, string>>();
+
             foreach (SongMetadata song in m_SongInfo.Values)
             {
-                if (!m_AlbumsByArtist.ContainsKey(song.Artist))
+                if (artistTitleAndDate.ContainsKey(song.Artist))
                 {
-                    m_AlbumsByArtist[song.Artist] = new SortedSet<AlbumMetadata>(m_AlbumSortRule);
+                    IDictionary<string, string> titleAndDate = artistTitleAndDate[song.Artist];
+                    string existingDate = null;
+                    bool exists = titleAndDate.TryGetValue(song.Album, out existingDate);
+
+                    if (!exists || existingDate.CompareTo(song.Date) < 0)
+                    {
+                        titleAndDate[song.Album] = song.Date;
+                    }
                 }
+                else
+                {
+                    IDictionary<string, string> titleAndDate = new SortedDictionary<string, string>();
+                    titleAndDate[song.Album] = song.Date;
+                    artistTitleAndDate[song.Artist] = titleAndDate;
+                }
+            }
 
-                AlbumMetadata album = new AlbumMetadata();
-                album.Artist = song.Artist;
-                album.Title = song.Album;
-                album.Date = song.Date;
+            // Now create the proper AlbumMetadata objects.
+            foreach (string artist in artistTitleAndDate.Keys)
+            {
+                IDictionary<string, string> titleAndDate = artistTitleAndDate[artist];
+                m_AlbumsByArtist[artist] = new SortedSet<AlbumMetadata>(m_AlbumSortRule);
+                ISet<AlbumMetadata> albumsByArtist = m_AlbumsByArtist[artist];
+                m_AlbumsByArtistAndName[artist] = new SortedDictionary<string, AlbumMetadata>();
+                IDictionary<string, AlbumMetadata> albumsByArtistAndName = m_AlbumsByArtistAndName[artist];
 
-                m_AlbumsByArtist[song.Artist].Add(album);
+                foreach (string album in artistTitleAndDate[artist].Keys)
+                {
+                    AlbumMetadata node = new AlbumMetadata(artist, album, titleAndDate[album]);
+                    albumsByArtist.Add(node);
+                    albumsByArtistAndName[album] = node;
+                }
             }
         }
 
@@ -321,9 +349,7 @@ namespace Auremo
         {
             foreach (SongMetadata song in m_SongInfo.Values)
             {
-                // Note that we are now making copies of all album metadata. We
-                // could reference the metadata in m_AlbumsByArtist instead.
-                AlbumMetadata album = new AlbumMetadata(song.Artist, song.Album, song.Date);
+                AlbumMetadata album = m_AlbumsByArtistAndName[song.Artist][song.Album];
 
                 if (!m_SongPathsByAlbum.ContainsKey(album))
                 {
