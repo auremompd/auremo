@@ -86,6 +86,8 @@ namespace Auremo
                 int currentSongIndex = -1;
                 int playPosition = 0;
                 int songLength = 0;
+                string audioQuality = "";
+                string errorMessage = "";
 
                 foreach (ServerResponseLine line in response.ResponseLines)
                 {
@@ -143,11 +145,53 @@ namespace Auremo
                     {
                         IsOnRepeat = line.Value == "1";
                     }
+                    else if (line.Name == "audio")
+                    {
+                        if (line.Value == "0:?:0")
+                        {
+                            // A little kludge to preserve the previous audio
+                            // quality text during song changes instead of
+                            // flashing "0 kHz ? bps 0 channels" for a moment.
+                            audioQuality = AudioQuality;
+                        }
+                        else
+                        {
+                            string[] parts = line.Value.Split(':');
+
+                            if (parts.Length == 3)
+                            {
+                                audioQuality = parts[0] + " kHz, " + parts[1] + " bits per sample, ";
+
+                                if (parts[2] == "1")
+                                {
+                                    audioQuality += "mono";
+                                }
+                                else if (parts[2] == "2")
+                                {
+                                    audioQuality += "stereo";
+                                }
+                                else
+                                {
+                                    audioQuality += parts[2] + " channels";
+                                }
+                            }
+                            else
+                            {
+                                AudioQuality = "";
+                            }
+                        }
+                    }
+                    else if (line.Name == "error")
+                    {
+                        errorMessage = "Error: " + line.Value;
+                    }
                 }
 
                 CurrentSongIndex = currentSongIndex;
                 PlayPosition = playPosition;
                 SongLength = songLength;
+                AudioQuality = audioQuality;
+                ErrorMessage = errorMessage;
             }
         }
 
@@ -400,6 +444,40 @@ namespace Auremo
             }
         }
 
+        private string m_AudioQuality = "";
+        public string AudioQuality
+        {
+            get
+            {
+                return m_AudioQuality;
+            }
+            private set
+            {
+                if (value != m_AudioQuality)
+                {
+                    m_AudioQuality = value;
+                    NotifyPropertyChanged("AudioQuality");
+                }
+            }
+        }
+
+        private string m_ErrorMessage = "";
+        public string ErrorMessage
+        {
+            get
+            {
+                return m_ErrorMessage;
+            }
+            private set
+            {
+                if (value != m_ErrorMessage)
+                {
+                    m_ErrorMessage = value;
+                    NotifyPropertyChanged("ErrorMessage");
+                }
+            }
+        }
+
         private void Reset()
         {
             OK = false;
@@ -415,6 +493,8 @@ namespace Auremo
             IsOnRepeat = false;
             State = "";
             DatabaseUpdateTime = 0;
+            AudioQuality = "";
+            ErrorMessage = "";
         }
     }
 }
