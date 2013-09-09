@@ -19,6 +19,7 @@ Suggestions are welcome! None of these features or software versions are being d
   * Add optional criteria for sorting albums. For example, the user should be able to choose alphabetical, chronological or filesystem ordering.
   * Add support for choosing between artist and album artist when parsing the collection.
   * Add settings for hiding individual music collection tabs.
+  * Make network communication asynchronous. Rewrite the protocol parser in a more orthodox way.
 
 ==Features to be added in the mid-term future==
 
