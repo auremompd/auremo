@@ -29,7 +29,7 @@ Suggestions are welcome! None of these features or software versions are being d
 
   * Make media keys work even when Auremo is not focused. (It turns out .NET does not support functionality like this and all the solutions I've been able to find look far too evil to actually implement. Users who want this feature are encouraged to do more research on the topic and, if possible, send patches.)
   * Add support for selecting a color scheme (if feasible to implement in XAML).
-  * Don't forget user settings whenever the software version, executable location, IP address etc change -- if reasonable possible.
+  * Don't forget user settings whenever the software version, executable location, IP address etc change -- if reasonably possible.
   * Look into the possibility of supporting multiple genres per song.
   * Maybe create a cool custom control for the volume knob. The slider is typical but not very pretty, plus it takes a lot of space.
   * Maybe add album art, supposing that it can be incorporated in the GUI in a meaningful way. This should be an opt-in feature because it can be heavy and not useful for all users.
