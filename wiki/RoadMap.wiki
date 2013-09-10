@@ -11,7 +11,6 @@ Suggestions are welcome! None of these features or software versions are being d
 
 ==Features to be added in the near future==
 
-  * Make media keys apply even when Auremo is not focused.
   * Offer alternatives meanings to double-click or pressing Enter besides "add to back on playlist".
   * Add proper support for album date parsing, particularly support for formats other that YYYY.
   * Use MPD command lists for playlist control for speed and atomicity.
@@ -28,6 +27,7 @@ Suggestions are welcome! None of these features or software versions are being d
 
 ==Features that might get added sooner or later, but no promises==
 
+  * Make media keys work even when Auremo is not focused. (It turns out .NET does not support functionality like this and all the solutions I've been able to find look far too evil to actually implement. Users who want this feature are encouraged to do more research on the topic and, if possible, send patches.)
   * Add support for selecting a color scheme (if feasible to implement in XAML).
   * Don't forget user settings whenever the software version, executable location, IP address etc change -- if reasonable possible.
   * Look into the possibility of supporting multiple genres per song.
