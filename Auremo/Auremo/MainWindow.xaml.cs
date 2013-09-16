@@ -2087,6 +2087,7 @@ namespace Auremo
         // Called by SettingsWindow when new settings are applied.
         public void SettingsChanged(bool reconnect)
         {
+            ApplyTabVisibilitySettings();
             m_VolumeControl.IsEnabled = DataModel.ServerStatus.Volume.HasValue && Settings.Default.EnableVolumeControl;
             SetTimerInterval(Settings.Default.ViewUpdateInterval);
 
@@ -2103,7 +2104,61 @@ namespace Auremo
 
         private void ApplyInitialSettings()
         {
+            ApplyTabVisibilitySettings();
             SetOnlineMode(true);
+        }
+
+        private void ApplyTabVisibilitySettings()
+        {
+            m_SearchTab.Visibility = Settings.Default.SearchTabIsVisible ? Visibility.Visible : Visibility.Collapsed;
+            m_ArtistListTab.Visibility = Settings.Default.ArtistListTabIsVisible ? Visibility.Visible : Visibility.Collapsed;
+            m_ArtistTreeTab.Visibility = Settings.Default.ArtistTreeTabIsVisible ? Visibility.Visible : Visibility.Collapsed;
+            m_GenreListTab.Visibility = Settings.Default.GenreListTabIsVisible ? Visibility.Visible : Visibility.Collapsed;
+            m_GenreTreeTab.Visibility = Settings.Default.GenreTreeTabIsVisible ? Visibility.Visible : Visibility.Collapsed;
+            m_FilesystemTab.Visibility = Settings.Default.FilesystemTabIsVisible ? Visibility.Visible : Visibility.Collapsed;
+            m_StreamsTab.Visibility = Settings.Default.StreamsTabIsVisible ? Visibility.Visible : Visibility.Collapsed;
+            m_PlaylistsTab.Visibility = Settings.Default.PlaylistsTabIsVisible ? Visibility.Visible : Visibility.Collapsed;
+
+            if (Settings.Default.DefaultMusicCollectionTab == MusicCollectionTab.SearchTab.ToString())
+            {
+                m_SearchTab.Visibility = System.Windows.Visibility.Visible;
+                m_SearchTab.IsSelected = true;
+            }
+            else if (Settings.Default.DefaultMusicCollectionTab == MusicCollectionTab.ArtistListTab.ToString())
+            {
+                m_ArtistListTab.Visibility = System.Windows.Visibility.Visible;
+                m_ArtistListTab.IsSelected = true;
+            }
+            else if (Settings.Default.DefaultMusicCollectionTab == MusicCollectionTab.ArtistTreeTab.ToString())
+            {
+                m_ArtistTreeTab.Visibility = System.Windows.Visibility.Visible;
+                m_ArtistTreeTab.IsSelected = true;
+            }
+            else if (Settings.Default.DefaultMusicCollectionTab == MusicCollectionTab.GenreListTab.ToString())
+            {
+                m_GenreListTab.Visibility = System.Windows.Visibility.Visible;
+                m_GenreListTab.IsSelected = true;
+            }
+            else if (Settings.Default.DefaultMusicCollectionTab == MusicCollectionTab.GenreTreeTab.ToString())
+            {
+                m_GenreTreeTab.Visibility = System.Windows.Visibility.Visible;
+                m_GenreTreeTab.IsSelected = true;
+            }
+            else if (Settings.Default.DefaultMusicCollectionTab == MusicCollectionTab.FilesystemTab.ToString())
+            {
+                m_FilesystemTab.Visibility = System.Windows.Visibility.Visible;
+                m_FilesystemTab.IsSelected = true;
+            }
+            else if (Settings.Default.DefaultMusicCollectionTab == MusicCollectionTab.StreamsTab.ToString())
+            {
+                m_StreamsTab.Visibility = System.Windows.Visibility.Visible;
+                m_StreamsTab.IsSelected = true;
+            }
+            else if (Settings.Default.DefaultMusicCollectionTab == MusicCollectionTab.PlaylistsTab.ToString())
+            {
+                m_PlaylistsTab.Visibility = System.Windows.Visibility.Visible;
+                m_PlaylistsTab.IsSelected = true;
+            }
         }
 
         #endregion
