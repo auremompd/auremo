@@ -200,23 +200,23 @@ namespace Auremo
             return result;
         }
 
-        private void OnDefaultTabSelectionChecked(object sender, RoutedEventArgs e)
+        private void TabPreferencesSanityCheck(object sender, RoutedEventArgs e)
         {
-            if (sender == m_SearchTabIsDefault)
+            if (m_SearchTabIsDefault.IsChecked.HasValue && m_SearchTabIsDefault.IsChecked.Value)
                 m_SearchTabIsVisible.IsChecked = true;
-            else if (sender == m_ArtistListTabIsDefault)
+            else if (m_ArtistListTabIsDefault.IsChecked.HasValue && m_ArtistListTabIsDefault.IsChecked.Value)
                 m_ArtistListTabIsVisible.IsChecked = true;
-            else if (sender == m_ArtistTreeTabIsDefault)
+            else if (m_ArtistTreeTabIsDefault.IsChecked.HasValue && m_ArtistTreeTabIsDefault.IsChecked.Value)
                 m_ArtistTreeTabIsVisible.IsChecked = true;
-            else if (sender == m_GenreListTabIsDefault)
+            else if (m_GenreListTabIsDefault.IsChecked.HasValue && m_GenreListTabIsDefault.IsChecked.Value)
                 m_GenreListTabIsVisible.IsChecked = true;
-            else if (sender == m_GenreTreeTabIsDefault)
+            else if (m_GenreTreeTabIsDefault.IsChecked.HasValue && m_GenreTreeTabIsDefault.IsChecked.Value)
                 m_GenreTreeTabIsVisible.IsChecked = true;
-            else if (sender == m_FilesystemTabIsDefault)
+            else if (m_FilesystemTabIsDefault.IsChecked.HasValue && m_FilesystemTabIsDefault.IsChecked.Value)
                 m_FilesystemTabIsVisible.IsChecked = true;
-            else if (sender == m_StreamsTabIsDefault)
+            else if (m_StreamsTabIsDefault.IsChecked.HasValue && m_StreamsTabIsDefault.IsChecked.Value)
                 m_StreamsTabIsVisible.IsChecked = true;
-            else if (sender == m_PlaylistsTabIsDefault)
+            else if (m_PlaylistsTabIsDefault.IsChecked.HasValue && m_PlaylistsTabIsDefault.IsChecked.Value)
                 m_PlaylistsTabIsVisible.IsChecked = true;
         }
 
