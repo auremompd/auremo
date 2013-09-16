@@ -1,7 +1,7 @@
 ﻿<Window x:Class="Auremo.SettingsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Settings - Auremo" Width="670" MinHeight="540" Height="940"
+        Title="Settings - Auremo" Width="670" MinHeight="540" Height="540"
         ResizeMode="NoResize"
         Background="{StaticResource WindowBackgroundBrush}"
         Closing="OnClose">
@@ -71,34 +71,51 @@
                 </StackPanel>
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="90"/>
+                        <ColumnDefinition Width="345"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="30"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <Label Content="Tab is visible:" Grid.Column="1" Grid.Row="0"/>
-                    <StackPanel Grid.Column="1" Grid.Row="1">
-                        <CheckBox Name="m_SearchTabIsVisible" Content="Search" IsChecked="True" Style="{StaticResource OptionCheckBoxStyle}" Height="20" Margin="4,6,0,0"/>
-                        <CheckBox Name="m_ArtistListTabIsVisible" Content="Artist list" IsChecked="True" Style="{StaticResource OptionCheckBoxStyle}" Height="20" Margin="4,6,0,0"/>
-                        <CheckBox Name="m_ArtistTreeTabIsVisible" Content="Artist tree" IsChecked="True" Style="{StaticResource OptionCheckBoxStyle}" Height="20" Margin="4,6,0,0"/>
-                        <CheckBox Name="m_GenreListTabIsVisible" Content="Genre list" IsChecked="True" Style="{StaticResource OptionCheckBoxStyle}" Height="20" Margin="4,6,0,0"/>
-                        <CheckBox Name="m_GenreTreeTabIsVisible" Content="Genre tree" IsChecked="True" Style="{StaticResource OptionCheckBoxStyle}" Height="20" Margin="4,6,0,0"/>
-                        <CheckBox Name="m_FilesystemTabIsVisible" Content="Filesystem" IsChecked="True" Style="{StaticResource OptionCheckBoxStyle}" Height="20" Margin="4,6,0,0"/>
-                        <CheckBox Name="m_StreamsTabIsVisible" Content="Streams" IsChecked="True" Style="{StaticResource OptionCheckBoxStyle}" Height="20" Margin="4,6,0,0"/>
-                        <CheckBox Name="m_PlaylistsTabIsVisible" Content="Playlists" IsChecked="True" Style="{StaticResource OptionCheckBoxStyle}" Height="20" Margin="4,6,0,0"/>
-                    </StackPanel>
-                    <Label Content="Tab is default:" Grid.Column="0" Grid.Row="0"/>
-                    <StackPanel Grid.Column="0" Grid.Row="1">
-                        <RadioButton Name="m_SearchTabIsDefault" IsChecked="True" GroupName="DefaultMusicCollectionTab" VerticalAlignment="Center" Height="20" HorizontalAlignment="Right" Margin="0,6,10,0" Checked="OnDefaultTabSelectionChecked"/>
-                        <RadioButton Name="m_ArtistListTabIsDefault" IsChecked="False" GroupName="DefaultMusicCollectionTab" VerticalAlignment="Center" Height="20" HorizontalAlignment="Right" Margin="0,6,10,0" Checked="OnDefaultTabSelectionChecked"/>
-                        <RadioButton Name="m_ArtistTreeTabIsDefault" IsChecked="False" GroupName="DefaultMusicCollectionTab" VerticalAlignment="Center" Height="20" HorizontalAlignment="Right" Margin="0,6,10,0" Checked="OnDefaultTabSelectionChecked"/>
-                        <RadioButton Name="m_GenreListTabIsDefault" IsChecked="False" GroupName="DefaultMusicCollectionTab" VerticalAlignment="Center" Height="20" HorizontalAlignment="Right" Margin="0,6,10,0" Checked="OnDefaultTabSelectionChecked"/>
-                        <RadioButton Name="m_GenreTreeTabIsDefault" IsChecked="False" GroupName="DefaultMusicCollectionTab" VerticalAlignment="Center" Height="20" HorizontalAlignment="Right" Margin="0,6,10,0" Checked="OnDefaultTabSelectionChecked"/>
-                        <RadioButton Name="m_FilesystemTabIsDefault" IsChecked="False" GroupName="DefaultMusicCollectionTab" VerticalAlignment="Center" Height="20" HorizontalAlignment="Right" Margin="0,6,10,0" Checked="OnDefaultTabSelectionChecked"/>
-                        <RadioButton Name="m_StreamsTabIsDefault" IsChecked="False" GroupName="DefaultMusicCollectionTab" VerticalAlignment="Center" Height="20" HorizontalAlignment="Right" Margin="0,6,10,0" Checked="OnDefaultTabSelectionChecked"/>
-                        <RadioButton Name="m_PlaylistsTabIsDefault" IsChecked="False" GroupName="DefaultMusicCollectionTab" VerticalAlignment="Center" Height="20" HorizontalAlignment="Right" Margin="0,6,10,0" Checked="OnDefaultTabSelectionChecked"/>
+                    <Label Content="Music collection tab preferences"/>
+                    <StackPanel Grid.Column="1" Orientation="Vertical">
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="Search tab" Width="110" VerticalAlignment="Center"/>
+                            <CheckBox Name="m_SearchTabIsVisible" Content="Is visible" IsChecked="True" Style="{StaticResource OptionCheckBoxStyle}" Width="85" VerticalAlignment="Center" Unchecked="TabPreferencesSanityCheck"/>
+                            <RadioButton Name="m_SearchTabIsDefault" Content="Is default" IsChecked="True" GroupName="DefaultMusicCollectionTab" VerticalAlignment="Center" Checked="TabPreferencesSanityCheck"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="Artist list tab" Width="110"/>
+                            <CheckBox Name="m_ArtistListTabIsVisible" Content="Is visible" IsChecked="True" Style="{StaticResource OptionCheckBoxStyle}" Width="85" VerticalAlignment="Center" Unchecked="TabPreferencesSanityCheck"/>
+                            <RadioButton Name="m_ArtistListTabIsDefault" Content="Is default" IsChecked="False" GroupName="DefaultMusicCollectionTab" VerticalAlignment="Center" Checked="TabPreferencesSanityCheck"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="Artist tree tab" Width="110"/>
+                            <CheckBox Name="m_ArtistTreeTabIsVisible" Content="Is visible" IsChecked="True" Style="{StaticResource OptionCheckBoxStyle}" Width="85" VerticalAlignment="Center" Unchecked="TabPreferencesSanityCheck"/>
+                            <RadioButton Name="m_ArtistTreeTabIsDefault" Content="Is default" IsChecked="False" GroupName="DefaultMusicCollectionTab" VerticalAlignment="Center" Checked="TabPreferencesSanityCheck"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="Genre list tab" Width="110"/>
+                            <CheckBox Name="m_GenreListTabIsVisible" Content="Is visible" IsChecked="True" Style="{StaticResource OptionCheckBoxStyle}" Width="85" VerticalAlignment="Center" Unchecked="TabPreferencesSanityCheck"/>
+                            <RadioButton Name="m_GenreListTabIsDefault" Content="Is default" IsChecked="False" GroupName="DefaultMusicCollectionTab" VerticalAlignment="Center" Checked="TabPreferencesSanityCheck"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="Genre tree tab" Width="110"/>
+                            <CheckBox Name="m_GenreTreeTabIsVisible" Content="Is visible" IsChecked="True" Style="{StaticResource OptionCheckBoxStyle}" Width="85" VerticalAlignment="Center" Unchecked="TabPreferencesSanityCheck"/>
+                            <RadioButton Name="m_GenreTreeTabIsDefault" Content="Is default" IsChecked="False" GroupName="DefaultMusicCollectionTab" VerticalAlignment="Center" Checked="TabPreferencesSanityCheck"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="Filesystem" Width="110"/>
+                            <CheckBox Name="m_FilesystemTabIsVisible" Content="Is visible" IsChecked="True" Style="{StaticResource OptionCheckBoxStyle}" Width="85" VerticalAlignment="Center" Unchecked="TabPreferencesSanityCheck"/>
+                            <RadioButton Name="m_FilesystemTabIsDefault" Content="Is default" IsChecked="False" GroupName="DefaultMusicCollectionTab" VerticalAlignment="Center" Checked="TabPreferencesSanityCheck"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="Streams tab" Width="110"/>
+                            <CheckBox Name="m_StreamsTabIsVisible" Content="Is visible" IsChecked="True" Style="{StaticResource OptionCheckBoxStyle}" Width="85" VerticalAlignment="Center" Unchecked="TabPreferencesSanityCheck"/>
+                            <RadioButton Name="m_StreamsTabIsDefault" Content="Is default" IsChecked="False" GroupName="DefaultMusicCollectionTab" VerticalAlignment="Center" Checked="TabPreferencesSanityCheck"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="Playlists tab" Width="110"/>
+                            <CheckBox Name="m_PlaylistsTabIsVisible" Content="Is visible" IsChecked="True" Style="{StaticResource OptionCheckBoxStyle}" Width="85" VerticalAlignment="Center" Unchecked="TabPreferencesSanityCheck"/>
+                            <RadioButton Name="m_PlaylistsTabIsDefault" Content="Is default" IsChecked="False" GroupName="DefaultMusicCollectionTab" VerticalAlignment="Center" Checked="TabPreferencesSanityCheck"/>
+                        </StackPanel>
                     </StackPanel>
                 </Grid>
             </StackPanel>
