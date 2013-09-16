@@ -19,6 +19,11 @@ Suggestions are welcome! None of these features or software versions are being d
   * Add support for choosing between artist and album artist when parsing the collection.
   * Add settings for hiding individual music collection tabs.
   * Make network communication asynchronous. Rewrite the protocol parser in a more orthodox way.
+  * Remember window size, position and splitter states between restarts.
+  * Add new columns to various data views. Audio quality, track number, album and song year, etc. Add options for hiding unwanted columns.
+  * Add Mopidy support.
+  * Add "view in artist/genre/filesystem tab" commands in the playlist's context menu.
+  * Add "all artists", "all albums" etc items in the relevant music collection views.
 
 ==Features to be added in the mid-term future==
 
