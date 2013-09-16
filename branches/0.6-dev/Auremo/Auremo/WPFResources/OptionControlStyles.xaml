@@ -35,7 +35,6 @@
         <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
     <Style x:Key="OptionCheckBoxStyle" TargetType="{x:Type CheckBox}">
-        <Setter Property="Margin" Value="4,0,0,0"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
 </ResourceDictionary>

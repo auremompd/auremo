@@ -79,7 +79,7 @@
                 <ColumnDefinition Width="75*"/>
             </Grid.ColumnDefinitions>
             <TabControl Name="m_CollectionBrowsingModes" Style="{StaticResource MusicCollectionTabControlStyle}" Grid.ColumnSpan="2" KeyboardNavigation.DirectionalNavigation="None">
-                <TabItem Header="Search">
+                <TabItem Name="m_SearchTab" Header="Search" Visibility="Visible">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
@@ -114,7 +114,7 @@
                                    FontSize="16"/>
                                             </Grid>
                 </TabItem>
-                <TabItem Header="Artist list">
+                <TabItem Name="m_ArtistListTab" Header="Artist list">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition/>
@@ -194,7 +194,7 @@
                         <TextBlock Name="m_SongsOnSelectedAlbumsHint" Grid.Row="2" Style="{StaticResource CollectionHintTextStyle}" Text="Select albums to view songs on them." IsEnabled="{Binding ElementName=m_SongsOnSelectedAlbumsView, Path=Items.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
                     </Grid>
                 </TabItem>
-                <TabItem Header="Artist tree">
+                <TabItem Name="m_ArtistTreeTab" Header="Artist tree">
                     <Grid>
                         <TreeView Name="m_ArtistTree"
                                   ItemsSource="{Binding Path=DatabaseView.ArtistTree}"
@@ -221,7 +221,7 @@
                         <TextBlock Name="m_ArtistsTreeHint" Style="{StaticResource CollectionHintTextStyle}" Text="Music collection is not available." IsEnabled="{Binding ElementName=m_ArtistTree, Path=Items.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
                     </Grid>
                 </TabItem>
-                <TabItem Header="Genre list">
+                <TabItem Name="m_GenreListTab" Header="Genre list">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition/>
@@ -302,7 +302,7 @@
                         <TextBlock Name="m_SongsOnSelectedGenreAlbumsHint" Grid.Row="2" Style="{StaticResource CollectionHintTextStyle}" Text="Select albums to view songs on them." IsEnabled="{Binding ElementName=m_SongsOnSelectedGenreAlbumsView, Path=Items.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
                     </Grid>
                 </TabItem>
-                <TabItem Header="Genre tree" Height="Auto" VerticalAlignment="Bottom">
+                <TabItem Name="m_GenreTreeTab" Header="Genre tree">
                     <Grid>
                         <TreeView Name="m_GenreTree"
                                   ItemsSource="{Binding Path=DatabaseView.GenreTree}"
@@ -329,7 +329,7 @@
                         <TextBlock Name="m_GenresTreeHint" Style="{StaticResource CollectionHintTextStyle}" Text="Music collection is not available." IsEnabled="{Binding ElementName=m_GenreTree, Path=Items.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
                     </Grid>
                 </TabItem>
-                <TabItem Header="Filesystem">
+                <TabItem Name="m_FilesystemTab" Header="Filesystem">
                     <Grid>
                         <TreeView Name="m_DirectoryTree"
                                   ItemsSource="{Binding Path=DatabaseView.DirectoryTree}"
@@ -356,7 +356,7 @@
                         <TextBlock Name="m_DirectoryTreeHint" Style="{StaticResource CollectionHintTextStyle}" Text="Music collection is not available." IsEnabled="{Binding ElementName=m_DirectoryTree, Path=Items.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
                     </Grid>
                 </TabItem>
-                <TabItem Header="Streams" Margin="0,1,0,-1">
+                <TabItem Name="m_StreamsTab" Header="Streams">
                     <Grid>
                         <DataGrid Name="m_StreamsView"
                                   Style="{StaticResource MusicCollectionDataGridStyle}"
@@ -387,7 +387,7 @@
                         <TextBlock Name="m_StreamsHint" Style="{StaticResource CollectionHintTextStyle}" Text="Right-click here to add streams." IsEnabled="{Binding ElementName=m_StreamsView, Path=Items.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
                     </Grid>
                 </TabItem>
-                <TabItem Name="m_SavedPlaylistsTab" Header="Playlists">
+                <TabItem Name="m_PlaylistsTab" Header="Playlists">
                     <Grid>
                         <DataGrid Name="m_SavedPlaylistsView"
                                   Style="{StaticResource MusicCollectionDataGridStyle}"

@@ -180,5 +180,113 @@ namespace Auremo.Properties {
                 this["AlbumDateFormats"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool SearchTabIsVisible {
+            get {
+                return ((bool)(this["SearchTabIsVisible"]));
+            }
+            set {
+                this["SearchTabIsVisible"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool ArtistListTabIsVisible {
+            get {
+                return ((bool)(this["ArtistListTabIsVisible"]));
+            }
+            set {
+                this["ArtistListTabIsVisible"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool ArtistTreeTabIsVisible {
+            get {
+                return ((bool)(this["ArtistTreeTabIsVisible"]));
+            }
+            set {
+                this["ArtistTreeTabIsVisible"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool GenreListTabIsVisible {
+            get {
+                return ((bool)(this["GenreListTabIsVisible"]));
+            }
+            set {
+                this["GenreListTabIsVisible"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool GenreTreeTabIsVisible {
+            get {
+                return ((bool)(this["GenreTreeTabIsVisible"]));
+            }
+            set {
+                this["GenreTreeTabIsVisible"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool FilesystemTabIsVisible {
+            get {
+                return ((bool)(this["FilesystemTabIsVisible"]));
+            }
+            set {
+                this["FilesystemTabIsVisible"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool StreamsTabIsVisible {
+            get {
+                return ((bool)(this["StreamsTabIsVisible"]));
+            }
+            set {
+                this["StreamsTabIsVisible"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool PlaylistsTabIsVisible {
+            get {
+                return ((bool)(this["PlaylistsTabIsVisible"]));
+            }
+            set {
+                this["PlaylistsTabIsVisible"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("SearchTab")]
+        public string DefaultMusicCollectionTab {
+            get {
+                return ((string)(this["DefaultMusicCollectionTab"]));
+            }
+            set {
+                this["DefaultMusicCollectionTab"] = value;
+            }
+        }
     }
 }
