@@ -120,23 +120,20 @@
     <Compile Include="AboutWindow.xaml.cs">
       <DependentUpon>AboutWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="AlbumByTitleComparer.cs" />
+    <Compile Include="AlbumComparison.cs" />
     <Compile Include="AlbumMetadataTreeViewNode.cs" />
+    <Compile Include="ConverterClasses.cs" />
     <Compile Include="GlobalEnums.cs" />
     <Compile Include="ArtistTreeViewNode.cs" />
     <Compile Include="CollectionSearch.cs" />
     <Compile Include="Crypto.cs" />
     <Compile Include="DatabaseView.cs" />
     <Compile Include="DataModel.cs" />
-    <Compile Include="AlbumByDateComparer.cs" />
     <Compile Include="DateNormalizer.cs" />
     <Compile Include="DateTemplate.cs" />
     <Compile Include="DirectoryTreeViewNode.cs" />
-    <Compile Include="EqualsConverter.cs" />
     <Compile Include="GenreTreeViewNode.cs" />
-    <Compile Include="IntToBoolConverter.cs" />
     <Compile Include="M3UParser.cs" />
-    <Compile Include="NegateBoolConverter.cs" />
     <Compile Include="Output.cs" />
     <Compile Include="OutputCollection.cs" />
     <Compile Include="Playable.cs" />
@@ -178,7 +175,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Database.cs" />
-    <Compile Include="IntToTimecodeConverter.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
