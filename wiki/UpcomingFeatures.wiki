@@ -13,6 +13,7 @@ The 0.6 version will add new features. The release goals are still being planned
   * Add support for date formats other than YYYY.
   * Add a new About window with the current version number included.
   * Add audio quality info and the error message from the server to status bar.
+  * Add settings for hiding individual music collection tabs.
 
 == Bugs ==
 
@@ -24,4 +25,3 @@ These features will be added before the release.
 
   * Offer alternatives meanings to double-click or pressing Enter besides "add to back on playlist".
   * Improve saved playlist interface.
-  * Add settings for hiding individual music collection tabs.
