@@ -7,7 +7,7 @@
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="Visibility" Value="Collapsed"/>
         <Style.Triggers>
-            <Trigger Property="IsEnabled" Value="False">
+            <Trigger Property="IsEnabled" Value="True">
                 <Setter Property="Visibility" Value="Visible"/>
             </Trigger>
         </Style.Triggers>

@@ -61,6 +61,7 @@ namespace Auremo
         private const string AddSongs = "add_songs";
         private const string AddStreams = "add_streams";
         private const string LoadPlaylist = "load_playlist";
+        private const string AddPlaylistItems = "add_playlist_items";
         private const string MovePlaylistItems = "move_playlist_items";
 
         #region Start-up, construction and destruction
@@ -263,7 +264,7 @@ namespace Auremo
 
         #endregion
 
-        #region Selection notifications to DatabaseView
+        #region Selection notifications to data model
 
         private void OnSelectedSearchResultsChanged(object sender, SelectedCellsChangedEventArgs e)
         {
@@ -302,6 +303,11 @@ namespace Auremo
         private void OnSelectedSongsOnSelectedAlbumsOfSelectedGenresChanged(object sender, SelectionChangedEventArgs e)
         {
             DataModel.DatabaseView.SelectedSongsOnSelectedAlbumsOfSelectedGenres = Utils.ToTypedList<SongMetadata>(m_SongsOnSelectedGenreAlbumsView.SelectedItems);
+        }
+
+        private void OnSelectedSavedPlaylistChanged(object sender, SelectionChangedEventArgs e)
+        {
+            DataModel.SavedPlaylists.SelectedPlaylist = m_SavedPlaylistsView.SelectedItem as string;
         }
 
         #endregion
@@ -616,12 +622,16 @@ namespace Auremo
             if (e.ClickCount == 1)
             {
                 DataGrid dataGrid = sender as DataGrid;
-                DataGridRow row = DataGridRowBeingClicked(dataGrid, e);
 
-                if (row != null && Keyboard.Modifiers == ModifierKeys.None)
+                if (dataGrid.SelectionMode == DataGridSelectionMode.Extended)
                 {
-                    dataGrid.UnselectAll();
-                    dataGrid.SelectedItem = dataGrid.CurrentItem;
+                    DataGridRow row = DataGridRowBeingClicked(dataGrid, e);
+
+                    if (row != null && Keyboard.Modifiers == ModifierKeys.None)
+                    {
+                        dataGrid.UnselectAll();
+                        dataGrid.SelectedItem = dataGrid.CurrentItem;
+                    }
                 }
 
                 m_DragSource = null;
@@ -1014,7 +1024,7 @@ namespace Auremo
                         targetRow = AddObjectToPlaylist(o, false, targetRow);
                     }
                 }
-                else if (data == AddSearchResults || data == AddArtists || data == AddAlbums || data == AddSongs || data == AddStreams)
+                else if (data == AddSearchResults || data == AddArtists || data == AddAlbums || data == AddSongs || data == AddStreams || data == AddPlaylistItems)
                 {
                     foreach (object o in m_DragDropPayload)
                     {
@@ -2601,6 +2611,10 @@ namespace Auremo
             else if (dragSource == m_StreamsView)
             {
                 return AddStreams;
+            }
+            else if (dragSource == m_ItemsOnSelectedSavedPlaylistView)
+            {
+                return AddPlaylistItems;
             }
             else if (dragSource == m_PlaylistView)
             {

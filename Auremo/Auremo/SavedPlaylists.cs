@@ -40,16 +40,20 @@ namespace Auremo
 
         #endregion
 
+        private DataModel m_DataModel = null;
+        private IDictionary<string, IList<Playable>> m_Playlists = new SortedDictionary<string, IList<Playable>>();
         private string m_CurrentPlaylistName = "";
 
-        public SavedPlaylists()
+        public SavedPlaylists(DataModel dataModel)
         {
+            m_DataModel = dataModel;
             Playlists = new ObservableCollection<string>();
+            ItemsOnSelectedPlaylist = new ObservableCollection<Playable>();
         }
 
         public void Refresh(ServerConnection connection)
         {
-            Playlists.Clear();
+            m_Playlists.Clear();
 
             if (connection.Status == ServerConnection.State.Connected)
             {
@@ -61,10 +65,34 @@ namespace Auremo
                     {
                         if (line.Name == "playlist")
                         {
-                            Playlists.Add(line.Value);
+                            m_Playlists.Add(line.Value, new List<Playable>());
+                        }
+                    }
+
+                    foreach (string playlistName in m_Playlists.Keys)
+                    {
+                        IList<Playable> contents = m_Playlists[playlistName];
+                        ServerResponse listPlaylistResponse = Protocol.ListPlaylist(connection, playlistName);
+
+                        if (listPlaylistResponse.IsOK)
+                        {
+                            foreach (ServerResponseLine line in listPlaylistResponse.ResponseLines)
+                            {
+                                if (line.Name == "file")
+                                {
+                                    contents.Add(GetPlayableByPath(line.Value));
+                                }
+                            }
                         }
                     }
                 }
+            }
+
+            Playlists.Clear();
+
+            foreach (string name in m_Playlists.Keys)
+            {
+                Playlists.Add(name);
             }
         }
 
@@ -72,6 +100,33 @@ namespace Auremo
         {
             get;
             private set;
+        }
+
+        public string SelectedPlaylist
+        {
+            set
+            {
+                ItemsOnSelectedPlaylist.Clear();
+
+                if (value != null && m_Playlists.ContainsKey(value))
+                {
+                    foreach (Playable playable in m_Playlists[value])
+                    {
+                        ItemsOnSelectedPlaylist.Add(playable);
+                    }
+                }
+            }
+        }
+
+        public ObservableCollection<Playable> ItemsOnSelectedPlaylist
+        {
+            get;
+            private set;
+        }
+
+        public IEnumerable<Playable> PlaylistContents(string playlistName)
+        {
+            return m_Playlists[playlistName];
         }
 
         public string CurrentPlaylistName
@@ -106,6 +161,25 @@ namespace Auremo
             {
                 return !CurrentPlaylistNameEmpty;
             }
+        }
+
+        private Playable GetPlayableByPath(string path)
+        {
+            Playable result = m_DataModel.Database.SongByPath(path);
+
+            if (result != null)
+            {
+                return result;
+            }
+
+            result = m_DataModel.StreamsCollection.StreamByPath(path);
+
+            if (result != null)
+            {
+                return result;
+            }
+
+            return new UnknownPlayable(path);
         }
     }
 }
