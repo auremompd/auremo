@@ -168,7 +168,7 @@ namespace Auremo
 
             return null;
         }
-                
+
         private void ProcessSettings()
         {
             StringCollection formatCollection = Settings.Default.AlbumDateFormats;

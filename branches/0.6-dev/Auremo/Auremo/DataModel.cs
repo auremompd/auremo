@@ -33,7 +33,7 @@ namespace Auremo
             CollectionSearch = new CollectionSearch(this);
             DatabaseView = new DatabaseView(this);
             StreamsCollection = new StreamsCollection();
-            SavedPlaylists = new SavedPlaylists();
+            SavedPlaylists = new SavedPlaylists(this);
             Playlist = new Playlist(this);
             OutputCollection = new OutputCollection();
         }
