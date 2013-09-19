@@ -14,6 +14,7 @@ The 0.6 version will add new features. The release goals are still being planned
   * Add a new About window with the current version number included.
   * Add audio quality info and the error message from the server to status bar.
   * Add settings for hiding individual music collection tabs.
+  * Add a view of items on a saved playlist. Allow adding individual items to the current playlist.
 
 == Bugs ==
 
@@ -24,4 +25,4 @@ The 0.6 version will add new features. The release goals are still being planned
 These features will be added before the release.
 
   * Offer alternatives meanings to double-click or pressing Enter besides "add to back of playlist".
-  * Improve saved playlist interface.
+  * If Mopidy support is easy to add, add it.
