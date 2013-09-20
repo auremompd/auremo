@@ -444,6 +444,7 @@
                       Style="{StaticResource PlaylistStyle}"
                       ItemsSource="{Binding Path=Playlist.Items}"
                       AllowDrop="True"
+                      SelectionChanged="OnSelectedPlaylistItemsChanged"
                       PreviewKeyDown="OnPlaylistViewKeyDown"
                       PreviewMouseLeftButtonDown="OnDataGridRowMouseDown"
                       MouseMove="OnMouseMoveDragDrop"
@@ -460,12 +461,12 @@
                 </DataGrid.Columns>
                 <DataGrid.ContextMenu>
                     <ContextMenu Name="m_PlaylistViewContextMenu">
-                        <MenuItem Header="Clear" Click="OnClearPlaylistViewClicked" IsEnabled="{Binding ElementName=m_PlaylistView, Path=Items.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
-                        <MenuItem Header="Remove selected items" Click="OnRemoveSelectedPlaylistItemsClicked" IsEnabled="{Binding ElementName=m_PlaylistView, Path=SelectedItems.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
-                        <MenuItem Header="Remove everything but selected items" Click="OnCropToSelectedPlaylistItemsClicked" IsEnabled="{Binding ElementName=m_PlaylistView, Path=SelectedItems.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
-                        <MenuItem Header="Save playlist into collection as..." Click="OnSavePlaylistAsClicked" IsEnabled="{Binding ElementName=m_PlaylistView, Path=SelectedItems.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
-                        <MenuItem Header="Remove duplicate items" Click="OnDedupPlaylistViewClicked" IsEnabled="{Binding ElementName=m_PlaylistView, Path=Items.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
-                        <MenuItem Header="Shuffle" Click="OnShufflePlaylistClicked" IsEnabled="{Binding ElementName=m_PlaylistView, Path=SelectedItems.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
+                        <MenuItem Header="Clear" Click="OnClearPlaylistViewClicked" IsEnabled="{Binding Path=Playlist.Items.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
+                        <MenuItem Header="Remove selected items" Click="OnRemoveSelectedPlaylistItemsClicked" IsEnabled="{Binding Path=Playlist.SelectedItems.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
+                        <MenuItem Header="Remove everything but selected items" Click="OnCropToSelectedPlaylistItemsClicked" IsEnabled="{Binding Path=Playlist.SelectedItems.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
+                        <MenuItem Header="Save playlist into collection as..." Click="OnSavePlaylistAsClicked" IsEnabled="{Binding Path=Playlist.Items.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
+                        <MenuItem Header="Remove duplicate items" Click="OnDedupPlaylistViewClicked" IsEnabled="{Binding Path=Playlist.Items.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
+                        <MenuItem Header="Shuffle" Click="OnShufflePlaylistClicked" IsEnabled="{Binding Path=Playlist.Items.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
                     </ContextMenu>
                 </DataGrid.ContextMenu>
             </DataGrid>
