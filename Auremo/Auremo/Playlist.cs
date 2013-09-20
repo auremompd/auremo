@@ -56,6 +56,24 @@ namespace Auremo
             private set;
         }
 
+        private IList<PlaylistItem> m_SelectedItems = new ObservableCollection<PlaylistItem>();
+        public IList<PlaylistItem> SelectedItems
+        {
+            get
+            {
+                return m_SelectedItems;
+            }
+            set
+            {
+                m_SelectedItems.Clear();
+
+                foreach (PlaylistItem item in value)
+                {
+                    m_SelectedItems.Add(item);
+                }
+            }
+        }
+
         public string PlayStatusDescription
         {
             get; 

@@ -310,6 +310,11 @@ namespace Auremo
             DataModel.SavedPlaylists.SelectedPlaylist = m_SavedPlaylistsView.SelectedItem as string;
         }
 
+        private void OnSelectedPlaylistItemsChanged(object sender, SelectionChangedEventArgs e)
+        {
+            DataModel.Playlist.SelectedItems = Utils.ToTypedList<PlaylistItem>(m_PlaylistView.SelectedItems);
+        }
+
         #endregion
 
         #region Whole window operations
