@@ -69,6 +69,17 @@
                         <TextBox Name="m_DateFormatsEntry" Text="YYYY;YYYY.N;YYYY.NN" Style="{StaticResource OptionTextBoxStyle}" Width="250" VerticalAlignment="Top" Margin="0,5,0,7"/>
                     </StackPanel>
                 </StackPanel>
+                <StackPanel Orientation="Horizontal" Height="60" Margin="0,0,0,8">
+                    <TextBlock Style="{StaticResource OptionTextBlockStyle}" Width="344" VerticalAlignment="Top">
+                        When sending music to the playlist by pressing Enter or<LineBreak/>
+                        double-clicking, the items are placed
+                    </TextBlock>
+                    <StackPanel>
+                        <RadioButton Name="m_SendToPlaylistMethodAppend" Content="At the end of the playlist" IsChecked="True" GroupName="SendToPlaylistMethod" VerticalAlignment="Center" Margin="0,3"/>
+                        <RadioButton Name="m_SendToPlaylistMethodAddAsNext" Content="After the current item on the playlist" IsChecked="False" GroupName="SendToPlaylistMethod" VerticalAlignment="Center" Margin="0,3"/>
+                        <RadioButton Name="m_SendToPlaylistMethodReplaceAndPlay" Content="Over the playlist at playback is started" IsChecked="False" GroupName="SendToPlaylistMethod" VerticalAlignment="Center" Margin="0,3"/>
+                    </StackPanel>
+                </StackPanel>
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="345"/>

@@ -114,6 +114,10 @@ namespace Auremo
             m_PlaylistsTabIsVisible.IsChecked = Settings.Default.PlaylistsTabIsVisible;
             SelectDefaultMusicCollectionTab(Settings.Default.DefaultMusicCollectionTab);
 
+            m_SendToPlaylistMethodAddAsNext.IsChecked = Settings.Default.SendToPlaylistMethod == SendToPlaylistMethod.AddAsNext.ToString();
+            m_SendToPlaylistMethodReplaceAndPlay.IsChecked = Settings.Default.SendToPlaylistMethod == SendToPlaylistMethod.ReplaceAndPlay.ToString();
+            m_SendToPlaylistMethodAppend.IsChecked = !m_SendToPlaylistMethodAddAsNext.IsChecked.Value && !m_SendToPlaylistMethodReplaceAndPlay.IsChecked.Value;
+
             string formats = "";
 
             foreach (string s in Settings.Default.AlbumDateFormats)
@@ -162,6 +166,19 @@ namespace Auremo
             Settings.Default.StreamsTabIsVisible = m_StreamsTabIsVisible.IsChecked == true;
             Settings.Default.PlaylistsTabIsVisible = m_PlaylistsTabIsVisible.IsChecked == true;
             Settings.Default.DefaultMusicCollectionTab = SelectedDefaultMusicCollectionTab().ToString();
+
+            if (m_SendToPlaylistMethodAddAsNext.IsChecked == true)
+            {
+                Settings.Default.SendToPlaylistMethod = SendToPlaylistMethod.AddAsNext.ToString();
+            }
+            else if (m_SendToPlaylistMethodReplaceAndPlay.IsChecked == true)
+            {
+                Settings.Default.SendToPlaylistMethod = SendToPlaylistMethod.ReplaceAndPlay.ToString();
+            }
+            else
+            {
+                Settings.Default.SendToPlaylistMethod = SendToPlaylistMethod.Append.ToString();
+            }
 
             Settings.Default.InitialSetupDone = true;
 
