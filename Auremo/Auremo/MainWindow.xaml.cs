@@ -465,14 +465,7 @@ namespace Auremo
                 if (e.Key == Key.Enter)
                 {
                     DataGrid grid = sender as DataGrid;
-                    bool stringsAreArtists = grid == m_ArtistsView;
-
-                    foreach (object item in grid.SelectedItems)
-                    {
-                        AddObjectToPlaylist(item, stringsAreArtists);
-                    }
-
-                    Update();
+                    SendItemsToPlaylist(sender, Utils.ToTypedList<object>(grid.SelectedItems));
                     e.Handled = true;
                 }
                 else if (sender == m_StreamsView)
@@ -480,6 +473,18 @@ namespace Auremo
                     OnStreamsViewKeyDown(sender, e);
                 }
             }
+        }
+
+        private void SendItemsToPlaylist(object sourceControl, IEnumerable<object> items)
+        {
+            bool stringsAreArtists = sourceControl == m_SearchResultsView || sourceControl == m_ArtistsView;
+
+            foreach (object item in items)
+            {
+                AddObjectToPlaylist(item, stringsAreArtists);
+            }
+
+            Update();
         }
 
         private void OnCollectionTextInput(object sender, TextCompositionEventArgs e)
@@ -496,12 +501,12 @@ namespace Auremo
             {
                 DataGrid grid = sender as DataGrid;
                 DataGridRow row = DataGridRowBeingClicked(grid, e);
-                bool stringsAreArtists = grid == m_ArtistsView;
 
                 if (row != null)
                 {
-                    AddObjectToPlaylist(row.Item, stringsAreArtists);
-                    Update();
+                    IList<object> item = new List<object>();
+                    item.Add(row.Item);
+                    SendItemsToPlaylist(sender, item);
                     e.Handled = true;
                 }
             }
@@ -1085,12 +1090,14 @@ namespace Auremo
                     }
                     else
                     {
+                        IList<object> items = new List<object>();
+
                         foreach (SongMetadataTreeViewNode leaf in node.Controller.Songs)
                         {
-                            AddSongToPlaylist(leaf.Song);
+                            items.Add(leaf.Song);
                         }
 
-                        Update();
+                        SendItemsToPlaylist(sender, items);
                     }
                 }
                 else if (Keyboard.Modifiers == ModifierKeys.Control)
@@ -1186,12 +1193,14 @@ namespace Auremo
                     }
                     else if (e.Key == Key.Enter)
                     {
+                        IList<object> items = new List<object>();
+
                         foreach (SongMetadataTreeViewNode leaf in controller.Songs)
                         {
-                            AddSongToPlaylist(leaf.Song);
+                            items.Add(leaf.Song);
                         }
 
-                        Update();
+                        SendItemsToPlaylist(sender, items);
                         e.Handled = true;
                     }
 
@@ -1246,10 +1255,7 @@ namespace Auremo
 
         private void OnSearchResultsViewDoubleClicked(object sender, MouseButtonEventArgs e)
         {
-            foreach (object o in SearchResultsCellsToObjects())
-            {
-                AddObjectToPlaylist(o, true);
-            }
+            SendItemsToPlaylist(sender, SearchResultsCellsToObjects());
         }
 
         private void OnSearchBoxEnabledChanged(object sender, DependencyPropertyChangedEventArgs e)
