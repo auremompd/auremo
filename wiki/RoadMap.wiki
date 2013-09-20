@@ -29,6 +29,7 @@ Suggestions are welcome! None of these features or software versions are being d
 
   * Optimize the initial database fetch. There are user reports of very long startup times with slow computers and large collections (20+ seconds with a Raspberry Pi as the server). Caching all the metadata on the client should be simple and help enormously.
   * Add a mini-player view.
+  * Add multi-language support. If you are a native speaker of a language for which you would be willing to provide a translation, please let us know. Translators Italian, Portuguese and Finnish have already signed up.
 
 ==Features that might get added sooner or later, but no promises==
 
