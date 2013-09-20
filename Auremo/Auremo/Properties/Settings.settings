@@ -71,5 +71,8 @@
     <Setting Name="DefaultMusicCollectionTab" Type="System.String" Scope="User">
       <Value Profile="(Default)">SearchTab</Value>
     </Setting>
+    <Setting Name="SendToPlaylistMethod" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Append</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

@@ -479,9 +479,32 @@ namespace Auremo
         {
             bool stringsAreArtists = sourceControl == m_SearchResultsView || sourceControl == m_ArtistsView;
 
-            foreach (object item in items)
+            if (Settings.Default.SendToPlaylistMethod == SendToPlaylistMethod.AddAsNext.ToString())
             {
-                AddObjectToPlaylist(item, stringsAreArtists);
+                int position = DataModel.ServerStatus.CurrentSongIndex + 1;
+
+                foreach (object item in items)
+                {
+                    position = AddObjectToPlaylist(item, stringsAreArtists, position);
+                }
+            }
+            else if (Settings.Default.SendToPlaylistMethod == SendToPlaylistMethod.ReplaceAndPlay.ToString())
+            {
+                Protocol.Clear(DataModel.ServerConnection);
+
+                foreach (object item in items)
+                {
+                    AddObjectToPlaylist(item, stringsAreArtists);
+                }
+
+                Protocol.Play(DataModel.ServerConnection);
+            }
+            else // Assume SendToPlaylistMethod.Append as the default
+            {
+                foreach (object item in items)
+                {
+                    AddObjectToPlaylist(item, stringsAreArtists);
+                }
             }
 
             Update();

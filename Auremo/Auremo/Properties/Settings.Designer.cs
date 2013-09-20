@@ -288,5 +288,17 @@ namespace Auremo.Properties {
                 this["DefaultMusicCollectionTab"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Append")]
+        public string SendToPlaylistMethod {
+            get {
+                return ((string)(this["SendToPlaylistMethod"]));
+            }
+            set {
+                this["SendToPlaylistMethod"] = value;
+            }
+        }
     }
 }
