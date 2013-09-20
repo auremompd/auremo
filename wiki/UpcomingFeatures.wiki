@@ -15,6 +15,7 @@ The 0.6 version will add new features. The release goals are still being planned
   * Add audio quality info and the error message from the server to status bar.
   * Add settings for hiding individual music collection tabs.
   * Add a view of items on a saved playlist. Allow adding individual items to the current playlist.
+  * Fix the playlist context menu's item availability.
 
 == Bugs ==
 
