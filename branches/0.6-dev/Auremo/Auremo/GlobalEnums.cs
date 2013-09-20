@@ -39,4 +39,11 @@ namespace Auremo
         StreamsTab,
         PlaylistsTab
     }
+
+    public enum SendToPlaylistMethod
+    {
+        Append,
+        AddAsNext,
+        ReplaceAndPlay
+    }
 }
