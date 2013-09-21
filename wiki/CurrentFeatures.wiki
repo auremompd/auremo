@@ -3,7 +3,7 @@
 
 = Auremo features =
 
-Version 0.5.0 supports the following features.
+Version 0.6.0 supports the following features.
 
   * Connection to a local or remote MPD server.
       * Password protected servers are supported.
@@ -27,12 +27,19 @@ Version 0.5.0 supports the following features.
       * The playlist can be saved on the server. Saved playlists appear under the playlists tab.
       * Saved playlists on the server can be loaded for use.
       * Saved playlists on the server can be renamed or deleted.
+      * Individual tracks on a saved playlist can be sent to the current playlist.
   * Playback control.
       * Skip, play, pause, stop and next buttons.
       * Media keys on some keyboards (play/pause, stop, next, previous, volume up/down) are supported.
       * Random and repeat buttons.
       * Songs on the playlist can be jumped to directly with a double-click or pressing Enter.
       * A seek bar allows the user to skip back or ahead in a song.
+  * Customizable user interface.
+      * Unused music collection views can be hidden and the default one to use can be selected.
+      * Customizable quick select behavior: double-clicking or pressing the Enter key in the music collection can be set to do any of the following:
+          * Add the selected items to the end of the current playlist.
+          * Add the selected items after the current track on the current playlist.  
+          * Clear the current playlist and start playing the selected items as the new playlist.
 
 ----
 
