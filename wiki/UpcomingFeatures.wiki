@@ -16,6 +16,7 @@ The 0.6 version will add new features. The release goals are still being planned
   * Add settings for hiding individual music collection tabs.
   * Add a view of items on a saved playlist. Allow adding individual items to the current playlist.
   * Fix the playlist context menu's item availability.
+  * Add alternative methods of sending items to the playlist with Enter or double-click.
 
 == Bugs ==
 
@@ -25,5 +26,4 @@ The 0.6 version will add new features. The release goals are still being planned
 
 These features will be added before the release.
 
-  * Offer alternatives meanings to double-click or pressing Enter besides "add to back of playlist".
   * If Mopidy support is easy to add, add it.
