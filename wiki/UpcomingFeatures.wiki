@@ -26,4 +26,4 @@ The 0.6 version will add new features. The release goals are still being planned
 
 These features will be added before the release.
 
-  * (release imminent)
+  * Add more "send to playlist" options to the context menus.
