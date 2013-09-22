@@ -47,11 +47,6 @@ namespace Auremo
         private int m_SongLength = 0;
         private string m_State = "";
         private int m_DatabaseUpdateTime = 0;
-        private NestedProperty<bool> m_IsPlaying = new NestedProperty<bool>(false);
-        private NestedProperty<bool> m_IsPaused = new NestedProperty<bool>(false);
-        private NestedProperty<bool> m_IsStopped = new NestedProperty<bool>(false);
-        private NestedProperty<bool> m_IsOnRandom = new NestedProperty<bool>(false);
-        private NestedProperty<bool> m_IsOnRepeat = new NestedProperty<bool>(false);
 
         public ServerStatus()
         {
@@ -91,6 +86,8 @@ namespace Auremo
                 int currentSongIndex = -1;
                 int playPosition = 0;
                 int songLength = 0;
+                string audioQuality = "";
+                string errorMessage = "";
 
                 foreach (ServerResponseLine line in response.ResponseLines)
                 {
@@ -142,17 +139,59 @@ namespace Auremo
                     }
                     else if (line.Name == "random")
                     {
-                        m_IsOnRandom.Value = line.Value == "1";
+                        IsOnRandom = line.Value == "1";
                     }
                     else if (line.Name == "repeat")
                     {
-                        m_IsOnRepeat.Value = line.Value == "1";
+                        IsOnRepeat = line.Value == "1";
+                    }
+                    else if (line.Name == "audio")
+                    {
+                        if (line.Value == "0:?:0")
+                        {
+                            // A little kludge to preserve the previous audio
+                            // quality text during song changes instead of
+                            // flashing "0 kHz ? bps 0 channels" for a moment.
+                            audioQuality = AudioQuality;
+                        }
+                        else
+                        {
+                            string[] parts = line.Value.Split(':');
+
+                            if (parts.Length == 3)
+                            {
+                                audioQuality = parts[0] + " kHz, " + parts[1] + " bits per sample, ";
+
+                                if (parts[2] == "1")
+                                {
+                                    audioQuality += "mono";
+                                }
+                                else if (parts[2] == "2")
+                                {
+                                    audioQuality += "stereo";
+                                }
+                                else
+                                {
+                                    audioQuality += parts[2] + " channels";
+                                }
+                            }
+                            else
+                            {
+                                AudioQuality = "";
+                            }
+                        }
+                    }
+                    else if (line.Name == "error")
+                    {
+                        errorMessage = "Error: " + line.Value;
                     }
                 }
 
                 CurrentSongIndex = currentSongIndex;
                 PlayPosition = playPosition;
                 SongLength = songLength;
+                AudioQuality = audioQuality;
+                ErrorMessage = errorMessage;
             }
         }
 
@@ -216,51 +255,96 @@ namespace Auremo
                 if (m_State != value)
                 {
                     m_State = value;
-                    IsPlaying.Value = m_State == "play";
-                    IsPaused.Value = m_State == "pause";
-                    IsStopped.Value = m_State == "stop";
+                    IsPlaying = m_State == "play";
+                    IsPaused = m_State == "pause";
+                    IsStopped = m_State == "stop";
                     NotifyPropertyChanged("State");
                 }
             }
         }
 
-        public NestedProperty<bool> IsPlaying
+        bool m_IsPlaying = false;
+        public bool IsPlaying
         {
             get
             {
                 return m_IsPlaying;
             }
+            private set
+            {
+                if (value != m_IsPlaying)
+                {
+                    m_IsPlaying = value;
+                    NotifyPropertyChanged("IsPlaying");
+                }
+            }
         }
 
-        public NestedProperty<bool> IsPaused
+        bool m_IsPaused = false;
+        public bool IsPaused
         {
             get
             {
                 return m_IsPaused;
             }
+            private set
+            {
+                if (value != m_IsPaused)
+                {
+                    m_IsPaused = value;
+                    NotifyPropertyChanged("IsPaused");
+                }
+            }
         }
 
-        public NestedProperty<bool> IsStopped
+        bool m_IsStopped = false;
+        public bool IsStopped
         {
             get
             {
                 return m_IsStopped;
             }
+            private set
+            {
+                if (value != m_IsStopped)
+                {
+                    m_IsStopped = value;
+                    NotifyPropertyChanged("IsStopped");
+                }
+            }
         }
 
-        public NestedProperty<bool> IsOnRepeat
+        bool m_IsOnRepeat = false;
+        public bool IsOnRepeat
         {
             get
             {
                 return m_IsOnRepeat;
             }
+            private set
+            {
+                if (value != m_IsOnRepeat)
+                {
+                    m_IsOnRepeat = value;
+                    NotifyPropertyChanged("IsOnRepeat");
+                }
+            }
         }
 
-        public NestedProperty<bool> IsOnRandom
+        bool m_IsOnRandom = false;
+        public bool IsOnRandom
         {
             get
             {
                 return m_IsOnRandom;
+            }
+            private set
+            {
+                if (value != m_IsOnRandom)
+                {
+                    m_IsOnRandom = value;
+                    NotifyPropertyChanged("IsOnRandom");
+                }
             }
         }
 
@@ -360,6 +444,40 @@ namespace Auremo
             }
         }
 
+        private string m_AudioQuality = "";
+        public string AudioQuality
+        {
+            get
+            {
+                return m_AudioQuality;
+            }
+            private set
+            {
+                if (value != m_AudioQuality)
+                {
+                    m_AudioQuality = value;
+                    NotifyPropertyChanged("AudioQuality");
+                }
+            }
+        }
+
+        private string m_ErrorMessage = "";
+        public string ErrorMessage
+        {
+            get
+            {
+                return m_ErrorMessage;
+            }
+            private set
+            {
+                if (value != m_ErrorMessage)
+                {
+                    m_ErrorMessage = value;
+                    NotifyPropertyChanged("ErrorMessage");
+                }
+            }
+        }
+
         private void Reset()
         {
             OK = false;
@@ -368,13 +486,15 @@ namespace Auremo
             CurrentSongIndex = -1;
             PlayPosition = 0;
             SongLength = 0;
-            IsPlaying.Value = false;
-            IsPaused.Value = false;
-            IsStopped.Value = false;
-            IsOnRandom.Value = false;
-            IsOnRepeat.Value = false;
+            IsPlaying = false;
+            IsPaused = false;
+            IsStopped = false;
+            IsOnRandom = false;
+            IsOnRepeat = false;
             State = "";
             DatabaseUpdateTime = 0;
+            AudioQuality = "";
+            ErrorMessage = "";
         }
     }
 }

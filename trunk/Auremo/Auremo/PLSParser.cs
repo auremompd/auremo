@@ -34,13 +34,27 @@ namespace Auremo
         protected override IEnumerable<StreamMetadata> Parse()
         {
             m_ParsedStreams = new SortedDictionary<int, StreamMetadata>();
-            IEnumerable<StreamMetadata> result = null;
+            IList<StreamMetadata> result = null;
 
             try
             {
                 ParseHeader();
                 ParseEntries();
-                result = m_ParsedStreams.Values;
+
+                result = new List<StreamMetadata>();
+
+                foreach (StreamMetadata stream in m_ParsedStreams.Values)
+                {
+                    if (stream.Path != null)
+                    {
+                        if (stream.Title == null)
+                        {
+                            stream.Title = stream.Path;
+                        }
+
+                        result.Add(stream);
+                    }
+                }
             }
             catch (ParseError)
             {
@@ -86,7 +100,7 @@ namespace Auremo
 
                     if (!m_ParsedStreams.ContainsKey(index))
                     {
-                        m_ParsedStreams.Add(index, new StreamMetadata());
+                        m_ParsedStreams.Add(index, new StreamMetadata(null, null));
                     }
 
                     if (key.StartsWith("file"))
@@ -104,41 +118,7 @@ namespace Auremo
                 }
             }
         }
-
-        private StreamMetadata ParseEntry(int index)
-        {
-            StreamMetadata result = new StreamMetadata();
-            bool pathFound = false, titleFound = false;
-
-            do
-            {
-                string key = GetKey();
-                string value = GetRestOfLine();
-
-                if (key == "file" + index)
-                {
-                    result.Path = value;
-                    pathFound = true;
-                }
-                else if (key == "title" + index)
-                {
-                    result.Title = value;
-                    titleFound = true;
-                }
-                else if (!key.StartsWith("length"))
-                {
-                    throw new ParseError();
-                }
-            } while (!pathFound || !titleFound);
-
-            if (result.Path == "" || result.Title == "")
-            {
-                throw new ParseError();
-            }
-
-            return result;
-        }
-
+    
         private void ParseVersion()
         {
             bool versionFound = false;
