@@ -29,7 +29,7 @@
     <ProductName>Auremo</ProductName>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
     <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>0.5.1.0</ApplicationVersion>
+    <ApplicationVersion>0.6.1.0</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -117,18 +117,23 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AboutWindow.xaml.cs">
+      <DependentUpon>AboutWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="AlbumComparison.cs" />
     <Compile Include="AlbumMetadataTreeViewNode.cs" />
+    <Compile Include="ConverterClasses.cs" />
+    <Compile Include="GlobalEnums.cs" />
     <Compile Include="ArtistTreeViewNode.cs" />
     <Compile Include="CollectionSearch.cs" />
     <Compile Include="Crypto.cs" />
     <Compile Include="DatabaseView.cs" />
+    <Compile Include="DataModel.cs" />
+    <Compile Include="DateNormalizer.cs" />
+    <Compile Include="DateTemplate.cs" />
     <Compile Include="DirectoryTreeViewNode.cs" />
-    <Compile Include="EqualsConverter.cs" />
     <Compile Include="GenreTreeViewNode.cs" />
-    <Compile Include="IntToBoolConverter.cs" />
     <Compile Include="M3UParser.cs" />
-    <Compile Include="NegateBoolConverter.cs" />
-    <Compile Include="NestedProperty.cs" />
     <Compile Include="Output.cs" />
     <Compile Include="OutputCollection.cs" />
     <Compile Include="Playable.cs" />
@@ -146,6 +151,7 @@
     <Compile Include="SongMetadata.cs" />
     <Compile Include="SongMetadataTreeViewNode.cs" />
     <Compile Include="PLSParser.cs" />
+    <Compile Include="StickyButton.cs" />
     <Compile Include="StreamMetadata.cs" />
     <Compile Include="StreamsCollection.cs" />
     <Compile Include="TextWindow.xaml.cs">
@@ -155,6 +161,10 @@
     <Compile Include="TreeViewNode.cs" />
     <Compile Include="UnknownPlayable.cs" />
     <Compile Include="Utils.cs" />
+    <Page Include="AboutWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -165,7 +175,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Database.cs" />
-    <Compile Include="IntToTimecodeConverter.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -305,14 +314,15 @@
     <Resource Include="Graphics\Auremo_icon_48.png" />
     <Resource Include="Graphics\Auremo_icon_64.png" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Resources\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Resource Include="Graphics\Auremo_icon.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Graphics\Auremo.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icon48.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

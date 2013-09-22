@@ -123,6 +123,11 @@ namespace Auremo
             return SendStringAndGetResponse(connection, "shuffle");
         }
 
+        public static ServerResponse ListPlaylist(ServerConnection connection, string playlist)
+        {
+            return SendStringAndGetResponse(connection, "listplaylist " + QuoteString(playlist));
+        }
+
         #endregion
 
         #region Playback commands (reference order)

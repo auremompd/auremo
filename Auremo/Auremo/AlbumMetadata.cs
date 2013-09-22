@@ -22,17 +22,13 @@ using System.Text;
 
 namespace Auremo
 {
-    public class AlbumMetadata : IComparable
+    public class AlbumMetadata
     {
-        public AlbumMetadata()
-        {
-            Title = "Unknown Album";
-        }
-
-        public AlbumMetadata(string artist, string albumTitle)
+        public AlbumMetadata(string artist, string albumTitle, string date)
         {
             Artist = artist;
             Title = albumTitle;
+            Date = date;
         }
 
         public string Artist
@@ -47,22 +43,17 @@ namespace Auremo
             set;
         }
 
-        public int CompareTo(object o)
+        public string Date
         {
-            if (o is AlbumMetadata)
-            {
-                AlbumMetadata rhs = (AlbumMetadata)o;
+            get;
+            set;
+        }
 
-                if (Artist != rhs.Artist)
-                {
-                    return Artist.CompareTo(rhs.Artist);
-                }
-
-                return Title.CompareTo(rhs.Title);
-            }
-            else
+        public string Year
+        {
+            get
             {
-                throw new Exception("AlbumMetadata: attempt to compare to an incompatible object");
+                return Utils.ExtractYearFromDateString(Date);
             }
         }
 

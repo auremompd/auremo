@@ -17,24 +17,37 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
-using System.Windows.Data;
+using Auremo.Properties;
 
 namespace Auremo
 {
-    [ValueConversion(typeof(int), typeof(bool))]
-    class EqualsConverter : IValueConverter
+    public class DateNormalizer
     {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        List<DateTemplate> m_Templates = new List<DateTemplate>();
+
+        public DateNormalizer(IEnumerable<string> formats)
         {
-            int lhs = (int)value;
-            int? rhs = Utils.StringToInt(parameter as string);
-            return rhs.HasValue && lhs == rhs.Value;
+            foreach (string format in formats)
+            {
+                m_Templates.Add(new DateTemplate(format));
+            }
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public string Normalize(string date)
         {
+            foreach (DateTemplate template in m_Templates)
+            {
+                string result = template.TryToParseDate(date);
+
+                if (result != null)
+                {
+                    return result;
+                }
+            }
+
             return null;
         }
     }

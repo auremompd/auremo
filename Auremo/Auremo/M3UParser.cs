@@ -71,23 +71,29 @@ namespace Auremo
 
         private void ParseEntry()
         {
-            StreamMetadata entry = new StreamMetadata();
+            string path = null;
+            string title = null;
 
             if (m_ExtendedFormat && Peek == '#')
             {
                 ConsumeLiteral("#EXTINF:");
                 IgnoreUntil(',');
                 ConsumeLiteral(",");
-                entry.Title = GetRestOfLine();
+                title = GetRestOfLine();
                 ConsumeWhitespace();
             }
 
-            entry.Path = GetRestOfLine();
+            path = GetRestOfLine();
             ConsumeWhitespace();
 
-            if (entry.Path != "")
+            if (path != "")
             {
-                m_ParsedStreams.Add(entry);
+                if (title == null)
+                {
+                    title = path;
+                }
+
+                m_ParsedStreams.Add(new StreamMetadata(path, title));
             }
         }
 
