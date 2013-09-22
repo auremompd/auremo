@@ -814,7 +814,7 @@ namespace Auremo
                         }
 
                         ISet<string> artistsToAdd = new SortedSet<string>();
-                        ISet<AlbumMetadata> albumsToAdd = new SortedSet<AlbumMetadata>();
+                        ISet<AlbumMetadata> albumsToAdd = new SortedSet<AlbumMetadata>(DataModel.Database.AlbumSortRule);
                         ISet<SongMetadata> songsToAdd = new SortedSet<SongMetadata>();
 
                         foreach (object item in itemsToAdd)
@@ -836,7 +836,7 @@ namespace Auremo
                         // Make an effort to not add anything twice, even if it is selected
                         // multiple times directly (as in the same artist on multiple lines)
                         // or indirectly (as in a song and the album to which it belongs).
-                        foreach (AlbumMetadata album in new SortedSet<AlbumMetadata>(albumsToAdd))
+                        foreach (AlbumMetadata album in new SortedSet<AlbumMetadata>(albumsToAdd, DataModel.Database.AlbumSortRule))
                         {
                             if (artistsToAdd.Contains(album.Artist))
                             {
@@ -853,7 +853,7 @@ namespace Auremo
                         }
 
                         ISet<string> artistsAlreadyAdded = new SortedSet<string>();
-                        ISet<AlbumMetadata> albumsAlreadyAdded = new SortedSet<AlbumMetadata>();
+                        ISet<AlbumMetadata> albumsAlreadyAdded = new SortedSet<AlbumMetadata>(DataModel.Database.AlbumSortRule);
 
                         foreach (object item in itemsToAdd)
                         {
