@@ -11,17 +11,13 @@ Suggestions are welcome! None of these features or software versions are being d
 
 ==Features to be added in the near future==
 
-  * Offer alternatives meanings to double-click or pressing Enter besides "add to back on playlist".
-  * Add proper support for album date parsing, particularly support for formats other that YYYY.
+  * Add Mopidy support.
   * Use MPD command lists for playlist control for speed and atomicity.
-  * Improve saved playlist interface.
-  * Add optional criteria for sorting albums. For example, the user should be able to choose alphabetical, chronological or filesystem ordering.
+  * Add filesystem album ordering.
   * Add support for choosing between artist and album artist when parsing the collection.
-  * Add settings for hiding individual music collection tabs.
   * Make network communication asynchronous. Rewrite the protocol parser in a more orthodox way.
   * Remember window size, position and splitter states between restarts.
   * Add new columns to various data views. Audio quality, track number, album and song year, etc. Add options for hiding unwanted columns.
-  * Add Mopidy support.
   * Add "view in artist/genre/filesystem tab" commands in the playlist's context menu.
   * Add "all artists", "all albums" etc items in the relevant music collection views.
 
