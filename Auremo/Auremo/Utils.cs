@@ -98,7 +98,7 @@ namespace Auremo
             return min < value ? (max > value ? value : max) : min;
         }
 
-        public static IEnumerable<T> ToTypedList<T>(System.Collections.IEnumerable source)
+        public static IList<T> ToTypedList<T>(System.Collections.IEnumerable source)
         {
             IList<T> result = new List<T>();
 
@@ -117,6 +117,18 @@ namespace Auremo
             }
 
             return result;
+        }
+
+        public static string ExtractYearFromDateString(string date)
+        {
+            if (date == null)
+            {
+                return null;
+            }
+            else
+            {
+                return date.Substring(0, 4);
+            }
         }
     }
 }

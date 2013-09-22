@@ -22,53 +22,44 @@ using System.Text;
 
 namespace Auremo
 {
-    public class UnknownPlayable : Playable
+    public class AlbumByDateComparer : IComparer<AlbumMetadata>
     {
-        private UnknownPlayable()
+        public int Compare(AlbumMetadata lhs, AlbumMetadata rhs)
         {
-        }
-
-        public UnknownPlayable(string path)
-        {
-            Path = path;
-
-            if (path.Contains("://"))
+            if (lhs.Artist != rhs.Artist)
             {
-                // Looks like a URL.
-                Title = path;
+                return lhs.Artist.CompareTo(rhs.Artist);
+            }
+            else if (lhs.Date == rhs.Date)
+            {
+                return lhs.Title.CompareTo(rhs.Title);
+            }
+            else if (lhs.Date == null)
+            {
+                return 1;
+            }
+            else if (rhs.Date == null)
+            {
+                return -1;
             }
             else
             {
-                // Looks like a stream.
-                Title = Utils.SplitPath(path).Item2;
+                return lhs.Date.CompareTo(rhs.Date);
             }
         }
+    }
 
-        public string Path
+    public class AlbumByTitleComparer : IComparer<AlbumMetadata>
+    {
+        public int Compare(AlbumMetadata lhs, AlbumMetadata rhs)
         {
-            get;
-            private set;
-        }
-
-        public string Title
-        {
-            get;
-            private set;
-        }
-
-        public string Artist
-        {
-            get
+            if (lhs.Artist != rhs.Artist)
             {
-                return null;
+                return lhs.Artist.CompareTo(rhs.Artist);
             }
-        }
-
-        public string Album
-        {
-            get
+            else
             {
-                return null;
+                return lhs.Title.CompareTo(rhs.Title);
             }
         }
     }

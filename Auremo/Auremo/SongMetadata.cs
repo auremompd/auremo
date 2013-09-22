@@ -29,7 +29,7 @@ namespace Auremo
             Path = null;
             Length = null;
             Track = null;
-            Year = null;
+            Date = null;
 
             Artist = "Unknown Artist";
             Genre = "No Genre";
@@ -93,10 +93,18 @@ namespace Auremo
             set;
         }
 
-        public int? Year
+        public string Date
         {
             get;
             set;
+        }
+
+        public string Year
+        {
+            get
+            {
+                return Utils.ExtractYearFromDateString(Date);
+            }
         }
 
         public override string ToString()

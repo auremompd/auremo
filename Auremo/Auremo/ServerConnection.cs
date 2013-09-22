@@ -59,7 +59,7 @@ namespace Auremo
         private int m_BytesInReceiveBuffer = 0;
         private int m_ReceiveBufferIndex = 0;
         private State m_Status = State.Disconnected;
-
+        
         public ServerConnection()
         {
         }

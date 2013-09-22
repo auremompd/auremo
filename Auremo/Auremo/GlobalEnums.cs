@@ -19,21 +19,31 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows.Data;
 
 namespace Auremo
 {
-    [ValueConversion(typeof(int), typeof(bool))]
-    class IntToBoolConverter : IValueConverter
+    public enum AlbumSortingMode
     {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            return (int)value != 0;
-        }
+        ByDate,
+        ByName
+    }
 
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            return (bool)value ? 1 : 0;
-        }
+    public enum MusicCollectionTab
+    {
+        SearchTab,
+        ArtistListTab,
+        ArtistTreeTab,
+        GenreListTab,
+        GenreTreeTab,
+        FilesystemTab,
+        StreamsTab,
+        PlaylistsTab
+    }
+
+    public enum SendToPlaylistMethod
+    {
+        Append,
+        AddAsNext,
+        ReplaceAndPlay
     }
 }
