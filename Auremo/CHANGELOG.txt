@@ -1,6 +1,26 @@
 Version history
 ===============
 
+Auremo 0.6.0
+------------
+
+ * Add an option for sorting albums alphabetically or chronologically.
+ * Add support for date formats other than YYYY.
+ * Add settings for hiding individual music collection tabs.
+ * Add a view of items on a saved playlist. Allow adding individual items to
+   the current playlist.
+ * Add customizable behaviour for Enter or double-click in the music
+   collection.
+ * Fix the playlist context menu's item availability.
+ * Refactor the data model.
+ * Move streams collection to isolated storage so it won't be cleared during
+   version upgrades.
+ * Add audio quality info and the error message from the server to status bar.
+ * Add a new About window with the current version number included.
+ * Clean up the button glow implementation.
+ * Released on 22nd September 2013.
+
+
 Auremo 0.5.1
 ------------
 
