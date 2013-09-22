@@ -42,6 +42,7 @@ namespace Auremo
 
         private DataModel m_DataModel = null;
         private IDictionary<string, IList<Playable>> m_Playlists = new SortedDictionary<string, IList<Playable>>();
+        private IList<Playable> m_SelectedItemsOnSelectedPlaylist = new List<Playable>();
         private string m_CurrentPlaylistName = "";
 
         public SavedPlaylists(DataModel dataModel)
@@ -49,6 +50,7 @@ namespace Auremo
             m_DataModel = dataModel;
             Playlists = new ObservableCollection<string>();
             ItemsOnSelectedPlaylist = new ObservableCollection<Playable>();
+            SelectedItemsOnSelectedPlaylist = new ObservableCollection<Playable>();
         }
 
         public void Refresh(ServerConnection connection)
@@ -122,6 +124,19 @@ namespace Auremo
         {
             get;
             private set;
+        }
+
+        public IList<Playable> SelectedItemsOnSelectedPlaylist
+        {
+            get
+            {
+                return m_SelectedItemsOnSelectedPlaylist;
+            }
+            set
+            {
+                m_SelectedItemsOnSelectedPlaylist = value;
+                NotifyPropertyChanged("SelectedItemsOnSelectedPlaylist");
+            }
         }
 
         public IEnumerable<Playable> PlaylistContents(string playlistName)
