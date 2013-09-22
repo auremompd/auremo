@@ -28,9 +28,7 @@ namespace Auremo
 {
     public class Database
     {
-        private IComparer<AlbumMetadata> m_AlbumSortRule = null;
         private DateNormalizer m_DateNormalizer = null;
-
         private DataModel m_DataModel = null;
         private IDictionary<string, ISet<AlbumMetadata>> m_AlbumsByArtist = new SortedDictionary<string, ISet<AlbumMetadata>>();
         private IDictionary<string, IDictionary<string, AlbumMetadata>> m_AlbumsByArtistAndName = new SortedDictionary<string, IDictionary<string, AlbumMetadata>>();
@@ -44,6 +42,7 @@ namespace Auremo
             m_DataModel = dataModel;
             Artists = new List<string>();
             Genres = new List<string>();
+            AlbumSortRule = new AlbumByDateComparer();
         }
 
         public bool RefreshCollection()
@@ -52,7 +51,7 @@ namespace Auremo
 
             m_AlbumsByArtist.Clear();
             m_AlbumsByGenre.Clear();
-            m_SongPathsByAlbum = new SortedDictionary<AlbumMetadata, ISet<string>>(m_AlbumSortRule);
+            m_SongPathsByAlbum = new SortedDictionary<AlbumMetadata, ISet<string>>(AlbumSortRule);
             m_AlbumBySong.Clear();
             m_SongInfo.Clear();
 
@@ -97,7 +96,7 @@ namespace Auremo
 
         public ISet<AlbumMetadata> AlbumsByArtist(string artist)
         {
-            ISet<AlbumMetadata> result = new SortedSet<AlbumMetadata>(m_AlbumSortRule);
+            ISet<AlbumMetadata> result = new SortedSet<AlbumMetadata>(AlbumSortRule);
 
             if (m_AlbumsByArtist.ContainsKey(artist))
             {
@@ -112,7 +111,7 @@ namespace Auremo
 
         public ISet<AlbumMetadata> AlbumsByGenre(string genre)
         {
-            ISet<AlbumMetadata> result = new SortedSet<AlbumMetadata>(m_AlbumSortRule);
+            ISet<AlbumMetadata> result = new SortedSet<AlbumMetadata>(AlbumSortRule);
 
             if (m_AlbumsByGenre.ContainsKey(genre))
             {
@@ -169,6 +168,12 @@ namespace Auremo
             return null;
         }
 
+        public IComparer<AlbumMetadata> AlbumSortRule
+        {
+            get;
+            private set;
+        }
+
         private void ProcessSettings()
         {
             StringCollection formatCollection = Settings.Default.AlbumDateFormats;
@@ -183,11 +188,11 @@ namespace Auremo
 
             if (Settings.Default.AlbumSortingMode == AlbumSortingMode.ByDate.ToString())
             {
-                m_AlbumSortRule = new AlbumByDateComparer();
+                AlbumSortRule = new AlbumByDateComparer();
             }
             else
             {
-                m_AlbumSortRule = new AlbumByTitleComparer();
+                AlbumSortRule = new AlbumByTitleComparer();
             }
         }
 
@@ -304,7 +309,7 @@ namespace Auremo
             foreach (string artist in artistTitleAndDate.Keys)
             {
                 IDictionary<string, string> titleAndDate = artistTitleAndDate[artist];
-                m_AlbumsByArtist[artist] = new SortedSet<AlbumMetadata>(m_AlbumSortRule);
+                m_AlbumsByArtist[artist] = new SortedSet<AlbumMetadata>(AlbumSortRule);
                 ISet<AlbumMetadata> albumsByArtist = m_AlbumsByArtist[artist];
                 m_AlbumsByArtistAndName[artist] = new SortedDictionary<string, AlbumMetadata>();
                 IDictionary<string, AlbumMetadata> albumsByArtistAndName = m_AlbumsByArtistAndName[artist];
@@ -350,7 +355,7 @@ namespace Auremo
             {
                 if (!m_AlbumsByGenre.ContainsKey(song.Genre))
                 {
-                    m_AlbumsByGenre[song.Genre] = new SortedSet<AlbumMetadata>(m_AlbumSortRule);
+                    m_AlbumsByGenre[song.Genre] = new SortedSet<AlbumMetadata>(AlbumSortRule);
                 }
 
                 m_AlbumsByGenre[song.Genre].Add(m_AlbumBySong[song]);
