@@ -310,6 +310,11 @@ namespace Auremo
             DataModel.SavedPlaylists.SelectedPlaylist = m_SavedPlaylistsView.SelectedItem as string;
         }
 
+        private void OnSelectedItemsOnSelectedSavedPlaylistChanged(object sender, SelectionChangedEventArgs e)
+        {
+            DataModel.SavedPlaylists.SelectedItemsOnSelectedPlaylist = Utils.ToTypedList<Playable>(m_ItemsOnSelectedSavedPlaylistView.SelectedItems);
+        }
+
         private void OnSelectedPlaylistItemsChanged(object sender, SelectionChangedEventArgs e)
         {
             DataModel.Playlist.SelectedItems = Utils.ToTypedList<PlaylistItem>(m_PlaylistView.SelectedItems);
@@ -481,30 +486,17 @@ namespace Auremo
 
             if (Settings.Default.SendToPlaylistMethod == SendToPlaylistMethod.AddAsNext.ToString())
             {
-                int position = DataModel.ServerStatus.CurrentSongIndex + 1;
-
-                foreach (object item in items)
-                {
-                    position = AddObjectToPlaylist(item, stringsAreArtists, position);
-                }
+                AddObjectsToPlaylist(items, stringsAreArtists, DataModel.ServerStatus.CurrentSongIndex + 1);
             }
             else if (Settings.Default.SendToPlaylistMethod == SendToPlaylistMethod.ReplaceAndPlay.ToString())
             {
                 Protocol.Clear(DataModel.ServerConnection);
-
-                foreach (object item in items)
-                {
-                    AddObjectToPlaylist(item, stringsAreArtists);
-                }
-
+                AddObjectsToPlaylist(items, stringsAreArtists, 0);
                 Protocol.Play(DataModel.ServerConnection);
             }
             else // Assume SendToPlaylistMethod.Append as the default
             {
-                foreach (object item in items)
-                {
-                    AddObjectToPlaylist(item, stringsAreArtists);
-                }
+                AddObjectsToPlaylist(items, stringsAreArtists);
             }
 
             Update();
@@ -535,21 +527,35 @@ namespace Auremo
             }
         }
 
-        public void OnAddToPlaylistClicked(object sender, RoutedEventArgs e)
+        public void OnAddToPlaylistAsLastClicked(object sender, RoutedEventArgs e)
         {
-            MenuItem item = sender as MenuItem;
-            ContextMenu menu = item.Parent as ContextMenu;
+            AddToPlaylistContextMenuViaContextMenu(sender, DataModel.Playlist.Items.Count);
+        }
+
+        public void OnAddToPlaylistAsNextClicked(object sender, RoutedEventArgs e)
+        {
+            AddToPlaylistContextMenuViaContextMenu(sender, DataModel.ServerStatus.CurrentSongIndex + 1);
+        }
+
+        public void OnPlayThisClicked(object sender, RoutedEventArgs e)
+        {
+            Protocol.Clear(DataModel.ServerConnection);
+            AddToPlaylistContextMenuViaContextMenu(sender, 0);
+            Protocol.Play(DataModel.ServerConnection);
+        }
+
+        public void AddToPlaylistContextMenuViaContextMenu(object sender, int insertPosition)
+        {
+            MenuItem menuItem = sender as MenuItem;
+            ContextMenu menu = menuItem.Parent as ContextMenu;
             UIElement element = menu.PlacementTarget;
+            int position = insertPosition;
 
             if (element is DataGrid)
             {
                 DataGrid list = element as DataGrid;
                 bool selectionMayIncludeArtists = list != m_GenresView;
-
-                foreach (object o in list.SelectedItems)
-                {
-                    AddObjectToPlaylist(o, selectionMayIncludeArtists);
-                }
+                AddObjectsToPlaylist(Utils.ToTypedList<object>(list.SelectedItems), selectionMayIncludeArtists, position);
             }
             else if (element is TreeView)
             {
@@ -560,7 +566,7 @@ namespace Auremo
                 {
                     foreach (SongMetadataTreeViewNode node in selection)
                     {
-                        AddSongToPlaylist(node.Song);
+                        position = AddSongToPlaylist(node.Song, position);
                     }
                 }
             }
@@ -569,6 +575,11 @@ namespace Auremo
         public void OnRescanMusicCollectionClicked(object sender, RoutedEventArgs e)
         {
             Protocol.Update(DataModel.ServerConnection);
+        }
+
+        public void OnRescanPlaylistsCollectionClicked(object sender, RoutedEventArgs e)
+        {
+            DataModel.SavedPlaylists.Refresh(DataModel.ServerConnection);
         }
 
         #endregion
@@ -1749,6 +1760,24 @@ namespace Auremo
         #endregion
 
         #region Helpers for adding items to the playlist
+
+        private void AddObjectsToPlaylist(IEnumerable<object> items, bool stringsAreArtists)
+        {
+            foreach (object item in items)
+            {
+                AddObjectToPlaylist(item, stringsAreArtists);
+            }
+        }
+
+        private void AddObjectsToPlaylist(IEnumerable<object> items, bool stringsAreArtists, int firstPosition)
+        {
+            int position = firstPosition;
+
+            foreach (object item in items)
+            {
+                position = AddObjectToPlaylist(item, stringsAreArtists, position);
+            }
+        }
 
         private void AddObjectToPlaylist(object o, bool stringsAreArtists)
         {
