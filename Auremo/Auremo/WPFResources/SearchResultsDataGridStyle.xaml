@@ -4,7 +4,7 @@
         <Setter Property="AutoGenerateColumns" Value="False"/>
         <Setter Property="Background" Value="{StaticResource ListBackgroundBrush}"/>
         <Setter Property="BorderBrush" Value="{StaticResource PassiveGenericBorderBrush}"/>
-        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="CanUserAddRows" Value="False"/>
         <Setter Property="CanUserDeleteRows" Value="False"/>
         <Setter Property="CanUserReorderColumns" Value="False"/>

@@ -19,21 +19,27 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows.Data;
+using System.Windows;
+using System.Windows.Controls;
 
 namespace Auremo
 {
-    [ValueConversion(typeof(bool), typeof(bool))]
-    public class NegateBoolConverter : IValueConverter
+    // A standard button with an extra property "IsDown" for buttons that have a
+    // server-dependent glow state.
+    public class StickyButton : Button
     {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public bool IsDown
         {
-            return !(bool)value;
+            get
+            {
+                return (bool)GetValue(IsDownProperty);
+            }
+            set
+            {
+                SetValue(IsDownProperty, value);
+            }
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            return !(bool)value;
-        }
+        public static readonly DependencyProperty IsDownProperty = DependencyProperty.Register("IsDown", typeof(bool), typeof(StickyButton), new UIPropertyMetadata(false));
     }
 }

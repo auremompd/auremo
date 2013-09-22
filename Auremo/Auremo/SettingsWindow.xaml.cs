@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -35,6 +36,7 @@ namespace Auremo
     public partial class SettingsWindow : Window
     {
         MainWindow m_Parent = null;
+        const char m_StringCollectionSeparator = ';';
 
         public SettingsWindow(MainWindow parent)
         {
@@ -94,33 +96,89 @@ namespace Auremo
             m_PortEntry.Text = Settings.Default.Port.ToString();
             m_PasswordEntry.Password = Crypto.DecryptPassword(Settings.Default.Password);
             m_UpdateIntervalEntry.Text = Settings.Default.ViewUpdateInterval.ToString();
-            m_EnableVolumeControl.IsChecked = Settings.Default.EnableVolumeControl;
             m_WheelVolumeStepEntry.Text = Settings.Default.VolumeAdjustmentStep.ToString();
             m_WheelSongPositioningModeIsPercent.IsChecked = Settings.Default.MouseWheelAdjustsSongPositionInPercent;
             m_WheelSongPositioningModeIsSeconds.IsChecked = !m_WheelSongPositioningModeIsPercent.IsChecked;
             m_WheelSongPositioningPercentEntry.Text = Settings.Default.MouseWheelAdjustsSongPositionPercentBy.ToString();
             m_WheelSongPositioningSecondsEntry.Text = Settings.Default.MouseWheelAdjustsSongPositionSecondsBy.ToString();
+            m_EnableVolumeControl.IsChecked = Settings.Default.EnableVolumeControl;
+            m_SortAlbumsByDate.IsChecked = Settings.Default.AlbumSortingMode == AlbumSortingMode.ByDate.ToString();
+            m_SortAlbumsByName.IsChecked = m_SortAlbumsByDate.IsChecked != true;
+            m_SearchTabIsVisible.IsChecked = Settings.Default.SearchTabIsVisible;
+            m_ArtistListTabIsVisible.IsChecked = Settings.Default.ArtistListTabIsVisible;
+            m_ArtistTreeTabIsVisible.IsChecked = Settings.Default.ArtistTreeTabIsVisible;
+            m_GenreListTabIsVisible.IsChecked = Settings.Default.GenreListTabIsVisible;
+            m_GenreTreeTabIsVisible.IsChecked = Settings.Default.GenreTreeTabIsVisible;
+            m_FilesystemTabIsVisible.IsChecked = Settings.Default.FilesystemTabIsVisible;
+            m_StreamsTabIsVisible.IsChecked = Settings.Default.StreamsTabIsVisible;
+            m_PlaylistsTabIsVisible.IsChecked = Settings.Default.PlaylistsTabIsVisible;
+            SelectDefaultMusicCollectionTab(Settings.Default.DefaultMusicCollectionTab);
+
+            m_SendToPlaylistMethodAddAsNext.IsChecked = Settings.Default.SendToPlaylistMethod == SendToPlaylistMethod.AddAsNext.ToString();
+            m_SendToPlaylistMethodReplaceAndPlay.IsChecked = Settings.Default.SendToPlaylistMethod == SendToPlaylistMethod.ReplaceAndPlay.ToString();
+            m_SendToPlaylistMethodAppend.IsChecked = !m_SendToPlaylistMethodAddAsNext.IsChecked.Value && !m_SendToPlaylistMethodReplaceAndPlay.IsChecked.Value;
+
+            string formats = "";
+
+            foreach (string s in Settings.Default.AlbumDateFormats)
+            {
+                if (formats.Length > 0)
+                {
+                    formats += ";";
+                }
+
+                formats += s;
+            }
+
+            m_DateFormatsEntry.Text = formats;
         }
 
         private void SaveSettings()
         {
             int port = Utils.StringToInt(m_PortEntry.Text, 6600);
             string password = Crypto.EncryptPassword(m_PasswordEntry.Password);
+            AlbumSortingMode albumSortingMode = m_SortAlbumsByDate.IsChecked.Value ? AlbumSortingMode.ByDate : AlbumSortingMode.ByName;
 
             bool reconnectNeeded =
                 m_ServerEntry.Text != Settings.Default.Server ||
                 port != Settings.Default.Port ||
-                password != Settings.Default.Password;
+                password != Settings.Default.Password ||
+                albumSortingMode.ToString() != Settings.Default.AlbumSortingMode ||
+                m_DateFormatsEntry.Text != StringCollectionAsString(Settings.Default.AlbumDateFormats);
 
             Settings.Default.Server = m_ServerEntry.Text;
             Settings.Default.Port = port;
             Settings.Default.Password = password;
             Settings.Default.ViewUpdateInterval = Utils.StringToInt(m_UpdateIntervalEntry.Text, 500);
-            Settings.Default.EnableVolumeControl = m_EnableVolumeControl.IsChecked == null || m_EnableVolumeControl.IsChecked.Value;
             Settings.Default.VolumeAdjustmentStep = Utils.StringToInt(m_WheelVolumeStepEntry.Text, 5);
             Settings.Default.MouseWheelAdjustsSongPositionInPercent = m_WheelSongPositioningModeIsPercent.IsChecked.Value;
             Settings.Default.MouseWheelAdjustsSongPositionPercentBy = Utils.StringToInt(m_WheelSongPositioningPercentEntry.Text, 5);
             Settings.Default.MouseWheelAdjustsSongPositionSecondsBy = Utils.StringToInt(m_WheelSongPositioningSecondsEntry.Text, 5);
+            Settings.Default.EnableVolumeControl = m_EnableVolumeControl.IsChecked == true;
+            Settings.Default.AlbumSortingMode = albumSortingMode.ToString();
+            Settings.Default.AlbumDateFormats = StringAsStringCollection(m_DateFormatsEntry.Text);
+            Settings.Default.SearchTabIsVisible = m_SearchTabIsVisible.IsChecked == true;
+            Settings.Default.ArtistListTabIsVisible = m_ArtistListTabIsVisible.IsChecked == true;
+            Settings.Default.ArtistTreeTabIsVisible = m_ArtistTreeTabIsVisible.IsChecked == true;
+            Settings.Default.GenreListTabIsVisible = m_GenreListTabIsVisible.IsChecked == true;
+            Settings.Default.GenreTreeTabIsVisible = m_GenreTreeTabIsVisible.IsChecked == true;
+            Settings.Default.FilesystemTabIsVisible = m_FilesystemTabIsVisible.IsChecked == true;
+            Settings.Default.StreamsTabIsVisible = m_StreamsTabIsVisible.IsChecked == true;
+            Settings.Default.PlaylistsTabIsVisible = m_PlaylistsTabIsVisible.IsChecked == true;
+            Settings.Default.DefaultMusicCollectionTab = SelectedDefaultMusicCollectionTab().ToString();
+
+            if (m_SendToPlaylistMethodAddAsNext.IsChecked == true)
+            {
+                Settings.Default.SendToPlaylistMethod = SendToPlaylistMethod.AddAsNext.ToString();
+            }
+            else if (m_SendToPlaylistMethodReplaceAndPlay.IsChecked == true)
+            {
+                Settings.Default.SendToPlaylistMethod = SendToPlaylistMethod.ReplaceAndPlay.ToString();
+            }
+            else
+            {
+                Settings.Default.SendToPlaylistMethod = SendToPlaylistMethod.Append.ToString();
+            }
 
             Settings.Default.InitialSetupDone = true;
 
@@ -129,9 +187,91 @@ namespace Auremo
             m_Parent.SettingsChanged(reconnectNeeded);
         }
 
+        private string StringCollectionAsString(StringCollection strings)
+        {
+            string result = "";
+
+            foreach (string str in strings)
+            {
+                if (result.Length > 0)
+                {
+                    result += m_StringCollectionSeparator;
+                }
+
+                result += str;
+            }
+
+            return result;
+        }
+
+        private StringCollection StringAsStringCollection(string mergedString)
+        {
+            StringCollection result = new StringCollection();
+            string[] parts = mergedString.Split(m_StringCollectionSeparator);
+
+            foreach (string part in parts)
+            {
+                result.Add(part);
+            }
+
+            return result;
+        }
+
+        private void TabPreferencesSanityCheck(object sender, RoutedEventArgs e)
+        {
+            if (m_SearchTabIsDefault.IsChecked.HasValue && m_SearchTabIsDefault.IsChecked.Value)
+                m_SearchTabIsVisible.IsChecked = true;
+            else if (m_ArtistListTabIsDefault.IsChecked.HasValue && m_ArtistListTabIsDefault.IsChecked.Value)
+                m_ArtistListTabIsVisible.IsChecked = true;
+            else if (m_ArtistTreeTabIsDefault.IsChecked.HasValue && m_ArtistTreeTabIsDefault.IsChecked.Value)
+                m_ArtistTreeTabIsVisible.IsChecked = true;
+            else if (m_GenreListTabIsDefault.IsChecked.HasValue && m_GenreListTabIsDefault.IsChecked.Value)
+                m_GenreListTabIsVisible.IsChecked = true;
+            else if (m_GenreTreeTabIsDefault.IsChecked.HasValue && m_GenreTreeTabIsDefault.IsChecked.Value)
+                m_GenreTreeTabIsVisible.IsChecked = true;
+            else if (m_FilesystemTabIsDefault.IsChecked.HasValue && m_FilesystemTabIsDefault.IsChecked.Value)
+                m_FilesystemTabIsVisible.IsChecked = true;
+            else if (m_StreamsTabIsDefault.IsChecked.HasValue && m_StreamsTabIsDefault.IsChecked.Value)
+                m_StreamsTabIsVisible.IsChecked = true;
+            else if (m_PlaylistsTabIsDefault.IsChecked.HasValue && m_PlaylistsTabIsDefault.IsChecked.Value)
+                m_PlaylistsTabIsVisible.IsChecked = true;
+        }
+
         private void OnClose(object sender, System.ComponentModel.CancelEventArgs e)
         {
             m_Parent.OnChildWindowClosing(this);
+        }
+
+        private MusicCollectionTab SelectedDefaultMusicCollectionTab()
+        {
+            if (m_ArtistListTabIsDefault.IsChecked.HasValue && m_ArtistListTabIsDefault.IsChecked.Value)
+                return MusicCollectionTab.ArtistListTab;
+            else if (m_ArtistTreeTabIsDefault.IsChecked.HasValue && m_ArtistTreeTabIsDefault.IsChecked.Value)
+                return MusicCollectionTab.ArtistTreeTab;
+            else if (m_GenreListTabIsDefault.IsChecked.HasValue && m_GenreListTabIsDefault.IsChecked.Value)
+                return MusicCollectionTab.GenreListTab;
+            else if (m_GenreTreeTabIsDefault.IsChecked.HasValue && m_GenreTreeTabIsDefault.IsChecked.Value)
+                return MusicCollectionTab.GenreTreeTab;
+            else if (m_FilesystemTabIsDefault.IsChecked.HasValue && m_FilesystemTabIsDefault.IsChecked.Value)
+                return MusicCollectionTab.FilesystemTab;
+            else if (m_StreamsTabIsDefault.IsChecked.HasValue && m_StreamsTabIsDefault.IsChecked.Value)
+                return MusicCollectionTab.StreamsTab;
+            else if (m_PlaylistsTabIsDefault.IsChecked.HasValue && m_PlaylistsTabIsDefault.IsChecked.Value)
+                return MusicCollectionTab.PlaylistsTab;
+
+            return MusicCollectionTab.SearchTab;
+        }
+
+        private void SelectDefaultMusicCollectionTab(string tab)
+        {
+            m_SearchTabIsDefault.IsChecked = true;
+            m_ArtistListTabIsDefault.IsChecked = tab == MusicCollectionTab.ArtistListTab.ToString();
+            m_ArtistTreeTabIsDefault.IsChecked = tab == MusicCollectionTab.ArtistTreeTab.ToString();
+            m_GenreListTabIsDefault.IsChecked = tab == MusicCollectionTab.GenreListTab.ToString();
+            m_GenreTreeTabIsDefault.IsChecked = tab == MusicCollectionTab.GenreTreeTab.ToString();
+            m_FilesystemTabIsDefault.IsChecked = tab == MusicCollectionTab.FilesystemTab.ToString();
+            m_StreamsTabIsDefault.IsChecked = tab == MusicCollectionTab.StreamsTab.ToString();
+            m_PlaylistsTabIsDefault.IsChecked = tab == MusicCollectionTab.PlaylistsTab.ToString();
         }
     }
 }

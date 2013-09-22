@@ -1,4 +1,21 @@
-﻿using System;
+﻿/*
+ * Copyright 2013 Mikko Teräs and Niilo Säämänen.
+ *
+ * This file is part of Auremo.
+ *
+ * Auremo is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, version 2.
+ *
+ * Auremo is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with Auremo. If not, see http://www.gnu.org/licenses/.
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -31,7 +48,7 @@ namespace Auremo
             public AlbumMetadata Album { get; set; }
         };
 
-        private Database m_Database = null;
+        private DataModel m_DataModel = null;
         private CollectionSearchThread m_Searcher = null;
         private Thread m_Thread = null;
 
@@ -43,10 +60,10 @@ namespace Auremo
         object m_ThreadOutputLock = new object();
         IEnumerable<SearchResultTuple> m_SearchResults = new List<SearchResultTuple>();
 
-        public CollectionSearch(Database database)
+        public CollectionSearch(DataModel dataModel)
         {
-            m_Database = database;
-            m_Searcher = new CollectionSearchThread(this, m_Database);
+            m_DataModel = dataModel;
+            m_Searcher = new CollectionSearchThread(this, m_DataModel.Database);
             m_Thread = new Thread(new ThreadStart(m_Searcher.Start));
             m_Thread.Start();
         }
