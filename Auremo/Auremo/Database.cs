@@ -35,7 +35,9 @@ namespace Auremo
         private IDictionary<string, ISet<AlbumMetadata>> m_AlbumsByGenre = new SortedDictionary<string, ISet<AlbumMetadata>>();
         private IDictionary<AlbumMetadata, ISet<string>> m_SongPathsByAlbum = new SortedDictionary<AlbumMetadata, ISet<string>>();
         private IDictionary<SongMetadata, AlbumMetadata> m_AlbumBySong = new SortedDictionary<SongMetadata, AlbumMetadata>();
-        private IDictionary<string, SongMetadata> m_SongInfo = new SortedDictionary<string, SongMetadata>(StringComparer.Ordinal);
+        private IDictionary<string, SongMetadata> m_LocalSongCollection = new SortedDictionary<string, SongMetadata>(StringComparer.Ordinal);
+        private IDictionary<string, SongMetadata> m_SpotifySongCollection = new SortedDictionary<string, SongMetadata>(StringComparer.Ordinal);
+
 
         public Database(DataModel dataModel)
         {
@@ -53,7 +55,7 @@ namespace Auremo
             m_AlbumsByGenre.Clear();
             m_SongPathsByAlbum = new SortedDictionary<AlbumMetadata, ISet<string>>(AlbumSortRule);
             m_AlbumBySong.Clear();
-            m_SongInfo.Clear();
+            m_LocalSongCollection.Clear();
 
             Artists = new List<string>();
             Genres = new List<string>();
@@ -90,7 +92,7 @@ namespace Auremo
         {
             get
             {
-                return m_SongInfo.Values;
+                return m_LocalSongCollection.Values;
             }
         }
 
@@ -146,9 +148,9 @@ namespace Auremo
             {
                 foreach (string path in m_SongPathsByAlbum[byAlbum])
                 {
-                    if (m_SongInfo.ContainsKey(path))
+                    if (m_LocalSongCollection.ContainsKey(path))
                     {
-                        result.Add(m_SongInfo[path]);
+                        result.Add(m_LocalSongCollection[path]);
                     }
                 }
             }
@@ -160,7 +162,11 @@ namespace Auremo
         {
             SongMetadata result;
             
-            if (m_SongInfo.TryGetValue(path, out result))
+            if (m_LocalSongCollection.TryGetValue(path, out result))
+            {
+                return result;
+            }
+            else if (m_SpotifySongCollection.TryGetValue(path, out result))
             {
                 return result;
             }
@@ -216,9 +222,22 @@ namespace Auremo
                 {
                     if (line.Name == "file")
                     {
-                        if (song.Path != null && song.IsLocal && !m_SongInfo.ContainsKey(song.Path))
+                        if (song.Path != null)
                         {
-                            m_SongInfo.Add(song.Path, song);
+                            if (song.IsSpotify)
+                            {
+                                if (!m_SpotifySongCollection.ContainsKey(song.Path))
+                                {
+                                    m_SpotifySongCollection.Add(song.Path, song);
+                                }
+                            }
+                            else if (song.IsLocal)
+                            {
+                                if (!m_LocalSongCollection.ContainsKey(song.Path))
+                                {
+                                    m_LocalSongCollection.Add(song.Path, song);
+                                }
+                            }
                         }
 
                         song = new SongMetadata();
@@ -256,7 +275,7 @@ namespace Auremo
 
                 if (song.Path != null)
                 {
-                    m_SongInfo.Add(song.Path, song);
+                    m_LocalSongCollection.Add(song.Path, song);
                 }
             }
         }
@@ -265,7 +284,7 @@ namespace Auremo
         {
             ISet<string> uniqueArtists = new SortedSet<string>();
 
-            foreach (SongMetadata song in m_SongInfo.Values)
+            foreach (SongMetadata song in m_LocalSongCollection.Values)
             {
                 uniqueArtists.Add(song.Artist);
             }
@@ -277,7 +296,7 @@ namespace Auremo
         {
             ISet<string> uniqueGenres = new SortedSet<string>();
 
-            foreach (SongMetadata song in m_SongInfo.Values)
+            foreach (SongMetadata song in m_LocalSongCollection.Values)
             {
                 uniqueGenres.Add(song.Genre);
             }
@@ -291,7 +310,7 @@ namespace Auremo
             // the last timestamp for each.
             IDictionary<string, IDictionary<string, string>> artistTitleAndDate = new SortedDictionary<string, IDictionary<string, string>>();
 
-            foreach (SongMetadata song in m_SongInfo.Values)
+            foreach (SongMetadata song in m_LocalSongCollection.Values)
             {
                 if (artistTitleAndDate.ContainsKey(song.Artist))
                 {
@@ -333,7 +352,7 @@ namespace Auremo
 
         private void PopulateSongPathsByAlbum()
         {
-            foreach (SongMetadata song in m_SongInfo.Values)
+            foreach (SongMetadata song in m_LocalSongCollection.Values)
             {
                 AlbumMetadata album = m_AlbumsByArtistAndName[song.Artist][song.Album];
 
@@ -359,7 +378,7 @@ namespace Auremo
 
         private void PopulateAlbumsByGenre()
         {
-            foreach (SongMetadata song in m_SongInfo.Values)
+            foreach (SongMetadata song in m_LocalSongCollection.Values)
             {
                 if (!m_AlbumsByGenre.ContainsKey(song.Genre))
                 {
