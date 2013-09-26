@@ -192,9 +192,8 @@ namespace Auremo
 
             foreach (SongMetadata song in m_DataModel.Database.Songs)
             {
-                Tuple<string, string> directoryAndFile = Utils.SplitPath(song.Path);
-                TreeViewNode parent = FindDirectoryNode(directoryAndFile.Item1, directoryLookup, rootNode);
-                SongMetadataTreeViewNode leaf = new SongMetadataTreeViewNode(directoryAndFile.Item2, song, parent, DirectoryTreeController);
+                TreeViewNode parent = FindDirectoryNode(song.Directory, directoryLookup, rootNode);
+                SongMetadataTreeViewNode leaf = new SongMetadataTreeViewNode(song.Filename, song, parent, DirectoryTreeController);
                 parent.AddChild(leaf);
             }
 

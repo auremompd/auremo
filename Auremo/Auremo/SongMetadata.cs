@@ -19,14 +19,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Auremo
 {
     public class SongMetadata : Playable, IComparable
     {
+        private string m_Path = null;
+        private string m_Title = null;
+        private string m_PathTypePrefix = null; // This appears to be Mopidy-specific
+        private string m_Directory = "";
+        private string m_Filename = "";
+
         public SongMetadata()
         {
-            Path = null;
             Length = null;
             Track = null;
             Date = null;
@@ -38,23 +44,65 @@ namespace Auremo
 
         public string Path
         {
-            get;
-            set;
+            get
+            {
+                return m_Path;
+            }
+            set
+            {
+                m_Path = value;
+                string strippedPath = value;
+
+                if (strippedPath.StartsWith("local:track:"))
+                {
+                    m_PathTypePrefix = "local:track:";
+                    strippedPath = strippedPath.Substring(12);
+                }
+                else if (strippedPath.StartsWith("spotify:track:"))
+                {
+                    m_PathTypePrefix = "spotify:track:";
+                    strippedPath = strippedPath.Substring(14);
+                }
+
+                int lastSlash = strippedPath.LastIndexOf('/');
+
+                if (lastSlash >= 0)
+                {
+                    m_Directory = strippedPath.Substring(0, lastSlash);
+                    strippedPath = strippedPath.Substring(lastSlash + 1);
+                }
+
+                m_Filename = strippedPath;
+            }
         }
 
-        private string m_Title = "";
+        public string Directory
+        {
+            get
+            {
+                return m_Directory;
+            }
+        }
+
+        public string Filename
+        {
+            get
+            {
+                return m_Filename;
+            }
+        }
 
         public string Title
         {
             get
             {
-                if (m_Title.Length > 0)
+                if (m_Title == null)
                 {
-                    return m_Title;
+                    return m_Filename;
                 }
                 else
                 {
-                    return Utils.SplitPath(Path).Item2;
+                    return m_Title;
                 }
             }
             set
@@ -104,6 +152,22 @@ namespace Auremo
             get
             {
                 return Utils.ExtractYearFromDateString(Date);
+            }
+        }
+
+        public bool IsLocal
+        {
+            get
+            {
+                return m_PathTypePrefix == null || m_PathTypePrefix == "local:track:";
+            }
+        }
+
+        public bool IsSpotify
+        {
+            get
+            {
+                return m_PathTypePrefix == null || m_PathTypePrefix == "local:spotify:";
             }
         }
 

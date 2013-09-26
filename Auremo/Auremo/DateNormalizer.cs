@@ -38,13 +38,16 @@ namespace Auremo
 
         public string Normalize(string date)
         {
-            foreach (DateTemplate template in m_Templates)
+            if (date != null)
             {
-                string result = template.TryToParseDate(date);
-
-                if (result != null)
+                foreach (DateTemplate template in m_Templates)
                 {
-                    return result;
+                    string result = template.TryToParseDate(date);
+
+                    if (result != null)
+                    {
+                        return result;
+                    }
                 }
             }
 

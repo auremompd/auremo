@@ -200,6 +200,14 @@ namespace Auremo
         {
             ServerResponse response = Protocol.ListAllInfo(connection);
 
+            if (response != null && response.IsACK && response.Status.Full.Contains("Not implemented"))
+            {
+                // TODO: this is a hack for Mopidy, which currently does not
+                // support listallinfo, but does give a reasonable result 
+                // when searching for "anything".
+                response = Protocol.ListAllInfoMopidyWordaround(connection);
+            }
+            
             if (response != null && response.IsOK)
             {
                 SongMetadata song = new SongMetadata();
@@ -208,7 +216,7 @@ namespace Auremo
                 {
                     if (line.Name == "file")
                     {
-                        if (song.Path != null)
+                        if (song.Path != null && song.IsLocal && !m_SongInfo.ContainsKey(song.Path))
                         {
                             m_SongInfo.Add(song.Path, song);
                         }
