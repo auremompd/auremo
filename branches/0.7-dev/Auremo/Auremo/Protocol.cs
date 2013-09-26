@@ -54,6 +54,13 @@ namespace Auremo
             return SendStringAndGetResponse(connection, "listallinfo");
         }
 
+        // TODO: this is a workaround for Mopidy's missing listallinfo
+        // commands. Remove it if/when Mopidy adds support.
+        public static ServerResponse ListAllInfoMopidyWordaround(ServerConnection connection)
+        {
+            return SendStringAndGetResponse(connection, "search any \"\"");
+        }
+
         #endregion
 
         #region Playlist commands (reference order)
@@ -65,7 +72,7 @@ namespace Auremo
 
         public static ServerResponse AddId(ServerConnection connection, string path, int position)
         {
-            return SendStringAndGetResponse(connection, "addid " + QuoteString(path) + " " + position);
+            return SendStringAndGetResponse(connection, "addid " + QuoteString(path) + " \"" + position + "\"");
         }
 
         public static ServerResponse Clear(ServerConnection connection)
@@ -80,7 +87,7 @@ namespace Auremo
 
         public static ServerResponse DeleteId(ServerConnection connection, int id)
         {
-            return SendStringAndGetResponse(connection, "deleteid " + id);
+            return SendStringAndGetResponse(connection, "deleteid \"" + id + "\"");
         }
 
         public static ServerResponse Load(ServerConnection connection, string name)
@@ -95,7 +102,7 @@ namespace Auremo
 
         public static ServerResponse MoveId(ServerConnection connection, int id, int position)
         {
-            return SendStringAndGetResponse(connection, "moveid " + id + " " + position);
+            return SendStringAndGetResponse(connection, "moveid " + id + " \"" + position + "\"");
         }
 
         public static ServerResponse PlaylistInfo(ServerConnection connection)
@@ -149,7 +156,7 @@ namespace Auremo
 
         public static ServerResponse PlayId(ServerConnection connection, int id)
         {
-            return SendStringAndGetResponse(connection, "playid " + id);
+            return SendStringAndGetResponse(connection, "playid \"" + id + "\"");
         }
 
         public static ServerResponse Previous(ServerConnection connection)
@@ -159,22 +166,22 @@ namespace Auremo
 
         public static ServerResponse Random(ServerConnection connection, bool to)
         {
-            return SendStringAndGetResponse(connection, "random " + (to ? "1" : "0"));
+            return SendStringAndGetResponse(connection, "random " + (to ? "\"1\"" : "\"0\""));
         }
 
         public static ServerResponse Repeat(ServerConnection connection, bool to)
         {
-            return SendStringAndGetResponse(connection, "repeat " + (to ? "1" : "0"));
+            return SendStringAndGetResponse(connection, "repeat " + (to ? "\"1\"" : "\"0\""));
         }
 
         public static ServerResponse Seek(ServerConnection connection, int songIndex, int position)
         {
-            return SendStringAndGetResponse(connection, "seek " + songIndex + " " + position);
+            return SendStringAndGetResponse(connection, "seek \"" + songIndex + "\" \"" + position + "\"");
         }
 
         public static ServerResponse SetVol(ServerConnection connection, int volume)
         {
-            return SendStringAndGetResponse(connection, "setvol " + volume);
+            return SendStringAndGetResponse(connection, "setvol \"" + volume + "\"");
         }
 
         public static ServerResponse Stop(ServerConnection connection)
@@ -193,12 +200,12 @@ namespace Auremo
 
         public static ServerResponse EnableOutput(ServerConnection connection, int index)
         {
-            return SendStringAndGetResponse(connection, "enableoutput " + index);
+            return SendStringAndGetResponse(connection, "enableoutput \"" + index + "\"");
         }
 
         public static ServerResponse DisableOutput(ServerConnection connection, int index)
         {
-            return SendStringAndGetResponse(connection, "disableoutput " + index);
+            return SendStringAndGetResponse(connection, "disableoutput \"" + index + "\"");
         }
 
         #endregion
