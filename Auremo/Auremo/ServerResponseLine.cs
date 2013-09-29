@@ -67,5 +67,10 @@ namespace Auremo
                 }
             }
         }
+
+        public override string ToString()
+        {
+ 	         return Full;
+        }
     }
 }
