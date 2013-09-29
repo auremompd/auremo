@@ -333,7 +333,7 @@ namespace Auremo
                     Back();
                     e.Handled = true;
                 }
-                else if (e.Key == Key.Space && !m_SearchBox.IsFocused && m_StringQueryOverlay.Visibility != Visibility.Visible && !AutoSearchInProgrss)
+                else if (e.Key == Key.Space && !m_SearchBox.IsFocused && !m_SpotifySearchBox.IsFocused && m_StringQueryOverlay.Visibility != Visibility.Visible && !AutoSearchInProgrss)
                 {
                     TogglePlayPause();
                     e.Handled = true;
