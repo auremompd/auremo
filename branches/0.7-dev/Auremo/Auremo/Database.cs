@@ -28,7 +28,6 @@ namespace Auremo
 {
     public class Database
     {
-        private DateNormalizer m_DateNormalizer = null;
         private DataModel m_DataModel = null;
         private IDictionary<string, ISet<AlbumMetadata>> m_AlbumsByArtist = new SortedDictionary<string, ISet<AlbumMetadata>>();
         private IDictionary<string, IDictionary<string, AlbumMetadata>> m_AlbumsByArtistAndName = new SortedDictionary<string, IDictionary<string, AlbumMetadata>>();
@@ -38,13 +37,14 @@ namespace Auremo
         private IDictionary<string, SongMetadata> m_LocalSongCollection = new SortedDictionary<string, SongMetadata>(StringComparer.Ordinal);
         private IDictionary<string, SongMetadata> m_SpotifySongCollection = new SortedDictionary<string, SongMetadata>(StringComparer.Ordinal);
 
-
         public Database(DataModel dataModel)
         {
             m_DataModel = dataModel;
             Artists = new List<string>();
             Genres = new List<string>();
             AlbumSortRule = new AlbumByDateComparer();
+            string[] dateFormats = { "YYYY" };
+            DateNormalizer = new DateNormalizer(dateFormats);
         }
 
         public bool RefreshCollection()
@@ -180,6 +180,12 @@ namespace Auremo
             private set;
         }
 
+        public DateNormalizer DateNormalizer
+        {
+            get;
+            private set;
+        }
+
         private void ProcessSettings()
         {
             StringCollection formatCollection = Settings.Default.AlbumDateFormats;
@@ -190,7 +196,7 @@ namespace Auremo
                 formatList.Add(format);
             }
 
-            m_DateNormalizer = new DateNormalizer(formatList);
+            DateNormalizer = new DateNormalizer(formatList);
 
             if (Settings.Default.AlbumSortingMode == AlbumSortingMode.ByDate.ToString())
             {
@@ -213,69 +219,27 @@ namespace Auremo
                 // when searching for "anything".
                 response = Protocol.ListAllInfoMopidyWordaround(connection);
             }
-            
-            if (response != null && response.IsOK)
+
+            IList<PlaylistItem> items = new List<PlaylistItem>();
+            Utils.ParseSongListResponse(response, DateNormalizer, items);
+
+            foreach (PlaylistItem item in items)
             {
-                SongMetadata song = new SongMetadata();
+                SongMetadata song = item.Playable as SongMetadata;
 
-                foreach (ServerResponseLine line in response.ResponseLines)
+                if (song.IsSpotify)
                 {
-                    if (line.Name == "file")
+                    if (!m_SpotifySongCollection.ContainsKey(song.Path))
                     {
-                        if (song.Path != null)
-                        {
-                            if (song.IsSpotify)
-                            {
-                                if (!m_SpotifySongCollection.ContainsKey(song.Path))
-                                {
-                                    m_SpotifySongCollection.Add(song.Path, song);
-                                }
-                            }
-                            else if (song.IsLocal)
-                            {
-                                if (!m_LocalSongCollection.ContainsKey(song.Path))
-                                {
-                                    m_LocalSongCollection.Add(song.Path, song);
-                                }
-                            }
-                        }
-
-                        song = new SongMetadata();
-                        song.Path = line.Value;
-                    }
-                    else if (line.Name == "Title")
-                    {
-                        song.Title = line.Value;
-                    }
-                    else if (line.Name == "Artist")
-                    {
-                        song.Artist = line.Value;
-                    }
-                    else if (line.Name == "Album")
-                    {
-                        song.Album = line.Value;
-                    }
-                    else if (line.Name == "Genre")
-                    {
-                        song.Genre = line.Value;
-                    }
-                    else if (line.Name == "Time")
-                    {
-                        song.Length = Utils.StringToInt(line.Value);
-                    }
-                    else if (line.Name == "Date")
-                    {
-                        song.Date = m_DateNormalizer.Normalize(line.Value);
-                    }
-                    else if (line.Name == "Track")
-                    {
-                        song.Track = Utils.StringToInt(line.Value);
+                        m_SpotifySongCollection.Add(song.Path, song);
                     }
                 }
-
-                if (song.Path != null)
+                else if (song.IsLocal)
                 {
-                    m_LocalSongCollection.Add(song.Path, song);
+                    if (!m_LocalSongCollection.ContainsKey(song.Path))
+                    {
+                        m_LocalSongCollection.Add(song.Path, song);
+                    }
                 }
             }
         }

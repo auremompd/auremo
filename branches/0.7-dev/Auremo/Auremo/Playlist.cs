@@ -101,41 +101,7 @@ namespace Auremo
                 return;
 
             ServerResponse response = Protocol.PlaylistInfo(m_DataModel.ServerConnection);
-
-            if (response == null || !response.IsOK)
-                return;
-
-            PlaylistItem item = new PlaylistItem();
-
-            foreach (ServerResponseLine line in response.ResponseLines)
-            {
-                if (line.Name == "file")
-                {
-                    if (item.IsValid)
-                    {
-                        Items.Add(item);
-                    }
-
-                    item = new PlaylistItem();
-                    item.Playable = PlayableByPath(line.Value);
-                }
-                else if (line.Name == "Id")
-                {
-                    int? id = Utils.StringToInt(line.Value);
-                    item.Id = id.HasValue ? id.Value : -1;
-                }
-                else if (line.Name == "Pos")
-                {
-                    int? position = Utils.StringToInt(line.Value);
-                    item.Position = position.HasValue ? position.Value : -1;
-                }
-            }
-
-            if (item.IsValid)
-            {
-                Items.Add(item);
-            }
-
+            Utils.ParseSongListResponse(response, m_DataModel.Database.DateNormalizer, Items);
             UpdateCurrentSong();
         }
 

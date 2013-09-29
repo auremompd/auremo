@@ -2464,7 +2464,7 @@ namespace Auremo
             const int artistColumnDisplayIndex = 1;
             const int albumColumnDisplayIndex = 2;
 
-            CollectionSearch.SearchResultTuple result = (CollectionSearch.SearchResultTuple)(cell.Item);
+            CollectionSearch.SearchResultTuple result = (CollectionSearch.SearchResultTuple)cell.Item;
 
             if (result != null)
             {
@@ -2579,7 +2579,7 @@ namespace Auremo
 
             foreach (DataGridCellInfo cell in m_SearchResultsView.SelectedCells)
             {
-                CollectionSearch.SearchResultTuple searchResult = (CollectionSearch.SearchResultTuple)(cell.Item);
+                CollectionSearch.SearchResultTuple searchResult = (CollectionSearch.SearchResultTuple)cell.Item;
 
                 if (searchResult != null)
                 {
@@ -2659,7 +2659,7 @@ namespace Auremo
             {
                 return AddAlbums;
             }
-            else if (dragSource == m_SongsOnSelectedAlbumsView || dragSource == m_SongsOnSelectedGenreAlbumsView)
+            else if (dragSource == m_SongsOnSelectedAlbumsView || dragSource == m_SongsOnSelectedGenreAlbumsView || dragSource == m_SpotifySearchResultsView)
             {
                 return AddSongs;
             }
@@ -2729,5 +2729,13 @@ namespace Auremo
         }
 
         #endregion
+
+        private void OnSpotifySearchClicked(object sender, RoutedEventArgs e)
+        {
+            if (m_SpotifySearchBox.Text.Length > 0)
+            {
+                DataModel.SpotifySearch.Search(m_SpotifySearchBox.Text);
+            }
+        }
     }
 }

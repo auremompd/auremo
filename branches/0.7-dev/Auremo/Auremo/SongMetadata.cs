@@ -167,7 +167,7 @@ namespace Auremo
         {
             get
             {
-                return m_PathTypePrefix == null || m_PathTypePrefix == "spotify:track:";
+                return m_PathTypePrefix == "spotify:track:";
             }
         }
 

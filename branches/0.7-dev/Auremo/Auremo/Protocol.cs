@@ -100,6 +100,11 @@ namespace Auremo
             return SendStringAndGetResponse(connection, "lsinfo");
         }
 
+        public static ServerResponse Search(ServerConnection connection, string type, string what)
+        {
+            return SendStringAndGetResponse(connection, "search " + type + " \"" + what + "\"");
+        }
+
         public static ServerResponse MoveId(ServerConnection connection, int id, int position)
         {
             return SendStringAndGetResponse(connection, "moveid " + id + " \"" + position + "\"");
