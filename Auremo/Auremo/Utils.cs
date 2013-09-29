@@ -130,5 +130,76 @@ namespace Auremo
                 return date.Substring(0, 4);
             }
         }
+
+        public static void ParseSongListResponse(ServerResponse response, DateNormalizer dateNormalizer, IList<PlaylistItem> result)
+        {
+            result.Clear();
+
+            if (response != null && response.IsOK)
+            {
+                PlaylistItem item = new PlaylistItem();
+                SongMetadata song = new SongMetadata();
+                item.Playable = song;
+
+                foreach (ServerResponseLine line in response.ResponseLines)
+                {
+                    if (line.Name == "file")
+                    {
+                        if (song.Path != null && (song.IsLocal || song.IsSpotify))
+                        {
+                            result.Add(item);
+                        }
+
+                        item = new PlaylistItem();
+                        song = new SongMetadata();
+                        item.Playable = song;
+                        song.Path = line.Value;
+                    }
+                    else if (line.Name == "Title")
+                    {
+                        song.Title = line.Value;
+                    }
+                    else if (line.Name == "Artist")
+                    {
+                        song.Artist = line.Value;
+                    }
+                    else if (line.Name == "Album")
+                    {
+                        song.Album = line.Value;
+                    }
+                    else if (line.Name == "Genre")
+                    {
+                        song.Genre = line.Value;
+                    }
+                    else if (line.Name == "Time")
+                    {
+                        song.Length = Utils.StringToInt(line.Value);
+                    }
+                    else if (line.Name == "Date")
+                    {
+                        song.Date = dateNormalizer.Normalize(line.Value);
+                    }
+                    else if (line.Name == "Track")
+                    {
+                        song.Track = Utils.StringToInt(line.Value);
+                    }
+                    else if (line.Name == "Id")
+                    {
+                        int? id = Utils.StringToInt(line.Value);
+                        item.Id = id.HasValue ? id.Value : -1;
+                    }
+                    else if (line.Name == "Pos")
+                    {
+                        int? position = Utils.StringToInt(line.Value);
+                        item.Position = position.HasValue ? position.Value : -1;
+                    }
+                }
+
+                if (song.Path != null)
+                {
+                    result.Add(item);
+                }
+            }
+        }
     }
 }

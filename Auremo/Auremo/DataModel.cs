@@ -31,6 +31,7 @@ namespace Auremo
             ServerStatus = new ServerStatus();
             Database = new Database(this);
             CollectionSearch = new CollectionSearch(this);
+            SpotifySearch = new SpotifySearch(this);
             DatabaseView = new DatabaseView(this);
             StreamsCollection = new StreamsCollection();
             SavedPlaylists = new SavedPlaylists(this);
@@ -57,6 +58,12 @@ namespace Auremo
         }
 
         public CollectionSearch CollectionSearch
+        {
+            get;
+            private set;
+        }
+
+        public SpotifySearch SpotifySearch
         {
             get;
             private set;
