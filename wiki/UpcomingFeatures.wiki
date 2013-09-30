@@ -4,7 +4,7 @@
 
 The 0.7 version will add new features.
 
-==Committed features and fixes==
+==Committed features and fixes, possibly available in the current prerelease==
 
   * Rudimentary Mopidy support (incl. Spotify integration), WIP.
   * Make status bar text selectable and improve the current song display.
