@@ -36,6 +36,7 @@ namespace Auremo
             StreamsCollection = new StreamsCollection();
             SavedPlaylists = new SavedPlaylists(this);
             Playlist = new Playlist(this);
+            CurrentSong = new CurrentSong(this);
             OutputCollection = new OutputCollection();
         }
 
@@ -93,6 +94,12 @@ namespace Auremo
             private set;
         }
 
+        public CurrentSong CurrentSong
+        {
+            get;
+            private set;
+        }
+        
         public OutputCollection OutputCollection
         {
             get;

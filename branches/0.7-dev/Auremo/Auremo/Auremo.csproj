@@ -123,6 +123,7 @@
     <Compile Include="AlbumComparison.cs" />
     <Compile Include="AlbumMetadataTreeViewNode.cs" />
     <Compile Include="ConverterClasses.cs" />
+    <Compile Include="CurrentSong.cs" />
     <Compile Include="GlobalEnums.cs" />
     <Compile Include="ArtistTreeViewNode.cs" />
     <Compile Include="CollectionSearch.cs" />
@@ -197,6 +198,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="WPFResources\ContextMenuStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WPFResources\CopyableTextBlockStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

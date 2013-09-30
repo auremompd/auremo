@@ -11,6 +11,7 @@
                 <ResourceDictionary Source="WPFResources/ScrollViewerStyle.xaml"/>
                 <ResourceDictionary Source="WPFResources/ActionButtonStyle.xaml"/>
                 <ResourceDictionary Source="WPFResources/ContextMenuStyle.xaml"/>
+                <ResourceDictionary Source="WPFResources/CopyableTextBlockStyle.xaml"/>
                 <ResourceDictionary Source="WPFResources/MainMenuStyle.xaml"/>
                 <ResourceDictionary Source="WPFResources/MusicCollectionDataGridStyle.xaml"/>
                 <ResourceDictionary Source="WPFResources/MusicCollectionTreeViewStyle.xaml"/>
