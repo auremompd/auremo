@@ -6,7 +6,8 @@ The 0.7 version will add new features.
 
 ==Committed features and fixes==
 
-  * (no commits yet)
+  * Rudimentary Mopidy support (incl. Spotify integration), WIP.
+  * Make status bar text selectable and improve the current song display.
 
 == Bugs ==
 
@@ -16,5 +17,5 @@ The 0.7 version will add new features.
 
 These features will be added before the release.
 
-  * Add Mopidy support.
+  * Improve Mopidy support.
   * Make network communication asynchronous. Rewrite the protocol parser in a more orthodox way.
