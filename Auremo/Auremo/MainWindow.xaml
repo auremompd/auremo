@@ -79,7 +79,7 @@
                 <ColumnDefinition Width="75*"/>
             </Grid.ColumnDefinitions>
             <TabControl Name="m_CollectionBrowsingModes" Style="{StaticResource MusicCollectionTabControlStyle}" Grid.ColumnSpan="2" KeyboardNavigation.DirectionalNavigation="None">
-                <TabItem Name="m_SearchTab" Header="Search" Visibility="Visible">
+                <TabItem Name="m_SearchTab" Header="Search">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
@@ -593,17 +593,17 @@
             </Grid>
         </Border>
         <Border Grid.Row="4" BorderBrush="{StaticResource SeparatorBorderBrush}" BorderThickness="0,1,0,0" Grid.ColumnSpan="2">
-            <StatusBar Padding="20, 0" Background="{StaticResource WindowBackgroundBrush}" Height="50">
+            <StatusBar Padding="20,0" Background="{StaticResource WindowBackgroundBrush}" Height="50">
                 <StatusBarItem HorizontalAlignment="Left">
                     <StackPanel>
-                        <Label Foreground="{StaticResource PassiveTextBrush}" Content="{Binding Path=Playlist.PlayStatusDescription}" Padding="5,2"/>
-                        <Label Foreground="{StaticResource PassiveTextBrush}" Content="{Binding Path=ServerStatus.AudioQuality}" Padding="5,2"/>
+                        <TextBox Style="{StaticResource CopyableTextBlockStyle}" Text="{Binding Path=CurrentSong.DisplayString, Mode=OneWay}" Padding="2"/>
+                        <TextBox Style="{StaticResource CopyableTextBlockStyle}" Text="{Binding Path=ServerStatus.AudioQuality, Mode=OneWay}" Padding="2"/>
                     </StackPanel>
                 </StatusBarItem>
                 <StatusBarItem HorizontalAlignment="Right">
                     <StackPanel>
-                        <Label Foreground="{StaticResource PassiveTextBrush}" Content="{Binding Path=ServerConnection.StatusDescription}" HorizontalAlignment="Right" Padding="5,2"/>
-                        <Label Foreground="{StaticResource PassiveTextBrush}" Content="{Binding Path=ServerStatus.ErrorMessage}" HorizontalAlignment="Right" Padding="5,2"/>
+                        <TextBox Style="{StaticResource CopyableTextBlockStyle}" Text="{Binding Path=ServerConnection.StatusDescription, Mode=OneWay}" HorizontalAlignment="Right" Padding="2"/>
+                        <TextBox Style="{StaticResource CopyableTextBlockStyle}" Text="{Binding Path=ServerStatus.ErrorMessage, Mode=OneWay}" HorizontalAlignment="Right" Padding="2"/>
                     </StackPanel>
                 </StatusBarItem>
             </StatusBar>

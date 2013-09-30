@@ -85,6 +85,7 @@ namespace Auremo
             if (e.PropertyName == "PlaylistVersion")
             {
                 UpdateItems();
+                UpdateCurrentSong();
             }
             else if (e.PropertyName == "CurrentSongIndex" || e.PropertyName == "State")
             {
@@ -172,7 +173,7 @@ namespace Auremo
 
                 PlayStatusDescription = status;
             }
-
+            
             NotifyPropertyChanged("PlayStatusDescription");
         }
 
