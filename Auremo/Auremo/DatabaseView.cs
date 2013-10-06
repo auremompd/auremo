@@ -165,8 +165,11 @@ namespace Auremo
 
                     foreach (SongMetadata song in m_DataModel.Database.SongsByAlbum(album))
                     {
-                        SongMetadataTreeViewNode songNode = new SongMetadataTreeViewNode("", song, albumNode, GenreTreeController);
-                        albumNode.AddChild(songNode);
+                        if (song.Genre == genre)
+                        {
+                            SongMetadataTreeViewNode songNode = new SongMetadataTreeViewNode("", song, albumNode, GenreTreeController);
+                            albumNode.AddChild(songNode);
+                        }
                     }
                 }
 
@@ -413,7 +416,11 @@ namespace Auremo
                 {
                     foreach (SongMetadata song in m_DataModel.Database.SongsByAlbum(album))
                     {
-                        SongsOnSelectedAlbumsOfSelectedGenres.Add(song);
+                        // TODO: O(n*m), but O(n log(m)) is possible. (m is small.)
+                        if (SelectedGenres.Contains(song.Genre))
+                        {
+                            SongsOnSelectedAlbumsOfSelectedGenres.Add(song);
+                        }
                     }
                 }
 

@@ -463,6 +463,20 @@ namespace Auremo
 
         #region Key, mouse and menu events common to multiple controls
 
+        private void OnAlbumsOfSelectedGenresViewKeyDown(object sender, KeyEventArgs e)
+        {
+            
+            if (!e.Handled)
+            {
+                if (e.Key == Key.Enter)
+                {
+                    DataGrid grid = sender as DataGrid;
+                    SendItemsToPlaylist(sender, Utils.ToTypedList<object>(m_SongsOnSelectedGenreAlbumsView.Items));
+                    e.Handled = true;
+                }
+            }
+        }
+
         private void OnMusicCollectionDataGridKeyDown(object sender, KeyEventArgs e)
         {
             if (!e.Handled)
@@ -470,7 +484,17 @@ namespace Auremo
                 if (e.Key == Key.Enter)
                 {
                     DataGrid grid = sender as DataGrid;
-                    SendItemsToPlaylist(sender, Utils.ToTypedList<object>(grid.SelectedItems));
+
+                    if (grid == m_AlbumsOfSelectedGenresView)
+                    {
+                        // Filter album contents by selected genres.
+                        SendItemsToPlaylist(sender, Utils.ToTypedList<object>(m_SongsOnSelectedGenreAlbumsView.Items));
+                    }
+                    else
+                    {
+                        SendItemsToPlaylist(sender, Utils.ToTypedList<object>(grid.SelectedItems));
+                    }
+                    
                     e.Handled = true;
                 }
                 else if (sender == m_StreamsView)
@@ -510,6 +534,21 @@ namespace Auremo
             }
         }
 
+        private void OnAlbumsOfSelectedGenresViewDoubleClicked(object sender, MouseButtonEventArgs e)
+        {
+            // Filter album contents by selected genres.
+            if (!e.Handled)
+            {
+                DataGridRow row = DataGridRowBeingClicked(m_AlbumsOfSelectedGenresView, e);
+
+                if (row != null)
+                {
+                    SendItemsToPlaylist(sender, Utils.ToTypedList<SongMetadata>(m_SongsOnSelectedGenreAlbumsView.Items));
+                    e.Handled = true;
+                }
+            }
+        }
+
         private void OnMusicCollectionDataGridDoubleClicked(object sender, MouseButtonEventArgs e)
         {
             if (!e.Handled)
@@ -519,9 +558,18 @@ namespace Auremo
 
                 if (row != null)
                 {
-                    IList<object> item = new List<object>();
-                    item.Add(row.Item);
-                    SendItemsToPlaylist(sender, item);
+                    if (grid == m_AlbumsOfSelectedGenresView)
+                    {
+                        // Filter album contents by selected genres.
+                        SendItemsToPlaylist(sender, Utils.ToTypedList<object>(m_SongsOnSelectedGenreAlbumsView.Items));
+                    }
+                    else
+                    {
+                        IList<object> item = new List<object>();
+                        item.Add(row.Item);
+                        SendItemsToPlaylist(sender, item);
+                    }
+                    
                     e.Handled = true;
                 }
             }
@@ -886,6 +934,14 @@ namespace Auremo
                                     payload.Add(item);
                                 }
                             }
+                        }
+                    }
+                    else if (m_DragSource == m_AlbumsOfSelectedGenresView)
+                    {
+                        // Filter album contents by selected genres.
+                        foreach (object o in m_SongsOnSelectedGenreAlbumsView.Items)
+                        {
+                            payload.Add(o);
                         }
                     }
                     else if (m_DragSource is DataGrid)
@@ -1862,7 +1918,7 @@ namespace Auremo
         {
             foreach (AlbumMetadata album in DataModel.Database.AlbumsByGenre(genre))
             {
-                AddAlbumToPlaylist(album);
+                AddGenreFilteredAlbumToPlaylist(album, genre);
             }
         }
 
@@ -1872,7 +1928,7 @@ namespace Auremo
 
             foreach (AlbumMetadata album in DataModel.Database.AlbumsByGenre(genre))
             {
-                position = AddAlbumToPlaylist(album, position);
+                position = AddGenreFilteredAlbumToPlaylist(album, genre, position);
             }
 
             return position;
@@ -1893,6 +1949,32 @@ namespace Auremo
             foreach (SongMetadata song in DataModel.Database.SongsByAlbum(album))
             {
                 position = AddSongToPlaylist(song, position);
+            }
+
+            return position;
+        }
+
+        private void AddGenreFilteredAlbumToPlaylist(AlbumMetadata album, string genre)
+        {
+            foreach (SongMetadata song in DataModel.Database.SongsByAlbum(album))
+            {
+                if (song.Genre == genre)
+                {
+                    AddSongToPlaylist(song);
+                }
+            }
+        }
+
+        private int AddGenreFilteredAlbumToPlaylist(AlbumMetadata album, string genre, int firstPosition)
+        {
+            int position = firstPosition;
+
+            foreach (SongMetadata song in DataModel.Database.SongsByAlbum(album))
+            {
+                if (song.Genre == genre)
+                {
+                    position = AddSongToPlaylist(song, position);
+                }
             }
 
             return position;
