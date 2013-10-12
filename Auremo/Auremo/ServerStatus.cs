@@ -53,6 +53,7 @@ namespace Auremo
         {
             m_DataModel = dataModel;
             Reset();
+            m_DataModel.ServerSession.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(OnServerSessionPropertyChanged);         
         }
 
         public void Update()
@@ -417,6 +418,21 @@ namespace Auremo
                 {
                     m_ErrorMessage = value;
                     NotifyPropertyChanged("ErrorMessage");
+                }
+            }
+        }
+
+        private void OnServerSessionPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "State")
+            {
+                if (m_DataModel.ServerSession.State == ServerSession.SessionState.Connected)
+                {
+                    Update();
+                }
+                else if (m_DataModel.ServerSession.State == ServerSession.SessionState.Disconnected)
+                {
+                    Reset();
                 }
             }
         }

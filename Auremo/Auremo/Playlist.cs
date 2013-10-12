@@ -84,7 +84,15 @@ namespace Auremo
         {
             if (e.PropertyName == "PlaylistVersion")
             {
-                UpdateItems();
+                if (m_DataModel.ServerStatus.PlaylistVersion >= 0)
+                {
+                    UpdateItems();
+                }
+                else
+                {
+                    Items.Clear();
+                }
+
                 UpdateCurrentSong();
             }
             else if (e.PropertyName == "CurrentSongIndex" || e.PropertyName == "State")
