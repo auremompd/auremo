@@ -224,13 +224,6 @@ namespace Auremo
             Send(new MPDCommand("listallinfo"));
         }
 
-        // TODO: this is a workaround for Mopidy's missing listallinfo
-        // commands. Remove it if/when Mopidy adds support.
-        public void ListAllInfoMopidyWordaround()
-        {
-            Send(new MPDCommand("search", "any", ""));
-        }
-
         #endregion
 
         #region Playlist commands
