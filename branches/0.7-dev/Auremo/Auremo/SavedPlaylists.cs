@@ -51,17 +51,24 @@ namespace Auremo
             Playlists = new ObservableCollection<string>();
             ItemsOnSelectedPlaylist = new ObservableCollection<Playable>();
             SelectedItemsOnSelectedPlaylist = new ObservableCollection<Playable>();
+
+            m_DataModel.ServerSession.PropertyChanged += new PropertyChangedEventHandler(OnServerSessionPropertyChanged);
+        }
+
+        public void Clear()
+        {
+            Playlists.Clear();
+            m_Playlists.Clear();
         }
 
         public void Refresh()
         {
-            // TODO: do this based on events.
             m_DataModel.ServerSession.LsInfo();
         }
 
         public void OnLsInfoResponseReceived(IEnumerable<MPDResponseLine> response)
         {
-            m_Playlists.Clear();
+            Clear();
 
             foreach (MPDResponseLine line in response)
             {
@@ -185,6 +192,21 @@ namespace Auremo
             }
 
             return new UnknownPlayable(path);
+        }
+
+        private void OnServerSessionPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "State")
+            {
+                if (m_DataModel.ServerSession.State == ServerSession.SessionState.Connected)
+                {
+                    Refresh();
+                }
+                else if (m_DataModel.ServerSession.State == ServerSession.SessionState.Disconnected)
+                {
+                    Clear();
+                }
+            }
         }
     }
 }
