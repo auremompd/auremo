@@ -209,7 +209,9 @@ namespace Auremo
                 {
                     if (command.Op == "listallinfo" && statusLine.Value.Contains("Not implemented"))
                     {
-                        // TODO: Mopidy workaround -- call a special callback instead of doing it manually
+                        // TODO: this is a workaround for Mopidy not implementing listallinfo.
+                        // It can hopefully removed later.
+                        Send(new MPDCommand());
                     }
                     else
                     {
@@ -218,19 +220,28 @@ namespace Auremo
                 }
                 else if (m_CurrentResponse.Count > 0)
                 {
-                    if (command.Op == "status")
+                    if (command.Op == "currentsong")
                     {
-                        Callback(m_DataModel.ServerStatus.OnStatusResponseReceived);
+                        Callback(m_DataModel.CurrentSong.OnCurrentSongResponseReceived);
                     }
-                    else if (command.Op == "stats")
-                    {
-                        Callback(m_DataModel.ServerStatus.OnStatsResponseReceived);
-                    }
-                    else if (command.Op == "listallinfo")
+                    // TODO: removed the latter when Mopidy starts supporting the latter.
+                    else if (command.Op == "listallinfo" || command.Op == "mopidylistallinfokludge")
                     {
                         ParseSongList();
                         Callback(m_DataModel.Database.OnListAllInfoResponseReceived);
                         m_CurrentSongList.Clear();
+                    }
+                    else if (command.Op == "listplaylist")
+                    {
+                        Callback(m_DataModel.SavedPlaylists.OnListPlaylistResponseReceived, command.Argument1);
+                    }
+                    else if (command.Op == "lsinfo")
+                    {
+                        Callback(m_DataModel.SavedPlaylists.OnLsInfoResponseReceived);
+                    }
+                    else if (command.Op == "outputs")
+                    {
+                        Callback(m_DataModel.OutputCollection.OnOutputsResponseReceived);
                     }
                     else if (command.Op == "playlistinfo")
                     {
@@ -238,25 +249,17 @@ namespace Auremo
                         Callback(m_DataModel.Playlist.OnPlaylistInfoResponseReceived);
                         m_CurrentSongList.Clear();
                     }
-                    else if (command.Op == "lsinfo")
-                    {
-                        Callback(m_DataModel.SavedPlaylists.OnLsInfoResponseReceived);
-                    }
-                    else if (command.Op == "listplaylist")
-                    {
-                        Callback(m_DataModel.SavedPlaylists.OnListPlaylistResponseReceived, command.Argument1);
-                    }
-                    else if (command.Op == "currentsong")
-                    {
-                        Callback(m_DataModel.CurrentSong.OnCurrentSongResponseReceived);
-                    }
                     else if (command.Op == "search")
                     {
                         Callback(m_DataModel.SpotifySearch.OnSearchResponseReceived);
                     }
-                    else if (command.Op == "outputs")
+                    else if (command.Op == "stats")
                     {
-                        Callback(m_DataModel.OutputCollection.OnOutputsResponseReceived);
+                        Callback(m_DataModel.ServerStatus.OnStatsResponseReceived);
+                    }
+                    else if (command.Op == "status")
+                    {
+                        Callback(m_DataModel.ServerStatus.OnStatusResponseReceived);
                     }
                 }
 

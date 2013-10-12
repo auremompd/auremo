@@ -63,6 +63,18 @@ namespace Auremo
             FullSyntax = op + " " + Quote(argument1) + " " + Quote(argument2);
         }
 
+        // TODO: this is a kludge to allow the formulation of the Mopidy
+        // listallinfo equivalent. It should be removed when Moopidy adds
+        // support for the proper command.
+        public MPDCommand()
+        {
+            Op = "mopidylistallinfokludge";
+            Argument1 = "any";
+            Argument2 = "";
+            FullSyntax = "search " + Quote(Argument1) + " " + Quote(Argument2);
+        }
+
+
         public string Op
         {
             get;
