@@ -130,7 +130,6 @@ namespace Auremo
         private void ConnectTo(string host, int port)
         {
             DataModel.ServerSession.Connect(host, port);
-            //SetTimerInterval(100); // Run with tight frequency until connected.
         }
 
         private void DoPostConnectInit()
@@ -141,9 +140,6 @@ namespace Auremo
             {
                 DataModel.ServerSession.Password(password);
             }
-            
-            DataModel.SavedPlaylists.Refresh();
-            SetTimerInterval(Settings.Default.ViewUpdateInterval); // Normal operation.
         }
 
         private void Disconnect()
