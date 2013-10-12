@@ -42,11 +42,8 @@ namespace Auremo
         #endregion
 
         private DataModel m_DataModel = null;
-        private string m_Host = "";
-        private int m_Port = 6600;
         private ServerSessionThread m_SessionThread = null;
         private Thread m_Thread = null;
-        private bool m_ConnectionDesired = false;
         private SessionState m_State = SessionState.Disconnected;
         private string m_StateDescription = "";
         private string m_ProtocolError = "";
@@ -68,26 +65,26 @@ namespace Auremo
 
         public void Connect(string host, int port)
         {
-            m_ConnectionDesired = true;
-
             if (m_SessionThread != null)
             {
                 m_SessionThread.Terminating = true;
                 m_Thread.Join();
+                m_Thread = null;
             }
 
             m_SessionThread = new ServerSessionThread(this, m_DataModel, host, port, Settings.Default.NetworkTimeout, Settings.Default.ReconnectInterval);
-            m_Thread = new Thread(new ThreadStart(m_SessionThread.Start));
+            m_Thread = new Thread(m_SessionThread.Run);
             m_Thread.Start();
         }
 
         public void Disconnect()
         {
-            m_ConnectionDesired = false;
-
             if (m_SessionThread != null)
             {
                 m_SessionThread.Terminating = true;
+                m_Thread.Join();
+                m_Thread = null;
+                m_SessionThread = null;
             }
         }
          
@@ -151,12 +148,12 @@ namespace Auremo
 
         public void OnThreadMessage(string message)
         {
-            m_DataModel.MainWindow.Dispatcher.Invoke(new ThreadMessage(OnMessage), new object[] { message });
+            m_DataModel.MainWindow.Dispatcher.BeginInvoke(new ThreadMessage(OnMessage), new object[] { message });
         }
 
         public void OnThreadError(string message)
         {
-            m_DataModel.MainWindow.Dispatcher.Invoke(new ThreadMessage(OnError), new object[] { message });
+            m_DataModel.MainWindow.Dispatcher.BeginInvoke(new ThreadMessage(OnError), new object[] { message });
         }
 
         private void OnConnected()
@@ -167,16 +164,6 @@ namespace Auremo
         private void OnDisconnected()
         {
             State = SessionState.Disconnected;
-            StateDescription = "Disconnected from " + m_Host + ":" + m_Port + ".";
-
-            m_Thread.Join();
-            m_Thread = null;
-            m_SessionThread = null;
-
-            if (m_ConnectionDesired)
-            {
-                Connect(m_Host, m_Port);
-            }
         }
 
         private void OnMessage(string message)

@@ -1,4 +1,21 @@
-﻿using System;
+﻿/*
+ * Copyright 2013 Mikko Teräs and Niilo Säämänen.
+ *
+ * This file is part of Auremo.
+ *
+ * Auremo is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, version 2.
+ *
+ * Auremo is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with Auremo. If not, see http://www.gnu.org/licenses/.
+ */
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -21,8 +38,6 @@ namespace Auremo
         private object m_Lock = new object();
         private ManualResetEvent m_ThreadEvent = new ManualResetEvent(false);
         private Queue<MPDCommand> m_CommandQueue = new Queue<MPDCommand>();
-        private string m_Host = null;
-        private int m_Port = -1;
         private int m_ReconnectInterval = 0;
         private int m_Timeout = 0;
         private TcpClient m_Connection = null;
@@ -42,96 +57,32 @@ namespace Auremo
             m_Parent = parent;
             m_DataModel = dataModel;
             m_ReceiveBuffer = new byte[m_ReceiveBufferSize];
-            m_Host = host;
-            m_Port = port;
+            Host = host;
+            Port = port;
             m_Timeout = timeout;
             m_ReconnectInterval = reconnectInterval;
         }
 
-        public void Start()
+        public void Run()
         {
-            bool connected = false;
-
-            while (!Terminating && !connected)
-            {
-                m_Connection = new TcpClient();
-                m_Connection.SendTimeout = m_Timeout;
-                m_Connection.ReceiveTimeout = m_Timeout;
-                bool retry = true;
-
-                try
-                {
-                    m_Parent.OnThreadMessage("Connecting to " + m_Host + ":" + m_Port + ".");
-                    m_Connection.Connect(m_Host, m_Port);
-                    m_Stream = m_Connection.GetStream();
-
-                    if (ParseBanner())
-                    {
-                        m_Parent.OnThreadConnected();
-                        m_Parent.OnThreadMessage("Connected to " + m_Host + ":" + m_Port + ".");
-                        connected = true;
-                    }
-                    else
-                    {
-                        m_Stream = null;
-                    }
-                }
-                catch (Exception e)
-                {
-                    retry = e is SocketException;
-                }
-
-                if (!connected)
-                {
-                    m_Parent.OnThreadMessage("Connecting to " + m_Host + ":" + m_Port + " failed.");
-
-                    if (retry)
-                    {
-                        DateTime coolOffStart = DateTime.Now;
-
-                        do
-                        {
-                            Thread.Sleep(100);
-                        } while (!Terminating && DateTime.Now.Subtract(coolOffStart).TotalSeconds < m_ReconnectInterval);
-                    }
-                    else
-                    {
-                        Terminating = true;
-                    }
-                }
-            }
-
             while (!Terminating)
             {
-                MPDCommand command = null;
-
-                lock (m_Lock)
-                {
-                    if (m_CommandQueue.Count > 0)
-                    {
-                        m_ThreadEvent.Reset();
-                        command = m_CommandQueue.Dequeue();
-                    }
-                }
-
-                if (command == null)
-                {
-                    m_ThreadEvent.WaitOne();
-                }
-                else
-                {
-                    SendCommand(command.FullSyntax);
-                    ReceiveResponse(command);
-                }
+                Connect();
+                ExecuteCommands();
+                Close();
             }
+        }
 
-            if (m_Connection.Connected)
-            {
-                Send(new MPDCommand("close"));
-                m_Connection.Close();
-            }
+        public string Host
+        {
+            get;
+            set;
+        }
 
-            m_Parent.OnThreadDisconnected();
+        public int Port
+        {
+            get;
+            set;
         }
 
         public bool Terminating
@@ -166,10 +117,122 @@ namespace Auremo
             }
         }
 
+        private void Connect()
+        {
+            while (!Terminating && m_Connection == null)
+            {
+                m_Connection = new TcpClient();
+                m_Connection.SendTimeout = m_Timeout;
+                m_Connection.ReceiveTimeout = m_Timeout;
+                bool fatal = false;
+
+                try
+                {
+                    m_Parent.OnThreadMessage("Connecting to " + Host + ":" + Port + ".");
+                    m_Connection.Connect(Host, Port);
+                    m_Stream = m_Connection.GetStream();
+                }
+                catch (Exception e)
+                {
+                    fatal = !(e is SocketException);
+                    m_Stream = null;
+                    m_Connection = null;
+                }
+
+                if (m_Connection != null)
+                {
+                    if (ParseBanner())
+                    {
+                        m_Parent.OnThreadConnected();
+                        m_Parent.OnThreadMessage("Connected to " + Host + ":" + Port + ".");
+                    }
+                    else
+                    {
+                        m_Stream = null;
+                        m_Connection = null;
+                    }
+                }
+
+                if (m_Connection == null)
+                {
+                    m_Parent.OnThreadMessage("Connecting to " + Host + ":" + Port + " failed.");
+
+                    if (fatal)
+                    {
+                        Terminating = true;
+                    }
+                    else
+                    {
+                        DateTime coolOffStart = DateTime.Now;
+
+                        do
+                        {
+                            Thread.Sleep(100);
+                        } while (!Terminating && DateTime.Now.Subtract(coolOffStart).TotalSeconds < m_ReconnectInterval);
+                    }
+                }
+            }
+        }
+
+        private void ExecuteCommands()
+        {
+            while (!Terminating)
+            {
+                MPDCommand command = null;
+
+                lock (m_Lock)
+                {
+                    if (m_CommandQueue.Count > 0)
+                    {
+                        m_ThreadEvent.Reset();
+                        command = m_CommandQueue.Dequeue();
+                    }
+                }
+
+                if (command == null)
+                {
+                    m_ThreadEvent.WaitOne();
+                }
+                else
+                {
+                    SendCommand(command.FullSyntax);
+                    ReceiveResponse(command);
+                }
+            }
+        }
+
+        private void Close()
+        {
+            m_Parent.OnThreadDisconnected();
+            m_Parent.OnThreadMessage("Disconnected from " + Host + ":" + Port + ".");
+
+            if (m_Connection != null && m_Connection.Connected)
+            {
+                SendCommand("close");
+                m_Stream.Close();
+                m_Stream = null;
+                m_Connection.Close();
+            }
+        }
+
         private bool ParseBanner()
         {
             MPDResponseLine banner = GetResponseLine();
-            return banner != null && banner.Key == MPDResponseLine.Keyword.OK && banner.Value.StartsWith("MPD");
+
+            if (banner == null)
+            {
+                m_Parent.OnThreadError("The server banner is not valid; check settings.");
+                return false;
+            }
+            else if (banner.Key == MPDResponseLine.Keyword.OK && banner.Value.StartsWith("MPD"))
+            {
+                return true;
+            }
+            else
+            {
+                m_Parent.OnThreadError("Error from server: " + banner.Literal);
+                return false;
+            }
         }
 
         private bool SendCommand(string command)
@@ -215,7 +278,7 @@ namespace Auremo
                     }
                     else
                     {
-
+                        m_Parent.OnThreadError(statusLine.Literal);
                     }
                 }
                 else if (m_CurrentResponse.Count > 0)
@@ -224,7 +287,7 @@ namespace Auremo
                     {
                         Callback(m_DataModel.CurrentSong.OnCurrentSongResponseReceived);
                     }
-                    // TODO: removed the latter when Mopidy starts supporting the latter.
+                    // TODO: remove the latter when Mopidy starts supporting the latter.
                     else if (command.Op == "listallinfo" || command.Op == "mopidylistallinfokludge")
                     {
                         ParseSongList();
