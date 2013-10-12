@@ -2452,10 +2452,6 @@ namespace Auremo
         {
             if (m_AboutWindow == null)
             {
-                Assembly assembly = Assembly.GetExecutingAssembly();
-                Stream stream = assembly.GetManifestResourceStream("Auremo.Text.AUTHORS.txt");
-                StreamReader reader = new StreamReader(stream, Encoding.UTF8);
-                string about = reader.ReadToEnd();
                 m_AboutWindow = new AboutWindow(this);
             }
             else

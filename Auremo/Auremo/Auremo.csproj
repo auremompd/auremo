@@ -287,7 +287,6 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Text\AUTHORS.txt" />
     <EmbeddedResource Include="Text\LICENSE.txt" />
     <None Include="Text\README.txt" />
   </ItemGroup>
