@@ -133,14 +133,14 @@ namespace Auremo
 
         private void BuildDisplayString()
         {
-            StringBuilder state = new StringBuilder();
-
             if (!m_DataModel.ServerStatus.IsPlaying && !m_DataModel.ServerStatus.IsPaused)
             {
-                state.Append("Stopped.");
+                DisplayString = "Stopped.";
             }
             else
             {
+                StringBuilder state = new StringBuilder(); 
+                
                 if (m_Song == null)
                 {
                     if (m_DataModel.ServerStatus.IsPlaying)
