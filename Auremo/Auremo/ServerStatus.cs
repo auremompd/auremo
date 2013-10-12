@@ -429,12 +429,9 @@ namespace Auremo
             CurrentSongIndex = -1;
             PlayPosition = 0;
             SongLength = 0;
-            IsPlaying = false;
-            IsPaused = false;
-            IsStopped = false;
             IsOnRandom = false;
             IsOnRepeat = false;
-            State = "";
+            State = "stop";
             DatabaseUpdateTime = 0;
             AudioQuality = "";
             ErrorMessage = "";
