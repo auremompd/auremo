@@ -54,14 +54,22 @@ namespace Auremo
         public void Search(string what)
         {
             SearchResults.Clear();
-            ServerResponse response = Protocol.Search(m_DataModel.ServerConnection, "any", what);
+            m_DataModel.ServerSession.Search("any", what);
+        }
 
-            IList<PlaylistItem> items = new List<PlaylistItem>();
-            Utils.ParseSongListResponse(response, m_DateNormalizer, items);
-
-            foreach (PlaylistItem item in items)
+        public void OnSearchResponseReceived(IEnumerable<MPDSongResponseBlock> response)
+        {
+            foreach (MPDSongResponseBlock item in response)
             {
-                SongMetadata song = item.Playable as SongMetadata;
+                SongMetadata song = new SongMetadata();
+                song.Album = item.Album;
+                song.Artist = item.Artist;
+                song.Date = m_DateNormalizer.Normalize(item.Date);
+                song.Genre = item.Genre;
+                song.Length = item.Time;
+                song.Path = item.File;
+                song.Title = item.Title;
+                song.Track = item.Track;
 
                 if (song.IsSpotify)
                 {

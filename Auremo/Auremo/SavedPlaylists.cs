@@ -53,49 +53,39 @@ namespace Auremo
             SelectedItemsOnSelectedPlaylist = new ObservableCollection<Playable>();
         }
 
-        public void Refresh(ServerConnection connection)
+        public void Refresh()
+        {
+            // TODO: do this based on events.
+            m_DataModel.ServerSession.LsInfo();
+        }
+
+        public void OnLsInfoResponseReceived(IEnumerable<MPDResponseLine> response)
         {
             m_Playlists.Clear();
 
-            if (connection.Status == ServerConnection.State.Connected)
+            foreach (MPDResponseLine line in response)
             {
-                ServerResponse lsInfoResponse = Protocol.LsInfo(connection);
-
-                if (lsInfoResponse.IsOK)
+                if (line.Key == MPDResponseLine.Keyword.Playlist)
                 {
-                    foreach (ServerResponseLine line in lsInfoResponse.ResponseLines)
-                    {
-                        if (line.Name == "playlist")
-                        {
-                            m_Playlists.Add(line.Value, new List<Playable>());
-                        }
-                    }
+                    m_DataModel.ServerSession.ListPlaylist(line.Value);
+                    Playlists.Add(line.Value);
+                }
+            }
+        }
 
-                    foreach (string playlistName in m_Playlists.Keys)
-                    {
-                        IList<Playable> contents = m_Playlists[playlistName];
-                        ServerResponse listPlaylistResponse = Protocol.ListPlaylist(connection, playlistName);
-
-                        if (listPlaylistResponse.IsOK)
-                        {
-                            foreach (ServerResponseLine line in listPlaylistResponse.ResponseLines)
-                            {
-                                if (line.Name == "file")
-                                {
-                                    contents.Add(GetPlayableByPath(line.Value));
-                                }
-                            }
-                        }
-                    }
+        public void OnListPlaylistResponseReceived(IEnumerable<MPDResponseLine> response, string argument)
+        {
+            IList<Playable> playlist = new List<Playable>();
+            
+            foreach (MPDResponseLine line in response)
+            {
+                if (line.Key == MPDResponseLine.Keyword.File)
+                {
+                    playlist.Add(GetPlayableByPath(line.Value));
                 }
             }
 
-            Playlists.Clear();
-
-            foreach (string name in m_Playlists.Keys)
-            {
-                Playlists.Add(name);
-            }
+            m_Playlists[argument] = playlist;
         }
 
         public IList<string> Playlists

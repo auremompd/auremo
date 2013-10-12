@@ -86,7 +86,7 @@ namespace Auremo
 
         private void InitializeComplexObjects()
         {
-            DataModel = new DataModel();
+            DataModel = new DataModel(this);
         }
 
         private void SetUpDataBindings()
@@ -94,6 +94,7 @@ namespace Auremo
             NameScope.SetNameScope(m_StreamsViewContextMenu, NameScope.GetNameScope(this));
             NameScope.SetNameScope(m_SavedPlaylistsViewContextMenu, NameScope.GetNameScope(this));
             DataContext = DataModel;
+            DataModel.ServerSession.PropertyChanged += new PropertyChangedEventHandler(OnServerSessionPropertyChanged);
             DataModel.ServerStatus.PropertyChanged += new PropertyChangedEventHandler(OnServerStatusPropertyChanged);
         }
 
@@ -128,9 +129,8 @@ namespace Auremo
 
         private void ConnectTo(string host, int port)
         {
-            DataModel.ServerConnection.SetHost(host, port);
-            DataModel.ServerConnection.StartConnecting();
-            SetTimerInterval(100); // Run with tight frequency until connected.
+            DataModel.ServerSession.Connect(host, port);
+            //SetTimerInterval(100); // Run with tight frequency until connected.
         }
 
         private void DoPostConnectInit()
@@ -139,26 +139,16 @@ namespace Auremo
 
             if (password.Length > 0)
             {
-                Protocol.Password(DataModel.ServerConnection, password);
+                DataModel.ServerSession.Password(password);
             }
             
-            DataModel.Database.RefreshCollection();
-            DataModel.DatabaseView.RefreshCollection();
-            DataModel.SavedPlaylists.Refresh(DataModel.ServerConnection);
+            DataModel.SavedPlaylists.Refresh();
             SetTimerInterval(Settings.Default.ViewUpdateInterval); // Normal operation.
         }
 
         private void Disconnect()
         {
-            if (DataModel.ServerConnection.Status == ServerConnection.State.Connected)
-            {
-                Protocol.Close(DataModel.ServerConnection);
-            }
-
-            DataModel.ServerConnection.Disconnect();
-            DataModel.Database.RefreshCollection();
-            DataModel.DatabaseView.RefreshCollection();
-            DataModel.SavedPlaylists.Refresh(DataModel.ServerConnection);
+            DataModel.ServerSession.Disconnect();
         }
 
         private void SetInitialWindowState()
@@ -187,34 +177,16 @@ namespace Auremo
 
         private void Update()
         {
-            if (DataModel.ServerConnection.Status == ServerConnection.State.Connecting)
-            {
-                if (DataModel.ServerConnection.IsReadyToConnect)
-                {
-                    ServerResponse banner = DataModel.ServerConnection.FinishConnecting();
+            DataModel.ServerStatus.Update();
+            DataModel.OutputCollection.Update();
+        }
 
-                    if (banner != null && banner.IsOK)
-                    {
-                        DoPostConnectInit();
-                    }
-                    else
-                    {
-                        Disconnect();
-                    }
-                }
-            }
-            else if (DataModel.ServerConnection.Status == ServerConnection.State.Disconnected)
+        private void OnServerSessionPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "State")
             {
-                if (m_OnlineMode &&
-                    Settings.Default.ReconnectInterval > 0 &&
-                    DataModel.ServerConnection.TimeSinceDisconnect.TotalSeconds >= Settings.Default.ReconnectInterval)
-                {
-                    ConnectTo(Settings.Default.Server, Settings.Default.Port);
-                }
-            }
 
-            DataModel.ServerStatus.Update(DataModel.ServerConnection);
-            DataModel.OutputCollection.Update(DataModel.ServerConnection);
+            }
         }
 
         private void OnServerStatusPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -235,11 +207,6 @@ namespace Auremo
             else if (e.PropertyName == "Volume")
             {
                 OnVolumeChanged();
-            }
-            else if (e.PropertyName == "DatabaseUpdateTime")
-            {
-                DataModel.Database.RefreshCollection();
-                DataModel.DatabaseView.RefreshCollection();
             }
 
             m_PropertyUpdateInProgress = false;
@@ -431,11 +398,11 @@ namespace Auremo
 
             if (output.IsEnabled)
             {
-                Protocol.DisableOutput(DataModel.ServerConnection, output.Index);
+                DataModel.ServerSession.DisableOutput(output.Index);
             }
             else
             {
-                Protocol.EnableOutput(DataModel.ServerConnection, output.Index);
+                DataModel.ServerSession.EnableOutput(output.Index);
             }
 
             Update();
@@ -514,9 +481,9 @@ namespace Auremo
             }
             else if (Settings.Default.SendToPlaylistMethod == SendToPlaylistMethod.ReplaceAndPlay.ToString())
             {
-                Protocol.Clear(DataModel.ServerConnection);
+                DataModel.ServerSession.Clear();
                 AddObjectsToPlaylist(items, stringsAreArtists, 0);
-                Protocol.Play(DataModel.ServerConnection);
+                DataModel.ServerSession.Play();
             }
             else // Assume SendToPlaylistMethod.Append as the default
             {
@@ -587,9 +554,9 @@ namespace Auremo
 
         public void OnPlayThisClicked(object sender, RoutedEventArgs e)
         {
-            Protocol.Clear(DataModel.ServerConnection);
+            DataModel.ServerSession.Clear();
             AddToPlaylistContextMenuViaContextMenu(sender, 0);
-            Protocol.Play(DataModel.ServerConnection);
+            DataModel.ServerSession.Play();
         }
 
         public void AddToPlaylistContextMenuViaContextMenu(object sender, int insertPosition)
@@ -622,12 +589,12 @@ namespace Auremo
 
         public void OnRescanMusicCollectionClicked(object sender, RoutedEventArgs e)
         {
-            Protocol.Update(DataModel.ServerConnection);
+            DataModel.ServerSession.Update();
         }
 
         public void OnRescanPlaylistsCollectionClicked(object sender, RoutedEventArgs e)
         {
-            DataModel.SavedPlaylists.Refresh(DataModel.ServerConnection);
+            DataModel.SavedPlaylists.Refresh();
         }
 
         #endregion
@@ -1049,11 +1016,13 @@ namespace Auremo
                         {
                             DataGridRow lastItem = m_PlaylistView.ItemContainerGenerator.ContainerFromIndex(m_PlaylistView.Items.Count - 1) as DataGridRow;
 
+                            /*
                             if (lastItem == null)
                             {
                                 // TODO: this is null sometimes. No idea why.
                                 return;
                             }
+                             */ 
 
                             Rect bounds = VisualTreeHelper.GetDescendantBounds(lastItem);
                             GeneralTransform transform = lastItem.TransformToAncestor(m_PlaylistView);
@@ -1109,11 +1078,11 @@ namespace Auremo
 
                         if (item.Position < targetRow)
                         {
-                            Protocol.MoveId(DataModel.ServerConnection, item.Id, targetRow - 1);
+                            DataModel.ServerSession.MoveId(item.Id, targetRow - 1);
                         }
                         else
                         {
-                            Protocol.MoveId(DataModel.ServerConnection, item.Id, targetRow++);
+                            DataModel.ServerSession.MoveId(item.Id, targetRow++);
                         }
                     }
                 }
@@ -1528,8 +1497,8 @@ namespace Auremo
 
         private void LoadSavedPlaylist(string name)
         {
-            Protocol.Clear(DataModel.ServerConnection);
-            Protocol.Load(DataModel.ServerConnection, name);
+            DataModel.ServerSession.Clear();
+            DataModel.ServerSession.Load(name);
             DataModel.SavedPlaylists.CurrentPlaylistName = name;
             Update();
         }
@@ -1553,8 +1522,8 @@ namespace Auremo
         {
             if (succeeded)
             {
-                Protocol.Rename(DataModel.ServerConnection, oldName, newName);
-                DataModel.SavedPlaylists.Refresh(DataModel.ServerConnection);
+                DataModel.ServerSession.Rename(oldName, newName);
+                DataModel.SavedPlaylists.Refresh();
             }
         }
 
@@ -1569,8 +1538,8 @@ namespace Auremo
 
             if (selectedPlaylist != null)
             {
-                Protocol.Rm(DataModel.ServerConnection, selectedPlaylist as string);
-                DataModel.SavedPlaylists.Refresh(DataModel.ServerConnection);
+                DataModel.ServerSession.Rm(selectedPlaylist as string);
+                DataModel.SavedPlaylists.Refresh();
             }
         }
 
@@ -1593,7 +1562,7 @@ namespace Auremo
                         if (o is PlaylistItem)
                         {
                             PlaylistItem item = o as PlaylistItem;
-                            Protocol.PlayId(DataModel.ServerConnection, item.Id);
+                            DataModel.ServerSession.PlayId(item.Id);
                             Update();
                         }
 
@@ -1615,14 +1584,14 @@ namespace Auremo
             if (row != null)
             {
                 PlaylistItem item = row.Item as PlaylistItem;
-                Protocol.PlayId(DataModel.ServerConnection, item.Id);
+                DataModel.ServerSession.PlayId(item.Id);
                 Update();
             }
         }
 
         private void OnClearPlaylistViewClicked(object sender, RoutedEventArgs e)
         {
-            Protocol.Clear(DataModel.ServerConnection);
+            DataModel.ServerSession.Clear();
             DataModel.SavedPlaylists.CurrentPlaylistName = "";
             Update();
         }
@@ -1648,7 +1617,7 @@ namespace Auremo
                 {
                     if (!keepItems.Contains(item.Id))
                     {
-                        Protocol.DeleteId(DataModel.ServerConnection, item.Id);
+                        DataModel.ServerSession.DeleteId(item.Id);
                     }
                 }
 
@@ -1666,9 +1635,9 @@ namespace Auremo
             if (succeeded)
             {
                 DataModel.SavedPlaylists.CurrentPlaylistName = playlistName;
-                Protocol.Rm(DataModel.ServerConnection, DataModel.SavedPlaylists.CurrentPlaylistName);
-                Protocol.Save(DataModel.ServerConnection, DataModel.SavedPlaylists.CurrentPlaylistName);
-                DataModel.SavedPlaylists.Refresh(DataModel.ServerConnection);
+                DataModel.ServerSession.Rm(DataModel.SavedPlaylists.CurrentPlaylistName);
+                DataModel.ServerSession.Save(DataModel.SavedPlaylists.CurrentPlaylistName);
+                DataModel.SavedPlaylists.Refresh();
             }
         }
         
@@ -1687,13 +1656,13 @@ namespace Auremo
 
             foreach (int id in playlistIDsOfDuplicates)
             {
-                Protocol.DeleteId(DataModel.ServerConnection, id);
+                DataModel.ServerSession.DeleteId(id);
             }
         }
 
         private void OnShufflePlaylistClicked(object sender, RoutedEventArgs e)
         {
-            Protocol.Shuffle(DataModel.ServerConnection);
+            DataModel.ServerSession.Shuffle();
         }
 
         private void DeleteSelectedItemsFromPlaylist()
@@ -1703,7 +1672,7 @@ namespace Auremo
                 if (o is PlaylistItem)
                 {
                     PlaylistItem item = o as PlaylistItem;
-                    Protocol.DeleteId(DataModel.ServerConnection, item.Id);
+                    DataModel.ServerSession.DeleteId(item.Id);
                 }
             }
 
@@ -1982,23 +1951,23 @@ namespace Auremo
 
         private void AddSongToPlaylist(SongMetadata song)
         {
-            Protocol.Add(DataModel.ServerConnection, song.Path);
+            DataModel.ServerSession.Add(song.Path);
         }
 
         private int AddSongToPlaylist(SongMetadata song, int position)
         {
-            Protocol.AddId(DataModel.ServerConnection, song.Path, position);
+            DataModel.ServerSession.AddId(song.Path, position);
             return position + 1;
         }
 
         private void AddStreamToPlaylist(StreamMetadata stream)
         {
-            Protocol.Add(DataModel.ServerConnection, stream.Path);
+            DataModel.ServerSession.Add(stream.Path);
         }
 
         private int AddStreamToPlaylist(StreamMetadata stream, int position)
         {
-            Protocol.AddId(DataModel.ServerConnection, stream.Path, position);
+            DataModel.ServerSession.AddId(stream.Path, position);
             return position + 1;
         }
 
@@ -2030,7 +1999,7 @@ namespace Auremo
         {
             if (m_SeekBarPositionFromUser >= 0)
             {
-                Protocol.Seek(DataModel.ServerConnection, DataModel.ServerStatus.CurrentSongIndex, m_SeekBarPositionFromUser);
+                DataModel.ServerSession.Seek(DataModel.ServerStatus.CurrentSongIndex, m_SeekBarPositionFromUser);
                 m_SeekBarPositionFromUser = -1;
                 Update();
             }
@@ -2062,7 +2031,7 @@ namespace Auremo
 
             if (newPosition != currentPosition)
             {
-                Protocol.Seek(DataModel.ServerConnection, DataModel.ServerStatus.CurrentSongIndex, newPosition);
+                DataModel.ServerSession.Seek(DataModel.ServerStatus.CurrentSongIndex, newPosition);
                 Update();
             }
         }
@@ -2108,14 +2077,7 @@ namespace Auremo
             if (!m_PropertyUpdateInProgress && !m_VolumeRestoreInProgress)
             {
                 // Volume slider is actually moving because the user is moving it.
-                ServerResponse response = Protocol.SetVol(DataModel.ServerConnection, (int)e.NewValue);
-
-                if (response != null && response.IsACK)
-                {
-                    m_VolumeRestoreInProgress = true;
-                    m_VolumeControl.Value = e.OldValue;
-                    m_VolumeRestoreInProgress = false;
-                }
+                DataModel.ServerSession.SetVol((int)e.NewValue);
             }
         }
 
@@ -2133,13 +2095,13 @@ namespace Auremo
 
         private void OnToggleRandomClicked(object sender, RoutedEventArgs e)
         {
-            Protocol.Random(DataModel.ServerConnection, !DataModel.ServerStatus.IsOnRandom);
+            DataModel.ServerSession.Random(!DataModel.ServerStatus.IsOnRandom);
             Update();
         }
 
         private void OnToggleRepeatClicked(object sender, RoutedEventArgs e)
         {
-            Protocol.Repeat(DataModel.ServerConnection, !DataModel.ServerStatus.IsOnRepeat);
+            DataModel.ServerSession.Repeat(!DataModel.ServerStatus.IsOnRepeat);
             Update();
         }
 
@@ -2149,19 +2111,19 @@ namespace Auremo
 
         private void Back()
         {
-            Protocol.Previous(DataModel.ServerConnection);
+            DataModel.ServerSession.Previous();
             Update();
         }
 
         private void Play()
         {
-            Protocol.Play(DataModel.ServerConnection);
+            DataModel.ServerSession.Play();
             Update();
         }
 
         private void Pause()
         {
-            Protocol.Pause(DataModel.ServerConnection);
+            DataModel.ServerSession.Pause();
             Update();
         }
 
@@ -2171,11 +2133,11 @@ namespace Auremo
             {
                 if (DataModel.ServerStatus.IsPlaying)
                 {
-                    Protocol.Pause(DataModel.ServerConnection);
+                    DataModel.ServerSession.Pause();
                 }
                 else
                 {
-                    Protocol.Play(DataModel.ServerConnection);
+                    DataModel.ServerSession.Play();
                 }
             }
 
@@ -2184,13 +2146,13 @@ namespace Auremo
 
         private void Stop()
         {
-            Protocol.Stop(DataModel.ServerConnection);
+            DataModel.ServerSession.Stop();
             Update();
         }
 
         private void Skip()
         {
-            Protocol.Next(DataModel.ServerConnection);
+            DataModel.ServerSession.Next();
             Update();
         }
                 
@@ -2204,7 +2166,7 @@ namespace Auremo
 
                 if (newVolume != currentVolume)
                 {
-                    Protocol.SetVol(DataModel.ServerConnection, newVolume);
+                    DataModel.ServerSession.SetVol(newVolume);
                     Update();
                 }
             }
@@ -2220,7 +2182,7 @@ namespace Auremo
 
                 if (newVolume != currentVolume)
                 {
-                    Protocol.SetVol(DataModel.ServerConnection, newVolume);
+                    DataModel.ServerSession.SetVol(newVolume);
                     Update();
                 }
             }
@@ -2232,7 +2194,7 @@ namespace Auremo
 
         private void OnUpdateCollectionClicked(object sender, RoutedEventArgs e)
         {
-            Protocol.Update(DataModel.ServerConnection);
+            DataModel.ServerSession.Update();
         }
         
         #endregion

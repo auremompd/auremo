@@ -233,8 +233,6 @@ namespace Auremo
                         }
                     }
                 }
-
-                m_Terminating = true;
             }
         }
     }

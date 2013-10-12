@@ -300,5 +300,17 @@ namespace Auremo.Properties {
                 this["SendToPlaylistMethod"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("5000")]
+        public int NetworkTimeout {
+            get {
+                return ((int)(this["NetworkTimeout"]));
+            }
+            set {
+                this["NetworkTimeout"] = value;
+            }
+        }
     }
 }

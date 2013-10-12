@@ -602,7 +602,7 @@
                 </StatusBarItem>
                 <StatusBarItem HorizontalAlignment="Right">
                     <StackPanel>
-                        <TextBox Style="{StaticResource CopyableTextBlockStyle}" Text="{Binding Path=ServerConnection.StatusDescription, Mode=OneWay}" HorizontalAlignment="Right" Padding="2"/>
+                        <TextBox Style="{StaticResource CopyableTextBlockStyle}" Text="{Binding Path=ServerSession.StateDescription, Mode=OneWay}" HorizontalAlignment="Right" Padding="2"/>
                         <TextBox Style="{StaticResource CopyableTextBlockStyle}" Text="{Binding Path=ServerStatus.ErrorMessage, Mode=OneWay}" HorizontalAlignment="Right" Padding="2"/>
                     </StackPanel>
                 </StatusBarItem>

@@ -135,16 +135,17 @@
     <Compile Include="DirectoryTreeViewNode.cs" />
     <Compile Include="GenreTreeViewNode.cs" />
     <Compile Include="M3UParser.cs" />
+    <Compile Include="MPDCommand.cs" />
+    <Compile Include="MPDResponseLine.cs" />
+    <Compile Include="MPDSongResponseBlock.cs" />
     <Compile Include="Output.cs" />
     <Compile Include="OutputCollection.cs" />
     <Compile Include="Playable.cs" />
     <Compile Include="PlaylistFileParserBase.cs" />
     <Compile Include="PlaylistWriter.cs" />
-    <Compile Include="Protocol.cs" />
     <Compile Include="SavedPlaylists.cs" />
-    <Compile Include="ServerConnection.cs" />
-    <Compile Include="ServerResponse.cs" />
-    <Compile Include="ServerResponseLine.cs" />
+    <Compile Include="ServerSession.cs" />
+    <Compile Include="ServerSessionThread.cs" />
     <Compile Include="ServerStatus.cs" />
     <Compile Include="SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
