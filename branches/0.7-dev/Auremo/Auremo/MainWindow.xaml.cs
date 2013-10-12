@@ -1015,15 +1015,6 @@ namespace Auremo
                         if (row == null)
                         {
                             DataGridRow lastItem = m_PlaylistView.ItemContainerGenerator.ContainerFromIndex(m_PlaylistView.Items.Count - 1) as DataGridRow;
-
-                            /*
-                            if (lastItem == null)
-                            {
-                                // TODO: this is null sometimes. No idea why.
-                                return;
-                            }
-                             */ 
-
                             Rect bounds = VisualTreeHelper.GetDescendantBounds(lastItem);
                             GeneralTransform transform = lastItem.TransformToAncestor(m_PlaylistView);
                             Point bottomOfItem = transform.Transform(bounds.BottomLeft);
