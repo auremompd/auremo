@@ -113,15 +113,7 @@ namespace Auremo
 
             foreach (MPDSongResponseBlock block in response)
             {
-                SongMetadata song = new SongMetadata();
-                song.Path = block.File;
-                song.Album = block.Album;
-                song.Artist = block.Artist;
-                song.Date = m_DataModel.Database.DateNormalizer.Normalize(block.Date);
-                song.Genre = block.Genre;
-                song.Length = block.Time;
-                song.Title = block.Title;
-                song.Track = block.Track;
+                SongMetadata song = new SongMetadata(block, m_DataModel.Database.DateNormalizer);
                 PlaylistItem item = new PlaylistItem();
                 item.Id = block.Id;
                 item.Position = block.Pos;

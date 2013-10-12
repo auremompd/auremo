@@ -61,15 +61,7 @@ namespace Auremo
         {
             foreach (MPDSongResponseBlock item in response)
             {
-                SongMetadata song = new SongMetadata();
-                song.Album = item.Album;
-                song.Artist = item.Artist;
-                song.Date = m_DateNormalizer.Normalize(item.Date);
-                song.Genre = item.Genre;
-                song.Length = item.Time;
-                song.Path = item.File;
-                song.Title = item.Title;
-                song.Track = item.Track;
+                SongMetadata song = new SongMetadata(item, m_DateNormalizer);
 
                 if (song.IsSpotify)
                 {
