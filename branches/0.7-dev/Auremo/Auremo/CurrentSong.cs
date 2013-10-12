@@ -55,50 +55,48 @@ namespace Auremo
 
         public void Update()
         {
-            if (m_DataModel.ServerConnection.Status == ServerConnection.State.Connected)
+            m_DataModel.ServerSession.CurrentSong();
+        }
+
+        public void OnCurrentSongResponseReceived(IEnumerable<MPDResponseLine> response)
+        {
+            string path = null;
+            m_Song = null;
+            m_Album = null;
+            m_Date = null;
+
+            foreach (MPDResponseLine line in response)
             {
-                ServerResponse response = Protocol.CurrentSong(m_DataModel.ServerConnection);
-                string path = null;
-                m_Song = null;
-                m_Album = null;
-                m_Date = null;
-
-                if (response != null && response.IsOK)
+                if (line.Key == MPDResponseLine.Keyword.File)
                 {
-                    foreach (ServerResponseLine line in response.ResponseLines)
-                    {
-                        if (line.Name == "file")
-                        {
-                            path = line.Value;
-                        }
-                        else if (line.Name == "Name" || line.Name == "Title")
-                        {
-                            m_Song = line.Value;
-                        }
-                        else if (line.Name == "Album")
-                        {
-                            m_Album = line.Value;
-                        }
-                        else if (line.Name == "Date")
-                        {
-                            m_Date = line.Value;
-                        }
-                    }
+                    path = line.Value;
                 }
-
-                if (path != null)
+                else if (line.Key == MPDResponseLine.Keyword.Name || line.Key == MPDResponseLine.Keyword.Title)
                 {
-                    SongMetadata song = m_DataModel.Database.SongByPath(path);
-                    
-                    if (song != null)
-                    {
-                        m_Date = song.Year;
-                        AlbumMetadata album = m_DataModel.Database.AlbumOfSong(song);
+                    m_Song = line.Value;
+                }
+                else if (line.Key == MPDResponseLine.Keyword.Album)
+                {
+                    m_Album = line.Value;
+                }
+                else if (line.Key == MPDResponseLine.Keyword.Date)
+                {
+                    m_Date = line.Value;
+                }
+            }
 
-                        if (album != null)
-                        {
-                            m_Album = album.Title;
-                        }
+            if (path != null)
+            {
+                SongMetadata song = m_DataModel.Database.SongByPath(path);
+                    
+                if (song != null)
+                {
+                    m_Date = song.Year;
+                    AlbumMetadata album = m_DataModel.Database.AlbumOfSong(song);
+
+                    if (album != null)
+                    {
+                        m_Album = album.Title;
                     }
                 }
             }

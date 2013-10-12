@@ -95,14 +95,33 @@ namespace Auremo
 
         private void UpdateItems()
         {
+            m_DataModel.ServerSession.PlaylistInfo();
+        }
+
+        public void OnPlaylistInfoResponseReceived(IEnumerable<MPDSongResponseBlock> response)
+        {
             Items.Clear();
             m_ItemMarkedAsCurrent = null;
 
-            if (!m_DataModel.ServerStatus.OK)
-                return;
+            foreach (MPDSongResponseBlock block in response)
+            {
+                SongMetadata song = new SongMetadata();
+                song.Path = block.File;
+                song.Album = block.Album;
+                song.Artist = block.Artist;
+                song.Date = m_DataModel.Database.DateNormalizer.Normalize(block.Date);
+                song.Genre = block.Genre;
+                song.Length = block.Time;
+                song.Title = block.Title;
+                song.Track = block.Track;
+                PlaylistItem item = new PlaylistItem();
+                item.Id = block.Id;
+                item.Position = block.Pos;
+                item.Playable = song;
 
-            ServerResponse response = Protocol.PlaylistInfo(m_DataModel.ServerConnection);
-            Utils.ParseSongListResponse(response, m_DataModel.Database.DateNormalizer, Items);
+                Items.Add(item);
+            }
+
             UpdateCurrentSong();
         }
 

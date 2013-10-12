@@ -81,20 +81,24 @@ namespace Auremo
             DirectoryTree = new ObservableCollection<TreeViewNode>();
             DirectoryTreeController = new TreeViewController(DirectoryTree);
 
+            m_DataModel.Database.PropertyChanged += new PropertyChangedEventHandler(OnDatabasePropertyChanged);
             m_DataModel.CollectionSearch.PropertyChanged += new PropertyChangedEventHandler(OnCollectionSearchResultsPropertyChanged);
         }
 
-        public void RefreshCollection()
+        private void OnDatabasePropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            PopulateArtists();
-            AlbumsBySelectedArtists.Clear();
-            SongsOnSelectedAlbumsBySelectedArtists.Clear();
-            PopulateGenres();
-            AlbumsOfSelectedGenres.Clear();
-            SongsOnSelectedAlbumsOfSelectedGenres.Clear();
-            PopulateDirectoryTree();
-            PopulateArtistTree();
-            PopulateGenreTree();
+            if (e.PropertyName == "Database")
+            {
+                PopulateArtists();
+                AlbumsBySelectedArtists.Clear();
+                SongsOnSelectedAlbumsBySelectedArtists.Clear();
+                PopulateGenres();
+                AlbumsOfSelectedGenres.Clear();
+                SongsOnSelectedAlbumsOfSelectedGenres.Clear();
+                PopulateDirectoryTree();
+                PopulateArtistTree();
+                PopulateGenreTree();
+            }
         }
 
         private void PopulateArtists()

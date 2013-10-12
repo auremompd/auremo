@@ -25,10 +25,11 @@ namespace Auremo
 {
     public class DataModel
     {
-        public DataModel()
+        public DataModel(MainWindow mainWindow)
         {
-            ServerConnection = new ServerConnection();
-            ServerStatus = new ServerStatus();
+            MainWindow = mainWindow;
+            ServerSession = new ServerSession(this);
+            ServerStatus = new ServerStatus(this);
             Database = new Database(this);
             CollectionSearch = new CollectionSearch(this);
             SpotifySearch = new SpotifySearch(this);
@@ -37,10 +38,16 @@ namespace Auremo
             SavedPlaylists = new SavedPlaylists(this);
             Playlist = new Playlist(this);
             CurrentSong = new CurrentSong(this);
-            OutputCollection = new OutputCollection();
+            OutputCollection = new OutputCollection(this);
         }
 
-        public ServerConnection ServerConnection
+        public MainWindow MainWindow
+        {
+            get;
+            private set;
+        }
+
+        public ServerSession ServerSession
         {
             get;
             private set;
