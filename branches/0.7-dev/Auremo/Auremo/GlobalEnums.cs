@@ -36,6 +36,7 @@ namespace Auremo
         GenreListTab,
         GenreTreeTab,
         FilesystemTab,
+        SpotifyTab,
         StreamsTab,
         PlaylistsTab
     }
