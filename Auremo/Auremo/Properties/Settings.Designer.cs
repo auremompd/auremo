@@ -312,5 +312,17 @@ namespace Auremo.Properties {
                 this["NetworkTimeout"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool SpotifyTabIsVisible {
+            get {
+                return ((bool)(this["SpotifyTabIsVisible"]));
+            }
+            set {
+                this["SpotifyTabIsVisible"] = value;
+            }
+        }
     }
 }

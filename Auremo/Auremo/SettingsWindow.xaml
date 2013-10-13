@@ -118,6 +118,11 @@
                             <RadioButton Name="m_FilesystemTabIsDefault" Content="Is default" IsChecked="False" GroupName="DefaultMusicCollectionTab" VerticalAlignment="Center" Checked="TabPreferencesSanityCheck"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
+                            <Label Content="Spotify" Width="110"/>
+                            <CheckBox Name="m_SpotifyTabIsVisible" Content="Is visible" IsChecked="True" Style="{StaticResource OptionCheckBoxStyle}" Width="85" VerticalAlignment="Center" Unchecked="TabPreferencesSanityCheck"/>
+                            <RadioButton Name="m_SpotifyTabIsDefault" Content="Is default" IsChecked="False" GroupName="DefaultMusicCollectionTab" VerticalAlignment="Center" Checked="TabPreferencesSanityCheck"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
                             <Label Content="Streams tab" Width="110"/>
                             <CheckBox Name="m_StreamsTabIsVisible" Content="Is visible" IsChecked="True" Style="{StaticResource OptionCheckBoxStyle}" Width="85" VerticalAlignment="Center" Unchecked="TabPreferencesSanityCheck"/>
                             <RadioButton Name="m_StreamsTabIsDefault" Content="Is default" IsChecked="False" GroupName="DefaultMusicCollectionTab" VerticalAlignment="Center" Checked="TabPreferencesSanityCheck"/>

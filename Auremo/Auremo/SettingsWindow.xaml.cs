@@ -110,6 +110,7 @@ namespace Auremo
             m_GenreListTabIsVisible.IsChecked = Settings.Default.GenreListTabIsVisible;
             m_GenreTreeTabIsVisible.IsChecked = Settings.Default.GenreTreeTabIsVisible;
             m_FilesystemTabIsVisible.IsChecked = Settings.Default.FilesystemTabIsVisible;
+            m_SpotifyTabIsVisible.IsChecked = Settings.Default.SpotifyTabIsVisible;
             m_StreamsTabIsVisible.IsChecked = Settings.Default.StreamsTabIsVisible;
             m_PlaylistsTabIsVisible.IsChecked = Settings.Default.PlaylistsTabIsVisible;
             SelectDefaultMusicCollectionTab(Settings.Default.DefaultMusicCollectionTab);
@@ -163,6 +164,7 @@ namespace Auremo
             Settings.Default.GenreListTabIsVisible = m_GenreListTabIsVisible.IsChecked == true;
             Settings.Default.GenreTreeTabIsVisible = m_GenreTreeTabIsVisible.IsChecked == true;
             Settings.Default.FilesystemTabIsVisible = m_FilesystemTabIsVisible.IsChecked == true;
+            Settings.Default.SpotifyTabIsVisible = m_SpotifyTabIsVisible.IsChecked == true;
             Settings.Default.StreamsTabIsVisible = m_StreamsTabIsVisible.IsChecked == true;
             Settings.Default.PlaylistsTabIsVisible = m_PlaylistsTabIsVisible.IsChecked == true;
             Settings.Default.DefaultMusicCollectionTab = SelectedDefaultMusicCollectionTab().ToString();
@@ -181,9 +183,7 @@ namespace Auremo
             }
 
             Settings.Default.InitialSetupDone = true;
-
             Settings.Default.Save();
-
             m_Parent.SettingsChanged(reconnectNeeded);
         }
 
@@ -231,6 +231,8 @@ namespace Auremo
                 m_GenreTreeTabIsVisible.IsChecked = true;
             else if (m_FilesystemTabIsDefault.IsChecked.HasValue && m_FilesystemTabIsDefault.IsChecked.Value)
                 m_FilesystemTabIsVisible.IsChecked = true;
+            else if (m_SpotifyTabIsDefault.IsChecked.HasValue && m_SpotifyTabIsDefault.IsChecked.Value)
+                m_SpotifyTabIsVisible.IsChecked = true;
             else if (m_StreamsTabIsDefault.IsChecked.HasValue && m_StreamsTabIsDefault.IsChecked.Value)
                 m_StreamsTabIsVisible.IsChecked = true;
             else if (m_PlaylistsTabIsDefault.IsChecked.HasValue && m_PlaylistsTabIsDefault.IsChecked.Value)
@@ -254,6 +256,8 @@ namespace Auremo
                 return MusicCollectionTab.GenreTreeTab;
             else if (m_FilesystemTabIsDefault.IsChecked.HasValue && m_FilesystemTabIsDefault.IsChecked.Value)
                 return MusicCollectionTab.FilesystemTab;
+            else if (m_SpotifyTabIsDefault.IsChecked.HasValue && m_SpotifyTabIsDefault.IsChecked.Value)
+                return MusicCollectionTab.SpotifyTab;
             else if (m_StreamsTabIsDefault.IsChecked.HasValue && m_StreamsTabIsDefault.IsChecked.Value)
                 return MusicCollectionTab.StreamsTab;
             else if (m_PlaylistsTabIsDefault.IsChecked.HasValue && m_PlaylistsTabIsDefault.IsChecked.Value)
@@ -270,6 +274,7 @@ namespace Auremo
             m_GenreListTabIsDefault.IsChecked = tab == MusicCollectionTab.GenreListTab.ToString();
             m_GenreTreeTabIsDefault.IsChecked = tab == MusicCollectionTab.GenreTreeTab.ToString();
             m_FilesystemTabIsDefault.IsChecked = tab == MusicCollectionTab.FilesystemTab.ToString();
+            m_SpotifyTabIsDefault.IsChecked = tab == MusicCollectionTab.SpotifyTab.ToString();
             m_StreamsTabIsDefault.IsChecked = tab == MusicCollectionTab.StreamsTab.ToString();
             m_PlaylistsTabIsDefault.IsChecked = tab == MusicCollectionTab.PlaylistsTab.ToString();
         }

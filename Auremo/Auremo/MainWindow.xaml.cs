@@ -94,7 +94,6 @@ namespace Auremo
             NameScope.SetNameScope(m_StreamsViewContextMenu, NameScope.GetNameScope(this));
             NameScope.SetNameScope(m_SavedPlaylistsViewContextMenu, NameScope.GetNameScope(this));
             DataContext = DataModel;
-            DataModel.ServerSession.PropertyChanged += new PropertyChangedEventHandler(OnServerSessionPropertyChanged);
             DataModel.ServerStatus.PropertyChanged += new PropertyChangedEventHandler(OnServerStatusPropertyChanged);
         }
 
@@ -175,14 +174,6 @@ namespace Auremo
         {
             DataModel.ServerStatus.Update();
             DataModel.OutputCollection.Update();
-        }
-
-        private void OnServerSessionPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == "State")
-            {
-
-            }
         }
 
         private void OnServerStatusPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -2220,6 +2211,7 @@ namespace Auremo
             m_GenreListTab.Visibility = Settings.Default.GenreListTabIsVisible ? Visibility.Visible : Visibility.Collapsed;
             m_GenreTreeTab.Visibility = Settings.Default.GenreTreeTabIsVisible ? Visibility.Visible : Visibility.Collapsed;
             m_FilesystemTab.Visibility = Settings.Default.FilesystemTabIsVisible ? Visibility.Visible : Visibility.Collapsed;
+            m_SpotifyTab.Visibility = Settings.Default.SpotifyTabIsVisible ? Visibility.Visible : Visibility.Collapsed;
             m_StreamsTab.Visibility = Settings.Default.StreamsTabIsVisible ? Visibility.Visible : Visibility.Collapsed;
             m_PlaylistsTab.Visibility = Settings.Default.PlaylistsTabIsVisible ? Visibility.Visible : Visibility.Collapsed;
 
@@ -2252,6 +2244,11 @@ namespace Auremo
             {
                 m_FilesystemTab.Visibility = System.Windows.Visibility.Visible;
                 m_FilesystemTab.IsSelected = true;
+            }
+            else if (Settings.Default.DefaultMusicCollectionTab == MusicCollectionTab.SpotifyTab.ToString())
+            {
+                m_SpotifyTab.Visibility = System.Windows.Visibility.Visible;
+                m_SpotifyTab.IsSelected = true;
             }
             else if (Settings.Default.DefaultMusicCollectionTab == MusicCollectionTab.StreamsTab.ToString())
             {
