@@ -97,5 +97,10 @@ namespace Auremo
             get;
             set;
         }
+
+        public override string ToString()
+        {
+            return Artist + ": " + Title + " (" + Album + ")";   
+        }
     }
 }
