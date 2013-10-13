@@ -42,13 +42,14 @@ namespace Auremo
 
         private DataModel m_DataModel = null;
         private DateNormalizer m_DateNormalizer = null;
+        IDictionary<string, IDictionary<string, IDictionary<int, SongMetadata>>> m_ResultSorter = new SortedDictionary<string, IDictionary<string, IDictionary<int, SongMetadata>>>();
 
         public SpotifySearch(DataModel dataModel)
         {
             m_DataModel = dataModel;
             string[] dateFormat = { "YYYY" };
             m_DateNormalizer = new DateNormalizer(dateFormat);
-            SearchResults = new ObservableCollection<Playable>();
+            SearchResults = new ObservableCollection<SongMetadata>();
         }
 
         public void Search(string what)
@@ -59,21 +60,54 @@ namespace Auremo
 
         public void OnSearchResponseReceived(IEnumerable<MPDSongResponseBlock> response)
         {
+            m_ResultSorter.Clear();
+
             foreach (MPDSongResponseBlock item in response)
             {
                 SongMetadata song = new SongMetadata(item, m_DateNormalizer);
 
                 if (song.IsSpotify)
                 {
-                    SearchResults.Add(song);
+                    PlaceSongInSorter(song);
+                }
+            }
+
+            foreach (IDictionary<string, IDictionary<int, SongMetadata>> discography in m_ResultSorter.Values)
+            {
+                foreach (IDictionary<int, SongMetadata> album in discography.Values)
+                {
+                    foreach (SongMetadata song in album.Values)
+                    {
+                        SearchResults.Add(song);
+                    }
                 }
             }
         }
 
-        public IList<Playable> SearchResults
+        public IList<SongMetadata> SearchResults
         {
             get;
             private set;
+        }
+
+        private void PlaceSongInSorter(SongMetadata song)
+        {
+            // Sort first by artist, then by album and finally by track#.
+            if (!m_ResultSorter.ContainsKey(song.Artist))
+            {
+                m_ResultSorter[song.Artist] = new SortedDictionary<string, IDictionary<int, SongMetadata>>();
+            }
+
+            IDictionary<string, IDictionary<int, SongMetadata>> discography = m_ResultSorter[song.Artist];
+
+            if (!discography.ContainsKey(song.Album))
+            {
+                discography[song.Album] = new SortedDictionary<int, SongMetadata>();
+            }
+
+            IDictionary<int, SongMetadata> album = discography[song.Album];
+            int track = song.Track.HasValue ? song.Track.Value : 0;
+            album[track] = song;
         }
     }
 }
