@@ -55,6 +55,7 @@ namespace Auremo
         {
             ClampTextBoxContent(m_PortEntry, 1, 6600, 65536);
             ClampTextBoxContent(m_UpdateIntervalEntry, 100, 500, 5000);
+            ClampTextBoxContent(m_NetworkTimeoutEntry, 1, 600, 10);
             ClampTextBoxContent(m_ReconnectIntervalEntry, 0, 10, 3600);
             ClampTextBoxContent(m_WheelVolumeStepEntry, 0, 5, 100);
             ClampTextBoxContent(m_WheelSongPositioningPercentEntry, 0, 5, 100);
@@ -96,6 +97,8 @@ namespace Auremo
             m_PortEntry.Text = Settings.Default.Port.ToString();
             m_PasswordEntry.Password = Crypto.DecryptPassword(Settings.Default.Password);
             m_UpdateIntervalEntry.Text = Settings.Default.ViewUpdateInterval.ToString();
+            m_NetworkTimeoutEntry.Text = Settings.Default.NetworkTimeout.ToString();
+            m_ReconnectIntervalEntry.Text = Settings.Default.ReconnectInterval.ToString();
             m_WheelVolumeStepEntry.Text = Settings.Default.VolumeAdjustmentStep.ToString();
             m_WheelSongPositioningModeIsPercent.IsChecked = Settings.Default.MouseWheelAdjustsSongPositionInPercent;
             m_WheelSongPositioningModeIsSeconds.IsChecked = !m_WheelSongPositioningModeIsPercent.IsChecked;
@@ -151,6 +154,8 @@ namespace Auremo
             Settings.Default.Port = port;
             Settings.Default.Password = password;
             Settings.Default.ViewUpdateInterval = Utils.StringToInt(m_UpdateIntervalEntry.Text, 500);
+            Settings.Default.NetworkTimeout = Utils.StringToInt(m_NetworkTimeoutEntry.Text, 10);
+            Settings.Default.ReconnectInterval = Utils.StringToInt(m_ReconnectIntervalEntry.Text, 10);
             Settings.Default.VolumeAdjustmentStep = Utils.StringToInt(m_WheelVolumeStepEntry.Text, 5);
             Settings.Default.MouseWheelAdjustsSongPositionInPercent = m_WheelSongPositioningModeIsPercent.IsChecked.Value;
             Settings.Default.MouseWheelAdjustsSongPositionPercentBy = Utils.StringToInt(m_WheelSongPositioningPercentEntry.Text, 5);
