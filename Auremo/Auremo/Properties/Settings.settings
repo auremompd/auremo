@@ -75,7 +75,7 @@
       <Value Profile="(Default)">Append</Value>
     </Setting>
     <Setting Name="NetworkTimeout" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">5000</Value>
+      <Value Profile="(Default)">10</Value>
     </Setting>
     <Setting Name="SpotifyTabIsVisible" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>

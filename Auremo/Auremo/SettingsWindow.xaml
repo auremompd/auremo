@@ -28,9 +28,14 @@
                     <PasswordBox Name="m_PasswordEntry" Style="{StaticResource OptionPasswordBoxStyle}" Width="250"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Height="30">
-                    <Label Content="Update server status and draw user interface every" Style="{StaticResource OptionLabelStyle}" Width="350"/>
+                    <Label Content="Update server status and user interface every" Style="{StaticResource OptionLabelStyle}" Width="350"/>
                     <TextBox Name="m_UpdateIntervalEntry" Text="500" Style="{StaticResource OptionTextBoxStyle}" Width="50" PreviewTextInput="OnNumericOptionPreviewTextInput" LostFocus="ValidateOptions"/>
-                    <Label Content="milliseconds (min 100, max 5000)" Style="{StaticResource OptionLabelStyle}"/>
+                    <Label Content="milliseconds (100 - 5000)" Style="{StaticResource OptionLabelStyle}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Height="30">
+                    <Label Content="Reset connection if the server goes does not respond within" Style="{StaticResource OptionLabelStyle}" Width="350"/>
+                    <TextBox Name="m_NetworkTimeoutEntry" Text="10" Style="{StaticResource OptionTextBoxStyle}" Width="50" PreviewTextInput="OnNumericOptionPreviewTextInput" LostFocus="ValidateOptions"/>
+                    <Label Content="seconds (1 - 600)" Style="{StaticResource OptionLabelStyle}"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Height="30">
                     <Label Content="After connection is lost, attempt reconnection every" Style="{StaticResource OptionLabelStyle}" Width="350"/>
@@ -55,6 +60,7 @@
                 <StackPanel Orientation="Horizontal" Height="30">
                     <CheckBox Name="m_EnableVolumeControl" Content="Enable volume control" IsChecked="True" Style="{StaticResource OptionCheckBoxStyle}" Margin="4,6,0,8"/>
                 </StackPanel>
+                <Border BorderBrush="{StaticResource SeparatorBorderBrush}" BorderThickness="0,1,0,0" Margin="15,2"/>
                 <StackPanel Orientation="Horizontal" Height="30">
                     <Label Content="Sort albums by an artist by" Style="{StaticResource OptionLabelStyle}" Width="349"/>
                     <RadioButton Name="m_SortAlbumsByDate" Content="Date, then name" IsChecked="True" GroupName="AlbumSortMode" VerticalAlignment="Center" Margin="0,0,20,0"/>
@@ -69,6 +75,7 @@
                         <TextBox Name="m_DateFormatsEntry" Text="YYYY;YYYY.N;YYYY.NN" Style="{StaticResource OptionTextBoxStyle}" Width="250" VerticalAlignment="Top" Margin="0,5,0,7"/>
                     </StackPanel>
                 </StackPanel>
+                <Border BorderBrush="{StaticResource SeparatorBorderBrush}" BorderThickness="0,1,0,0" Margin="15,2"/>
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
                     <TextBlock Style="{StaticResource OptionTextBlockStyle}" Width="344" VerticalAlignment="Top">
                         Pressing Enter or double-clicking items in the music<LineBreak/>
@@ -80,6 +87,7 @@
                         <RadioButton Name="m_SendToPlaylistMethodReplaceAndPlay" Content="Replaces playlist with the items and starts playback" IsChecked="False" GroupName="SendToPlaylistMethod" VerticalAlignment="Center" Margin="0,3"/>
                     </StackPanel>
                 </StackPanel>
+                <Border BorderBrush="{StaticResource SeparatorBorderBrush}" BorderThickness="0,1,0,0" Margin="15,2"/>
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="345"/>
