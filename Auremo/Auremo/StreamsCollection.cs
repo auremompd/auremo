@@ -175,7 +175,7 @@ namespace Auremo
             else
             {
                 m_StreamsByTitle.Remove(stream.Title);
-                stream.Title = newName;
+                stream.Name = newName;
                 m_StreamsByTitle.Add(stream.Title, stream);
                 Save();
                 UpdateStreamsView();
