@@ -47,11 +47,6 @@ namespace Auremo
                 {
                     if (stream.Path != null)
                     {
-                        if (stream.Title == null)
-                        {
-                            stream.Title = stream.Path;
-                        }
-
                         result.Add(stream);
                     }
                 }
@@ -109,7 +104,7 @@ namespace Auremo
                     }
                     else if (key.StartsWith("title"))
                     {
-                        m_ParsedStreams[index].Title = value;
+                        m_ParsedStreams[index].Name = value;
                     }
                     else
                     {
