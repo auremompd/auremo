@@ -241,20 +241,25 @@ namespace Auremo
         {
             foreach (MPDSongResponseBlock item in response)
             {
-                SongMetadata song = new SongMetadata(item, DateNormalizer);
+                Playable playable = item.ToPlayable(DateNormalizer);
 
-                if (song.IsSpotify)
+                if (playable != null && playable is SongMetadata)
                 {
-                    if (!m_SpotifySongCollection.ContainsKey(song.Path))
+                    SongMetadata song = playable as SongMetadata;
+
+                    if (song.IsSpotify)
                     {
-                        m_SpotifySongCollection.Add(song.Path, song);
+                        if (!m_SpotifySongCollection.ContainsKey(song.Path))
+                        {
+                            m_SpotifySongCollection.Add(song.Path, song);
+                        }
                     }
-                }
-                else if (song.IsLocal)
-                {
-                    if (!m_LocalSongCollection.ContainsKey(song.Path))
+                    else if (song.IsLocal)
                     {
-                        m_LocalSongCollection.Add(song.Path, song);
+                        if (!m_LocalSongCollection.ContainsKey(song.Path))
+                        {
+                            m_LocalSongCollection.Add(song.Path, song);
+                        }
                     }
                 }
             }

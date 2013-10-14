@@ -64,11 +64,16 @@ namespace Auremo
 
             foreach (MPDSongResponseBlock item in response)
             {
-                SongMetadata song = new SongMetadata(item, m_DateNormalizer);
+                Playable playable = item.ToPlayable(m_DateNormalizer);
 
-                if (song.IsSpotify)
+                if (playable != null && playable is SongMetadata)
                 {
-                    PlaceSongInSorter(song);
+                    SongMetadata song = playable as SongMetadata;
+
+                    if (song.IsSpotify)
+                    {
+                        PlaceSongInSorter(song);
+                    }
                 }
             }
 
