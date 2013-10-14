@@ -40,10 +40,8 @@ namespace Auremo
         #endregion
 
         private DataModel m_DataModel = null;
-        private string m_Album = null;
-        private string m_Song = null;
-        private string m_Date = null;
         private string m_DisplayString = "";
+        private Playable m_CurrentPlayable = null;
 
         public CurrentSong(DataModel dataModel)
         {
@@ -58,48 +56,10 @@ namespace Auremo
             m_DataModel.ServerSession.CurrentSong();
         }
 
-        public void OnCurrentSongResponseReceived(IEnumerable<MPDResponseLine> response)
+        public void OnCurrentSongResponseReceived(IEnumerable<MPDSongResponseBlock> response)
         {
-            string path = null;
-            m_Song = null;
-            m_Album = null;
-            m_Date = null;
-
-            foreach (MPDResponseLine line in response)
-            {
-                if (line.Key == MPDResponseLine.Keyword.File)
-                {
-                    path = line.Value;
-                }
-                else if (line.Key == MPDResponseLine.Keyword.Name || line.Key == MPDResponseLine.Keyword.Title)
-                {
-                    m_Song = line.Value;
-                }
-                else if (line.Key == MPDResponseLine.Keyword.Album)
-                {
-                    m_Album = line.Value;
-                }
-                else if (line.Key == MPDResponseLine.Keyword.Date)
-                {
-                    m_Date = line.Value;
-                }
-            }
-
-            if (path != null)
-            {
-                SongMetadata song = m_DataModel.Database.SongByPath(path);
-                    
-                if (song != null)
-                {
-                    m_Date = song.Year;
-                    AlbumMetadata album = m_DataModel.Database.AlbumOfSong(song);
-
-                    if (album != null)
-                    {
-                        m_Album = album.Title;
-                    }
-                }
-            }
+            m_CurrentPlayable = response.First().ToPlayable(m_DataModel.Database.DateNormalizer);
+            BuildDisplayString();
         }
 
         public string DisplayString
@@ -123,7 +83,6 @@ namespace Auremo
             if (e.PropertyName == "CurrentSongIndex" || e.PropertyName == "PlaylistVersion")
             {
                 Update();
-                BuildDisplayString();
             }
             else if (e.PropertyName == "State")
             {
@@ -133,65 +92,90 @@ namespace Auremo
 
         private void BuildDisplayString()
         {
-            if (!m_DataModel.ServerStatus.IsPlaying && !m_DataModel.ServerStatus.IsPaused)
+            if (m_DataModel.ServerStatus.IsPlaying)
             {
-                DisplayString = "Stopped.";
-            }
-            else
-            {
-                StringBuilder state = new StringBuilder(); 
-                
-                if (m_Song == null)
+                if (m_CurrentPlayable == null)
                 {
-                    if (m_DataModel.ServerStatus.IsPlaying)
-                    {
-                        state.Append("Playing.");
-                    }
-                    else if (m_DataModel.ServerStatus.IsPaused)
-                    {
-                        state.Append("Paused.");
-                    }
+                    DisplayString = "Playing.";
                 }
                 else
                 {
-                    if (m_DataModel.ServerStatus.IsPlaying)
-                    {
-                        state.Append("Playing ");
-                    }
-                    else if (m_DataModel.ServerStatus.IsPaused)
-                    {
-                        state.Append("Paused - ");
-                    }
-
-                    state.Append(m_Song);
-
-                    if (m_Album != null || m_Date != null)
-                    {
-                        state.Append(" (");
-
-                        if (m_Album != null)
-                        {
-                            state.Append(m_Album);
-
-                            if (m_Date != null)
-                            {
-                                state.Append(", ");
-                            }
-                        }
-
-                        if (m_Date != null)
-                        {
-                            state.Append(m_Date);
-                        }
-
-                        state.Append(")");
-                    }
-
-                    state.Append(".");
+                    DisplayString = "Playing " + CurrentPlayableToString() + ".";
                 }
-
-                DisplayString = state.ToString();
             }
+            else if (m_DataModel.ServerStatus.IsPaused)
+            {
+                if (m_CurrentPlayable == null)
+                {
+                    DisplayString = "Paused.";
+                }
+                else
+                {
+                    DisplayString = "Paused " + CurrentPlayableToString() + ".";
+                }
+            }
+            else if (m_DataModel.ServerStatus.IsStopped)
+            {
+                DisplayString = "Stopped.";
+            }
+        }
+
+        private string CurrentPlayableToString()
+        {
+            if (m_CurrentPlayable is SongMetadata)
+            {
+                return CurrentSongToString();
+            }
+            else if (m_CurrentPlayable is StreamMetadata)
+            {
+                return CurrentStreamToString();
+            }
+            else
+            {
+                return m_CurrentPlayable.Path;
+            }
+        }
+
+        private string CurrentSongToString()
+        {
+            SongMetadata song = m_CurrentPlayable as SongMetadata;
+            StringBuilder result = new StringBuilder(); 
+
+            result.Append(song.Artist);
+            result.Append(": ");
+            result.Append(song.Title);
+            result.Append(" (");
+            result.Append(song.Album);
+
+            if (song.Year != null)
+            {
+                result.Append(", ");
+                result.Append(song.Year);
+            }
+
+            result.Append(")");
+
+            return result.ToString();
+        }
+
+        private string CurrentStreamToString()
+        {
+            StreamMetadata stream = m_CurrentPlayable as StreamMetadata;
+            StringBuilder result = new StringBuilder();
+
+            if (stream.Name == null)
+            {
+                result.Append(stream.Path);
+            }
+            else
+            {
+                result.Append(stream.Title);
+                result.Append(" (");
+                result.Append(stream.Path);
+                result.Append(")");
+            }
+
+            return result.ToString();
         }
     }
 }
