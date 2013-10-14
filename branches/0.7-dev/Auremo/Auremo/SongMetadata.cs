@@ -41,18 +41,6 @@ namespace Auremo
             Date = null;
         }
 
-        public SongMetadata(MPDSongResponseBlock response, DateNormalizer dateNormalizer)
-        {
-            Path = response.File;
-            Title = response.Title;
-            Artist = response.Artist == null ? "Unknown Artist" : response.Artist;
-            Genre = response.Genre == null ? "No Genre" : response.Genre;
-            Album = response.Album == null ? "Unknown Album" : response.Album;
-            Length = response.Time;
-            Track = response.Track;
-            Date = dateNormalizer.Normalize(response.Date);
-        }
-
         public string Path
         {
             get
