@@ -150,13 +150,13 @@ namespace Auremo
                 {
                     errorMessage = "Error: " + line.Value;
                 }
-
-                CurrentSongIndex = currentSongIndex;
-                PlayPosition = playPosition;
-                SongLength = songLength;
-                AudioQuality = audioQuality;
-                ErrorMessage = errorMessage;
             }
+
+            CurrentSongIndex = currentSongIndex;
+            PlayPosition = playPosition;
+            SongLength = songLength;
+            AudioQuality = audioQuality;
+            ErrorMessage = errorMessage;
         }
 
         public void OnStatsResponseReceived(IEnumerable<MPDResponseLine> response)
