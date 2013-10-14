@@ -36,8 +36,8 @@ namespace Auremo
             DatabaseView = new DatabaseView(this);
             StreamsCollection = new StreamsCollection();
             SavedPlaylists = new SavedPlaylists(this);
-            Playlist = new Playlist(this);
             CurrentSong = new CurrentSong(this);
+            Playlist = new Playlist(this);
             OutputCollection = new OutputCollection(this);
         }
 
