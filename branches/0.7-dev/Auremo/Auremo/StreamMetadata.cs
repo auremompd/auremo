@@ -39,40 +39,52 @@ namespace Auremo
 
         #endregion
 
-        public StreamMetadata(string path, string title)
+        private string m_Path = null;
+        private string m_Name = null;
+
+        public StreamMetadata(string path, string name)
         {
             Path = path;
-            Title = title;
+            Name = name;
         }
 
         public string Path
         {
-            get;
-            set;
+            get
+            {
+                return m_Path;
+            }
+            set
+            {
+                if (value != m_Path)
+                {
+                    m_Path = value;
+                    NotifyPropertyChanged("Title");
+                }
+            }
         }
 
-        private string m_Title = null;
+        public string Name
+        {
+            get
+            {
+                return m_Name;
+            }
+            set
+            {
+                if (value != m_Name)
+                {
+                    m_Name = value;
+                    NotifyPropertyChanged("Title");
+                }
+            }
+        }
 
         public string Title
         {
             get
             {
-                if (m_Title == null)
-                {
-                    return Path;
-                }
-                else
-                {
-                    return m_Title;
-                }
-            }
-            set
-            {
-                if (m_Title != value)
-                {
-                    m_Title = value;
-                    NotifyPropertyChanged("Title");
-                }
+                return Name == null ? Path : Name;
             }
         }
 
