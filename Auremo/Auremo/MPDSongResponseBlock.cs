@@ -27,15 +27,45 @@ namespace Auremo
         public MPDSongResponseBlock(string file)
         {
             File = file;
-            Album = "Unknown Album";
-            Artist = "Unknown Artist";
+            Album = null;
+            Artist = null;
             Date = null;
-            Genre = "No Genre";
+            Genre = null;
             Id = -1;
+            Name = null;
             Pos = -1; 
             Time = null;
             Title = null;
             Track = -1;
+        }
+
+        public Playable ToPlayable(DateNormalizer dateNormalizer)
+        {
+            if (File == null)
+            {
+                return null;
+            }
+            else if (File.ToLowerInvariant().StartsWith("http:"))
+            {
+                return new StreamMetadata(File, Name);
+            }
+            else if (File.StartsWith("spotify:") && !File.StartsWith("spotify:track:"))
+            {
+                return new UnknownPlayable(File);
+            }
+            else
+            {
+                SongMetadata result = new SongMetadata();
+                result.Path = File;
+                result.Title = Title;
+                result.Artist = Artist == null ? "Unknown Artist" : Artist;
+                result.Genre = Genre == null ? "No Genre" : Genre;
+                result.Album = Album == null ? "Unknown Album" : Album;
+                result.Length = Time;
+                result.Track = Track;
+                result.Date = dateNormalizer.Normalize(Date);
+                return result;
+            }
         }
 
         public string File
@@ -69,6 +99,12 @@ namespace Auremo
         }
 
         public int Id
+        {
+            get;
+            set;
+        }
+
+        public string Name
         {
             get;
             set;
