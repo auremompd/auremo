@@ -256,6 +256,7 @@ namespace Auremo
         {
             MPDResponseLine statusLine = GetResponseLine();
 
+            // TODO: check the others for null too!
             if (statusLine != null)
             {
                 while (!statusLine.IsStatus)
@@ -285,7 +286,9 @@ namespace Auremo
                 {
                     if (command.Op == "currentsong")
                     {
+                        ParseSongList();
                         Callback(m_DataModel.CurrentSong.OnCurrentSongResponseReceived);
+                        m_CurrentSongList.Clear();
                     }
                     // TODO: remove the latter when Mopidy starts supporting the latter.
                     else if (command.Op == "listallinfo" || command.Op == "mopidylistallinfokludge")
@@ -459,6 +462,10 @@ namespace Auremo
                 else if (line.Key == MPDResponseLine.Keyword.Id)
                 {
                     song.Id = line.IntValue;
+                }
+                else if (line.Key == MPDResponseLine.Keyword.Name)
+                {
+                    song.Name = line.Value;
                 }
                 else if (line.Key == MPDResponseLine.Keyword.Pos)
                 {
