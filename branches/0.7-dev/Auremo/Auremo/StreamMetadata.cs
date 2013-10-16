@@ -40,12 +40,14 @@ namespace Auremo
         #endregion
 
         private string m_Path = null;
+        private string m_Label = null;
+        private string m_Title = null;
         private string m_Name = null;
 
-        public StreamMetadata(string path, string name)
+        public StreamMetadata(string path, string label)
         {
             Path = path;
-            Name = name;
+            Label = label;
         }
 
         public string Path
@@ -59,11 +61,32 @@ namespace Auremo
                 if (value != m_Path)
                 {
                     m_Path = value;
-                    NotifyPropertyChanged("Title");
+                    NotifyPropertyChanged("Path");
+                    NotifyPropertyChanged("DisplayName");
                 }
             }
         }
 
+        /// The stream descriptor exctracted from the M3U/PLS file or
+        /// given by the user otherwise.
+        public string Label
+        {
+            get
+            {
+                return m_Label;
+            }
+            set
+            {
+                if (value != m_Label)
+                {
+                    m_Label = value;
+                    NotifyPropertyChanged("Label");
+                    NotifyPropertyChanged("DisplayName");
+                }
+            }
+        }
+
+        /// The stream descriptor of the stream as given in a MPD resonse.
         public string Name
         {
             get
@@ -75,19 +98,29 @@ namespace Auremo
                 if (value != m_Name)
                 {
                     m_Name = value;
-                    NotifyPropertyChanged("Title");
+                    NotifyPropertyChanged("Name");
+                    NotifyPropertyChanged("DisplayName");
                 }
             }
         }
 
+        /// The track descriptor of the stream as given in a MPD resonse.
         public string Title
         {
             get
             {
-                return Name == null ? Path : Name;
+                return m_Title;
+            }
+            set
+            {
+                if (value != m_Title)
+                {
+                    m_Title = value;
+                    NotifyPropertyChanged("Title");
+                }
             }
         }
-
+  
         public string Artist
         {
             get
@@ -109,6 +142,25 @@ namespace Auremo
             get
             {
                 return null;
+            }
+        }
+
+        public string DisplayName
+        {
+            get
+            {
+                if (Label != null)
+                {
+                    return Label;
+                }
+                else if (Name != null)
+                {
+                    return Name;
+                }
+                else
+                {
+                    return Path;
+                }
             }
         }
 

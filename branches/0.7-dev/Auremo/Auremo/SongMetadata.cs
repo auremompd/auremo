@@ -26,10 +26,7 @@ namespace Auremo
     public class SongMetadata : Playable, IComparable
     {
         private string m_Path = null;
-        private string m_Title = null;
         private string m_PathTypePrefix = null; // This appears to be Mopidy-specific
-        private string m_Directory = "";
-        private string m_Filename = "";
 
         public SongMetadata()
         {
@@ -39,6 +36,8 @@ namespace Auremo
             Length = null;
             Track = null;
             Date = null;
+            Directory = "";
+            Filename = "";
         }
 
         public string Path
@@ -67,47 +66,30 @@ namespace Auremo
 
                 if (lastSlash >= 0)
                 {
-                    m_Directory = strippedPath.Substring(0, lastSlash);
+                    Directory = strippedPath.Substring(0, lastSlash);
                     strippedPath = strippedPath.Substring(lastSlash + 1);
                 }
 
-                m_Filename = strippedPath;
+                Filename = strippedPath;
             }
         }
 
         public string Directory
         {
-            get
-            {
-                return m_Directory;
-            }
+            get;
+            private set;
         }
 
         public string Filename
         {
-            get
-            {
-                return m_Filename;
-            }
+            get;
+            private set;
         }
 
         public string Title
         {
-            get
-            {
-                if (m_Title == null)
-                {
-                    return m_Filename;
-                }
-                else
-                {
-                    return m_Title;
-                }
-            }
-            set
-            {
-                m_Title = value;
-            }
+            get;
+            set;
         }
 
         public string Artist
@@ -167,6 +149,21 @@ namespace Auremo
             get
             {
                 return m_PathTypePrefix == "spotify:track:";
+            }
+        }
+
+        public string DisplayName
+        {
+            get
+            {
+                if (Title == null)
+                {
+                    return Filename;
+                }
+                else
+                {
+                    return Title;
+                }
             }
         }
 

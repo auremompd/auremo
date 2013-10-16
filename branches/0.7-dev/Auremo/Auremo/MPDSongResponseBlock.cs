@@ -47,7 +47,10 @@ namespace Auremo
             }
             else if (File.ToLowerInvariant().StartsWith("http:"))
             {
-                return new StreamMetadata(File, Name);
+                StreamMetadata result = new StreamMetadata(File, Name);
+                result.Name = Name;
+                result.Title = Title;
+                return result;
             }
             else if (File.StartsWith("spotify:") && !File.StartsWith("spotify:track:"))
             {
