@@ -115,6 +115,18 @@ namespace Auremo
             {
                 Playable playable = block.ToPlayable(m_DataModel.Database.DateNormalizer);
 
+                // If this stream is in the collection, use the known version instead
+                // of the constructed one so we can display the user-set label.
+                if (playable is StreamMetadata)
+                {
+                    StreamMetadata stream = m_DataModel.StreamsCollection.StreamByPath(playable.Path);
+
+                    if (stream != null)
+                    {
+                        playable = stream;
+                    }
+                }
+
                 if (playable != null)
                 {
                     PlaylistItem item = new PlaylistItem();

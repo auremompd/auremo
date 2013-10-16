@@ -43,5 +43,10 @@ namespace Auremo
         {
             get;
         }
+
+        string DisplayName
+        {
+            get;
+        }
     }
 }

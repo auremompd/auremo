@@ -631,6 +631,7 @@ namespace Auremo
                         }
                         else
                         {
+                            // TODO: FIXME: this can be null.
                             int startIndex = (dataGrid.ItemContainerGenerator.ContainerFromItem(dataGrid.CurrentItem) as DataGridRow).GetIndex();
                             int endIndex = row.GetIndex();
                             dataGrid.UnselectAll();
@@ -640,6 +641,7 @@ namespace Auremo
 
                             for (int i = minIndex; i <= maxIndex; ++i)
                             {
+                                // TODO: FIXME: this too.
                                 (dataGrid.ItemContainerGenerator.ContainerFromIndex(i) as DataGridRow).IsSelected = true;
                             }
                         }
@@ -1347,11 +1349,11 @@ namespace Auremo
             StartAddNewStreamQuery();
         }
 
-        private void OnAddNewStreamQueryFinished(bool succeeded, string address, string name)
+        private void OnAddNewStreamQueryFinished(bool succeeded, string address, string label)
         {
             if (succeeded)
             {
-                StreamMetadata stream = new StreamMetadata(address, name);
+                StreamMetadata stream = new StreamMetadata(address, label);
                 DataModel.StreamsCollection.Add(stream);
             }
         }
@@ -2308,14 +2310,14 @@ namespace Auremo
         private void StartRenameStreamQuery(StreamMetadata stream)
         {
             m_RenameStream = stream;
-            EnterStringQueryOverlay("New stream name:", stream.Title, OnRenameStreamOverlayReturned);
+            EnterStringQueryOverlay("New stream name:", stream.Label, OnRenameStreamOverlayReturned);
         }
 
-        private void OnRenameStreamOverlayReturned(bool okClicked, string streamName)
+        private void OnRenameStreamOverlayReturned(bool okClicked, string streamLabel)
         {
             StreamMetadata renameStream = m_RenameStream;
             m_RenameStream = null;
-            string trimmedName = streamName.Trim();
+            string trimmedName = streamLabel.Trim();
             OnRenameStreamQueryFinished(okClicked && trimmedName.Length > 0, renameStream, trimmedName);
         }
 

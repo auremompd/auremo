@@ -104,7 +104,7 @@ namespace Auremo
                     }
                     else if (key.StartsWith("title"))
                     {
-                        m_ParsedStreams[index].Name = value;
+                        m_ParsedStreams[index].Label = value;
                     }
                     else
                     {

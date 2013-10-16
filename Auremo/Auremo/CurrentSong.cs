@@ -163,16 +163,38 @@ namespace Auremo
             StreamMetadata stream = m_CurrentPlayable as StreamMetadata;
             StringBuilder result = new StringBuilder();
 
-            if (stream.Name == null)
-            {
-                result.Append(stream.Path);
-            }
-            else
+            if (stream.Title != null)
             {
                 result.Append(stream.Title);
+                {
+                    if (stream.Name != null)
+                    {
+                        result.Append(" - ");
+                        result.Append(stream.Name);
+                    }
+                }
+
                 result.Append(" (");
                 result.Append(stream.Path);
                 result.Append(")");
+            }
+            else if (stream.Name != null)
+            {
+                result.Append(stream.Name);
+                result.Append(" (");
+                result.Append(stream.Path);
+                result.Append(")");
+            }
+            else if (stream.Label != null)
+            {
+                result.Append(stream.Label);
+                result.Append(" (");
+                result.Append(stream.Path);
+                result.Append(")");
+            }
+            else
+            {
+                result.Append(stream.Path);
             }
 
             return result.ToString();

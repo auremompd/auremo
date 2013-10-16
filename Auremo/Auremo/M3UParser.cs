@@ -72,14 +72,14 @@ namespace Auremo
         private void ParseEntry()
         {
             string path = null;
-            string title = null;
+            string label = null;
 
             if (m_ExtendedFormat && Peek == '#')
             {
                 ConsumeLiteral("#EXTINF:");
                 IgnoreUntil(',');
                 ConsumeLiteral(",");
-                title = GetRestOfLine();
+                label = GetRestOfLine();
                 ConsumeWhitespace();
             }
 
@@ -88,12 +88,12 @@ namespace Auremo
 
             if (path != "")
             {
-                if (title == null)
+                if (label == null)
                 {
-                    title = path;
+                    label = path;
                 }
 
-                m_ParsedStreams.Add(new StreamMetadata(path, title));
+                m_ParsedStreams.Add(new StreamMetadata(path, label));
             }
         }
 

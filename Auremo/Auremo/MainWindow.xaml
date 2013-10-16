@@ -430,7 +430,7 @@
                                   MouseLeftButtonUp="OnDataGridRowMouseUp"
                                   MouseDoubleClick="OnMusicCollectionDataGridDoubleClicked">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Stream" Width="*" Binding="{Binding Title}"/>
+                                <DataGridTextColumn Header="Stream" Width="*" Binding="{Binding DisplayName}"/>
                             </DataGrid.Columns>
                             <DataGrid.ContextMenu>
                                 <ContextMenu Name="m_StreamsViewContextMenu">
@@ -525,7 +525,7 @@
                       Drop="OnPlaylistViewDrop"
                       Grid.Column="3">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Title" MinWidth="60" Width="Auto" Binding="{Binding Path=Playable.Title}"/>
+                    <DataGridTextColumn Header="Title" MinWidth="60" Width="Auto" Binding="{Binding Path=Playable.DisplayName}"/>
                     <DataGridTextColumn Header="Artist" MinWidth="60" Width="Auto" Binding="{Binding Path=Playable.Artist}"/>
                     <DataGridTextColumn Header="Album" MinWidth="60" Width="*" Binding="{Binding Path=Playable.Album}"/>
                 </DataGrid.Columns>
