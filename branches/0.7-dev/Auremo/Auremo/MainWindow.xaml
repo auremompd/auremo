@@ -525,6 +525,23 @@
                       Drop="OnPlaylistViewDrop"
                       Grid.Column="3">
                 <DataGrid.Columns>
+                    <DataGridTemplateColumn Width="15" CanUserResize="False">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Path x:Name="StatusIcon" Data="M 0,0" StrokeThickness="0" Fill="Transparent" Stretch="None"/>
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding Path=IsPlaying}" Value="True">
+                                        <Setter TargetName="StatusIcon" Property="Fill" Value="{StaticResource PlayingTextBrush}"/>
+                                        <Setter TargetName="StatusIcon" Property="Data" Value="M 0,3 8,8.5 0,14"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Path=IsPaused}" Value="True">
+                                        <Setter TargetName="StatusIcon" Property="Fill" Value="{StaticResource PlayingTextBrush}"/>
+                                        <Setter TargetName="StatusIcon" Property="Data" Value="M 0,3 3,3 3,14 0,14 M 5,3 8,3 8,14 5,14"/>
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
                     <DataGridTextColumn Header="Title" MinWidth="60" Width="Auto" Binding="{Binding Path=Playable.DisplayName}"/>
                     <DataGridTextColumn Header="Artist" MinWidth="60" Width="Auto" Binding="{Binding Path=Playable.Artist}"/>
                     <DataGridTextColumn Header="Album" MinWidth="60" Width="*" Binding="{Binding Path=Playable.Album}"/>
