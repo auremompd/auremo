@@ -109,7 +109,6 @@ namespace Auremo
         public void OnPlaylistInfoResponseReceived(IEnumerable<MPDSongResponseBlock> response)
         {
             Items.Clear();
-            m_ItemMarkedAsCurrent = null;
 
             foreach (MPDSongResponseBlock block in response)
             {
@@ -142,73 +141,20 @@ namespace Auremo
 
         private void UpdateCurrentSong()
         {
-            PlaylistItem itemToMarkCurrent = null;
-
-            if (m_DataModel.ServerStatus.OK && 
-                (m_DataModel.ServerStatus.IsPaused || m_DataModel.ServerStatus.IsPlaying) &&
-                m_DataModel.ServerStatus.CurrentSongIndex >= 0 &&
-                m_DataModel.ServerStatus.CurrentSongIndex < Items.Count)
+            if (m_ItemMarkedAsCurrent != null)
             {
-                itemToMarkCurrent = Items[m_DataModel.ServerStatus.CurrentSongIndex];
+                m_ItemMarkedAsCurrent.IsPlaying = false;
+                m_ItemMarkedAsCurrent.IsPaused = false;
             }
 
-            if (itemToMarkCurrent != m_ItemMarkedAsCurrent)
+            int current = m_DataModel.ServerStatus.CurrentSongIndex;
+
+            if (current >= 0 && current < Items.Count)
             {
-                if (m_ItemMarkedAsCurrent != null)
-                {
-                    m_ItemMarkedAsCurrent.IsPlaying = false;
-                }
-
-                m_ItemMarkedAsCurrent = itemToMarkCurrent;
-
-                if (m_ItemMarkedAsCurrent != null)
-                {
-                    m_ItemMarkedAsCurrent.IsPlaying = true;
-                }
+                m_ItemMarkedAsCurrent = Items[current];
+                m_ItemMarkedAsCurrent.IsPlaying = m_DataModel.ServerStatus.IsPlaying;
+                m_ItemMarkedAsCurrent.IsPaused = m_DataModel.ServerStatus.IsPaused;
             }
-
-            if (!m_DataModel.ServerStatus.OK)
-            {
-                PlayStatusDescription = "";
-            }
-            else if (m_ItemMarkedAsCurrent == null || m_DataModel.ServerStatus.IsStopped)
-            {
-                PlayStatusDescription = "Stopped.";
-            }
-            else
-            {
-                string status = m_DataModel.ServerStatus.IsPlaying ? "Playing " : "Paused - ";
-
-                if (m_ItemMarkedAsCurrent.Playable is SongMetadata)
-                {
-                    status += 
-                          m_ItemMarkedAsCurrent.Playable.Artist + ": " +
-                          m_ItemMarkedAsCurrent.Playable.Title + " (" +
-                          m_ItemMarkedAsCurrent.Playable.Album;
-
-                    if (m_ItemMarkedAsCurrent.Playable is SongMetadata)
-                    {
-                        SongMetadata song = (SongMetadata)m_ItemMarkedAsCurrent.Playable;
-
-                        if (song.Year != null)
-                        {
-                            status += ", " + song.Year;
-                        }
-                    }
-
-                    status += ").";
-                }
-                else
-                {
-                    status =
-                         (m_DataModel.ServerStatus.IsPlaying ? "Playing " : "Paused - ") +
-                          m_ItemMarkedAsCurrent.Playable.Title + ".";
-                }
-
-                PlayStatusDescription = status;
-            }
-            
-            NotifyPropertyChanged("PlayStatusDescription");
         }
 
         private Playable PlayableByPath(string path)
