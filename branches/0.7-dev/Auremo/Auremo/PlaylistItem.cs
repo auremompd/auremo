@@ -43,6 +43,7 @@ namespace Auremo
         #endregion
 
         private bool m_IsPlaying = false;
+        private bool m_IsPaused = false;
 
         public PlaylistItem()
         {
@@ -50,6 +51,7 @@ namespace Auremo
             Id = -1;
             Position = -1;
             IsPlaying = false;
+            IsPaused = false;
         }
 
         public Playable Playable
@@ -82,6 +84,22 @@ namespace Auremo
                 {
                     m_IsPlaying = value;
                     NotifyPropertyChanged("IsPlaying");
+                }
+            }
+        }
+
+        public bool IsPaused
+        {
+            get
+            {
+                return m_IsPaused;
+            }
+            set
+            {
+                if (m_IsPaused != value)
+                {
+                    m_IsPaused = value;
+                    NotifyPropertyChanged("IsPaused");
                 }
             }
         }
