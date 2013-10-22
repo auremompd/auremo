@@ -122,8 +122,10 @@
     </Compile>
     <Compile Include="AlbumComparison.cs" />
     <Compile Include="AlbumMetadataTreeViewNode.cs" />
+    <Compile Include="MusicCollectionItem.cs" />
     <Compile Include="ConverterClasses.cs" />
     <Compile Include="CurrentSong.cs" />
+    <Compile Include="DataGridItem.cs" />
     <Compile Include="GlobalEnums.cs" />
     <Compile Include="ArtistTreeViewNode.cs" />
     <Compile Include="CollectionSearch.cs" />

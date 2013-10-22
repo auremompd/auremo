@@ -47,11 +47,11 @@ namespace Auremo
 
         public StreamsCollection()
         {
-            Streams = new ObservableCollection<StreamMetadata>();
+            Streams = new ObservableCollection<MusicCollectionItem>();
             Load();
         }
 
-        public IList<StreamMetadata> Streams
+        public IList<MusicCollectionItem> Streams
         {
             get;
             private set;
@@ -224,7 +224,7 @@ namespace Auremo
 
             foreach (StreamMetadata stream in m_StreamsByLabel.Values)
             {
-                Streams.Add(stream);
+                Streams.Add(new MusicCollectionItem(stream, Streams.Count));
             }
         }
     }

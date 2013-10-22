@@ -94,9 +94,9 @@
                                   MouseLeftButtonUp="OnDataGridCellMouseUp"
                                   MouseDoubleClick="OnSearchResultsViewDoubleClicked">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Title" Width="Auto" Binding="{Binding Path=Song.Title}" CanUserResize="True"/>
+                                <DataGridTextColumn Header="Title" Width="Auto" Binding="{Binding Path=Song}" CanUserResize="True"/>
                                 <DataGridTextColumn Header="Artist" Width="Auto" Binding="{Binding Path=Artist}" CanUserResize="True"/>
-                                <DataGridTextColumn Header="Album" Width="*" Binding="{Binding Path=Album.Title}" CanUserResize="False"/>
+                                <DataGridTextColumn Header="Album" Width="*" Binding="{Binding Path=Album}" CanUserResize="False"/>
                             </DataGrid.Columns>
                             <DataGrid.ContextMenu>
                                 <ContextMenu Name="m_SearchResultsViewContextMenu">
@@ -133,7 +133,7 @@
                                   MouseLeftButtonUp="OnDataGridRowMouseUp"
                                   MouseDoubleClick="OnMusicCollectionDataGridDoubleClicked">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Artist" Width="*" Binding="{Binding}" CanUserResize="True"/>
+                                <DataGridTextColumn Header="Artist" Width="*" Binding="{Binding Path=Content}" CanUserResize="True"/>
                             </DataGrid.Columns>
                             <DataGrid.ContextMenu>
                                 <ContextMenu Name="m_ArtistsViewContextMenu">
@@ -159,7 +159,7 @@
                                   MouseLeftButtonUp="OnDataGridRowMouseUp"
                                   MouseDoubleClick="OnMusicCollectionDataGridDoubleClicked">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Title" Width="*" Binding="{Binding Path=Title}"/>
+                                <DataGridTextColumn Header="Title" Width="*" Binding="{Binding Path=Content.Title}"/>
                             </DataGrid.Columns>
                             <DataGrid.ContextMenu>
                                 <ContextMenu Name="m_AlbumsBySelectedArtistsViewContextMenu">
@@ -185,8 +185,8 @@
                                   MouseLeftButtonUp="OnDataGridRowMouseUp"
                                   MouseDoubleClick="OnMusicCollectionDataGridDoubleClicked">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Track#" MinWidth="60" Width="Auto" Binding="{Binding Track}"/>
-                                <DataGridTextColumn Header="Title" MinWidth="60" Width="*" Binding="{Binding Title}"/>
+                                <DataGridTextColumn Header="Track#" MinWidth="60" Width="Auto" Binding="{Binding Content.Track}"/>
+                                <DataGridTextColumn Header="Title" MinWidth="60" Width="*" Binding="{Binding Content.Title}"/>
                             </DataGrid.Columns>
                             <DataGrid.ContextMenu>
                                 <ContextMenu Name="m_SongsOnSelectedAlbumsViewContextMenu">
@@ -248,7 +248,7 @@
                                   MouseLeftButtonUp="OnDataGridRowMouseUp"
                                   MouseDoubleClick="OnMusicCollectionDataGridDoubleClicked">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Genre" Width="*" Binding="{Binding}" CanUserResize="True"/>
+                                <DataGridTextColumn Header="Genre" Width="*" Binding="{Binding Path=Content}" CanUserResize="True"/>
                             </DataGrid.Columns>
                             <DataGrid.ContextMenu>
                                 <ContextMenu Name="m_GenresViewContextMenu">
@@ -274,8 +274,8 @@
                                   MouseLeftButtonUp="OnDataGridRowMouseUp"
                                   MouseDoubleClick="OnMusicCollectionDataGridDoubleClicked">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Artist" MinWidth="60" Width="Auto" Binding="{Binding Path=Artist}"/>
-                                <DataGridTextColumn Header="Album" MinWidth="60" Width="*" Binding="{Binding Path=Title}"/>
+                                <DataGridTextColumn Header="Artist" MinWidth="60" Width="Auto" Binding="{Binding Path=Content.Artist}"/>
+                                <DataGridTextColumn Header="Album" MinWidth="60" Width="*" Binding="{Binding Path=Content.Title}"/>
                             </DataGrid.Columns>
                             <DataGrid.ContextMenu>
                                 <ContextMenu Name="m_AlbumsOfSelectedGenresViewContextMenu">
@@ -301,8 +301,8 @@
                                   MouseLeftButtonUp="OnDataGridRowMouseUp"
                                   MouseDoubleClick="OnMusicCollectionDataGridDoubleClicked">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Track#" MinWidth="60" Width="Auto" Binding="{Binding Track}"/>
-                                <DataGridTextColumn Header="Title" MinWidth="60" Width="*" Binding="{Binding Title}"/>
+                                <DataGridTextColumn Header="Track#" MinWidth="60" Width="Auto" Binding="{Binding Content.Track}"/>
+                                <DataGridTextColumn Header="Title" MinWidth="60" Width="*" Binding="{Binding Content.Title}"/>
                             </DataGrid.Columns>
                             <DataGrid.ContextMenu>
                                 <ContextMenu Name="m_SongsOnSelectedGenreAlbumsViewContextMenu">
@@ -395,9 +395,9 @@
                                   MouseLeftButtonUp="OnDataGridRowMouseUp"
                                   MouseDoubleClick="OnMusicCollectionDataGridDoubleClicked">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Title" MinWidth="60" Width="Auto" Binding="{Binding Path=Title}"/>
-                                <DataGridTextColumn Header="Artist" MinWidth="60" Width="Auto" Binding="{Binding Path=Artist}"/>
-                                <DataGridTextColumn Header="Album" MinWidth="60" Width="*" Binding="{Binding Path=Album}"/>
+                                <DataGridTextColumn Header="Title" MinWidth="60" Width="Auto" Binding="{Binding Path=Content.Title}"/>
+                                <DataGridTextColumn Header="Artist" MinWidth="60" Width="Auto" Binding="{Binding Path=Content.Artist}"/>
+                                <DataGridTextColumn Header="Album" MinWidth="60" Width="*" Binding="{Binding Path=Content.Album}"/>
                             </DataGrid.Columns>
                             <DataGrid.ContextMenu>
                                 <ContextMenu Name="m_SpotifySearchResultsViewContextMenu">
@@ -430,7 +430,7 @@
                                   MouseLeftButtonUp="OnDataGridRowMouseUp"
                                   MouseDoubleClick="OnMusicCollectionDataGridDoubleClicked">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Stream" Width="*" Binding="{Binding DisplayName}"/>
+                                <DataGridTextColumn Header="Stream" Width="*" Binding="{Binding}"/>
                             </DataGrid.Columns>
                             <DataGrid.ContextMenu>
                                 <ContextMenu Name="m_StreamsViewContextMenu">
@@ -495,7 +495,7 @@
                                   MouseLeftButtonUp="OnDataGridRowMouseUp"
                                   MouseDoubleClick="OnMusicCollectionDataGridDoubleClicked">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Title" Width="*" Binding="{Binding Title}"/>
+                                <DataGridTextColumn Header="Title" Width="*" Binding="{Binding}"/>
                             </DataGrid.Columns>
                             <DataGrid.ContextMenu>
                                 <ContextMenu>
