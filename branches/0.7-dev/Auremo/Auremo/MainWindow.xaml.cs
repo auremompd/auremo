@@ -227,36 +227,36 @@ namespace Auremo
 
         private void OnSelectedArtistsChanged(object sender, SelectionChangedEventArgs e)
         {
-            DataModel.DatabaseView.SelectedArtists = Utils.ToTypedList<string>(m_ArtistsView.SelectedItems);
+            DataModel.DatabaseView.SelectedArtists = Utils.ToTypedList<MusicCollectionItem>(m_ArtistsView.SelectedItems);
             m_AlbumsBySelectedArtistsView.SelectedIndex = -1;
         }
 
         private void OnSelectedAlbumsBySelectedArtistsChanged(object sender, SelectionChangedEventArgs e)
         {
-            DataModel.DatabaseView.SelectedAlbumsBySelectedArtists = Utils.ToTypedList<AlbumMetadata>(m_AlbumsBySelectedArtistsView.SelectedItems);
+            DataModel.DatabaseView.SelectedAlbumsBySelectedArtists = Utils.ToTypedList<MusicCollectionItem>(m_AlbumsBySelectedArtistsView.SelectedItems);
             m_SongsOnSelectedAlbumsView.SelectedIndex = -1;
         }
 
         private void OnSelectedSongsOnSelectedAlbumsBySelectedArtistsChanged(object sender, SelectionChangedEventArgs e)
         {
-            DataModel.DatabaseView.SelectedSongsOnSelectedAlbumsBySelectedArtists = Utils.ToTypedList<SongMetadata>(m_SongsOnSelectedAlbumsView.SelectedItems);
+            DataModel.DatabaseView.SelectedSongsOnSelectedAlbumsBySelectedArtists = Utils.ToTypedList<MusicCollectionItem>(m_SongsOnSelectedAlbumsView.SelectedItems);
         }
 
         private void OnSelectedGenresChanged(object sender, SelectionChangedEventArgs e)
         {
-            DataModel.DatabaseView.SelectedGenres = Utils.ToTypedList<string>(m_GenresView.SelectedItems);
+            DataModel.DatabaseView.SelectedGenres = Utils.ToTypedList<MusicCollectionItem>(m_GenresView.SelectedItems);
             m_AlbumsOfSelectedGenresView.SelectedIndex = -1;
         }
 
         private void OnSelectedAlbumsOfSelectedGenresChanged(object sender, SelectionChangedEventArgs e)
         {
-            DataModel.DatabaseView.SelectedAlbumsOfSelectedGenres = Utils.ToTypedList<AlbumMetadata>(m_AlbumsOfSelectedGenresView.SelectedItems);
+            DataModel.DatabaseView.SelectedAlbumsOfSelectedGenres = Utils.ToTypedList<MusicCollectionItem>(m_AlbumsOfSelectedGenresView.SelectedItems);
             m_SongsOnSelectedAlbumsView.SelectedIndex = -1;
         }
 
         private void OnSelectedSongsOnSelectedAlbumsOfSelectedGenresChanged(object sender, SelectionChangedEventArgs e)
         {
-            DataModel.DatabaseView.SelectedSongsOnSelectedAlbumsOfSelectedGenres = Utils.ToTypedList<SongMetadata>(m_SongsOnSelectedGenreAlbumsView.SelectedItems);
+            DataModel.DatabaseView.SelectedSongsOnSelectedAlbumsOfSelectedGenres = Utils.ToTypedList<MusicCollectionItem>(m_SongsOnSelectedGenreAlbumsView.SelectedItems);
         }
 
         private void OnSelectedSavedPlaylistChanged(object sender, SelectionChangedEventArgs e)
@@ -266,7 +266,7 @@ namespace Auremo
 
         private void OnSelectedItemsOnSelectedSavedPlaylistChanged(object sender, SelectionChangedEventArgs e)
         {
-            DataModel.SavedPlaylists.SelectedItemsOnSelectedPlaylist = Utils.ToTypedList<Playable>(m_ItemsOnSelectedSavedPlaylistView.SelectedItems);
+            DataModel.SavedPlaylists.SelectedItemsOnSelectedPlaylist = Utils.ToTypedList<MusicCollectionItem>(m_ItemsOnSelectedSavedPlaylistView.SelectedItems);
         }
 
         private void OnSelectedPlaylistItemsChanged(object sender, SelectionChangedEventArgs e)
@@ -631,18 +631,15 @@ namespace Auremo
                         }
                         else
                         {
-                            // TODO: FIXME: this can be null.
-                            int startIndex = (dataGrid.ItemContainerGenerator.ContainerFromItem(dataGrid.CurrentItem) as DataGridRow).GetIndex();
-                            int endIndex = row.GetIndex();
-                            dataGrid.UnselectAll();
-
+                            int startIndex = (dataGrid.CurrentItem as DataGridItem).Position;
+                            int endIndex = (row.Item as DataGridItem).Position;
                             int minIndex = Math.Min(startIndex, endIndex);
                             int maxIndex = Math.Max(startIndex, endIndex);
 
-                            for (int i = minIndex; i <= maxIndex; ++i)
+                            foreach (object o in dataGrid.Items)
                             {
-                                // TODO: FIXME: this too.
-                                (dataGrid.ItemContainerGenerator.ContainerFromIndex(i) as DataGridRow).IsSelected = true;
+                                DataGridItem item = o as DataGridItem;
+                                item.IsSelected = item.Position >= minIndex && item.Position <= maxIndex;
                             }
                         }
                     }
@@ -895,10 +892,14 @@ namespace Auremo
                     else if (m_DragSource == m_AlbumsOfSelectedGenresView)
                     {
                         // Filter album contents by selected genres.
-                        foreach (object o in m_SongsOnSelectedGenreAlbumsView.Items)
+                        foreach (MusicCollectionItem item in m_SongsOnSelectedGenreAlbumsView.Items)
                         {
-                            payload.Add(o);
+                            payload.Add(item.Content);
                         }
+                    }
+                    else if (m_DragSource == m_SavedPlaylistsView)
+                    {
+                        payload.Add(m_SavedPlaylistsView.SelectedItem);
                     }
                     else if (m_DragSource is DataGrid)
                     {
@@ -906,7 +907,8 @@ namespace Auremo
 
                         foreach (object o in source.SelectedItems)
                         {
-                            payload.Add(o);
+                            MusicCollectionItem item = o as MusicCollectionItem;
+                            payload.Add(item.Content);
                         }
                     }
                     else if (m_DragSource is TreeView)
@@ -1308,6 +1310,14 @@ namespace Auremo
         private void OnSearchBoxTextChanged(object sender, TextChangedEventArgs e)
         {
             DataModel.CollectionSearch.SearchString = m_SearchBox.Text;
+        }
+
+        private void OnSpotifySearchClicked(object sender, RoutedEventArgs e)
+        {
+            if (m_SpotifySearchBox.Text.Length > 0)
+            {
+                DataModel.SpotifySearch.Search(m_SpotifySearchBox.Text);
+            }
         }
 
         #region Streams collection
@@ -1786,7 +1796,11 @@ namespace Auremo
 
         private void AddObjectToPlaylist(object o, bool stringsAreArtists)
         {
-            if (o is string)
+            if (o is MusicCollectionItem)
+            {
+                AddObjectToPlaylist((o as MusicCollectionItem).Content, stringsAreArtists);
+            }
+            else if (o is string)
             {
                 if (stringsAreArtists)
                 {
@@ -2592,7 +2606,7 @@ namespace Auremo
             return hit != null && hit.VisualHit is System.Windows.Shapes.Path;
         }
 
-        private IList<object> SearchResultsCellsToObjects()
+        private IList<MusicCollectionItem> SearchResultsCellsToObjects()
         {
             // Is this really the best way to find which column this is?
             // It seems contrived, but DataGridCellInfo seems to contain
@@ -2601,7 +2615,7 @@ namespace Auremo
             const int artistColumnDisplayIndex = 1;
             const int albumColumnDisplayIndex = 2;
 
-            IList<object> result = new List<object>();
+            IList<MusicCollectionItem> result = new List<MusicCollectionItem>();
 
             foreach (DataGridCellInfo cell in m_SearchResultsView.SelectedCells)
             {
@@ -2611,15 +2625,15 @@ namespace Auremo
                 {
                     if (cell.Column.DisplayIndex == artistColumnDisplayIndex)
                     {
-                        result.Add(searchResult.Artist);
+                        result.Add(new MusicCollectionItem(searchResult.Artist, result.Count));
                     }
                     else if (cell.Column.DisplayIndex == albumColumnDisplayIndex)
                     {
-                        result.Add(searchResult.Album);
+                        result.Add(new MusicCollectionItem(searchResult.Album, result.Count));
                     }
                     else if (cell.Column.DisplayIndex == songColumnDisplayIndex)
                     {
-                        result.Add(searchResult.Song);
+                        result.Add(new MusicCollectionItem(searchResult.Song, result.Count));
                     }
                 }
             }
@@ -2755,13 +2769,5 @@ namespace Auremo
         }
 
         #endregion
-
-        private void OnSpotifySearchClicked(object sender, RoutedEventArgs e)
-        {
-            if (m_SpotifySearchBox.Text.Length > 0)
-            {
-                DataModel.SpotifySearch.Search(m_SpotifySearchBox.Text);
-            }
-        }
     }
 }

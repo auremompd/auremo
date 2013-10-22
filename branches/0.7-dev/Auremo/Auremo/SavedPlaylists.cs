@@ -42,15 +42,15 @@ namespace Auremo
 
         private DataModel m_DataModel = null;
         private IDictionary<string, IList<Playable>> m_Playlists = new SortedDictionary<string, IList<Playable>>();
-        private IList<Playable> m_SelectedItemsOnSelectedPlaylist = new List<Playable>();
+        private IList<MusicCollectionItem> m_SelectedItemsOnSelectedPlaylist = new List<MusicCollectionItem>();
         private string m_CurrentPlaylistName = "";
 
         public SavedPlaylists(DataModel dataModel)
         {
             m_DataModel = dataModel;
             Playlists = new ObservableCollection<string>();
-            ItemsOnSelectedPlaylist = new ObservableCollection<Playable>();
-            SelectedItemsOnSelectedPlaylist = new ObservableCollection<Playable>();
+            ItemsOnSelectedPlaylist = new ObservableCollection<MusicCollectionItem>();
+            SelectedItemsOnSelectedPlaylist = new ObservableCollection<MusicCollectionItem>();
 
             m_DataModel.ServerSession.PropertyChanged += new PropertyChangedEventHandler(OnServerSessionPropertyChanged);
         }
@@ -111,19 +111,19 @@ namespace Auremo
                 {
                     foreach (Playable playable in m_Playlists[value])
                     {
-                        ItemsOnSelectedPlaylist.Add(playable);
+                        ItemsOnSelectedPlaylist.Add(new MusicCollectionItem(playable, ItemsOnSelectedPlaylist.Count));
                     }
                 }
             }
         }
 
-        public ObservableCollection<Playable> ItemsOnSelectedPlaylist
+        public ObservableCollection<MusicCollectionItem> ItemsOnSelectedPlaylist
         {
             get;
             private set;
         }
 
-        public IList<Playable> SelectedItemsOnSelectedPlaylist
+        public IList<MusicCollectionItem> SelectedItemsOnSelectedPlaylist
         {
             get
             {

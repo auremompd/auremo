@@ -43,13 +43,15 @@ namespace Auremo
 
         private DataModel m_DataModel = null;
 
-        private IList<object> m_SelectedSearchResults = new List<object>();
-        private IList<string> m_SelectedArtists = new List<string>();
-        private IList<AlbumMetadata> m_SelectedAlbumsBySelectedArtists = new List<AlbumMetadata>();
-        private IList<SongMetadata> m_SelectedSongsOnSelectedAlbumsBySelectedArtists = new List<SongMetadata>();
-        private IList<string> m_SelectedGenres = new List<string>();
-        private IList<AlbumMetadata> m_SelectedAlbumsOfSelectedGenres = new List<AlbumMetadata>();
-        private IList<SongMetadata> m_SelectedSongsOnSelectedAlbumsOfSelectedGenres = new List<SongMetadata>();
+        private IList<MusicCollectionItem> m_SelectedSearchResults = new List<MusicCollectionItem>();
+        private IList<MusicCollectionItem> m_SelectedArtists = new List<MusicCollectionItem>();
+        private IList<MusicCollectionItem> m_SelectedAlbumsBySelectedArtists = new List<MusicCollectionItem>();
+        private IList<MusicCollectionItem> m_SelectedSongsOnSelectedAlbumsBySelectedArtists = new List<MusicCollectionItem>();
+        private IList<MusicCollectionItem> m_SelectedGenres = new List<MusicCollectionItem>();
+        private IList<MusicCollectionItem> m_SelectedAlbumsOfSelectedGenres = new List<MusicCollectionItem>();
+        private IList<MusicCollectionItem> m_SelectedSongsOnSelectedAlbumsOfSelectedGenres = new List<MusicCollectionItem>();
+
+        private ISet<string> m_SelectedGenresLookup = new SortedSet<string>();
 
         public delegate ISet<AlbumMetadata> AlbumsUnderRoot(string root);
         public delegate ISet<SongMetadata> SongsOnAlbum(AlbumMetadata album);
@@ -62,15 +64,15 @@ namespace Auremo
 
             SearchResults = new ObservableCollection<CollectionSearch.SearchResultTuple>();
 
-            Artists = new ObservableCollection<string>();
-            AlbumsBySelectedArtists = new ObservableCollection<AlbumMetadata>();
-            SongsOnSelectedAlbumsBySelectedArtists = new ObservableCollection<SongMetadata>();
-            SelectedSongsOnSelectedAlbumsBySelectedArtists = new ObservableCollection<SongMetadata>();
+            Artists = new ObservableCollection<MusicCollectionItem>();
+            AlbumsBySelectedArtists = new ObservableCollection<MusicCollectionItem>();
+            SongsOnSelectedAlbumsBySelectedArtists = new ObservableCollection<MusicCollectionItem>();
+            SelectedSongsOnSelectedAlbumsBySelectedArtists = new ObservableCollection<MusicCollectionItem>();
 
-            Genres = new ObservableCollection<string>();
-            AlbumsOfSelectedGenres = new ObservableCollection<AlbumMetadata>();
-            SongsOnSelectedAlbumsOfSelectedGenres = new ObservableCollection<SongMetadata>();
-            SelectedSongsOnSelectedAlbumsOfSelectedGenres = new ObservableCollection<SongMetadata>();
+            Genres = new ObservableCollection<MusicCollectionItem>();
+            AlbumsOfSelectedGenres = new ObservableCollection<MusicCollectionItem>();
+            SongsOnSelectedAlbumsOfSelectedGenres = new ObservableCollection<MusicCollectionItem>();
+            SelectedSongsOnSelectedAlbumsOfSelectedGenres = new ObservableCollection<MusicCollectionItem>();
 
             ArtistTree = new ObservableCollection<TreeViewNode>();
             ArtistTreeController = new TreeViewController(ArtistTree);
@@ -107,7 +109,7 @@ namespace Auremo
 
             foreach (string artist in m_DataModel.Database.Artists)
             {
-                Artists.Add(artist);
+                Artists.Add(new MusicCollectionItem(artist, Artists.Count));
             }
         }
 
@@ -117,16 +119,16 @@ namespace Auremo
 
             foreach (string genre in m_DataModel.Database.Genres)
             {
-                Genres.Add(genre);
+                Genres.Add(new MusicCollectionItem(genre, Genres.Count));
             }
         }
-
+        
         private void PopulateArtistTree()
         {
             ArtistTree.Clear();
             ArtistTreeController.MultiSelection.Clear();
 
-            foreach (string artist in Artists)
+            foreach (string artist in m_DataModel.Database.Artists)
             {
                 ArtistTreeViewNode artistNode = new ArtistTreeViewNode(artist, null, ArtistTreeController);
 
@@ -158,7 +160,7 @@ namespace Auremo
             GenreTreeController.ClearMultiSelection();
             GenreTree.Clear();
 
-            foreach (string genre in Genres)
+            foreach (string genre in m_DataModel.Database.Genres)
             {
                 GenreTreeViewNode genreNode = new GenreTreeViewNode(genre, null, GenreTreeController);
 
@@ -266,7 +268,7 @@ namespace Auremo
             private set;
         }
 
-        public IList<object> SelectedSearchResults
+        public IList<MusicCollectionItem> SelectedSearchResults
         {
             get
             {
@@ -283,25 +285,25 @@ namespace Auremo
 
         #region Artist/album/song view
 
-        public IList<string> Artists
+        public IList<MusicCollectionItem> Artists
         {
             get;
             private set;
         }
 
-        public ObservableCollection<AlbumMetadata> AlbumsBySelectedArtists
+        public ObservableCollection<MusicCollectionItem> AlbumsBySelectedArtists
         {
             get;
             private set;
         }
 
-        public ObservableCollection<SongMetadata> SongsOnSelectedAlbumsBySelectedArtists
+        public ObservableCollection<MusicCollectionItem> SongsOnSelectedAlbumsBySelectedArtists
         {
             get;
             private set;
         }
-        
-        public IList<string> SelectedArtists
+
+        public IList<MusicCollectionItem> SelectedArtists
         {
             get
             {
@@ -312,11 +314,11 @@ namespace Auremo
                 m_SelectedArtists = value;
                 AlbumsBySelectedArtists.Clear();
 
-                foreach (string artist in value)
+                foreach (MusicCollectionItem artistItem in value)
                 {
-                    foreach (AlbumMetadata album in m_DataModel.Database.AlbumsByArtist(artist))
+                    foreach (AlbumMetadata album in m_DataModel.Database.AlbumsByArtist(artistItem.Content as string))
                     {
-                        AlbumsBySelectedArtists.Add(album);
+                        AlbumsBySelectedArtists.Add(new MusicCollectionItem(album, AlbumsBySelectedArtists.Count));
                     }
                 }
 
@@ -324,7 +326,7 @@ namespace Auremo
             }
         }
 
-        public IList<AlbumMetadata> SelectedAlbumsBySelectedArtists
+        public IList<MusicCollectionItem> SelectedAlbumsBySelectedArtists
         {
             get
             {
@@ -335,11 +337,11 @@ namespace Auremo
                 m_SelectedAlbumsBySelectedArtists = value;
                 SongsOnSelectedAlbumsBySelectedArtists.Clear();
 
-                foreach (AlbumMetadata album in value)
+                foreach (MusicCollectionItem albumItem in value)
                 {
-                    foreach (SongMetadata song in m_DataModel.Database.SongsByAlbum(album))
+                    foreach (SongMetadata song in m_DataModel.Database.SongsByAlbum(albumItem.Content as AlbumMetadata))
                     {
-                        SongsOnSelectedAlbumsBySelectedArtists.Add(song);
+                        SongsOnSelectedAlbumsBySelectedArtists.Add(new MusicCollectionItem(song, SongsOnSelectedAlbumsBySelectedArtists.Count));
                     }
                 }
 
@@ -347,7 +349,7 @@ namespace Auremo
             }
         }
 
-        public IList<SongMetadata> SelectedSongsOnSelectedAlbumsBySelectedArtists
+        public IList<MusicCollectionItem> SelectedSongsOnSelectedAlbumsBySelectedArtists
         {
             get
             {
@@ -355,7 +357,7 @@ namespace Auremo
             }
             set
             {
-                m_SelectedSongsOnSelectedAlbumsBySelectedArtists = new ObservableCollection<SongMetadata>(value);
+                m_SelectedSongsOnSelectedAlbumsBySelectedArtists = new ObservableCollection<MusicCollectionItem>(value);
                 NotifyPropertyChanged("SelectedSongsOnSelectedAlbumsBySelectedArtists");
             }
         }
@@ -364,25 +366,25 @@ namespace Auremo
 
         #region Genre/album/artist view
 
-        public IList<string> Genres
+        public IList<MusicCollectionItem> Genres
         {
             get;
             private set;
         }
 
-        public ObservableCollection<AlbumMetadata> AlbumsOfSelectedGenres
+        public ObservableCollection<MusicCollectionItem> AlbumsOfSelectedGenres
         {
             get;
             private set;
         }
 
-        public ObservableCollection<SongMetadata> SongsOnSelectedAlbumsOfSelectedGenres
+        public ObservableCollection<MusicCollectionItem> SongsOnSelectedAlbumsOfSelectedGenres
         {
             get;
             private set;
         }
 
-        public IList<string> SelectedGenres
+        public IList<MusicCollectionItem> SelectedGenres
         {
             get
             {
@@ -392,12 +394,16 @@ namespace Auremo
             {
                 m_SelectedGenres = value;
                 AlbumsOfSelectedGenres.Clear();
+                m_SelectedGenresLookup.Clear();
 
-                foreach (string genre in value)
+                foreach (MusicCollectionItem genreItem in value)
                 {
+                    string genre = genreItem.Content as string;
+                    m_SelectedGenresLookup.Add(genre);
+
                     foreach (AlbumMetadata album in m_DataModel.Database.AlbumsByGenre(genre))
                     {
-                        AlbumsOfSelectedGenres.Add(album);
+                        AlbumsOfSelectedGenres.Add(new MusicCollectionItem(album, AlbumsOfSelectedGenres.Count));
                     }
                 }
 
@@ -405,7 +411,7 @@ namespace Auremo
             }
         }
 
-        public IList<AlbumMetadata> SelectedAlbumsOfSelectedGenres
+        public IList<MusicCollectionItem> SelectedAlbumsOfSelectedGenres
         {
             get
             {
@@ -416,14 +422,13 @@ namespace Auremo
                 m_SelectedAlbumsOfSelectedGenres = value;
                 SongsOnSelectedAlbumsOfSelectedGenres.Clear();
 
-                foreach (AlbumMetadata album in value)
+                foreach (MusicCollectionItem albumItem in value)
                 {
-                    foreach (SongMetadata song in m_DataModel.Database.SongsByAlbum(album))
+                    foreach (SongMetadata song in m_DataModel.Database.SongsByAlbum(albumItem.Content as AlbumMetadata))
                     {
-                        // TODO: O(n*m), but O(n log(m)) is possible. (m is small.)
-                        if (SelectedGenres.Contains(song.Genre))
+                        if (m_SelectedGenresLookup.Contains(song.Genre))
                         {
-                            SongsOnSelectedAlbumsOfSelectedGenres.Add(song);
+                            SongsOnSelectedAlbumsOfSelectedGenres.Add(new MusicCollectionItem(song, SongsOnSelectedAlbumsOfSelectedGenres.Count));
                         }
                     }
                 }
@@ -432,7 +437,7 @@ namespace Auremo
             }
         }
 
-        public IList<SongMetadata> SelectedSongsOnSelectedAlbumsOfSelectedGenres
+        public IList<MusicCollectionItem> SelectedSongsOnSelectedAlbumsOfSelectedGenres
         {
             get
             {
@@ -440,7 +445,7 @@ namespace Auremo
             }
             set
             {
-                m_SelectedSongsOnSelectedAlbumsOfSelectedGenres = new ObservableCollection<SongMetadata>(value);
+                m_SelectedSongsOnSelectedAlbumsOfSelectedGenres = new ObservableCollection<MusicCollectionItem>(value);
                 NotifyPropertyChanged("SelectedSongsOnSelectedAlbumsOfSelectedGenres");
             }
         }

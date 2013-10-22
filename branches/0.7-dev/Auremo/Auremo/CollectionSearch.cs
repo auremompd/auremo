@@ -43,9 +43,9 @@ namespace Auremo
 
         public class SearchResultTuple
         {
-            public SongMetadata Song { get; set; }
-            public string Artist { get; set; }
-            public AlbumMetadata Album { get; set; }
+            public MusicCollectionItem Song { get; set; }
+            public MusicCollectionItem Artist { get; set; }
+            public MusicCollectionItem Album { get; set; }
         };
 
         private DataModel m_DataModel = null;
@@ -207,9 +207,9 @@ namespace Auremo
                             if (allFragmentsMatch)
                             {
                                 SearchResultTuple result = new SearchResultTuple();
-                                result.Song = song;
-                                result.Album = m_Database.AlbumOfSong(song);
-                                result.Artist = song.Artist;
+                                result.Song = new MusicCollectionItem(song, results.Count);
+                                result.Album = new MusicCollectionItem(m_Database.AlbumOfSong(song), results.Count);
+                                result.Artist = new MusicCollectionItem(song.Artist, results.Count);
                                 results.Add(result);
 
                                 if (DateTime.Now.Subtract(lastUpdate).TotalMilliseconds > 250 && results.Count > lastElementCount)
