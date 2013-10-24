@@ -54,7 +54,6 @@ namespace Auremo
 
         private const int m_AutoSearchMaxKeystrokeGap = 2500;
 
-        private const string AddSearchResults = "add_search_results";
         private const string AddArtists = "add_artists";
         private const string AddGenres = "add_genres";
         private const string AddAlbums = "add_albums";
@@ -220,9 +219,9 @@ namespace Auremo
 
         #region Selection notifications to data model
 
-        private void OnSelectedSearchResultsChanged(object sender, SelectedCellsChangedEventArgs e)
+        private void OnSelectedSearchResultsChanged(object sender, SelectionChangedEventArgs e)
         {
-            DataModel.DatabaseView.SelectedSearchResults = SearchResultsCellsToObjects();
+            DataModel.DatabaseView.SelectedSearchResults = Utils.ToTypedList<MusicCollectionItem>(m_SearchResultsView.SelectedItems);
         }
 
         private void OnSelectedArtistsChanged(object sender, SelectionChangedEventArgs e)
@@ -460,7 +459,7 @@ namespace Auremo
 
         private void SendItemsToPlaylist(object sourceControl, IEnumerable<object> items)
         {
-            bool stringsAreArtists = sourceControl == m_SearchResultsView || sourceControl == m_ArtistsView;
+            bool stringsAreArtists = sourceControl == m_ArtistsView;
 
             if (Settings.Default.SendToPlaylistMethod == SendToPlaylistMethod.AddAsNext.ToString())
             {
@@ -556,8 +555,8 @@ namespace Auremo
             if (element is DataGrid)
             {
                 DataGrid list = element as DataGrid;
-                bool selectionMayIncludeArtists = list != m_GenresView;
-                AddObjectsToPlaylist(Utils.ToTypedList<object>(list.SelectedItems), selectionMayIncludeArtists, position);
+                bool stringsAreArtists = list == m_ArtistsView;
+                AddObjectsToPlaylist(Utils.ToTypedList<object>(list.SelectedItems), stringsAreArtists, position);
             }
             else if (element is TreeView)
             {
@@ -572,6 +571,8 @@ namespace Auremo
                     }
                 }
             }
+
+            Update();
         }
 
         public void OnRescanMusicCollectionClicked(object sender, RoutedEventArgs e)
@@ -684,111 +685,6 @@ namespace Auremo
             }
         }
 
-        private void OnDataGridCellMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            DataGrid dataGrid = sender as DataGrid;
-            dataGrid.Focus();
-            
-            if (e.ClickCount == 1)
-            {
-                DataGridCell cell = DataGridCellBeingClicked(dataGrid, e);
-
-                if (Keyboard.Modifiers == ModifierKeys.None)
-                {
-                    if (cell == null)
-                    {
-                        dataGrid.UnselectAllCells();
-                        dataGrid.CurrentCell = new DataGridCellInfo();
-                    }
-                    else
-                    {
-                        if (cell.IsSelected)
-                        {
-                            e.Handled = true;
-                        }
-                        else
-                        {
-                            dataGrid.UnselectAllCells();
-                            cell.IsSelected = true;
-                        }
-
-                        dataGrid.CurrentCell = new DataGridCellInfo(cell);
-                        cell.IsSelected = true;
-                    }
-                }
-                else if (Keyboard.Modifiers == ModifierKeys.Shift)
-                {
-                    if (cell != null)
-                    {
-                        if (!dataGrid.CurrentCell.IsValid)
-                        {
-                            dataGrid.UnselectAllCells();
-                            cell.IsSelected = true;
-                            dataGrid.CurrentCell = new DataGridCellInfo(cell);
-                        }
-                        else
-                        {
-                            int startRowIndex = (dataGrid.ItemContainerGenerator.ContainerFromItem(dataGrid.CurrentCell.Item) as DataGridRow).GetIndex();
-                            int endRowIndex = (dataGrid.ItemContainerGenerator.ContainerFromItem(new DataGridCellInfo(cell).Item) as DataGridRow).GetIndex();
-                            int startColumnIndex = dataGrid.CurrentCell.Column.DisplayIndex;
-                            int endColumnIndex = cell.Column.DisplayIndex;
-
-                            dataGrid.UnselectAllCells();
-
-                            int minRowIndex = Math.Min(startRowIndex, endRowIndex);
-                            int maxRowIndex = Math.Max(startRowIndex, endRowIndex);
-                            int minColumnIndex = Math.Min(startColumnIndex, endColumnIndex);
-                            int maxColumnIndex = Math.Max(startColumnIndex, endColumnIndex);
-
-                            for (int y = minRowIndex; y <= maxRowIndex; ++y)
-                            {
-                                DataGridRow row = dataGrid.ItemContainerGenerator.ContainerFromIndex(y) as DataGridRow;
-
-                                for (int x = minColumnIndex; x <= maxColumnIndex; ++x)
-                                {
-                                    (dataGrid.ColumnFromDisplayIndex(x).GetCellContent(row).Parent as DataGridCell).IsSelected = true;
-                                }
-                            }
-                        }
-                    }
-                }
-                else if (Keyboard.Modifiers == ModifierKeys.Control)
-                {
-                    if (cell != null)
-                    {
-                        cell.IsSelected = !cell.IsSelected;
-                    }
-                }
-
-                if (cell != null && cell.IsSelected)
-                {
-                    m_DragSource = dataGrid;
-                    m_DragStartPosition = e.GetPosition(null);
-                }
-
-                e.Handled = cell != null;
-            }
-        }
-
-        private void OnDataGridCellMouseUp(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ClickCount == 1)
-            {
-                DataGrid dataGrid = sender as DataGrid;
-                DataGridCell cell = DataGridCellBeingClicked(dataGrid, e);
-
-                if (cell != null && Keyboard.Modifiers == ModifierKeys.None)
-                {
-                    dataGrid.UnselectAllCells();
-                    cell.IsSelected = true;
-                }
-
-                m_DragSource = null;
-                m_DragStartPosition = null;
-                e.Handled = cell != null;
-            }
-        }
-
         private void OnMouseMoveDragDrop(object sender, MouseEventArgs e)
         {
             if (m_DragStartPosition.HasValue && m_DragSource != null)
@@ -805,91 +701,7 @@ namespace Auremo
                     // this will do for now.
                     IList<object> payload = new List<object>();
 
-                    if (m_DragSource == m_SearchResultsView)
-                    {
-                        IList<object> itemsToAdd = new List<object>();
-
-                        foreach (DataGridCellInfo cell in m_SearchResultsView.SelectedCells)
-                        {
-                            itemsToAdd.Add(SearchResultCellContent(cell));
-                        }
-
-                        ISet<string> artistsToAdd = new SortedSet<string>();
-                        ISet<AlbumMetadata> albumsToAdd = new SortedSet<AlbumMetadata>(DataModel.Database.AlbumSortRule);
-                        ISet<SongMetadata> songsToAdd = new SortedSet<SongMetadata>();
-
-                        foreach (object item in itemsToAdd)
-                        {
-                            if (item is string)
-                            {
-                                artistsToAdd.Add(item as string);
-                            }
-                            else if (item is AlbumMetadata)
-                            {
-                                albumsToAdd.Add(item as AlbumMetadata);
-                            }
-                            else if (item is SongMetadata)
-                            {
-                                songsToAdd.Add(item as SongMetadata);
-                            }
-                        }
-
-                        // Make an effort to not add anything twice, even if it is selected
-                        // multiple times directly (as in the same artist on multiple lines)
-                        // or indirectly (as in a song and the album to which it belongs).
-                        foreach (AlbumMetadata album in new SortedSet<AlbumMetadata>(albumsToAdd, DataModel.Database.AlbumSortRule))
-                        {
-                            if (artistsToAdd.Contains(album.Artist))
-                            {
-                                albumsToAdd.Remove(album);
-                            }
-                        }
-
-                        foreach (SongMetadata song in new SortedSet<SongMetadata>(songsToAdd))
-                        {
-                            if (artistsToAdd.Contains(song.Artist) || albumsToAdd.Contains(DataModel.Database.AlbumOfSong(song)))
-                            {
-                                songsToAdd.Remove(song);
-                            }
-                        }
-
-                        ISet<string> artistsAlreadyAdded = new SortedSet<string>();
-                        ISet<AlbumMetadata> albumsAlreadyAdded = new SortedSet<AlbumMetadata>(DataModel.Database.AlbumSortRule);
-
-                        foreach (object item in itemsToAdd)
-                        {
-                            if (item is string)
-                            {
-                                string artist = item as string;
-
-                                if (artistsToAdd.Contains(artist) && !artistsAlreadyAdded.Contains(artist))
-                                {
-                                    payload.Add(item);
-                                    artistsAlreadyAdded.Add(artist);
-                                }
-                            }
-                            else if (item is AlbumMetadata)
-                            {
-                                AlbumMetadata album = item as AlbumMetadata;
-
-                                if (albumsToAdd.Contains(album) && !albumsAlreadyAdded.Contains(album))
-                                {
-                                    payload.Add(item);
-                                    albumsAlreadyAdded.Add(album);
-                                }
-                            }
-                            else if (item is SongMetadata)
-                            {
-                                SongMetadata song = item as SongMetadata;
-
-                                if (songsToAdd.Contains(song))
-                                {
-                                    payload.Add(item);
-                                }
-                            }
-                        }
-                    }
-                    else if (m_DragSource == m_AlbumsOfSelectedGenresView)
+                    if (m_DragSource == m_AlbumsOfSelectedGenresView)
                     {
                         // Filter album contents by selected genres.
                         foreach (MusicCollectionItem item in m_SongsOnSelectedGenreAlbumsView.Items)
@@ -1075,7 +887,7 @@ namespace Auremo
                         targetRow = AddObjectToPlaylist(o, false, targetRow);
                     }
                 }
-                else if (data == AddSearchResults || data == AddArtists || data == AddAlbums || data == AddSongs || data == AddStreams || data == AddPlaylistItems)
+                else if (data == AddArtists || data == AddAlbums || data == AddSongs || data == AddStreams || data == AddPlaylistItems)
                 {
                     foreach (object o in m_DragDropPayload)
                     {
@@ -1293,11 +1105,6 @@ namespace Auremo
         #endregion
 
         #region Specialized events for individual controls
-
-        private void OnSearchResultsViewDoubleClicked(object sender, MouseButtonEventArgs e)
-        {
-            SendItemsToPlaylist(sender, SearchResultsCellsToObjects());
-        }
 
         private void OnSearchBoxEnabledChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
@@ -1830,7 +1637,11 @@ namespace Auremo
         // the last item.
         private int AddObjectToPlaylist(object o, bool stringsAreArtists, int firstPosition)
         {
-            if (o is string)
+            if (o is MusicCollectionItem)
+            {
+                AddObjectToPlaylist((o as MusicCollectionItem).Content, stringsAreArtists, firstPosition);
+            }
+            else if (o is string)
             {
                 if (stringsAreArtists)
                 {
@@ -2494,7 +2305,7 @@ namespace Auremo
         #endregion
 
         #region Miscellaneous helper functions
-
+        /*
         private object SearchResultCellContent(DataGridCellInfo cell)
         {
             // Is this really the best way to find which column this is?
@@ -2524,6 +2335,7 @@ namespace Auremo
 
             return null;
         }
+        */ 
         
         private DataGridRow DataGridRowBeingClicked(DataGrid grid, MouseButtonEventArgs e)
         {
@@ -2606,41 +2418,6 @@ namespace Auremo
             return hit != null && hit.VisualHit is System.Windows.Shapes.Path;
         }
 
-        private IList<MusicCollectionItem> SearchResultsCellsToObjects()
-        {
-            // Is this really the best way to find which column this is?
-            // It seems contrived, but DataGridCellInfo seems to contain
-            // very little usable information.
-            const int songColumnDisplayIndex = 0;
-            const int artistColumnDisplayIndex = 1;
-            const int albumColumnDisplayIndex = 2;
-
-            IList<MusicCollectionItem> result = new List<MusicCollectionItem>();
-
-            foreach (DataGridCellInfo cell in m_SearchResultsView.SelectedCells)
-            {
-                CollectionSearch.SearchResultTuple searchResult = (CollectionSearch.SearchResultTuple)cell.Item;
-
-                if (searchResult != null)
-                {
-                    if (cell.Column.DisplayIndex == artistColumnDisplayIndex)
-                    {
-                        result.Add(new MusicCollectionItem(searchResult.Artist, result.Count));
-                    }
-                    else if (cell.Column.DisplayIndex == albumColumnDisplayIndex)
-                    {
-                        result.Add(new MusicCollectionItem(searchResult.Album, result.Count));
-                    }
-                    else if (cell.Column.DisplayIndex == songColumnDisplayIndex)
-                    {
-                        result.Add(new MusicCollectionItem(searchResult.Song, result.Count));
-                    }
-                }
-            }
-
-            return result;
-        }
-
         private TreeViewController TreeViewControllerOf(TreeView tree)
         {
             if (tree == m_ArtistTree)
@@ -2683,11 +2460,7 @@ namespace Auremo
 
         private string GetDragDropDataString(object dragSource)
         {
-            if (dragSource == m_SearchResultsView)
-            {
-                return AddSearchResults;
-            }
-            else if (dragSource == m_ArtistsView)
+            if (dragSource == m_ArtistsView)
             {
                 return AddArtists;
             }
@@ -2699,7 +2472,7 @@ namespace Auremo
             {
                 return AddAlbums;
             }
-            else if (dragSource == m_SongsOnSelectedAlbumsView || dragSource == m_SongsOnSelectedGenreAlbumsView || dragSource == m_SpotifySearchResultsView)
+            else if (dragSource == m_SearchResultsView || dragSource == m_SongsOnSelectedAlbumsView || dragSource == m_SongsOnSelectedGenreAlbumsView || dragSource == m_SpotifySearchResultsView)
             {
                 return AddSongs;
             }

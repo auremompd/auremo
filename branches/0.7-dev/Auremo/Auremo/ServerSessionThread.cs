@@ -256,7 +256,7 @@ namespace Auremo
         {
             MPDResponseLine statusLine = GetResponseLine();
 
-            // TODO: check the others for null too!
+            // TODO: FIXME: check the others for null too!
             if (statusLine != null)
             {
                 while (!statusLine.IsStatus)

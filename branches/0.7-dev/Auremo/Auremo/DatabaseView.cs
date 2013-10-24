@@ -62,7 +62,7 @@ namespace Auremo
         {
             m_DataModel = dataModel;
 
-            SearchResults = new ObservableCollection<CollectionSearch.SearchResultTuple>();
+            SearchResults = new ObservableCollection<MusicCollectionItem>();
 
             Artists = new ObservableCollection<MusicCollectionItem>();
             AlbumsBySelectedArtists = new ObservableCollection<MusicCollectionItem>();
@@ -257,12 +257,12 @@ namespace Auremo
         {
             if (e.PropertyName == "SearchResults")
             {
-                SearchResults = new ObservableCollection<CollectionSearch.SearchResultTuple>(m_DataModel.CollectionSearch.SearchResults);
+                SearchResults = new ObservableCollection<MusicCollectionItem>(m_DataModel.CollectionSearch.SearchResults);
                 NotifyPropertyChanged("SearchResults");
             }
         }
 
-        public IList<CollectionSearch.SearchResultTuple> SearchResults
+        public IList<MusicCollectionItem> SearchResults
         {
             get;
             private set;
