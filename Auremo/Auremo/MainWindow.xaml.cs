@@ -711,14 +711,20 @@ namespace Auremo
                     {
                         payload.Add(m_SavedPlaylistsView.SelectedItem);
                     }
+                    else if (m_DragSource == m_PlaylistView)
+                    {
+                        foreach (object o in m_PlaylistView.SelectedItems)
+                        {
+                            payload.Add(o as PlaylistItem);
+                        }
+                    }
                     else if (m_DragSource is DataGrid)
                     {
                         DataGrid source = m_DragSource as DataGrid;
 
                         foreach (object o in source.SelectedItems)
                         {
-                            MusicCollectionItem item = o as MusicCollectionItem;
-                            payload.Add(item.Content);
+                            payload.Add((o as MusicCollectionItem).Content);
                         }
                     }
                     else if (m_DragSource is TreeView)
