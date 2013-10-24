@@ -41,13 +41,6 @@ namespace Auremo
 
         #endregion
 
-        public class SearchResultTuple
-        {
-            public MusicCollectionItem Song { get; set; }
-            public MusicCollectionItem Artist { get; set; }
-            public MusicCollectionItem Album { get; set; }
-        };
-
         private DataModel m_DataModel = null;
         private CollectionSearchThread m_Searcher = null;
         private Thread m_Thread = null;
@@ -58,7 +51,7 @@ namespace Auremo
         bool m_ThreadShouldTerminate = false;
 
         object m_ThreadOutputLock = new object();
-        IEnumerable<SearchResultTuple> m_SearchResults = new List<SearchResultTuple>();
+        IEnumerable<MusicCollectionItem> m_SearchResults = new List<MusicCollectionItem>();
 
         public CollectionSearch(DataModel dataModel)
         {
@@ -90,7 +83,7 @@ namespace Auremo
             }
         }
 
-        public IEnumerable<SearchResultTuple> SearchResults
+        public IEnumerable<MusicCollectionItem> SearchResults
         {
             get
             {
@@ -103,7 +96,7 @@ namespace Auremo
             {
                 lock (m_ThreadOutputLock)
                 {
-                    m_SearchResults = new List<SearchResultTuple>(value);
+                    m_SearchResults = new List<MusicCollectionItem>(value);
                 }
 
                 NotifyPropertyChanged("SearchResults");
@@ -187,7 +180,7 @@ namespace Auremo
                     }
 
                     previousFragments = fragments;
-                    IList<SearchResultTuple> results = new ObservableCollection<SearchResultTuple>();
+                    IList<MusicCollectionItem> results = new ObservableCollection<MusicCollectionItem>();
                     m_Owner.SearchResults = results;
 
                     if (fragments.Count() > 0)
@@ -206,11 +199,7 @@ namespace Auremo
 
                             if (allFragmentsMatch)
                             {
-                                SearchResultTuple result = new SearchResultTuple();
-                                result.Song = new MusicCollectionItem(song, results.Count);
-                                result.Album = new MusicCollectionItem(m_Database.AlbumOfSong(song), results.Count);
-                                result.Artist = new MusicCollectionItem(song.Artist, results.Count);
-                                results.Add(result);
+                                results.Add(new MusicCollectionItem(song, results.Count));
 
                                 if (DateTime.Now.Subtract(lastUpdate).TotalMilliseconds > 250 && results.Count > lastElementCount)
                                 {
