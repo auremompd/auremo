@@ -282,7 +282,7 @@ namespace Auremo
                         m_Parent.OnThreadError(statusLine.Literal);
                     }
                 }
-                else if (m_CurrentResponse.Count > 0)
+                else
                 {
                     if (command.Op == "currentsong")
                     {

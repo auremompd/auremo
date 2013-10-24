@@ -58,8 +58,11 @@ namespace Auremo
 
         public void OnCurrentSongResponseReceived(IEnumerable<MPDSongResponseBlock> response)
         {
-            m_CurrentPlayable = response.First().ToPlayable(m_DataModel.Database.DateNormalizer);
-            BuildDisplayString();
+            if (response.Count() > 0)
+            {
+                m_CurrentPlayable = response.First().ToPlayable(m_DataModel.Database.DateNormalizer);
+                BuildDisplayString();
+            }
         }
 
         public string DisplayString
