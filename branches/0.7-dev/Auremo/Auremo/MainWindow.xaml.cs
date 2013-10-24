@@ -2305,37 +2305,6 @@ namespace Auremo
         #endregion
 
         #region Miscellaneous helper functions
-        /*
-        private object SearchResultCellContent(DataGridCellInfo cell)
-        {
-            // Is this really the best way to find which column this is?
-            // It seems contrived, but DataGridCellInfo seems to contain
-            // very little usable information.
-            const int songColumnDisplayIndex = 0;
-            const int artistColumnDisplayIndex = 1;
-            const int albumColumnDisplayIndex = 2;
-
-            CollectionSearch.SearchResultTuple result = (CollectionSearch.SearchResultTuple)cell.Item;
-
-            if (result != null)
-            {
-                if (cell.Column.DisplayIndex == artistColumnDisplayIndex)
-                {
-                    return result.Artist;
-                }
-                else if (cell.Column.DisplayIndex == albumColumnDisplayIndex)
-                {
-                    return result.Album;
-                }
-                else if (cell.Column.DisplayIndex == songColumnDisplayIndex)
-                {
-                    return result.Song;
-                }
-            }
-
-            return null;
-        }
-        */ 
         
         private DataGridRow DataGridRowBeingClicked(DataGrid grid, MouseButtonEventArgs e)
         {
