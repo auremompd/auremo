@@ -598,14 +598,18 @@ namespace Auremo
             {
                 DataGridRow row = DataGridRowBeingClicked(dataGrid, e);
 
-                if (Keyboard.Modifiers == ModifierKeys.None)
+                if (row == null)
                 {
-                    if (row == null)
+                    if (ViewBackgroundWasClicked(dataGrid, e) && Keyboard.Modifiers == ModifierKeys.None)
                     {
                         dataGrid.UnselectAll();
                         dataGrid.CurrentItem = null;
+                        e.Handled = true;
                     }
-                    else
+                }
+                else
+                {
+                    if (Keyboard.Modifiers == ModifierKeys.None)
                     {
                         if (row.IsSelected)
                         {
@@ -619,10 +623,7 @@ namespace Auremo
 
                         dataGrid.CurrentItem = row.Item;
                     }
-                }
-                else if (Keyboard.Modifiers == ModifierKeys.Shift)
-                {
-                    if (row != null)
+                    else if (Keyboard.Modifiers == ModifierKeys.Shift)
                     {
                         if (dataGrid.CurrentItem == null)
                         {
@@ -644,21 +645,18 @@ namespace Auremo
                             }
                         }
                     }
-                }
-                else if (Keyboard.Modifiers == ModifierKeys.Control)
-                {
-                    if (row != null)
+                    else if (Keyboard.Modifiers == ModifierKeys.Control)
                     {
                         dataGrid.CurrentItem = row.Item;
                         row.IsSelected = !row.IsSelected;
                         e.Handled = true;
                     }
-                }
 
-                if (row != null && row.IsSelected)
-                {
-                    m_DragSource = dataGrid;
-                    m_DragStartPosition = e.GetPosition(null);
+                    if (row.IsSelected)
+                    {
+                        m_DragSource = dataGrid;
+                        m_DragStartPosition = e.GetPosition(null);
+                    }
                 }
             }
         }
@@ -917,9 +915,10 @@ namespace Auremo
 
             if (item == null)
             {
-                if (!TreeViewExpanderBeingClicked(tree, e))
+                if (ViewBackgroundWasClicked(tree, e))
                 {
                     (tree.Tag as TreeViewController).ClearMultiSelection();
+                    e.Handled = true;
                 }
             }
             else if (item.Header is TreeViewNode)
@@ -2330,30 +2329,6 @@ namespace Auremo
             return null;
         }
 
-        private DataGridCell DataGridCellBeingClicked(DataGrid grid, MouseButtonEventArgs e)
-        {
-            HitTestResult hit = VisualTreeHelper.HitTest(grid, e.GetPosition(grid));
-
-            if (hit != null)
-            {
-                DependencyObject component = (DependencyObject)hit.VisualHit;
-
-                while (component != null)
-                {
-                    if (component is DataGridCell)
-                    {
-                        return (DataGridCell)component;
-                    }
-                    else
-                    {
-                        component = VisualTreeHelper.GetParent(component);
-                    }
-                }
-            }
-
-            return null;
-        }
-
         private TreeViewItem TreeViewItemBeingClicked(TreeView tree, MouseButtonEventArgs e)
         {
             HitTestResult hit = VisualTreeHelper.HitTest(tree, e.GetPosition(tree));
@@ -2381,10 +2356,36 @@ namespace Auremo
             return null;
         }
 
-        private bool TreeViewExpanderBeingClicked(TreeView tree, MouseButtonEventArgs e)
+        private bool ViewBackgroundWasClicked(Control control, MouseButtonEventArgs e)
         {
-            HitTestResult hit = VisualTreeHelper.HitTest(tree, e.GetPosition(tree));
-            return hit != null && hit.VisualHit is System.Windows.Shapes.Path;
+            HitTestResult hit = VisualTreeHelper.HitTest(control, e.GetPosition(control));
+
+            if (hit != null)
+            {
+                DependencyObject component = (DependencyObject)hit.VisualHit;
+
+                while (component != null)
+                {
+                    // The expander button in a tree view or the scrollbar of
+                    // any view -> stop here. There must be other such end
+                    // conditions, so this is by no means a generally corrent
+                    // solution. It's good enough here though.
+                    if (component is ToggleButton || component is ScrollBar)
+                    {
+                        return false;
+                    }
+                    else if (component is ItemsControl)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        component = VisualTreeHelper.GetParent(component);
+                    }
+                }
+            }
+
+            return false;
         }
 
         private TreeViewController TreeViewControllerOf(TreeView tree)
