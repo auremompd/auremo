@@ -549,18 +549,23 @@ namespace Auremo
         {
             MenuItem menuItem = sender as MenuItem;
             ContextMenu menu = menuItem.Parent as ContextMenu;
-            UIElement element = menu.PlacementTarget;
+            UIElement senderView = menu.PlacementTarget;
             int position = insertPosition;
 
-            if (element is DataGrid)
+            if (senderView == m_AlbumsOfSelectedGenresView)
             {
-                DataGrid list = element as DataGrid;
+                // Filter album contents by selected genres.
+                AddObjectsToPlaylist(Utils.ToTypedList<object>(m_SongsOnSelectedGenreAlbumsView.Items), false, position);
+            }
+            else if (senderView is DataGrid)
+            {
+                DataGrid list = senderView as DataGrid;
                 bool stringsAreArtists = list == m_ArtistsView;
                 AddObjectsToPlaylist(Utils.ToTypedList<object>(list.SelectedItems), stringsAreArtists, position);
             }
-            else if (element is TreeView)
+            else if (senderView is TreeView)
             {
-                TreeViewController controller = TreeViewControllerOf(element as TreeView);
+                TreeViewController controller = TreeViewControllerOf(senderView as TreeView);
                 ISet<SongMetadataTreeViewNode> selection = controller.Songs;
 
                 if (selection != null)
