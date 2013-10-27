@@ -179,7 +179,6 @@
                                   Grid.Row="2"
                                   Margin="0,-1,0,0"
                                   ItemsSource="{Binding Path=DatabaseView.SongsOnSelectedAlbumsBySelectedArtists}"
-                                  SelectionChanged="OnSelectedSongsOnSelectedAlbumsBySelectedArtistsChanged"
                                   PreviewKeyDown="OnMusicCollectionDataGridKeyDown"
                                   TextInput="OnCollectionTextInput"
                                   PreviewMouseLeftButtonDown="OnDataGridRowMouseDown"
@@ -553,9 +552,17 @@
                         <MenuItem Header="Clear" Click="OnClearPlaylistViewClicked" IsEnabled="{Binding Path=Playlist.Items.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
                         <MenuItem Header="Remove selected items" Click="OnRemoveSelectedPlaylistItemsClicked" IsEnabled="{Binding Path=Playlist.SelectedItems.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
                         <MenuItem Header="Remove everything but selected items" Click="OnCropToSelectedPlaylistItemsClicked" IsEnabled="{Binding Path=Playlist.SelectedItems.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
-                        <MenuItem Header="Save playlist into collection as..." Click="OnSavePlaylistAsClicked" IsEnabled="{Binding Path=Playlist.Items.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
                         <MenuItem Header="Remove duplicate items" Click="OnDedupPlaylistViewClicked" IsEnabled="{Binding Path=Playlist.Items.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
                         <MenuItem Header="Shuffle" Click="OnShufflePlaylistClicked" IsEnabled="{Binding Path=Playlist.Items.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
+                        <Separator/>
+                        <!-- TODO: Visible={Binding... -->
+                        <MenuItem Header="Show in Artist list" IsEnabled="{Binding Path=Playlist.SelectedItems.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}" Click="OnShowInArtistsListClicked"/>
+                        <MenuItem Header="Show in Artist tree" IsEnabled="{Binding Path=Playlist.SelectedItems.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}" Click="OnShowInArtistsListClicked"/>
+                        <MenuItem Header="Show in Genre list" IsEnabled="{Binding Path=Playlist.SelectedItems.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}" Click="OnShowInArtistsListClicked"/>
+                            <MenuItem Header="Show in Genre tree" IsEnabled="{Binding Path=Playlist.SelectedItems.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}" Click="OnShowInArtistsListClicked"/>
+                        <MenuItem Header="Show in Filesystem" IsEnabled="{Binding Path=Playlist.SelectedItems.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}" Click="OnShowInArtistsListClicked"/>
+                        <Separator/>
+                        <MenuItem Header="Save playlist into collection as..." Click="OnSavePlaylistAsClicked" IsEnabled="{Binding Path=Playlist.Items.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
                     </ContextMenu>
                 </DataGrid.ContextMenu>
             </DataGrid>
