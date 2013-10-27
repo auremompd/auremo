@@ -226,31 +226,24 @@ namespace Auremo
 
         private void OnSelectedArtistsChanged(object sender, SelectionChangedEventArgs e)
         {
-            DataModel.DatabaseView.SelectedArtists = Utils.ToTypedList<MusicCollectionItem>(m_ArtistsView.SelectedItems);
-            m_AlbumsBySelectedArtistsView.SelectedIndex = -1;
+           DataModel.DatabaseView.OnSelectedArtistsChanged();
         }
 
         private void OnSelectedAlbumsBySelectedArtistsChanged(object sender, SelectionChangedEventArgs e)
         {
-            DataModel.DatabaseView.SelectedAlbumsBySelectedArtists = Utils.ToTypedList<MusicCollectionItem>(m_AlbumsBySelectedArtistsView.SelectedItems);
-            m_SongsOnSelectedAlbumsView.SelectedIndex = -1;
-        }
-
-        private void OnSelectedSongsOnSelectedAlbumsBySelectedArtistsChanged(object sender, SelectionChangedEventArgs e)
-        {
-            DataModel.DatabaseView.SelectedSongsOnSelectedAlbumsBySelectedArtists = Utils.ToTypedList<MusicCollectionItem>(m_SongsOnSelectedAlbumsView.SelectedItems);
+            DataModel.DatabaseView.OnSelectedAlbumsBySelectedArtistsChanged();
         }
 
         private void OnSelectedGenresChanged(object sender, SelectionChangedEventArgs e)
         {
             DataModel.DatabaseView.SelectedGenres = Utils.ToTypedList<MusicCollectionItem>(m_GenresView.SelectedItems);
-            m_AlbumsOfSelectedGenresView.SelectedIndex = -1;
+            m_AlbumsOfSelectedGenresView.SelectedItems.Clear();
         }
 
         private void OnSelectedAlbumsOfSelectedGenresChanged(object sender, SelectionChangedEventArgs e)
         {
             DataModel.DatabaseView.SelectedAlbumsOfSelectedGenres = Utils.ToTypedList<MusicCollectionItem>(m_AlbumsOfSelectedGenresView.SelectedItems);
-            m_SongsOnSelectedAlbumsView.SelectedIndex = -1;
+            m_SongsOnSelectedAlbumsView.SelectedItems.Clear();
         }
 
         private void OnSelectedSongsOnSelectedAlbumsOfSelectedGenresChanged(object sender, SelectionChangedEventArgs e)
@@ -2523,5 +2516,25 @@ namespace Auremo
         }
 
         #endregion
+
+        // TODO: move to proper location
+        private void OnShowInArtistsListClicked(object sender, RoutedEventArgs e)
+        {
+            IList<SongMetadata> selectedSongs = new List<SongMetadata>();
+
+            foreach (PlaylistItem selectedItem in m_PlaylistView.SelectedItems)
+            {
+                if (selectedItem.Content is SongMetadata)
+                {
+                    selectedSongs.Add(selectedItem.Content as SongMetadata);
+                }
+            }
+
+            if (selectedSongs.Count > 0)
+            {
+                DataModel.DatabaseView.ShowSongsInArtistList(selectedSongs);
+                m_ArtistListTab.IsSelected = true;
+            }
+        }
     }
 }
