@@ -30,6 +30,13 @@ namespace Auremo
             Position = position;
         }
 
+        public MusicCollectionItem(object content, int position, bool isSelected)
+        {
+            Content = content;
+            Position = position;
+            IsSelected = isSelected;
+        }
+
         // TODO: there should be a common base class for genre/artist/album/song/stream, used here.
         public object Content
         {
