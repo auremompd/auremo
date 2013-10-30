@@ -44,11 +44,9 @@ namespace Auremo
         private DataModel m_DataModel = null;
 
         private IList<MusicCollectionItem> m_SelectedSearchResults = new List<MusicCollectionItem>();
-        private IList<MusicCollectionItem> m_SelectedGenres = new List<MusicCollectionItem>();
-        private IList<MusicCollectionItem> m_SelectedAlbumsOfSelectedGenres = new List<MusicCollectionItem>();
-        private IList<MusicCollectionItem> m_SelectedSongsOnSelectedAlbumsOfSelectedGenres = new List<MusicCollectionItem>();
 
-        private ISet<string> m_SelectedGenresLookup = new SortedSet<string>();
+        private ISet<string> m_SelectedGenres = new SortedSet<string>();
+        private ISet<AlbumMetadata> m_SelectedAlbumsOfSelectedGenres = new SortedSet<AlbumMetadata>();
 
         public delegate ISet<AlbumMetadata> AlbumsUnderRoot(string root);
         public delegate ISet<SongMetadata> SongsOnAlbum(AlbumMetadata album);
@@ -71,7 +69,6 @@ namespace Auremo
             Genres = new ObservableCollection<MusicCollectionItem>();
             AlbumsOfSelectedGenres = new ObservableCollection<MusicCollectionItem>();
             SongsOnSelectedAlbumsOfSelectedGenres = new ObservableCollection<MusicCollectionItem>();
-            SelectedSongsOnSelectedAlbumsOfSelectedGenres = new ObservableCollection<MusicCollectionItem>();
 
             ArtistTree = new ObservableCollection<TreeViewNode>();
             ArtistTreeController = new TreeViewController(ArtistTree);
@@ -323,16 +320,7 @@ namespace Auremo
         public void OnSelectedArtistsChanged()
         {
             // Check is anything really changed to prevent infinite recursion.
-            ISet<string> currentlySelectedArtists = new SortedSet<string>();
-
-            foreach (MusicCollectionItem artist in Artists)
-            {
-                if (artist.IsSelected)
-                {
-                    currentlySelectedArtists.Add(artist.Content as string);
-                }
-            }
-
+            ISet<string> currentlySelectedArtists = CollectSelectedElements<string>(Artists);
             bool changed = currentlySelectedArtists.Count != SelectedArtists.Count;
 
             if (!changed)
@@ -376,16 +364,7 @@ namespace Auremo
         public void OnSelectedAlbumsBySelectedArtistsChanged()
         {
             // Check is anything really changed to prevent infinite recursion.
-            ISet<AlbumMetadata> currentlySelectedAlbums = new SortedSet<AlbumMetadata>();
-
-            foreach (MusicCollectionItem album in AlbumsBySelectedArtists)
-            {
-                if (album.IsSelected)
-                {
-                    currentlySelectedAlbums.Add(album.Content as AlbumMetadata);
-                }
-            }
-
+            ISet<AlbumMetadata> currentlySelectedAlbums = CollectSelectedElements<AlbumMetadata>(AlbumsBySelectedArtists);
             bool changed = currentlySelectedAlbums.Count != SelectedAlbumsBySelectedArtists.Count;
 
             if (!changed)
@@ -422,11 +401,6 @@ namespace Auremo
                     }
                 }
             }
-        }
-
-        public void OnSelectedSongsOnSelectedAlbumsBySelectedArtistsChanged()
-        {
-            // Not currently used.
         }
 
         public void ShowSongsInArtistList(IEnumerable<SongMetadata> selectedSongs)
@@ -475,8 +449,6 @@ namespace Auremo
                     }
                 }
             }
-
-            OnSelectedSongsOnSelectedAlbumsBySelectedArtistsChanged();
         }
 
         #endregion
@@ -501,69 +473,102 @@ namespace Auremo
             private set;
         }
 
-        public IList<MusicCollectionItem> SelectedGenres
+        public void OnSelectedGenresChanged()
         {
-            get
+            ISet<string> newSelectedGenres = CollectSelectedElements<string>(Genres);
+
+            if (!SelectionsAreEqual(newSelectedGenres, m_SelectedGenres))
             {
-                return m_SelectedGenres;
-            }
-            set
-            {
-                m_SelectedGenres = value;
+                m_SelectedGenres = newSelectedGenres;
+                m_SelectedAlbumsOfSelectedGenres.Clear();
                 AlbumsOfSelectedGenres.Clear();
-                m_SelectedGenresLookup.Clear();
-
-                foreach (MusicCollectionItem genreItem in value)
-                {
-                    string genre = genreItem.Content as string;
-                    m_SelectedGenresLookup.Add(genre);
-
-                    foreach (AlbumMetadata album in m_DataModel.Database.AlbumsByGenre(genre))
-                    {
-                        AlbumsOfSelectedGenres.Add(new MusicCollectionItem(album, AlbumsOfSelectedGenres.Count));
-                    }
-                }
-
-                NotifyPropertyChanged("SelectedGenres");
-            }
-        }
-
-        public IList<MusicCollectionItem> SelectedAlbumsOfSelectedGenres
-        {
-            get
-            {
-                return m_SelectedAlbumsOfSelectedGenres;
-            }
-            set
-            {
-                m_SelectedAlbumsOfSelectedGenres = value;
                 SongsOnSelectedAlbumsOfSelectedGenres.Clear();
 
-                foreach (MusicCollectionItem albumItem in value)
+                foreach (MusicCollectionItem genre in Genres)
                 {
-                    foreach (SongMetadata song in m_DataModel.Database.SongsByAlbum(albumItem.Content as AlbumMetadata))
+                    if (genre.IsSelected)
                     {
-                        if (m_SelectedGenresLookup.Contains(song.Genre))
+                        // TODO: this will add a single album multiple times if it contains songs
+                        // of multiple selected genres.
+                        foreach (AlbumMetadata album in m_DataModel.Database.AlbumsByGenre(genre.Content as string))
                         {
-                            SongsOnSelectedAlbumsOfSelectedGenres.Add(new MusicCollectionItem(song, SongsOnSelectedAlbumsOfSelectedGenres.Count));
+                            AlbumsOfSelectedGenres.Add(new MusicCollectionItem(album, AlbumsOfSelectedGenres.Count));
                         }
                     }
                 }
-
-                NotifyPropertyChanged("SelectedAlbumsOfSelectedGenres");
             }
         }
 
-        public IList<MusicCollectionItem> SelectedSongsOnSelectedAlbumsOfSelectedGenres
+        public void OnSelectedAlbumsOfSelectedGenresChanged()
         {
-            get
+            ISet<AlbumMetadata> currentlySelectedAlbums = CollectSelectedElements<AlbumMetadata>(AlbumsOfSelectedGenres);
+
+            if (!SelectionsAreEqual(currentlySelectedAlbums, m_SelectedAlbumsOfSelectedGenres))
             {
-                return m_SelectedSongsOnSelectedAlbumsOfSelectedGenres;
+                m_SelectedAlbumsOfSelectedGenres = currentlySelectedAlbums;
+                SongsOnSelectedAlbumsOfSelectedGenres.Clear();
+
+                foreach (MusicCollectionItem album in AlbumsOfSelectedGenres)
+                {
+                    if (album.IsSelected)
+                    {
+                        foreach (SongMetadata song in m_DataModel.Database.SongsByAlbum(album.Content as AlbumMetadata))
+                        {
+                            if (m_SelectedGenres.Contains(song.Genre))
+                            {
+                                SongsOnSelectedAlbumsOfSelectedGenres.Add(new MusicCollectionItem(song, SongsOnSelectedAlbumsOfSelectedGenres.Count));
+                            }
+                        }
+                    }
+                }
             }
-            set
+        }
+
+        public void ShowSongsInGenreList(IEnumerable<SongMetadata> selectedSongs)
+        {
+            foreach (MusicCollectionItem genreItem in Genres)
             {
-                m_SelectedSongsOnSelectedAlbumsOfSelectedGenres = new ObservableCollection<MusicCollectionItem>(value);
-                NotifyPropertyChanged("SelectedSongsOnSelectedAlbumsOfSelectedGenres");
+                genreItem.IsSelected = false;
+
+                foreach (SongMetadata selectedSong in selectedSongs)
+                {
+                    if (genreItem.Content as string == selectedSong.Genre)
+                    {
+                        genreItem.IsSelected = true;
+                    }
+                }
+            }
+            
+            OnSelectedGenresChanged();
+
+            foreach (MusicCollectionItem albumItem in AlbumsOfSelectedGenres)
+            {
+                albumItem.IsSelected = false;
+                AlbumMetadata album = albumItem.Content as AlbumMetadata;
+
+                foreach (SongMetadata selectedSong in selectedSongs)
+                {
+                    if (album.Artist == selectedSong.Artist && album.Title == selectedSong.Album)
+                    {
+                        albumItem.IsSelected = true;
+                    }
+                }
+            }
+            
+            OnSelectedAlbumsOfSelectedGenresChanged();
+
+            foreach (MusicCollectionItem songItem in SongsOnSelectedAlbumsOfSelectedGenres)
+            {
+                songItem.IsSelected = false;
+                SongMetadata songInView = songItem.Content as SongMetadata;
+
+                foreach (SongMetadata selectedSong in selectedSongs)
+                {
+                    if (songInView.Path == selectedSong.Path)
+                    {
+                        songItem.IsSelected = true;
+                    }
+                }
             }
         }
 
@@ -637,6 +642,40 @@ namespace Auremo
             {
                 return DirectoryTreeController.Songs;
             }
+        }
+
+        #endregion
+
+        #region Utility
+
+        private ISet<T> CollectSelectedElements<T>(IEnumerable<MusicCollectionItem> collection) where T : class
+        {
+            ISet<T> result = new SortedSet<T>();
+
+            foreach (MusicCollectionItem item in collection)
+            {
+                if (item.IsSelected)
+                {
+                    result.Add(item.Content as T);
+                }
+            }
+
+            return result;
+        }
+
+        private bool SelectionsAreEqual<T>(IEnumerable<T> lhs, IEnumerable<T> rhs) where T : IComparable
+        {
+            IEnumerator<T> left = lhs.GetEnumerator();
+            IEnumerator<T> right = rhs.GetEnumerator();
+            bool equal = lhs.Count() == rhs.Count();
+
+            while (equal && left.MoveNext())
+            {
+                right.MoveNext();
+                equal = left.Current.CompareTo(right.Current) == 0;
+            }
+
+            return equal;
         }
 
         #endregion
