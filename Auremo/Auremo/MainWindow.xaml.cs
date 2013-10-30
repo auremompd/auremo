@@ -236,19 +236,12 @@ namespace Auremo
 
         private void OnSelectedGenresChanged(object sender, SelectionChangedEventArgs e)
         {
-            DataModel.DatabaseView.SelectedGenres = Utils.ToTypedList<MusicCollectionItem>(m_GenresView.SelectedItems);
-            m_AlbumsOfSelectedGenresView.SelectedItems.Clear();
+            DataModel.DatabaseView.OnSelectedGenresChanged();
         }
 
         private void OnSelectedAlbumsOfSelectedGenresChanged(object sender, SelectionChangedEventArgs e)
         {
-            DataModel.DatabaseView.SelectedAlbumsOfSelectedGenres = Utils.ToTypedList<MusicCollectionItem>(m_AlbumsOfSelectedGenresView.SelectedItems);
-            m_SongsOnSelectedAlbumsView.SelectedItems.Clear();
-        }
-
-        private void OnSelectedSongsOnSelectedAlbumsOfSelectedGenresChanged(object sender, SelectionChangedEventArgs e)
-        {
-            DataModel.DatabaseView.SelectedSongsOnSelectedAlbumsOfSelectedGenres = Utils.ToTypedList<MusicCollectionItem>(m_SongsOnSelectedGenreAlbumsView.SelectedItems);
+            DataModel.DatabaseView.OnSelectedAlbumsOfSelectedGenresChanged();
         }
 
         private void OnSelectedSavedPlaylistChanged(object sender, SelectionChangedEventArgs e)
@@ -2520,21 +2513,44 @@ namespace Auremo
         // TODO: move to proper location
         private void OnShowInArtistsListClicked(object sender, RoutedEventArgs e)
         {
-            IList<SongMetadata> selectedSongs = new List<SongMetadata>();
+            IList<SongMetadata> selection = SelectedLocalSongsOnPlaylist();
+
+            if (selection.Count > 0)
+            {
+                DataModel.DatabaseView.ShowSongsInArtistList(selection);
+                m_ArtistListTab.IsSelected = true;
+            }
+        }
+
+        private void OnShowInGenresListClicked(object sender, RoutedEventArgs e)
+        {
+            IList<SongMetadata> selection = SelectedLocalSongsOnPlaylist();
+
+            if (selection.Count > 0)
+            {
+                DataModel.DatabaseView.ShowSongsInGenreList(selection);
+                m_GenreListTab.IsSelected = true;
+            }
+        }
+
+        private IList<SongMetadata> SelectedLocalSongsOnPlaylist()
+        {
+            IList<SongMetadata> result = new List<SongMetadata>();
 
             foreach (PlaylistItem selectedItem in m_PlaylistView.SelectedItems)
             {
                 if (selectedItem.Content is SongMetadata)
                 {
-                    selectedSongs.Add(selectedItem.Content as SongMetadata);
+                    SongMetadata song = selectedItem.Content as SongMetadata;
+
+                    if (song.IsLocal)
+                    {
+                        result.Add(selectedItem.Content as SongMetadata);
+                    }
                 }
             }
 
-            if (selectedSongs.Count > 0)
-            {
-                DataModel.DatabaseView.ShowSongsInArtistList(selectedSongs);
-                m_ArtistListTab.IsSelected = true;
-            }
+            return result;
         }
     }
 }
