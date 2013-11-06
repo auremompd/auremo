@@ -67,7 +67,6 @@ namespace Auremo
 
         public void Update()
         {
-            Items = new ObservableCollection<Output>();
             m_DataModel.ServerSession.Outputs();
         }
 
@@ -77,7 +76,10 @@ namespace Auremo
 
             if (outputs == null)
             {
-                Items = new ObservableCollection<Output>();
+                if (Items.Count > 0)
+                {
+                    Items = new ObservableCollection<Output>();
+                }
             }
             else
             {
