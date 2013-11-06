@@ -49,7 +49,7 @@ namespace Auremo
             m_DataModel = dataModel;
             string[] dateFormat = { "YYYY" };
             m_DateNormalizer = new DateNormalizer(dateFormat);
-            SearchResults = new ObservableCollection<SongMetadata>();
+            SearchResults = new ObservableCollection<MusicCollectionItem>();
         }
 
         public void Search(string what)
@@ -83,13 +83,13 @@ namespace Auremo
                 {
                     foreach (SongMetadata song in album.Values)
                     {
-                        SearchResults.Add(song);
+                        SearchResults.Add(new MusicCollectionItem(song, SearchResults.Count));
                     }
                 }
             }
         }
 
-        public IList<SongMetadata> SearchResults
+        public IList<MusicCollectionItem> SearchResults
         {
             get;
             private set;
