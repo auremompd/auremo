@@ -596,6 +596,57 @@ namespace Auremo
             }
         }
 
+        public void ShowSongsInArtistTree(IEnumerable<SongMetadata> selectedSongs)
+        {
+            ISet<string> selectedArtists = new SortedSet<string>();
+            ISet<AlbumMetadata> selectedAlbums = new SortedSet<AlbumMetadata>();
+            ISet<string> selectedSongPaths = new SortedSet<string>(StringComparer.Ordinal);
+
+            foreach (SongMetadata song in selectedSongs)
+            {
+                if (song.IsLocal)
+                {
+                    selectedArtists.Add(song.Artist);
+                    selectedAlbums.Add(new AlbumMetadata(song.Artist, song.Album, null));
+                    selectedSongPaths.Add(song.Path);
+                }
+            }
+
+            ArtistTreeController.ClearMultiSelection();
+
+            foreach (TreeViewNode rootNode in ArtistTreeController.RootLevelNodes)
+            {
+                ArtistTreeViewNode artistNode = rootNode as ArtistTreeViewNode;
+                artistNode.IsExpanded = false;
+
+                if (selectedArtists.Contains(artistNode.Artist))
+                {
+                    artistNode.IsExpanded = true;
+
+                    foreach (TreeViewNode midNode in artistNode.Children)
+                    {
+                        AlbumMetadataTreeViewNode albumNode = midNode as AlbumMetadataTreeViewNode;
+                        albumNode.IsExpanded = false;
+
+                        if (selectedAlbums.Contains(albumNode.Album))
+                        {
+                            albumNode.IsExpanded = true;
+
+                            foreach (TreeViewNode leafNode in albumNode.Children)
+                            {
+                                SongMetadataTreeViewNode songNode = leafNode as SongMetadataTreeViewNode;
+
+                                if (selectedSongPaths.Contains(songNode.Song.Path))
+                                {
+                                    songNode.IsMultiSelected = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         #endregion
 
         #region Genre/album/song tree view
@@ -644,6 +695,57 @@ namespace Auremo
             }
         }
 
+        public void ShowSongsInGenreTree(IEnumerable<SongMetadata> selectedSongs)
+        {
+            ISet<string> selectedGenres = new SortedSet<string>();
+            ISet<AlbumMetadata> selectedAlbums = new SortedSet<AlbumMetadata>();
+            ISet<string> selectedSongPaths = new SortedSet<string>(StringComparer.Ordinal);
+
+            foreach (SongMetadata song in selectedSongs)
+            {
+                if (song.IsLocal)
+                {
+                    selectedGenres.Add(song.Genre);
+                    selectedAlbums.Add(new AlbumMetadata(song.Artist, song.Album, null));
+                    selectedSongPaths.Add(song.Path);
+                }
+            }
+
+            GenreTreeController.ClearMultiSelection();
+
+            foreach (TreeViewNode rootNode in GenreTreeController.RootLevelNodes)
+            {
+                GenreTreeViewNode genreNode = rootNode as GenreTreeViewNode;
+                genreNode.IsExpanded = false;
+
+                if (selectedGenres.Contains(genreNode.Genre))
+                {
+                    genreNode.IsExpanded = true;
+
+                    foreach (TreeViewNode midNode in genreNode.Children)
+                    {
+                        AlbumMetadataTreeViewNode albumNode = midNode as AlbumMetadataTreeViewNode;
+                        albumNode.IsExpanded = false;
+
+                        if (selectedAlbums.Contains(albumNode.Album))
+                        {
+                            albumNode.IsExpanded = true;
+
+                            foreach (TreeViewNode leafNode in albumNode.Children)
+                            {
+                                SongMetadataTreeViewNode songNode = leafNode as SongMetadataTreeViewNode;
+
+                                if (selectedSongPaths.Contains(songNode.Song.Path))
+                                {
+                                    songNode.IsMultiSelected = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
         #endregion
 
         #region Utility

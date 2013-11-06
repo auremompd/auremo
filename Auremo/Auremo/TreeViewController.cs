@@ -33,6 +33,14 @@ namespace Auremo
             MultiSelection = new ObservableCollection<TreeViewNode>();
         }
 
+        public IEnumerable<TreeViewNode> RootLevelNodes
+        {
+            get
+            {
+                return m_RootLevelNodes;
+            }
+        }
+
         public TreeViewNode FirstNode
         {
             get
