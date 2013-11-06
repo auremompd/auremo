@@ -2522,7 +2522,18 @@ namespace Auremo
             }
         }
 
-        private void OnShowInGenresListClicked(object sender, RoutedEventArgs e)
+        private void OnShowInArtistsTreeClicked(object sender, RoutedEventArgs e)
+        {
+            IList<SongMetadata> selection = SelectedLocalSongsOnPlaylist();
+
+            if (selection.Count > 0)
+            {
+                DataModel.DatabaseView.ShowSongsInArtistTree(selection);
+                m_ArtistTreeTab.IsSelected = true;
+            }
+        }
+
+        private void OnShowInGenreListClicked(object sender, RoutedEventArgs e)
         {
             IList<SongMetadata> selection = SelectedLocalSongsOnPlaylist();
 
@@ -2530,6 +2541,17 @@ namespace Auremo
             {
                 DataModel.DatabaseView.ShowSongsInGenreList(selection);
                 m_GenreListTab.IsSelected = true;
+            }
+        }
+
+        private void OnShowInGenreTreeClicked(object sender, RoutedEventArgs e)
+        {
+            IList<SongMetadata> selection = SelectedLocalSongsOnPlaylist();
+
+            if (selection.Count > 0)
+            {
+                DataModel.DatabaseView.ShowSongsInGenreTree(selection);
+                m_GenreTreeTab.IsSelected = true;
             }
         }
 

@@ -556,9 +556,9 @@
                         <Separator/>
                         <!-- TODO: Visible={Binding... -->
                         <MenuItem Header="Show in Artist list" IsEnabled="{Binding Path=Playlist.SelectedItems.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}" Click="OnShowInArtistsListClicked"/>
-                        <MenuItem Header="Show in Artist tree" IsEnabled="{Binding Path=Playlist.SelectedItems.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}" Click="OnShowInArtistsListClicked"/>
-                        <MenuItem Header="Show in Genre list" IsEnabled="{Binding Path=Playlist.SelectedItems.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}" Click="OnShowInGenresListClicked"/>
-                        <MenuItem Header="Show in Genre tree" IsEnabled="{Binding Path=Playlist.SelectedItems.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}" Click="OnShowInArtistsListClicked"/>
+                        <MenuItem Header="Show in Artist tree" IsEnabled="{Binding Path=Playlist.SelectedItems.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}" Click="OnShowInArtistsTreeClicked"/>
+                        <MenuItem Header="Show in Genre list" IsEnabled="{Binding Path=Playlist.SelectedItems.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}" Click="OnShowInGenreListClicked"/>
+                        <MenuItem Header="Show in Genre tree" IsEnabled="{Binding Path=Playlist.SelectedItems.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}" Click="OnShowInGenreTreeClicked"/>
                         <MenuItem Header="Show in Filesystem" IsEnabled="{Binding Path=Playlist.SelectedItems.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}" Click="OnShowInArtistsListClicked"/>
                         <Separator/>
                         <MenuItem Header="Save playlist into collection as..." Click="OnSavePlaylistAsClicked" IsEnabled="{Binding Path=Playlist.Items.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
