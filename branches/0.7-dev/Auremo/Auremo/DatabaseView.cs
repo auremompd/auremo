@@ -671,30 +671,6 @@ namespace Auremo
             }
         }
 
-        #endregion
-
-        #region Directory tree view
-
-        public IList<TreeViewNode> DirectoryTree
-        {
-            get;
-            private set;
-        }
-
-        public TreeViewController DirectoryTreeController
-        {
-            get;
-            private set;
-        }
-
-        public ISet<SongMetadataTreeViewNode> DirectoryTreeSelectedSongs
-        {
-            get
-            {
-                return DirectoryTreeController.Songs;
-            }
-        }
-
         public void ShowSongsInGenreTree(IEnumerable<SongMetadata> selectedSongs)
         {
             ISet<string> selectedGenres = new SortedSet<string>();
@@ -743,6 +719,30 @@ namespace Auremo
                         }
                     }
                 }
+            }
+        }
+
+        #endregion
+
+        #region Directory tree view
+
+        public IList<TreeViewNode> DirectoryTree
+        {
+            get;
+            private set;
+        }
+
+        public TreeViewController DirectoryTreeController
+        {
+            get;
+            private set;
+        }
+
+        public ISet<SongMetadataTreeViewNode> DirectoryTreeSelectedSongs
+        {
+            get
+            {
+                return DirectoryTreeController.Songs;
             }
         }
         
