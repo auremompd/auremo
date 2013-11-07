@@ -2555,6 +2555,17 @@ namespace Auremo
             }
         }
 
+        private void OnShowInFilesystemTreeClicked(object sender, RoutedEventArgs e)
+        {
+            IList<SongMetadata> selection = SelectedLocalSongsOnPlaylist();
+
+            if (selection.Count > 0)
+            {
+                DataModel.DatabaseView.ShowSongsInDirectoryTree(selection);
+                m_FilesystemTab.IsSelected = true;
+            }
+        }
+
         private IList<SongMetadata> SelectedLocalSongsOnPlaylist()
         {
             IList<SongMetadata> result = new List<SongMetadata>();
