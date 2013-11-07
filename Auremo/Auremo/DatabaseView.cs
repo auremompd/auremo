@@ -745,7 +745,67 @@ namespace Auremo
                 return DirectoryTreeController.Songs;
             }
         }
-        
+
+        public void ShowSongsInDirectoryTree(IEnumerable<SongMetadata> selectedSongs)
+        {
+            DirectoryTreeController.ClearMultiSelection();
+
+            // This looks more complex than necessary because it is trying to
+            // support multiple roots.
+            foreach (TreeViewNode root in DirectoryTreeController.RootLevelNodes)
+            {
+                if (root is DirectoryTreeViewNode)
+                {
+                    DirectoryTreeViewNode rootDirectory = root as DirectoryTreeViewNode;
+                    
+                    foreach (TreeViewNode node in rootDirectory.Children)
+                    {
+                        node.IsExpanded = false;
+
+                        foreach (SongMetadata song in selectedSongs)
+                        {
+                            SearchAndSelectPath(node, song.Path);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Expand/multiselect node if the path is found under it.
+        private bool SearchAndSelectPath(TreeViewNode node, string path)
+        {
+            if (node is DirectoryTreeViewNode)
+            {
+                DirectoryTreeViewNode directory = node as DirectoryTreeViewNode;
+
+                if (path.StartsWith(directory.FullPath + "/"))
+                {
+                    foreach (TreeViewNode child in directory.Children)
+                    {
+                        bool found = SearchAndSelectPath(child, path);
+
+                        if (found)
+                        {
+                            directory.IsExpanded = true;
+                            return true;
+                        }
+                    }
+                }
+            }
+            else if (node is SongMetadataTreeViewNode)
+            {
+                SongMetadataTreeViewNode song = node as SongMetadataTreeViewNode;
+
+                if (song.Song.Path == path)
+                {
+                    song.IsMultiSelected = true;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         #endregion
 
         #region Utility
