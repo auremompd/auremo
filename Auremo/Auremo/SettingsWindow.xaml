@@ -97,7 +97,7 @@
                     <StackPanel Grid.Column="1" Orientation="Vertical">
                         <StackPanel Orientation="Horizontal">
                             <Label Content="Search tab" Width="110" VerticalAlignment="Center"/>
-                            <CheckBox Name="m_SearchTabIsVisible" Content="Is visible" IsChecked="True" Style="{StaticResource OptionCheckBoxStyle}" Width="85" VerticalAlignment="Center" Unchecked="TabPreferencesSanityCheck"/>
+                            <CheckBox Name="m_QuickSearchTabIsVisible" Content="Is visible" IsChecked="True" Style="{StaticResource OptionCheckBoxStyle}" Width="85" VerticalAlignment="Center" Unchecked="TabPreferencesSanityCheck"/>
                             <RadioButton Name="m_SearchTabIsDefault" Content="Is default" IsChecked="True" GroupName="DefaultMusicCollectionTab" VerticalAlignment="Center" Checked="TabPreferencesSanityCheck"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
@@ -127,7 +127,7 @@
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <Label Content="Spotify" Width="110"/>
-                            <CheckBox Name="m_SpotifyTabIsVisible" Content="Is visible" IsChecked="True" Style="{StaticResource OptionCheckBoxStyle}" Width="85" VerticalAlignment="Center" Unchecked="TabPreferencesSanityCheck"/>
+                            <CheckBox Name="m_AdvancedSearchTabIsVisible" Content="Is visible" IsChecked="True" Style="{StaticResource OptionCheckBoxStyle}" Width="85" VerticalAlignment="Center" Unchecked="TabPreferencesSanityCheck"/>
                             <RadioButton Name="m_SpotifyTabIsDefault" Content="Is default" IsChecked="False" GroupName="DefaultMusicCollectionTab" VerticalAlignment="Center" Checked="TabPreferencesSanityCheck"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">

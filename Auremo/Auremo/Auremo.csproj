@@ -128,7 +128,7 @@
     <Compile Include="DataGridItem.cs" />
     <Compile Include="GlobalEnums.cs" />
     <Compile Include="ArtistTreeViewNode.cs" />
-    <Compile Include="CollectionSearch.cs" />
+    <Compile Include="QuickSearch.cs" />
     <Compile Include="Crypto.cs" />
     <Compile Include="DatabaseView.cs" />
     <Compile Include="DataModel.cs" />
@@ -155,7 +155,7 @@
     <Compile Include="SongMetadata.cs" />
     <Compile Include="SongMetadataTreeViewNode.cs" />
     <Compile Include="PLSParser.cs" />
-    <Compile Include="SpotifySearch.cs" />
+    <Compile Include="AdvancedSearch.cs" />
     <Compile Include="StickyButton.cs" />
     <Compile Include="StreamMetadata.cs" />
     <Compile Include="StreamsCollection.cs" />

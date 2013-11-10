@@ -184,12 +184,12 @@ namespace Auremo.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool SearchTabIsVisible {
+        public bool QuickSearchTabIsVisible {
             get {
-                return ((bool)(this["SearchTabIsVisible"]));
+                return ((bool)(this["QuickSearchTabIsVisible"]));
             }
             set {
-                this["SearchTabIsVisible"] = value;
+                this["QuickSearchTabIsVisible"] = value;
             }
         }
         
@@ -316,12 +316,12 @@ namespace Auremo.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool SpotifyTabIsVisible {
+        public bool AdvancedTabIsVisible {
             get {
-                return ((bool)(this["SpotifyTabIsVisible"]));
+                return ((bool)(this["AdvancedTabIsVisible"]));
             }
             set {
-                this["SpotifyTabIsVisible"] = value;
+                this["AdvancedTabIsVisible"] = value;
             }
         }
     }

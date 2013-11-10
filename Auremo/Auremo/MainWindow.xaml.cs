@@ -183,7 +183,7 @@ namespace Auremo
             {
                 if (!DataModel.ServerStatus.OK)
                 {
-                    m_SearchBox.Text = "";
+                    m_QuickSearchBox.Text = "";
                 }
             }
             else if (e.PropertyName == "PlayPosition")
@@ -221,7 +221,7 @@ namespace Auremo
 
         private void OnSelectedSearchResultsChanged(object sender, SelectionChangedEventArgs e)
         {
-            DataModel.DatabaseView.SelectedSearchResults = Utils.ToTypedList<MusicCollectionItem>(m_SearchResultsView.SelectedItems);
+            DataModel.DatabaseView.SelectedSearchResults = Utils.ToTypedList<MusicCollectionItem>(m_QuickSearchResultsView.SelectedItems);
         }
 
         private void OnSelectedArtistsChanged(object sender, SelectionChangedEventArgs e)
@@ -272,7 +272,7 @@ namespace Auremo
                     Back();
                     e.Handled = true;
                 }
-                else if (e.Key == Key.Space && !m_SearchBox.IsFocused && !m_SpotifySearchBox.IsFocused && m_StringQueryOverlay.Visibility != Visibility.Visible && !AutoSearchInProgrss)
+                else if (e.Key == Key.Space && !m_QuickSearchBox.IsFocused && !m_AdvancedSearchBox.IsFocused && m_StringQueryOverlay.Visibility != Visibility.Visible && !AutoSearchInProgrss)
                 {
                     TogglePlayPause();
                     e.Handled = true;
@@ -307,7 +307,7 @@ namespace Auremo
 
         private void OnExit(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            DataModel.CollectionSearch.Terminate();
+            DataModel.QuickSearch.Terminate();
             Disconnect();
 
             if (m_SettingsWindow != null)
@@ -1104,22 +1104,22 @@ namespace Auremo
 
         private void OnSearchBoxEnabledChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            if (m_SearchBox.IsEnabled)
+            if (m_QuickSearchBox.IsEnabled)
             {
-                m_SearchBox.Focus();
+                m_QuickSearchBox.Focus();
             }
         }
 
-        private void OnSearchBoxTextChanged(object sender, TextChangedEventArgs e)
+        private void OnQuickSearchBoxTextChanged(object sender, TextChangedEventArgs e)
         {
-            DataModel.CollectionSearch.SearchString = m_SearchBox.Text;
+            DataModel.QuickSearch.SearchString = m_QuickSearchBox.Text;
         }
 
-        private void OnSpotifySearchClicked(object sender, RoutedEventArgs e)
+        private void OnAdvancedSearchClicked(object sender, RoutedEventArgs e)
         {
-            if (m_SpotifySearchBox.Text.Length > 0)
+            if (m_AdvancedSearchBox.Text.Length > 0)
             {
-                DataModel.SpotifySearch.Search(m_SpotifySearchBox.Text);
+                DataModel.AdvancedSearch.Search(m_AdvancedSearchBox.Text);
             }
         }
 
@@ -2028,20 +2028,20 @@ namespace Auremo
 
         private void ApplyTabVisibilitySettings()
         {
-            m_SearchTab.Visibility = Settings.Default.SearchTabIsVisible ? Visibility.Visible : Visibility.Collapsed;
+            m_QuickSearchTab.Visibility = Settings.Default.QuickSearchTabIsVisible ? Visibility.Visible : Visibility.Collapsed;
+            m_AdvancedSearch.Visibility = Settings.Default.AdvancedTabIsVisible ? Visibility.Visible : Visibility.Collapsed;
             m_ArtistListTab.Visibility = Settings.Default.ArtistListTabIsVisible ? Visibility.Visible : Visibility.Collapsed;
             m_ArtistTreeTab.Visibility = Settings.Default.ArtistTreeTabIsVisible ? Visibility.Visible : Visibility.Collapsed;
             m_GenreListTab.Visibility = Settings.Default.GenreListTabIsVisible ? Visibility.Visible : Visibility.Collapsed;
             m_GenreTreeTab.Visibility = Settings.Default.GenreTreeTabIsVisible ? Visibility.Visible : Visibility.Collapsed;
             m_FilesystemTab.Visibility = Settings.Default.FilesystemTabIsVisible ? Visibility.Visible : Visibility.Collapsed;
-            m_SpotifyTab.Visibility = Settings.Default.SpotifyTabIsVisible ? Visibility.Visible : Visibility.Collapsed;
             m_StreamsTab.Visibility = Settings.Default.StreamsTabIsVisible ? Visibility.Visible : Visibility.Collapsed;
             m_PlaylistsTab.Visibility = Settings.Default.PlaylistsTabIsVisible ? Visibility.Visible : Visibility.Collapsed;
 
-            if (Settings.Default.DefaultMusicCollectionTab == MusicCollectionTab.SearchTab.ToString())
+            if (Settings.Default.DefaultMusicCollectionTab == MusicCollectionTab.QuickSearchTab.ToString())
             {
-                m_SearchTab.Visibility = System.Windows.Visibility.Visible;
-                m_SearchTab.IsSelected = true;
+                m_QuickSearchTab.Visibility = System.Windows.Visibility.Visible;
+                m_QuickSearchTab.IsSelected = true;
             }
             else if (Settings.Default.DefaultMusicCollectionTab == MusicCollectionTab.ArtistListTab.ToString())
             {
@@ -2068,10 +2068,10 @@ namespace Auremo
                 m_FilesystemTab.Visibility = System.Windows.Visibility.Visible;
                 m_FilesystemTab.IsSelected = true;
             }
-            else if (Settings.Default.DefaultMusicCollectionTab == MusicCollectionTab.SpotifyTab.ToString())
+            else if (Settings.Default.DefaultMusicCollectionTab == MusicCollectionTab.AdvancedSearchTab.ToString())
             {
-                m_SpotifyTab.Visibility = System.Windows.Visibility.Visible;
-                m_SpotifyTab.IsSelected = true;
+                m_AdvancedSearch.Visibility = System.Windows.Visibility.Visible;
+                m_AdvancedSearch.IsSelected = true;
             }
             else if (Settings.Default.DefaultMusicCollectionTab == MusicCollectionTab.StreamsTab.ToString())
             {
@@ -2439,7 +2439,7 @@ namespace Auremo
             {
                 return AddAlbums;
             }
-            else if (dragSource == m_SearchResultsView || dragSource == m_SongsOnSelectedAlbumsView || dragSource == m_SongsOnSelectedGenreAlbumsView || dragSource == m_SpotifySearchResultsView)
+            else if (dragSource == m_QuickSearchResultsView || dragSource == m_AdvancedSearchResultsView || dragSource == m_SongsOnSelectedAlbumsView || dragSource == m_SongsOnSelectedGenreAlbumsView)
             {
                 return AddSongs;
             }

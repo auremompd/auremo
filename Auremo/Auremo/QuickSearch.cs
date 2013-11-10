@@ -25,7 +25,7 @@ using System.Threading;
 
 namespace Auremo
 {
-    public class CollectionSearch : INotifyPropertyChanged
+    public class QuickSearch : INotifyPropertyChanged
     {
         #region INotifyPropertyChanged
 
@@ -42,7 +42,7 @@ namespace Auremo
         #endregion
 
         private DataModel m_DataModel = null;
-        private CollectionSearchThread m_Searcher = null;
+        private QuickSearchThread m_Searcher = null;
         private Thread m_Thread = null;
 
         object m_ThreadInputLock = new object();
@@ -53,10 +53,10 @@ namespace Auremo
         object m_ThreadOutputLock = new object();
         IEnumerable<MusicCollectionItem> m_SearchResults = new List<MusicCollectionItem>();
 
-        public CollectionSearch(DataModel dataModel)
+        public QuickSearch(DataModel dataModel)
         {
             m_DataModel = dataModel;
-            m_Searcher = new CollectionSearchThread(this, m_DataModel.Database);
+            m_Searcher = new QuickSearchThread(this, m_DataModel.Database);
             m_Thread = new Thread(new ThreadStart(m_Searcher.Start));
             m_Thread.Start();
         }
@@ -139,13 +139,13 @@ namespace Auremo
             }
         }
 
-        private class CollectionSearchThread
+        private class QuickSearchThread
         {
-            CollectionSearch m_Owner = null;
+            QuickSearch m_Owner = null;
             Database m_Database = null;
             bool m_Terminating = false;
 
-            public CollectionSearchThread(CollectionSearch owner, Database database)
+            public QuickSearchThread(QuickSearch owner, Database database)
             {
                 m_Owner = owner;
                 m_Database = database;
