@@ -44,7 +44,7 @@
   &lt;string&gt;YYYY&lt;/string&gt;
 &lt;/ArrayOfString&gt;</Value>
     </Setting>
-    <Setting Name="SearchTabIsVisible" Type="System.Boolean" Scope="User">
+    <Setting Name="QuickSearchTabIsVisible" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="ArtistListTabIsVisible" Type="System.Boolean" Scope="User">
@@ -77,7 +77,7 @@
     <Setting Name="NetworkTimeout" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">10</Value>
     </Setting>
-    <Setting Name="SpotifyTabIsVisible" Type="System.Boolean" Scope="User">
+    <Setting Name="AdvancedTabIsVisible" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
   </Settings>

@@ -318,7 +318,7 @@ namespace Auremo
                     else if (command.Op == "search")
                     {
                         ParseSongList();
-                        Callback(m_DataModel.SpotifySearch.OnSearchResponseReceived);
+                        Callback(m_DataModel.AdvancedSearch.OnSearchResponseReceived);
                         m_CurrentSongList.Clear();
                     }
                     else if (command.Op == "stats")

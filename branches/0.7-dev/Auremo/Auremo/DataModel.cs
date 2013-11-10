@@ -31,8 +31,8 @@ namespace Auremo
             ServerSession = new ServerSession(this);
             ServerStatus = new ServerStatus(this);
             Database = new Database(this);
-            CollectionSearch = new CollectionSearch(this);
-            SpotifySearch = new SpotifySearch(this);
+            QuickSearch = new QuickSearch(this);
+            AdvancedSearch = new AdvancedSearch(this);
             DatabaseView = new DatabaseView(this);
             StreamsCollection = new StreamsCollection();
             SavedPlaylists = new SavedPlaylists(this);
@@ -65,13 +65,13 @@ namespace Auremo
             private set;
         }
 
-        public CollectionSearch CollectionSearch
+        public QuickSearch QuickSearch
         {
             get;
             private set;
         }
 
-        public SpotifySearch SpotifySearch
+        public AdvancedSearch AdvancedSearch
         {
             get;
             private set;

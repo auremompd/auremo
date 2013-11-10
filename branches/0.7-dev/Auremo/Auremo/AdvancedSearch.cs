@@ -24,7 +24,7 @@ using System.Text;
 
 namespace Auremo
 {
-    public class SpotifySearch
+    public class AdvancedSearch
     {
         #region INotifyPropertyChanged
 
@@ -44,7 +44,7 @@ namespace Auremo
         private DateNormalizer m_DateNormalizer = null;
         IDictionary<string, IDictionary<string, IDictionary<int, SongMetadata>>> m_ResultSorter = new SortedDictionary<string, IDictionary<string, IDictionary<int, SongMetadata>>>();
 
-        public SpotifySearch(DataModel dataModel)
+        public AdvancedSearch(DataModel dataModel)
         {
             m_DataModel = dataModel;
             string[] dateFormat = { "YYYY" };

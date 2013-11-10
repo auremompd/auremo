@@ -79,13 +79,13 @@
                 <ColumnDefinition Width="75*"/>
             </Grid.ColumnDefinitions>
             <TabControl Name="m_CollectionBrowsingModes" Style="{StaticResource MusicCollectionTabControlStyle}" Grid.ColumnSpan="2" KeyboardNavigation.DirectionalNavigation="None">
-                <TabItem Name="m_SearchTab" Header="Search">
+                <TabItem Name="m_QuickSearchTab" Header="Quick search">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
-                        <DataGrid Name="m_SearchResultsView"
+                        <DataGrid Name="m_QuickSearchResultsView"
                                   Style="{StaticResource MusicCollectionDataGridStyle}"
                                   ItemsSource="{Binding Path=DatabaseView.SearchResults}"
                                   SelectionChanged="OnSelectedSearchResultsChanged"
@@ -111,10 +111,52 @@
                             </DataGrid.ContextMenu>
                         </DataGrid>
                         <TextBlock Name="m_SearchResultsHint" Grid.Row="0" Style="{StaticResource CollectionHintTextStyle}" Text="No search results." IsEnabled="{Binding ElementName=m_SearchResultsView, Path=Items.Count, Converter={StaticResource EqualsConverter}, ConverterParameter=0, Mode=OneWay}"/>
-                        <TextBox Name="m_SearchBox" Grid.Row="1" Style="{StaticResource TextBoxStyle}" Margin="0,10,0,0"
+                        <TextBox Name="m_QuickSearchBox" Grid.Row="1" Style="{StaticResource TextBoxStyle}" Margin="0,10,0,0"
                                  Height="28" FontSize="15" VerticalContentAlignment="Center"
-                                 IsEnabled="{Binding Path=ServerConnection.IsConnected}" TextChanged="OnSearchBoxTextChanged" IsEnabledChanged="OnSearchBoxEnabledChanged"/>
+                                 IsEnabled="{Binding Path=ServerConnection.IsConnected}" TextChanged="OnQuickSearchBoxTextChanged" IsEnabledChanged="OnSearchBoxEnabledChanged"/>
                         <TextBlock Name="m_SearchBoxHint" Grid.Row="1" Style="{StaticResource TextBoxHintTextStyle}" Margin="10,6,0,0" Text="Type here to start searching." IsEnabled="{Binding ElementName=m_SearchBox, Path=Text.Length, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}" FontSize="16"/>
+                    </Grid>
+                </TabItem>
+                <TabItem Name="m_AdvancedSearch" Header="Advanced search">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <DataGrid Name="m_AdvancedSearchResultsView"
+                                  Style="{StaticResource MusicCollectionDataGridStyle}"
+                                  Grid.ColumnSpan="2"
+                                  ItemsSource="{Binding Path=AdvancedSearch.SearchResults}"
+                                  PreviewKeyDown="OnMusicCollectionDataGridKeyDown"
+                                  PreviewMouseLeftButtonDown="OnDataGridRowMouseDown"
+                                  MouseMove="OnMouseMoveDragDrop"
+                                  MouseLeftButtonUp="OnDataGridRowMouseUp"
+                                  MouseDoubleClick="OnMusicCollectionDataGridDoubleClicked">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Title" MinWidth="60" Width="Auto" Binding="{Binding Path=Content.Title}"/>
+                                <DataGridTextColumn Header="Artist" MinWidth="60" Width="Auto" Binding="{Binding Path=Content.Artist}"/>
+                                <DataGridTextColumn Header="Album" MinWidth="60" Width="*" Binding="{Binding Path=Content.Album}"/>
+                            </DataGrid.Columns>
+                            <DataGrid.ContextMenu>
+                                <ContextMenu Name="m_AdvancedSearchResultsViewContextMenu">
+                                    <MenuItem Header="Add to playlist as last" Click="OnAddToPlaylistAsLastClicked" IsEnabled="{Binding Path=AdvancedSearch.SelectedSearchResults.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
+                                    <MenuItem Header="Add to playlist as next" Click="OnAddToPlaylistAsNextClicked" IsEnabled="{Binding Path=AdvancedSearch.SelectedSearchResults.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
+                                    <MenuItem Header="Play this" Click="OnPlayThisClicked" IsEnabled="{Binding Path=AdvancedSearch.SelectedSearchResults.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
+                                </ContextMenu>
+                            </DataGrid.ContextMenu>
+                        </DataGrid>
+                        <TextBox Name="m_AdvancedSearchBox" Grid.Row="1" Style="{StaticResource TextBoxStyle}" Margin="0,10,10,0"
+                                 Height="28" FontSize="15" VerticalContentAlignment="Center"
+                                 IsEnabled="{Binding Path=ServerConnection.IsConnected}" IsEnabledChanged="OnSearchBoxEnabledChanged"/>
+                        <TextBlock Name="m_AdvancedSearchBoxHint" Grid.Row="1" Style="{StaticResource TextBoxHintTextStyle}" Margin="10,6,0,0" Text="Type search terms here." IsEnabled="{Binding ElementName=m_AdvancedSearchBox, Path=Text.Length, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}" FontSize="16"/>
+                        <Button Name="m_AdvancedSearchButton" IsDefault="True" Style="{StaticResource ActionButtonStyle}" Grid.Row="1" Grid.Column="1" Width="30" Height="30" Margin="0,10,0,0" IsEnabled="{Binding ElementName=m_AdvancedSearchBox, Path=Text.Length, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}" Click="OnAdvancedSearchClicked">
+                            Go
+                            <!--Path Data="M 0,0 7,5 0,10" StrokeThickness="0" Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Button}, Path=Foreground}" Stretch="None"/-->
+                        </Button>
                     </Grid>
                 </TabItem>
                 <TabItem Name="m_ArtistListTab" Header="Artist list">
@@ -373,49 +415,6 @@
                             </TreeView.ContextMenu>
                         </TreeView>
                         <TextBlock Name="m_DirectoryTreeHint" Style="{StaticResource CollectionHintTextStyle}" Text="Music collection is not available." IsEnabled="{Binding ElementName=m_DirectoryTree, Path=Items.Count, Converter={StaticResource EqualsConverter}, ConverterParameter=0, Mode=OneWay}"/>
-                    </Grid>
-                </TabItem>
-                <TabItem Name="m_SpotifyTab" Header="Spotify">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <DataGrid Name="m_SpotifySearchResultsView"
-                                  Style="{StaticResource MusicCollectionDataGridStyle}"
-                                  Grid.ColumnSpan="2"
-                                  ItemsSource="{Binding Path=SpotifySearch.SearchResults}"
-                                  PreviewKeyDown="OnMusicCollectionDataGridKeyDown"
-                                  PreviewMouseLeftButtonDown="OnDataGridRowMouseDown"
-                                  MouseMove="OnMouseMoveDragDrop"
-                                  MouseLeftButtonUp="OnDataGridRowMouseUp"
-                                  MouseDoubleClick="OnMusicCollectionDataGridDoubleClicked">
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="Title" MinWidth="60" Width="Auto" Binding="{Binding Path=Content.Title}"/>
-                                <DataGridTextColumn Header="Artist" MinWidth="60" Width="Auto" Binding="{Binding Path=Content.Artist}"/>
-                                <DataGridTextColumn Header="Album" MinWidth="60" Width="*" Binding="{Binding Path=Content.Album}"/>
-                            </DataGrid.Columns>
-                            <DataGrid.ContextMenu>
-                                <ContextMenu Name="m_SpotifySearchResultsViewContextMenu">
-                                    <MenuItem Header="Add to playlist as last" Click="OnAddToPlaylistAsLastClicked" IsEnabled="{Binding Path=SpotifySearch.SelectedSearchResults.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
-                                    <MenuItem Header="Add to playlist as next" Click="OnAddToPlaylistAsNextClicked" IsEnabled="{Binding Path=SpotifySearch.SelectedSearchResults.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
-                                    <MenuItem Header="Play this" Click="OnPlayThisClicked" IsEnabled="{Binding Path=SpotifySearch.SelectedSearchResults.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
-                                </ContextMenu>
-                            </DataGrid.ContextMenu>
-                        </DataGrid>
-                        <!--<TextBlock Name="m_SpotifySearchResultsHint" Style="{StaticResource CollectionHintTextStyle}" Text="No search results." Grid.ColumnSpan="2" IsEnabled="{Binding ElementName=m_SearchResultsView, Path=Items.Count, Converter={StaticResource EqualsConverter}, ConverterParameter=0, Mode=OneWay}"/-->
-                        <TextBox Name="m_SpotifySearchBox" Grid.Row="1" Style="{StaticResource TextBoxStyle}" Margin="0,10,10,0"
-                                 Height="28" FontSize="15" VerticalContentAlignment="Center"
-                                 IsEnabled="{Binding Path=ServerConnection.IsConnected}" IsEnabledChanged="OnSearchBoxEnabledChanged"/>
-                        <TextBlock Name="m_SpotifySearchBoxHint" Grid.Row="1" Style="{StaticResource TextBoxHintTextStyle}" Margin="10,6,0,0" Text="Type here to search from Spotify." IsEnabled="{Binding ElementName=m_SpotifySearchBox, Path=Text.Length, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}" FontSize="16"/>
-                        <Button Name="m_SpotifySearchButton" IsDefault="True" Style="{StaticResource ActionButtonStyle}" Grid.Row="1" Grid.Column="1" Width="30" Height="30" Margin="0,10,0,0" IsEnabled="{Binding ElementName=m_SpotifySearchBox, Path=Text.Length, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}" Click="OnSpotifySearchClicked">
-                            Go
-                            <!--Path Data="M 0,0 7,5 0,10" StrokeThickness="0" Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Button}, Path=Foreground}" Stretch="None"/-->
-                        </Button>
                     </Grid>
                 </TabItem>
                 <TabItem Name="m_StreamsTab" Header="Streams">

@@ -80,7 +80,7 @@ namespace Auremo
             DirectoryTreeController = new TreeViewController(DirectoryTree);
 
             m_DataModel.Database.PropertyChanged += new PropertyChangedEventHandler(OnDatabasePropertyChanged);
-            m_DataModel.CollectionSearch.PropertyChanged += new PropertyChangedEventHandler(OnCollectionSearchResultsPropertyChanged);
+            m_DataModel.QuickSearch.PropertyChanged += new PropertyChangedEventHandler(OnQuickSearchResultsPropertyChanged);
         }
 
         private void OnDatabasePropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -249,11 +249,11 @@ namespace Auremo
 
         #region Search
 
-        private void OnCollectionSearchResultsPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void OnQuickSearchResultsPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "SearchResults")
             {
-                SearchResults = new ObservableCollection<MusicCollectionItem>(m_DataModel.CollectionSearch.SearchResults);
+                SearchResults = new ObservableCollection<MusicCollectionItem>(m_DataModel.QuickSearch.SearchResults);
                 NotifyPropertyChanged("SearchResults");
             }
         }

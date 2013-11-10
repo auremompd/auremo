@@ -30,13 +30,13 @@ namespace Auremo
 
     public enum MusicCollectionTab
     {
-        SearchTab,
+        QuickSearchTab,
+        AdvancedSearchTab,
         ArtistListTab,
         ArtistTreeTab,
         GenreListTab,
         GenreTreeTab,
         FilesystemTab,
-        SpotifyTab,
         StreamsTab,
         PlaylistsTab
     }
