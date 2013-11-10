@@ -42,11 +42,15 @@ namespace Auremo
 
         DataModel m_DataModel = null;
         PlaylistItem m_ItemMarkedAsCurrent = null;
+        int m_NumberOfSelectedLocalSongs = 0;
+        int m_NumberOfSelectedSpotifySongs = 0;
+        int m_NumberOfSelectedStreams = 0;
 
         public Playlist(DataModel dataModel)
         {
             m_DataModel = dataModel;
             Items = new ObservableCollection<PlaylistItem>();
+            SelectedItems = new ObservableCollection<PlaylistItem>();
             m_DataModel.ServerStatus.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(OnServerStatusPropertyChanged);
         }
 
@@ -56,28 +60,99 @@ namespace Auremo
             private set;
         }
 
-        private IList<PlaylistItem> m_SelectedItems = new ObservableCollection<PlaylistItem>();
         public IList<PlaylistItem> SelectedItems
         {
-            get
-            {
-                return m_SelectedItems;
-            }
-            set
-            {
-                m_SelectedItems.Clear();
-
-                foreach (PlaylistItem item in value)
-                {
-                    m_SelectedItems.Add(item);
-                }
-            }
+            get;
+            private set;
         }
 
         public string PlayStatusDescription
         {
             get; 
             private set;
+        }
+
+        public int NumberOfSelectedLocalSongs
+        {
+            get
+            {
+                return m_NumberOfSelectedLocalSongs;
+            }
+            private set
+            {
+                if (m_NumberOfSelectedLocalSongs != value)
+                {
+                    m_NumberOfSelectedLocalSongs = value;
+                    NotifyPropertyChanged("NumberOfSelectedLocalSongs");
+                }
+            }
+        }
+
+        public int NumberOfSelectedSpotifySongs
+        {
+            get
+            {
+                return m_NumberOfSelectedSpotifySongs;
+            }
+            private set
+            {
+                if (m_NumberOfSelectedSpotifySongs != value)
+                {
+                    m_NumberOfSelectedSpotifySongs = value;
+                    NotifyPropertyChanged("NumberOfSelectedSpotifySongs");
+                }
+            }
+        }
+
+        public int NumberOfSelectedStreams
+        {
+            get
+            {
+                return m_NumberOfSelectedStreams;
+            }
+            private set
+            {
+                if (m_NumberOfSelectedStreams != value)
+                {
+                    m_NumberOfSelectedStreams = value;
+                    NotifyPropertyChanged("NumberOfSelectedStreams");
+                }
+            }
+        }
+
+        public void OnSelectedItemsChanged(IEnumerable<PlaylistItem> selection)
+        {
+            SelectedItems.Clear();
+            int localSongs = 0;
+            int spotifySongs = 0;
+            int streams = 0;
+
+            foreach (PlaylistItem item in selection)
+            {
+                SelectedItems.Add(item);
+
+                if (item.Content is SongMetadata)
+                {
+                    SongMetadata song = item.Content as SongMetadata;
+
+                    if (song.IsLocal)
+                    {
+                        localSongs += 1;
+                    }
+                    else if (song.IsSpotify)
+                    {
+                        spotifySongs += 1;
+                    }
+                }
+                else if (item.Content is StreamMetadata)
+                {
+                    streams += 1;
+                }
+            }
+
+            NumberOfSelectedLocalSongs = localSongs;
+            NumberOfSelectedSpotifySongs = spotifySongs;
+            NumberOfSelectedStreams = streams;
         }
 
         private void OnServerStatusPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)

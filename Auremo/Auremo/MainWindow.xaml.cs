@@ -256,7 +256,7 @@ namespace Auremo
 
         private void OnSelectedPlaylistItemsChanged(object sender, SelectionChangedEventArgs e)
         {
-            DataModel.Playlist.SelectedItems = Utils.ToTypedList<PlaylistItem>(m_PlaylistView.SelectedItems);
+            DataModel.Playlist.OnSelectedItemsChanged(Utils.ToTypedList<PlaylistItem>(m_PlaylistView.SelectedItems));
         }
 
         #endregion
