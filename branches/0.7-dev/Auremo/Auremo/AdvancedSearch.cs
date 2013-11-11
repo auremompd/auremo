@@ -42,6 +42,10 @@ namespace Auremo
 
         private DataModel m_DataModel = null;
         private DateNormalizer m_DateNormalizer = null;
+        private bool m_IncludeLocal = true;
+        private bool m_IncludeSpotify = true;
+        private bool m_IncludeSoundCloud = true;
+        private SearchType m_SearchType = SearchType.Any;
         IDictionary<string, IDictionary<string, IDictionary<int, SongMetadata>>> m_ResultSorter = new SortedDictionary<string, IDictionary<string, IDictionary<int, SongMetadata>>>();
 
         public AdvancedSearch(DataModel dataModel)
@@ -55,8 +59,128 @@ namespace Auremo
         public void Search(string what)
         {
             SearchResults.Clear();
-            m_DataModel.ServerSession.Search("any", what);
+            string type = m_SearchType.ToString().ToLowerInvariant();
+            m_DataModel.ServerSession.Search(type, what);
         }
+
+        public IList<MusicCollectionItem> SearchResults
+        {
+            get;
+            private set;
+        }
+
+        public bool IncludeLocal
+        {
+            get
+            {
+                return m_IncludeLocal;
+            }
+            set
+            {
+                if (m_IncludeLocal != value)
+                {
+                    m_IncludeLocal = value;
+                    NotifyPropertyChanged("IncludeLocal");
+                }
+            }
+        }
+
+        public bool IncludeSpotify
+        {
+            get
+            {
+                return m_IncludeSpotify;
+            }
+            set
+            {
+                if (m_IncludeSpotify != value)
+                {
+                    m_IncludeSpotify = value;
+                    NotifyPropertyChanged("IncludeSpotify");
+                }
+            }
+        }
+
+        public bool IncludeSoundCloud
+        {
+            get
+            {
+                return m_IncludeSoundCloud;
+            }
+            set
+            {
+                if (m_IncludeSoundCloud != value)
+                {
+                    m_IncludeSoundCloud = value;
+                    NotifyPropertyChanged("IncludeSoundCloud");
+                }
+            }
+        }
+
+        public bool SearchByAny
+        {
+            get
+            {
+                return m_SearchType == SearchType.Any;
+            }
+            set
+            {
+                if (value && m_SearchType != SearchType.Any)
+                {
+                    m_SearchType = SearchType.Any;
+                    NotifyPropertyChanged("SearchByAny");
+                }
+            }
+        }
+
+        public bool SearchByArtist
+        {
+            get
+            {
+                return m_SearchType == SearchType.Artist;
+            }
+            set
+            {
+                if (value && m_SearchType != SearchType.Artist)
+                {
+                    m_SearchType = SearchType.Artist;
+                    NotifyPropertyChanged("SearchByArtist");
+                }
+            }
+        }
+
+        public bool SearchByAlbum
+        {
+            get
+            {
+                return m_SearchType == SearchType.Album;
+            }
+            set
+            {
+                if (value && m_SearchType != SearchType.Album)
+                {
+                    m_SearchType = SearchType.Album;
+                    NotifyPropertyChanged("SearchByAlbum");
+                }
+            }
+        }
+
+        public bool SearchByTitle
+        {
+            get
+            {
+                return m_SearchType == SearchType.Title;
+            }
+            set
+            {
+                if (value && m_SearchType != SearchType.Title)
+                {
+                    m_SearchType = SearchType.Title;
+                    NotifyPropertyChanged("SearchByTitle");
+                }
+            }
+        }
+
 
         public void OnSearchResponseReceived(IEnumerable<MPDSongResponseBlock> response)
         {
@@ -66,53 +190,18 @@ namespace Auremo
             {
                 Playable playable = item.ToPlayable(m_DateNormalizer);
 
-                if (playable != null && playable is SongMetadata)
+                if (playable != null && !(playable is UnknownPlayable))
                 {
-                    SongMetadata song = playable as SongMetadata;
-
-                    if (song.IsSpotify)
-                    {
-                        PlaceSongInSorter(song);
-                    }
-                }
-            }
-
-            foreach (IDictionary<string, IDictionary<int, SongMetadata>> discography in m_ResultSorter.Values)
-            {
-                foreach (IDictionary<int, SongMetadata> album in discography.Values)
-                {
-                    foreach (SongMetadata song in album.Values)
-                    {
-                        SearchResults.Add(new MusicCollectionItem(song, SearchResults.Count));
-                    }
+                    SearchResults.Add(new MusicCollectionItem(playable, SearchResults.Count));
                 }
             }
         }
 
-        public IList<MusicCollectionItem> SearchResults
+        private bool IncludeSongInResults(SongMetadata song)
         {
-            get;
-            private set;
-        }
-
-        private void PlaceSongInSorter(SongMetadata song)
-        {
-            // Sort first by artist, then by album and finally by track#.
-            if (!m_ResultSorter.ContainsKey(song.Artist))
-            {
-                m_ResultSorter[song.Artist] = new SortedDictionary<string, IDictionary<int, SongMetadata>>();
-            }
-
-            IDictionary<string, IDictionary<int, SongMetadata>> discography = m_ResultSorter[song.Artist];
-
-            if (!discography.ContainsKey(song.Album))
-            {
-                discography[song.Album] = new SortedDictionary<int, SongMetadata>();
-            }
-
-            IDictionary<int, SongMetadata> album = discography[song.Album];
-            int track = song.Track.HasValue ? song.Track.Value : 0;
-            album[track] = song;
+            return song.IsLocal && IncludeLocal ||
+                song.IsSpotify && IncludeSpotify ||
+                song.IsSoundCloud && IncludeSpotify;
         }
     }
 }

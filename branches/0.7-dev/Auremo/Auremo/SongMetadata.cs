@@ -26,7 +26,7 @@ namespace Auremo
     public class SongMetadata : Playable, IComparable
     {
         private string m_Path = null;
-        private string m_PathTypePrefix = null; // This appears to be Mopidy-specific
+        private string m_PathTypePrefix = null; // This appears to be Mopidy-specific.
 
         public SongMetadata()
         {
@@ -149,6 +149,14 @@ namespace Auremo
             get
             {
                 return m_PathTypePrefix == "spotify:track:";
+            }
+        }
+
+        public bool IsSoundCloud
+        {
+            get
+            {
+                return false;
             }
         }
 
