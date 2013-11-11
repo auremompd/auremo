@@ -47,4 +47,12 @@ namespace Auremo
         AddAsNext,
         ReplaceAndPlay
     }
+
+    public enum SearchType
+    {
+        Any,
+        Artist,
+        Album,
+        Title
+    }
 }

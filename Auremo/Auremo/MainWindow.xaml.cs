@@ -558,7 +558,7 @@ namespace Auremo
                 {
                     foreach (SongMetadataTreeViewNode node in selection)
                     {
-                        position = AddSongToPlaylist(node.Song, position);
+                        position = AddPlayableToPlaylist(node.Song, position);
                     }
                 }
             }
@@ -1618,13 +1618,9 @@ namespace Auremo
             {
                 AddAlbumToPlaylist(o as AlbumMetadata);
             }
-            else if (o is SongMetadata)
+            else if (o is Playable)
             {
-                AddSongToPlaylist(o as SongMetadata);
-            }
-            else if (o is StreamMetadata)
-            {
-                AddStreamToPlaylist(o as StreamMetadata);
+                AddPlayableToPlaylist(o as Playable);
             }
         }
 
@@ -1652,13 +1648,9 @@ namespace Auremo
             {
                 return AddAlbumToPlaylist(o as AlbumMetadata, firstPosition);
             }
-            else if (o is SongMetadata)
+            else if (o is Playable)
             {
-                return AddSongToPlaylist(o as SongMetadata, firstPosition);
-            }
-            else if (o is StreamMetadata)
-            {
-                return AddStreamToPlaylist(o as StreamMetadata, firstPosition);
+                return AddPlayableToPlaylist(o as Playable, firstPosition);
             }
 
             return firstPosition;
@@ -1708,7 +1700,7 @@ namespace Auremo
         {
             foreach (SongMetadata song in DataModel.Database.SongsByAlbum(album))
             {
-                AddSongToPlaylist(song);
+                AddPlayableToPlaylist(song);
             }
         }
 
@@ -1718,7 +1710,7 @@ namespace Auremo
 
             foreach (SongMetadata song in DataModel.Database.SongsByAlbum(album))
             {
-                position = AddSongToPlaylist(song, position);
+                position = AddPlayableToPlaylist(song, position);
             }
 
             return position;
@@ -1730,7 +1722,7 @@ namespace Auremo
             {
                 if (song.Genre == genre)
                 {
-                    AddSongToPlaylist(song);
+                    AddPlayableToPlaylist(song);
                 }
             }
         }
@@ -1743,32 +1735,21 @@ namespace Auremo
             {
                 if (song.Genre == genre)
                 {
-                    position = AddSongToPlaylist(song, position);
+                    position = AddPlayableToPlaylist(song, position);
                 }
             }
 
             return position;
         }
 
-        private void AddSongToPlaylist(SongMetadata song)
+        private void AddPlayableToPlaylist(Playable playable)
         {
-            DataModel.ServerSession.Add(song.Path);
+            DataModel.ServerSession.Add(playable.Path);
         }
 
-        private int AddSongToPlaylist(SongMetadata song, int position)
+        private int AddPlayableToPlaylist(Playable playable, int position)
         {
-            DataModel.ServerSession.AddId(song.Path, position);
-            return position + 1;
-        }
-
-        private void AddStreamToPlaylist(StreamMetadata stream)
-        {
-            DataModel.ServerSession.Add(stream.Path);
-        }
-
-        private int AddStreamToPlaylist(StreamMetadata stream, int position)
-        {
-            DataModel.ServerSession.AddId(stream.Path, position);
+            DataModel.ServerSession.AddId(playable.Path, position);
             return position + 1;
         }
 

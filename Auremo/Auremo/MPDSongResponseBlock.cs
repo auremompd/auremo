@@ -52,12 +52,29 @@ namespace Auremo
                 result.Title = Title;
                 return result;
             }
-            else if (File.StartsWith("spotify:") && !File.StartsWith("spotify:track:"))
+            else if (File.StartsWith("local:track:") || File.StartsWith("spotify:track:"))
             {
-                return new UnknownPlayable(File);
+                SongMetadata result = new SongMetadata();
+                result.Path = File;
+                result.Title = Title;
+                result.Artist = Artist == null ? "Unknown Artist" : Artist;
+                result.Genre = Genre == null ? "No Genre" : Genre;
+                result.Album = Album == null ? "Unknown Album" : Album;
+                result.Length = Time;
+                result.Track = Track;
+                result.Date = dateNormalizer.Normalize(Date);
+                return result;
+            }
+            else if (File.StartsWith("spotify:"))
+            {
+                LinkMetadata result = new LinkMetadata();
+                result.Path = File;
+                result.Title = Title;
+                return result;
             }
             else
             {
+                // Ugly copy-pasted code
                 SongMetadata result = new SongMetadata();
                 result.Path = File;
                 result.Title = Title;
