@@ -96,9 +96,9 @@
                                   MouseLeftButtonUp="OnDataGridRowMouseUp"
                                   MouseDoubleClick="OnMusicCollectionDataGridDoubleClicked">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Title" MinWidth="60" Width="Auto" CanUserResize="True" Binding="{Binding Path=Content.Title}"/>
-                                <DataGridTextColumn Header="Artist" MinWidth="60" Width="Auto" CanUserResize="True" Binding="{Binding Path=Content.Artist}"/>
-                                <DataGridTextColumn Header="Album" MinWidth="60" Width="*" CanUserResize="False" Binding="{Binding Path=Content.Album}"/>
+                                <DataGridTextColumn Header="Title" MinWidth="60" Width="Auto" Binding="{Binding Path=Content.Title}"/>
+                                <DataGridTextColumn Header="Artist" MinWidth="60" Width="Auto" Binding="{Binding Path=Content.Artist}"/>
+                                <DataGridTextColumn Header="Album" MinWidth="60" Width="*" Binding="{Binding Path=Content.Album}"/>
                             </DataGrid.Columns>
                             <DataGrid.ContextMenu>
                                 <ContextMenu Name="m_SearchResultsViewContextMenu">
@@ -137,9 +137,9 @@
                                   MouseLeftButtonUp="OnDataGridRowMouseUp"
                                   MouseDoubleClick="OnMusicCollectionDataGridDoubleClicked">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Title" MinWidth="60" Width="Auto" CanUserResize="True" Binding="{Binding Path=Content.Title}"/>
-                                <DataGridTextColumn Header="Artist" MinWidth="60" Width="Auto" CanUserResize="True" Binding="{Binding Path=Content.Artist}"/>
-                                <DataGridTextColumn Header="Album" MinWidth="60" Width="*" CanUserResize="False" Binding="{Binding Path=Content.Album}"/>
+                                <DataGridTextColumn Header="Title" MinWidth="60" Width="Auto" Binding="{Binding Path=Content.Title}"/>
+                                <DataGridTextColumn Header="Artist" MinWidth="60" Width="Auto" Binding="{Binding Path=Content.Artist}"/>
+                                <DataGridTextColumn Header="Album" MinWidth="60" Width="*" Binding="{Binding Path=Content.Album}"/>
                             </DataGrid.Columns>
                             <DataGrid.ContextMenu>
                                 <ContextMenu Name="m_AdvancedSearchResultsViewContextMenu">
