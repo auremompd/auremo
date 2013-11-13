@@ -2348,7 +2348,7 @@ namespace Auremo
                     // any view -> stop here. There must be other such end
                     // conditions, so this is by no means a generally corrent
                     // solution. It's good enough here though.
-                    if (component is ToggleButton || component is ScrollBar)
+                    if (component is ToggleButton || component is ScrollBar || component is Thumb)
                     {
                         return false;
                     }
