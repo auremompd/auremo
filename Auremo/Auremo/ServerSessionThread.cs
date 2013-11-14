@@ -257,18 +257,18 @@ namespace Auremo
             MPDResponseLine statusLine = GetResponseLine();
 
             // TODO: FIXME: check the others for null too!
-            if (statusLine != null)
+            while (statusLine != null && !statusLine.IsStatus)
             {
-                while (!statusLine.IsStatus)
+                if (statusLine.Key != MPDResponseLine.Keyword.Unknown)
                 {
-                    if (statusLine.Key != MPDResponseLine.Keyword.Unknown)
-                    {
-                        m_CurrentResponse.Add(statusLine);
-                    }
-
-                    statusLine = GetResponseLine();
+                    m_CurrentResponse.Add(statusLine);
                 }
 
+                statusLine = GetResponseLine();
+            }
+
+            if (statusLine != null)
+            {
                 if (statusLine.Key == MPDResponseLine.Keyword.ACK)
                 {
                     if (command.Op == "listallinfo" && statusLine.Value.Contains("Not implemented"))
@@ -330,9 +330,9 @@ namespace Auremo
                         Callback(m_DataModel.ServerStatus.OnStatusResponseReceived);
                     }
                 }
-
-                m_CurrentResponse.Clear();
             }
+
+            m_CurrentResponse.Clear();
         }
 
         private MPDResponseLine GetResponseLine()
