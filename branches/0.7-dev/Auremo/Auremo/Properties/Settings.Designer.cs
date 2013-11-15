@@ -324,5 +324,17 @@ namespace Auremo.Properties {
                 this["AdvancedTabIsVisible"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool UseAlbumArtist {
+            get {
+                return ((bool)(this["UseAlbumArtist"]));
+            }
+            set {
+                this["UseAlbumArtist"] = value;
+            }
+        }
     }
 }

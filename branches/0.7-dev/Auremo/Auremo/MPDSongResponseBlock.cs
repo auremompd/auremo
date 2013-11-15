@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Auremo.Properties;
 
 namespace Auremo
 {
@@ -29,6 +30,7 @@ namespace Auremo
             File = file;
             Album = null;
             Artist = null;
+            AlbumArtist = null;
             Date = null;
             Genre = null;
             Id = -1;
@@ -57,12 +59,21 @@ namespace Auremo
                 SongMetadata result = new SongMetadata();
                 result.Path = File;
                 result.Title = Title;
-                result.Artist = Artist == null ? "Unknown Artist" : Artist;
                 result.Genre = Genre == null ? "No Genre" : Genre;
                 result.Album = Album == null ? "Unknown Album" : Album;
                 result.Length = Time;
                 result.Track = Track;
                 result.Date = dateNormalizer.Normalize(Date);
+
+                if (Settings.Default.UseAlbumArtist && AlbumArtist != null)
+                {
+                    result.Artist = AlbumArtist;
+                }
+                else
+                {
+                    result.Artist = Artist == null ? "Unknown Artist" : Artist;
+                }
+
                 return result;
             }
             else if (File.StartsWith("spotify:"))
@@ -78,12 +89,21 @@ namespace Auremo
                 SongMetadata result = new SongMetadata();
                 result.Path = File;
                 result.Title = Title;
-                result.Artist = Artist == null ? "Unknown Artist" : Artist;
                 result.Genre = Genre == null ? "No Genre" : Genre;
                 result.Album = Album == null ? "Unknown Album" : Album;
                 result.Length = Time;
                 result.Track = Track;
                 result.Date = dateNormalizer.Normalize(Date);
+
+                if (Settings.Default.UseAlbumArtist && AlbumArtist != null)
+                {
+                    result.Artist = AlbumArtist;
+                }
+                else
+                {
+                    result.Artist = Artist == null ? "Unknown Artist" : Artist;
+                }
+
                 return result;
             }
         }
@@ -101,6 +121,12 @@ namespace Auremo
         }
 
         public string Artist
+        {
+            get;
+            set;
+        }
+
+        public string AlbumArtist
         {
             get;
             set;

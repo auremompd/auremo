@@ -105,6 +105,7 @@ namespace Auremo
             m_WheelSongPositioningPercentEntry.Text = Settings.Default.MouseWheelAdjustsSongPositionPercentBy.ToString();
             m_WheelSongPositioningSecondsEntry.Text = Settings.Default.MouseWheelAdjustsSongPositionSecondsBy.ToString();
             m_EnableVolumeControl.IsChecked = Settings.Default.EnableVolumeControl;
+            m_UseAlbumArtist.IsChecked = Settings.Default.UseAlbumArtist;
             m_SortAlbumsByDate.IsChecked = Settings.Default.AlbumSortingMode == AlbumSortingMode.ByDate.ToString();
             m_SortAlbumsByName.IsChecked = m_SortAlbumsByDate.IsChecked != true;
             m_QuickSearchTabIsVisible.IsChecked = Settings.Default.QuickSearchTabIsVisible;
@@ -147,6 +148,7 @@ namespace Auremo
                 m_ServerEntry.Text != Settings.Default.Server ||
                 port != Settings.Default.Port ||
                 password != Settings.Default.Password ||
+                m_UseAlbumArtist.IsChecked != Settings.Default.UseAlbumArtist ||
                 albumSortingMode.ToString() != Settings.Default.AlbumSortingMode ||
                 m_DateFormatsEntry.Text != StringCollectionAsString(Settings.Default.AlbumDateFormats);
 
@@ -161,6 +163,7 @@ namespace Auremo
             Settings.Default.MouseWheelAdjustsSongPositionPercentBy = Utils.StringToInt(m_WheelSongPositioningPercentEntry.Text, 5);
             Settings.Default.MouseWheelAdjustsSongPositionSecondsBy = Utils.StringToInt(m_WheelSongPositioningSecondsEntry.Text, 5);
             Settings.Default.EnableVolumeControl = m_EnableVolumeControl.IsChecked == true;
+            Settings.Default.UseAlbumArtist = m_UseAlbumArtist.IsChecked == true;
             Settings.Default.AlbumSortingMode = albumSortingMode.ToString();
             Settings.Default.AlbumDateFormats = StringAsStringCollection(m_DateFormatsEntry.Text);
             Settings.Default.QuickSearchTabIsVisible = m_QuickSearchTabIsVisible.IsChecked == true;

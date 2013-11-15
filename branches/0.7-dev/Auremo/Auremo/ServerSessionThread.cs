@@ -451,6 +451,10 @@ namespace Auremo
                 {
                     song.Artist = line.Value;
                 }
+                else if (line.Key == MPDResponseLine.Keyword.AlbumArtist)
+                {
+                    song.AlbumArtist = line.Value;
+                }
                 else if (line.Key == MPDResponseLine.Keyword.Date)
                 {
                     song.Date = line.Value;
