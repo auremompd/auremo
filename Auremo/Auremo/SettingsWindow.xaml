@@ -62,6 +62,9 @@
                 </StackPanel>
                 <Border BorderBrush="{StaticResource SeparatorBorderBrush}" BorderThickness="0,1,0,0" Margin="15,2"/>
                 <StackPanel Orientation="Horizontal" Height="30">
+                    <CheckBox Name="m_UseAlbumArtist" Content="Categorize albums by AlbumArtist tag when available" IsChecked="True" Style="{StaticResource OptionCheckBoxStyle}" Margin="4,6,0,8"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Height="30">
                     <Label Content="Sort albums by an artist by" Style="{StaticResource OptionLabelStyle}" Width="349"/>
                     <RadioButton Name="m_SortAlbumsByDate" Content="Date, then name" IsChecked="True" GroupName="AlbumSortMode" VerticalAlignment="Center" Margin="0,0,20,0"/>
                     <RadioButton Name="m_SortAlbumsByName" Content="Name only" IsChecked="False" GroupName="AlbumSortMode" VerticalAlignment="Center"/>

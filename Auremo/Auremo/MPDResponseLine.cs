@@ -28,7 +28,7 @@ namespace Auremo
         {
             OK = 0, ACK,
             State, Volume, Playlist, Song, Time, Random, Repeat, Audio, Error,
-            File, Name, Title, Artist, Album, Genre, Date, Track, Id, Pos,
+            File, Name, Title, Artist, AlbumArtist, Album, Genre, Date, Track, Id, Pos,
             DbUpdate,
             OutputId, OutputName, OutputEnabled,
             Unknown
@@ -39,7 +39,7 @@ namespace Auremo
         {
             "ok", "ack",
             "state", "volume", "playlist", "song", "time", "random", "repeat", "audio", "error",
-            "file", "name", "title", "artist", "album", "genre", "date", "track", "id", "pos",
+            "file", "name", "title", "artist", "albumartist", "album", "genre", "date", "track", "id", "pos",
             "db_update",
             "outputid", "outputname", "outputenabled"
         };
