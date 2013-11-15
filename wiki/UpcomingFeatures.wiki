@@ -29,3 +29,4 @@ These features will be added before the release.
   * Improve Mopidy support.
   * Add SoundCloud support.
   * Improve advanced search tab's layout.
+  * Add "all artists", "all albums" etc items in the relevant music collection views.
