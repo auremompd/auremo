@@ -49,9 +49,8 @@ namespace Auremo
 
             m_Parent = parent;
             Version ver = Assembly.GetExecutingAssembly().GetName().Version;
-            m_VersionNumber.Text = "Version " + ver.Major + "." + ver.Minor + "." + ver.Build;
-                
-                //.GetExecutingAssembly().ImageRuntimeVersion;
+            //m_VersionNumber.Text = "Version " + ver.Major + "." + ver.Minor + "." + ver.Build;
+            m_VersionNumber.Text = "Pre-release of 0.7.0, date 2013-11-07";
         }
 
         private void OnCloseClicked(object sender, RoutedEventArgs e)
