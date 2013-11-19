@@ -31,11 +31,11 @@ namespace Auremo
         public delegate void GenericResponseReceivedCallback(IEnumerable<MPDResponseLine> response);
         public delegate void GenericSingleArgumentResponseReceivedCallback(IEnumerable<MPDResponseLine> response, string argument);
         public delegate void SongListResponseReceivedCallback(IEnumerable<MPDSongResponseBlock> response);
-
         private ServerSession m_Parent = null;
         private DataModel m_DataModel = null;
-        private bool m_Terminating = false;
+        private Thread m_Thread = null;
         private object m_Lock = new object();
+        private bool m_Terminating = false;
         private ManualResetEvent m_ThreadEvent = new ManualResetEvent(false);
         private Queue<MPDCommand> m_CommandQueue = new Queue<MPDCommand>();
         private int m_ReconnectInterval = 0;
@@ -61,9 +61,22 @@ namespace Auremo
             Port = port;
             m_Timeout = timeout;
             m_ReconnectInterval = reconnectInterval;
+
+            m_Thread = new Thread(Run);
+            m_Thread.Name = "MPD connection thread";
         }
 
-        public void Run()
+        public void Start()
+        {
+            m_Thread.Start();
+        }
+
+        public bool Join()
+        {
+            return m_Thread.Join(0);
+        }
+
+        private void Run()
         {
             while (!Terminating)
             {
@@ -128,6 +141,7 @@ namespace Auremo
 
                 try
                 {
+                    m_Parent.OnThreadStateChanged(ServerSession.SessionState.Connecting);
                     m_Parent.OnThreadMessage("Connecting to " + Host + ":" + Port + ".");
                     m_Connection.Connect(Host, Port);
                     m_Stream = m_Connection.GetStream();
@@ -143,7 +157,7 @@ namespace Auremo
                 {
                     if (ParseBanner())
                     {
-                        m_Parent.OnThreadConnected();
+                        m_Parent.OnThreadStateChanged(ServerSession.SessionState.Connected);
                         m_Parent.OnThreadMessage("Connected to " + Host + ":" + Port + ".");
                     }
                     else
@@ -176,42 +190,66 @@ namespace Auremo
 
         private void ExecuteCommands()
         {
-            while (!Terminating)
+            bool terminating = Terminating;
+
+            while (!terminating)
             {
                 MPDCommand command = null;
 
                 lock (m_Lock)
                 {
+                    // Avoid using the property as it might break
+                    // threading. TODO: this could be neatly wrapped into
+                    // a method that returns a command or null if
+                    // terminating, but it's just cosmetics.
+                    terminating = m_Terminating;
+
                     if (m_CommandQueue.Count > 0)
                     {
-                        m_ThreadEvent.Reset();
                         command = m_CommandQueue.Dequeue();
+                        m_ThreadEvent.Reset();
                     }
                 }
 
-                if (command == null)
+                if (!terminating)
                 {
-                    m_ThreadEvent.WaitOne();
-                }
-                else
-                {
-                    SendCommand(command.FullSyntax);
-                    ReceiveResponse(command);
+                    if (command == null)
+                    {
+                        m_ThreadEvent.WaitOne();
+                    }
+                    else
+                    {
+                        SendCommand(command.FullSyntax);
+                        ReceiveResponse(command);
+                    }
                 }
             }
         }
 
         private void Close()
         {
-            m_Parent.OnThreadDisconnected();
+            if (Terminating)
+            {
+                m_Parent.OnThreadStateChanged(ServerSession.SessionState.Disconnecting);
+            }
+            else
+            {
+                m_Parent.OnThreadStateChanged(ServerSession.SessionState.Connecting);
+            }
+
             m_Parent.OnThreadMessage("Disconnected from " + Host + ":" + Port + ".");
 
-            if (m_Connection != null && m_Connection.Connected)
+            if (m_Connection != null)
             {
-                SendCommand("close");
+                if (m_Connection.Connected)
+                {
+                    SendCommand("close");
+                }
+
                 m_Stream.Close();
                 m_Stream = null;
                 m_Connection.Close();
+                m_Connection = null;
             }
         }
 
@@ -494,6 +532,11 @@ namespace Auremo
             {
                 m_CurrentSongList.Add(song);
             }
+        }
+
+        private void Callback(Action callback)
+        {
+            m_DataModel.MainWindow.Dispatcher.Invoke(callback);
         }
 
         private void Callback(GenericResponseReceivedCallback callback)

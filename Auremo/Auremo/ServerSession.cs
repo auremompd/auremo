@@ -43,19 +43,19 @@ namespace Auremo
 
         private DataModel m_DataModel = null;
         private ServerSessionThread m_SessionThread = null;
-        private Thread m_Thread = null;
         private SessionState m_State = SessionState.Disconnected;
         private string m_StateDescription = "";
         private string m_ProtocolError = "";
 
-        private delegate void ThreadEvent();
         private delegate void ThreadMessage(string message);
+        private delegate void ThreadState(SessionState state);
         
         public enum SessionState
         {
-            Disconnected,
-            Connecting,
-            Connected
+            Disconnected,            // Not connected and idle
+            Connecting,              // (Re-)establishing connection
+            Connected,               // Connection OK
+            Disconnecting            // Disconnecting and not reconnecting when done
         }
 
         public ServerSession(DataModel dataModel)
@@ -63,18 +63,16 @@ namespace Auremo
             m_DataModel = dataModel;
         }
 
-        public void Connect(string host, int port)
+        public bool Connect(string host, int port)
         {
             if (m_SessionThread != null)
             {
-                m_SessionThread.Terminating = true;
-                m_Thread.Join();
-                m_Thread = null;
+                return false;
             }
 
             m_SessionThread = new ServerSessionThread(this, m_DataModel, host, port, 1000 * Settings.Default.NetworkTimeout, Settings.Default.ReconnectInterval);
-            m_Thread = new Thread(m_SessionThread.Run);
-            m_Thread.Start();
+            m_SessionThread.Start();
+            return true;
         }
 
         public void Disconnect()
@@ -82,9 +80,15 @@ namespace Auremo
             if (m_SessionThread != null)
             {
                 m_SessionThread.Terminating = true;
-                m_Thread.Join();
-                m_Thread = null;
+            }
+        }
+
+        public void DoCleanup()
+        {
+            if (m_State == SessionState.Disconnecting && m_SessionThread.Join())
+            {
                 m_SessionThread = null;
+                m_State = SessionState.Disconnected;
             }
         }
          
@@ -136,44 +140,19 @@ namespace Auremo
             }
         }
 
-        public void OnThreadConnected()
+        public void OnThreadStateChanged(SessionState state)
         {
-            m_DataModel.MainWindow.Dispatcher.Invoke(new ThreadEvent(OnConnected), null);
-        }
-
-        public void OnThreadDisconnected()
-        {
-            m_DataModel.MainWindow.Dispatcher.BeginInvoke(new ThreadEvent(OnDisconnected), null);
+            m_DataModel.MainWindow.Dispatcher.Invoke(new ThreadState((SessionState s) => { State = s; }), state);
         }
 
         public void OnThreadMessage(string message)
         {
-            m_DataModel.MainWindow.Dispatcher.BeginInvoke(new ThreadMessage(OnMessage), new object[] { message });
+            m_DataModel.MainWindow.Dispatcher.Invoke(new ThreadMessage((string m) => { StateDescription = m; }), message);
         }
 
-        public void OnThreadError(string message)
+        public void OnThreadError(string error)
         {
-            m_DataModel.MainWindow.Dispatcher.BeginInvoke(new ThreadMessage(OnError), new object[] { message });
-        }
-
-        private void OnConnected()
-        {
-            State = SessionState.Connected;
-        }
-
-        private void OnDisconnected()
-        {
-            State = SessionState.Disconnected;
-        }
-
-        private void OnMessage(string message)
-        {
-            StateDescription = message;
-        }
-
-        private void OnError(string error)
-        {
-            ProtocolError = error;
+            m_DataModel.MainWindow.Dispatcher.Invoke(new ThreadMessage((string e) => { ProtocolError = e; }), error);
         }
 
         #region Protocol commands

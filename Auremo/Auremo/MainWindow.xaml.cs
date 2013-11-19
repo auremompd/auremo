@@ -93,6 +93,7 @@ namespace Auremo
             NameScope.SetNameScope(m_StreamsViewContextMenu, NameScope.GetNameScope(this));
             NameScope.SetNameScope(m_SavedPlaylistsViewContextMenu, NameScope.GetNameScope(this));
             DataContext = DataModel;
+            DataModel.ServerSession.PropertyChanged += new PropertyChangedEventHandler(OnServerSessionPropertyChanged);
             DataModel.ServerStatus.PropertyChanged += new PropertyChangedEventHandler(OnServerStatusPropertyChanged);
         }
 
@@ -110,41 +111,7 @@ namespace Auremo
             SetTimerInterval(interval);
             m_Timer.Start();
         }
-
-        private void SetOnlineMode(bool to)
-        {
-            m_OnlineMode = to;
-
-            if (m_OnlineMode)
-            {
-                ConnectTo(Settings.Default.Server, Settings.Default.Port);
-            }
-            else
-            {
-                Disconnect();
-            }
-        }
-
-        private void ConnectTo(string host, int port)
-        {
-            DataModel.ServerSession.Connect(host, port);
-        }
-
-        private void DoPostConnectInit()
-        {
-            string password = Crypto.DecryptPassword(Settings.Default.Password);
-
-            if (password.Length > 0)
-            {
-                DataModel.ServerSession.Password(password);
-            }
-        }
-
-        private void Disconnect()
-        {
-            DataModel.ServerSession.Disconnect();
-        }
-
+        
         private void SetInitialWindowState()
         {
             Show();
@@ -164,15 +131,42 @@ namespace Auremo
             m_Timer.Interval = new TimeSpan(0, 0, 0, 0, interval);
         }
 
-        public void OnTimerTick(Object sender, EventArgs e)
+        private void OnTimerTick(Object sender, EventArgs e)
         {
+            UpdateConnection();
             Update();
+        }
+
+        private void UpdateConnection()
+        {
+            DataModel.ServerSession.DoCleanup();
+
+            if (m_OnlineMode && DataModel.ServerSession.State == ServerSession.SessionState.Disconnected)
+            {
+                DataModel.ServerSession.Connect(Settings.Default.Server, Settings.Default.Port);
+            }
         }
 
         private void Update()
         {
             DataModel.ServerStatus.Update();
             DataModel.OutputCollection.Update();
+        }
+
+        private void OnServerSessionPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "State")
+            {
+                if (DataModel.ServerSession.State == ServerSession.SessionState.Connected)
+                {
+                    string password = Crypto.DecryptPassword(Settings.Default.Password);
+
+                    if (password.Length > 0)
+                    {
+                        DataModel.ServerSession.Password(password);
+                    }
+                }
+            }
         }
 
         private void OnServerStatusPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -308,7 +302,7 @@ namespace Auremo
         private void OnExit(object sender, System.ComponentModel.CancelEventArgs e)
         {
             DataModel.QuickSearch.Terminate();
-            Disconnect();
+            DataModel.ServerSession.Disconnect();
 
             if (m_SettingsWindow != null)
             {
@@ -345,22 +339,30 @@ namespace Auremo
 
         private void OnConnectClicked(object sender, RoutedEventArgs e)
         {
-            SetOnlineMode(true);
+            m_OnlineMode = true;
+            DataModel.ServerSession.Disconnect();
+
+            if (DataModel.ServerSession.State == ServerSession.SessionState.Disconnected)
+            {
+                DataModel.ServerSession.Connect(Settings.Default.Server, Settings.Default.Port);
+            }
         }
 
         private void OnDisconnectClicked(object sender, RoutedEventArgs e)
         {
-            SetOnlineMode(false);
+            m_OnlineMode = false;
+            DataModel.ServerSession.Disconnect();
         }
 
         private void OnResetConnectionClicked(object sender, RoutedEventArgs e)
         {
-            if (m_OnlineMode)
-            {
-                SetOnlineMode(false);
-            }
+            m_OnlineMode = true;
+            DataModel.ServerSession.Disconnect();
 
-            SetOnlineMode(true);
+            if (DataModel.ServerSession.State == ServerSession.SessionState.Disconnected)
+            {
+                DataModel.ServerSession.Connect(Settings.Default.Server, Settings.Default.Port);
+            }
         }
 
         private void OnEnableDisbaleOutput(object sender, RoutedEventArgs e)
@@ -1992,11 +1994,11 @@ namespace Auremo
 
             if (reconnect)
             {
-                Disconnect();
+                DataModel.ServerSession.Disconnect();
 
                 if (m_OnlineMode)
                 {
-                    ConnectTo(Settings.Default.Server, Settings.Default.Port);
+                    DataModel.ServerSession.Connect(Settings.Default.Server, Settings.Default.Port);
                 }
             }
         }
@@ -2004,7 +2006,7 @@ namespace Auremo
         private void ApplyInitialSettings()
         {
             ApplyTabVisibilitySettings();
-            SetOnlineMode(true);
+            DataModel.ServerSession.Connect(Settings.Default.Server, Settings.Default.Port);
         }
 
         private void ApplyTabVisibilitySettings()
