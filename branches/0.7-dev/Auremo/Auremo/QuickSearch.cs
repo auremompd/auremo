@@ -58,6 +58,7 @@ namespace Auremo
             m_DataModel = dataModel;
             m_Searcher = new QuickSearchThread(this, m_DataModel.Database);
             m_Thread = new Thread(new ThreadStart(m_Searcher.Start));
+            m_Thread.Name = "QuickSearch thread";
             m_Thread.Start();
         }
 
