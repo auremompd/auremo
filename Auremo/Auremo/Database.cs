@@ -382,7 +382,7 @@ namespace Auremo
                 {
                     RefreshCollection();
                 }
-                else if (m_DataModel.ServerSession.State == ServerSession.SessionState.Disconnected)
+                else
                 {
                     ClearCollection();
                 }
