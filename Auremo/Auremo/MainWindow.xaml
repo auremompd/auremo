@@ -87,7 +87,7 @@
                         </Grid.RowDefinitions>
                         <DataGrid Name="m_QuickSearchResultsView"
                                   Style="{StaticResource MusicCollectionDataGridStyle}"
-                                  ItemsSource="{Binding Path=DatabaseView.SearchResults}"
+                                  ItemsSource="{Binding Path=QuickSearch.SearchResults}"
                                   SelectionChanged="OnSelectedSearchResultsChanged"
                                   PreviewKeyDown="OnMusicCollectionDataGridKeyDown"
                                   PreviewMouseLeftButtonDown="OnDataGridRowMouseDown"
@@ -102,19 +102,19 @@
                             </DataGrid.Columns>
                             <DataGrid.ContextMenu>
                                 <ContextMenu Name="m_SearchResultsViewContextMenu">
-                                    <MenuItem Header="Add to playlist as last" Click="OnAddToPlaylistAsLastClicked" IsEnabled="{Binding Path=DatabaseView.SelectedSearchResults.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
-                                    <MenuItem Header="Add to playlist as next" Click="OnAddToPlaylistAsNextClicked" IsEnabled="{Binding Path=DatabaseView.SelectedSearchResults.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
-                                    <MenuItem Header="Play this" Click="OnPlayThisClicked" IsEnabled="{Binding Path=DatabaseView.SelectedSearchResults.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
+                                    <MenuItem Header="Add to playlist as last" Click="OnAddToPlaylistAsLastClicked" IsEnabled="{Binding Path=QuickSearch.SelectedSearchResults.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
+                                    <MenuItem Header="Add to playlist as next" Click="OnAddToPlaylistAsNextClicked" IsEnabled="{Binding Path=QuickSearch.SelectedSearchResults.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
+                                    <MenuItem Header="Play this" Click="OnPlayThisClicked" IsEnabled="{Binding Path=QuickSearch.SelectedSearchResults.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
                                     <Separator/>
                                     <MenuItem Header="Rescan music collection" Click="OnRescanMusicCollectionClicked" IsEnabled="{Binding Path=ServerConnection.IsConnected}"/>
                                 </ContextMenu>
                             </DataGrid.ContextMenu>
                         </DataGrid>
-                        <TextBlock Name="m_SearchResultsHint" Grid.Row="0" Style="{StaticResource CollectionHintTextStyle}" Text="No search results." IsEnabled="{Binding ElementName=m_SearchResultsView, Path=Items.Count, Converter={StaticResource EqualsConverter}, ConverterParameter=0, Mode=OneWay}"/>
-                        <TextBox Name="m_QuickSearchBox" Grid.Row="1" Style="{StaticResource TextBoxStyle}" Margin="0,10,0,0"
-                                 Height="28" FontSize="15" VerticalContentAlignment="Center"
-                                 IsEnabled="{Binding Path=ServerConnection.IsConnected}" TextChanged="OnQuickSearchBoxTextChanged" IsEnabledChanged="OnSearchBoxEnabledChanged"/>
-                        <TextBlock Name="m_SearchBoxHint" Grid.Row="1" Style="{StaticResource TextBoxHintTextStyle}" Margin="10,6,0,0" Text="Type here to start searching." IsEnabled="{Binding ElementName=m_SearchBox, Path=Text.Length, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}" FontSize="16"/>
+                        <TextBlock Name="m_SearchResultsHint" Grid.Row="0" Style="{StaticResource CollectionHintTextStyle}" Text="No search results." IsEnabled="{Binding Path=QuickSearch.SearchResults.Count, Converter={StaticResource EqualsConverter}, ConverterParameter=0, Mode=OneWay}"/>
+                        <TextBox Name="m_QuickSearchBox" Grid.Row="1" Style="{StaticResource TextBoxStyle}" Margin="0,10,0,0" Height="28" FontSize="15" VerticalContentAlignment="Center"
+                                 Text="{Binding Path=QuickSearch.SearchString, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}"
+                                 IsEnabled="{Binding Path=ServerConnection.IsConnected}" IsEnabledChanged="OnSearchBoxEnabledChanged"/>
+                        <TextBlock Name="m_SearchBoxHint" Grid.Row="1" Style="{StaticResource TextBoxHintTextStyle}" Margin="10,6,0,0" Text="Type here to start searching." IsEnabled="{Binding Path=QuickSearch.SearchString.Length, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}" FontSize="16"/>
                     </Grid>
                 </TabItem>
                 <TabItem Name="m_AdvancedSearch" Header="Advanced search">

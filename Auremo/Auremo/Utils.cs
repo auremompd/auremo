@@ -130,5 +130,20 @@ namespace Auremo
                 return date.Substring(0, 4);
             }
         }
+
+        public static bool CollectionsAreEqual<T>(IEnumerable<T> lhs, IEnumerable<T> rhs) where T : IComparable
+        {
+            IEnumerator<T> left = lhs.GetEnumerator();
+            IEnumerator<T> right = rhs.GetEnumerator();
+            bool equal = lhs.Count() == rhs.Count();
+
+            while (equal && left.MoveNext())
+            {
+                right.MoveNext();
+                equal = left.Current.CompareTo(right.Current) == 0;
+            }
+
+            return equal;
+        }
     }
 }

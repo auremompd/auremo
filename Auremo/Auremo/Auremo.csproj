@@ -146,6 +146,7 @@
     <Compile Include="Playable.cs" />
     <Compile Include="PlaylistFileParserBase.cs" />
     <Compile Include="PlaylistWriter.cs" />
+    <Compile Include="QuickSearchThread.cs" />
     <Compile Include="SavedPlaylists.cs" />
     <Compile Include="ServerSession.cs" />
     <Compile Include="ServerSessionThread.cs" />

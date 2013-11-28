@@ -45,17 +45,16 @@ namespace Auremo
         private QuickSearchThread m_Searcher = null;
         private Thread m_Thread = null;
 
-        object m_ThreadInputLock = new object();
+        object m_Lock = new object();
         string m_SearchString = "";
-        private ManualResetEvent m_ThreadEvent = new ManualResetEvent(false);
-        bool m_ThreadShouldTerminate = false;
-
-        object m_ThreadOutputLock = new object();
-        IEnumerable<MusicCollectionItem> m_SearchResults = new List<MusicCollectionItem>();
+        string[] m_SearchStringFragments = new string[0];
+        IList<SongMetadata> m_NewResults = new List<SongMetadata>();
 
         public QuickSearch(DataModel dataModel)
         {
             m_DataModel = dataModel;
+            SearchResults = new ObservableCollection<MusicCollectionItem>();
+            SelectedSearchResults = new ObservableCollection<MusicCollectionItem>();
             m_Searcher = new QuickSearchThread(this, m_DataModel.Database);
             m_Thread = new Thread(new ThreadStart(m_Searcher.Start));
             m_Thread.Name = "QuickSearch thread";
@@ -64,166 +63,106 @@ namespace Auremo
 
         public string SearchString
         {
-            private get
+            get
             {
-                m_ThreadEvent.WaitOne();
-
-                lock (m_ThreadInputLock)
-                {
-                    m_ThreadEvent.Reset();
-                    return m_SearchString;
-                }
+                return m_SearchString;
             }
             set
             {
-                lock (m_ThreadInputLock)
+                if (value != m_SearchString)
                 {
-                    m_ThreadEvent.Set();
-                    m_SearchString = value.ToLower();
+                    m_SearchString = value;
+                    NotifyPropertyChanged("SearchString");
+                    bool searchChanged = UpdateSearchStringFragments(value);
+
+                    if (searchChanged && m_Searcher != null)
+                    {
+                        lock (m_Lock)
+                        {
+                            m_Searcher.OnSearchStringChanged(m_SearchStringFragments);
+                            m_NewResults.Clear();
+                            SearchResults.Clear();
+                            
+                        }
+                    }
                 }
             }
         }
 
-        public IEnumerable<MusicCollectionItem> SearchResults
+        public ObservableCollection<MusicCollectionItem> SearchResults
         {
-            get
-            {
-                lock (m_ThreadOutputLock)
-                {
-                    return m_SearchResults;
-                }
-            }
-            private set
-            {
-                lock (m_ThreadOutputLock)
-                {
-                    m_SearchResults = new List<MusicCollectionItem>(value);
-                }
+            get;
+            private set;
+        }
 
-                NotifyPropertyChanged("SearchResults");
+        public IList<MusicCollectionItem> SelectedSearchResults
+        {
+            get;
+            private set;
+        }
+
+        public void UpdateSelectedSearchResults()
+        {
+            SelectedSearchResults.Clear();
+
+            foreach (MusicCollectionItem item in SearchResults)
+            {
+                if (item.IsSelected)
+                {
+                    SelectedSearchResults.Add(item);
+                }
             }
         }
 
         public void Terminate()
         {
-            ThreadShouldTerminate = true;
-            m_Thread.Join();
-        }
-
-        private string SearchStringWithoutSignals
-        {
-            get
+            if (m_Searcher != null)
             {
-                lock (m_ThreadInputLock)
-                {
-                    return m_SearchString;
-                }
+                m_Searcher.Terminate();
+                m_Thread.Join();
+                m_Searcher = null;
+                m_Thread = null;
             }
         }
 
-        private bool ThreadShouldTerminate
+        public void AddSearchResults(IEnumerable<SongMetadata> results)
         {
-            get
+            lock (m_Lock)
             {
-                lock (m_ThreadInputLock)
+                foreach (SongMetadata result in results)
                 {
-                    return m_ThreadShouldTerminate;
+                    m_NewResults.Add(result);
                 }
             }
-            set
+
+            m_DataModel.MainWindow.Dispatcher.BeginInvoke((Action)OnNewSearchResultsReceived, null);
+        }
+
+        private void OnNewSearchResultsReceived()
+        {
+            lock (m_Lock)
             {
-                lock (m_ThreadInputLock)
+                foreach (SongMetadata result in m_NewResults)
                 {
-                    m_ThreadShouldTerminate = value;
-                    m_ThreadEvent.Set();
+                    SearchResults.Add(new MusicCollectionItem(result, SearchResults.Count));
                 }
+
+                m_NewResults.Clear();
             }
         }
 
-        private class QuickSearchThread
+        private bool UpdateSearchStringFragments(string search)
         {
-            QuickSearch m_Owner = null;
-            Database m_Database = null;
-            bool m_Terminating = false;
+            char[] delimiters = { ' ', '\t' };
+            string[] fragments = search.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
 
-            public QuickSearchThread(QuickSearch owner, Database database)
+            if (!Utils.CollectionsAreEqual(m_SearchStringFragments, fragments))
             {
-                m_Owner = owner;
-                m_Database = database;
+                m_SearchStringFragments = fragments;
+                return true;
             }
 
-            public void Start()
-            {
-                char[] delimiters = { ' ', '\t' };
-                string[] previousFragments = new string[0];
-
-                while (!m_Terminating)
-                {
-                    string searchString = m_Owner.SearchString;
-                    m_Terminating = m_Owner.ThreadShouldTerminate;
-                    DateTime lastUpdate = DateTime.MinValue;
-                    int lastElementCount = 0;
-
-                    // Ignore if only spaces were added. This doesn't affect
-                    // the results and decreases flickering (and unnecessary
-                    // work).
-                    string[] fragments = searchString.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
-                    bool allFragmentsAreEqual = previousFragments.Count() == fragments.Count();
-
-                    for (int i = 0; allFragmentsAreEqual && i < fragments.Count(); ++i)
-                    {
-                        allFragmentsAreEqual = fragments[i] == previousFragments[i];
-                    }
-                    
-                    if (allFragmentsAreEqual)
-                    {
-                        continue;
-                    }
-
-                    previousFragments = fragments;
-                    IList<MusicCollectionItem> results = new ObservableCollection<MusicCollectionItem>();
-                    m_Owner.SearchResults = results;
-
-                    if (fragments.Count() > 0)
-                    {
-                        IEnumerable<SongMetadata> allSongs = m_Database.Songs;
-
-                        foreach (SongMetadata song in allSongs)
-                        {
-                            bool allFragmentsMatch = true;
-
-                            for (int i = 0; i < fragments.Count() && allFragmentsMatch; ++i)
-                            {
-                                string fragment = fragments[i];
-                                allFragmentsMatch = song.Artist.ToLower().Contains(fragment) || song.Album.ToLower().Contains(fragment) || song.Title.ToLower().Contains(fragment);
-                            }
-
-                            if (allFragmentsMatch)
-                            {
-                                results.Add(new MusicCollectionItem(song, results.Count));
-
-                                if (DateTime.Now.Subtract(lastUpdate).TotalMilliseconds > 250 && results.Count > lastElementCount)
-                                {
-                                    m_Owner.SearchResults = results;
-                                    lastElementCount = results.Count;
-                                    lastUpdate = DateTime.Now;
-                                    m_Terminating = m_Owner.ThreadShouldTerminate;
-
-                                    if (m_Terminating || searchString != m_Owner.SearchStringWithoutSignals)
-                                    {
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-
-                        if (results.Count > lastElementCount)
-                        {
-                            m_Owner.SearchResults = results;
-                        }
-                    }
-                }
-            }
+            return false;
         }
     }
 }
