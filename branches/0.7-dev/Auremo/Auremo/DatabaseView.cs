@@ -43,8 +43,6 @@ namespace Auremo
 
         private DataModel m_DataModel = null;
 
-        private IList<MusicCollectionItem> m_SelectedSearchResults = new List<MusicCollectionItem>();
-
         private ISet<string> m_SelectedGenres = new SortedSet<string>();
         private ISet<AlbumMetadata> m_SelectedAlbumsOfSelectedGenres = new SortedSet<AlbumMetadata>();
 
@@ -56,8 +54,6 @@ namespace Auremo
         public DatabaseView(DataModel dataModel)
         {
             m_DataModel = dataModel;
-
-            SearchResults = new ObservableCollection<MusicCollectionItem>();
 
             Artists = new ObservableCollection<MusicCollectionItem>();
             AlbumsBySelectedArtists = new ObservableCollection<MusicCollectionItem>();
@@ -80,7 +76,6 @@ namespace Auremo
             DirectoryTreeController = new TreeViewController(DirectoryTree);
 
             m_DataModel.Database.PropertyChanged += new PropertyChangedEventHandler(OnDatabasePropertyChanged);
-            m_DataModel.QuickSearch.PropertyChanged += new PropertyChangedEventHandler(OnQuickSearchResultsPropertyChanged);
         }
 
         private void OnDatabasePropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -243,38 +238,6 @@ namespace Auremo
             }
 
             return nextNodeID;
-        }
-
-        #endregion
-
-        #region Search
-
-        private void OnQuickSearchResultsPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == "SearchResults")
-            {
-                SearchResults = new ObservableCollection<MusicCollectionItem>(m_DataModel.QuickSearch.SearchResults);
-                NotifyPropertyChanged("SearchResults");
-            }
-        }
-
-        public IList<MusicCollectionItem> SearchResults
-        {
-            get;
-            private set;
-        }
-
-        public IList<MusicCollectionItem> SelectedSearchResults
-        {
-            get
-            {
-                return m_SelectedSearchResults;
-            }
-            set
-            {
-                m_SelectedSearchResults = value;
-                NotifyPropertyChanged("SelectedSearchResults");
-            }
         }
 
         #endregion
@@ -477,7 +440,7 @@ namespace Auremo
         {
             ISet<string> newSelectedGenres = CollectSelectedElements<string>(Genres);
 
-            if (!SelectionsAreEqual(newSelectedGenres, m_SelectedGenres))
+            if (!Utils.CollectionsAreEqual(newSelectedGenres, m_SelectedGenres))
             {
                 m_SelectedGenres = newSelectedGenres;
                 m_SelectedAlbumsOfSelectedGenres.Clear();
@@ -503,7 +466,7 @@ namespace Auremo
         {
             ISet<AlbumMetadata> currentlySelectedAlbums = CollectSelectedElements<AlbumMetadata>(AlbumsOfSelectedGenres);
 
-            if (!SelectionsAreEqual(currentlySelectedAlbums, m_SelectedAlbumsOfSelectedGenres))
+            if (!Utils.CollectionsAreEqual(currentlySelectedAlbums, m_SelectedAlbumsOfSelectedGenres))
             {
                 m_SelectedAlbumsOfSelectedGenres = currentlySelectedAlbums;
                 SongsOnSelectedAlbumsOfSelectedGenres.Clear();
@@ -823,21 +786,6 @@ namespace Auremo
             }
 
             return result;
-        }
-
-        private bool SelectionsAreEqual<T>(IEnumerable<T> lhs, IEnumerable<T> rhs) where T : IComparable
-        {
-            IEnumerator<T> left = lhs.GetEnumerator();
-            IEnumerator<T> right = rhs.GetEnumerator();
-            bool equal = lhs.Count() == rhs.Count();
-
-            while (equal && left.MoveNext())
-            {
-                right.MoveNext();
-                equal = left.Current.CompareTo(right.Current) == 0;
-            }
-
-            return equal;
         }
 
         #endregion

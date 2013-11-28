@@ -215,7 +215,7 @@ namespace Auremo
 
         private void OnSelectedSearchResultsChanged(object sender, SelectionChangedEventArgs e)
         {
-            DataModel.DatabaseView.SelectedSearchResults = Utils.ToTypedList<MusicCollectionItem>(m_QuickSearchResultsView.SelectedItems);
+            DataModel.QuickSearch.UpdateSelectedSearchResults();
         }
 
         private void OnSelectedArtistsChanged(object sender, SelectionChangedEventArgs e)
@@ -1110,11 +1110,6 @@ namespace Auremo
             {
                 m_QuickSearchBox.Focus();
             }
-        }
-
-        private void OnQuickSearchBoxTextChanged(object sender, TextChangedEventArgs e)
-        {
-            DataModel.QuickSearch.SearchString = m_QuickSearchBox.Text;
         }
 
         private void OnAdvancedSearchClicked(object sender, RoutedEventArgs e)
