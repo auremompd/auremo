@@ -48,7 +48,7 @@ namespace Auremo
         object m_Lock = new object();
         string m_SearchString = "";
         string[] m_SearchStringFragments = new string[0];
-        IList<SongMetadata> m_NewResults = new List<SongMetadata>();
+        IList<IEnumerable<SongMetadata>> m_NewResults = new List<IEnumerable<SongMetadata>>();
 
         public QuickSearch(DataModel dataModel)
         {
@@ -125,14 +125,11 @@ namespace Auremo
             }
         }
 
-        public void AddSearchResults(IEnumerable<SongMetadata> results)
+        public void AddSearchResults(IEnumerable<SongMetadata> resultList)
         {
             lock (m_Lock)
             {
-                foreach (SongMetadata result in results)
-                {
-                    m_NewResults.Add(result);
-                }
+                m_NewResults.Add(resultList);
             }
 
             m_DataModel.MainWindow.Dispatcher.BeginInvoke((Action)OnNewSearchResultsReceived, null);
@@ -140,14 +137,20 @@ namespace Auremo
 
         private void OnNewSearchResultsReceived()
         {
+            IList<IEnumerable<SongMetadata>> newResults = null;
+
             lock (m_Lock)
             {
-                foreach (SongMetadata result in m_NewResults)
+                newResults = m_NewResults;
+                m_NewResults = new List<IEnumerable<SongMetadata>>();
+            }
+
+            foreach (IEnumerable<SongMetadata> resultList in newResults)
+            {
+                foreach (SongMetadata result in resultList)
                 {
                     SearchResults.Add(new MusicCollectionItem(result, SearchResults.Count));
                 }
-
-                m_NewResults.Clear();
             }
         }
 
