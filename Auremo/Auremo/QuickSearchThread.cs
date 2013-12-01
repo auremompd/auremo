@@ -25,7 +25,6 @@ namespace Auremo
         public void Start()
         {
             IEnumerable<SongMetadata> allSongs = m_Database.Songs;
-            IList<SongMetadata> newResults = new List<SongMetadata>();
 
             string[] fragments = new string[0];
             bool searchChanged = false;
@@ -44,10 +43,11 @@ namespace Auremo
 
                 if (!terminating)
                 {
+                    IList<SongMetadata> newResults = new List<SongMetadata>();
+
                     if (searchChanged && fragments.Count() > 0)
                     {
                         DateTime lastUpdate = DateTime.MinValue;
-                        newResults.Clear();
 
                         foreach (SongMetadata song in allSongs)
                         {
@@ -63,7 +63,7 @@ namespace Auremo
                             {
                                 newResults.Add(song);
 
-                                if (DateTime.Now.Subtract(lastUpdate).TotalMilliseconds > 250 && newResults.Count > 0)
+                                if (DateTime.Now.Subtract(lastUpdate).TotalMilliseconds >= 500)
                                 {
                                     lock (m_Lock)
                                     {
@@ -72,14 +72,12 @@ namespace Auremo
                                         m_Event.Reset();
                                     }
 
-                                    if (terminating || searchChanged)
+                                    if (!terminating && !searchChanged)
                                     {
-                                        break;
+                                        m_Owner.AddSearchResults(newResults);
+                                        newResults = new List<SongMetadata>();
+                                        lastUpdate = DateTime.Now;
                                     }
-
-                                    m_Owner.AddSearchResults(newResults);
-                                    newResults.Clear();
-                                    lastUpdate = DateTime.Now;
                                 }
                             }
                         }
@@ -90,7 +88,6 @@ namespace Auremo
                         if (newResults.Count > 0)
                         {
                             m_Owner.AddSearchResults(newResults);
-                            newResults.Clear();
                         }
 
                         m_Event.WaitOne();
