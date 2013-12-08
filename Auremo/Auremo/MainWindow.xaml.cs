@@ -228,6 +228,11 @@ namespace Auremo
             DataModel.DatabaseView.OnSelectedAlbumsBySelectedArtistsChanged();
         }
 
+        private void OnSelectedSongsOnSelectedAlbumsBySelectedArtistsChanged(object sender, SelectionChangedEventArgs e)
+        {
+            DataModel.DatabaseView.OnSelectedSongsOnSelectedAlbumsBySelectedArtistsChanged();
+        }
+
         private void OnSelectedGenresChanged(object sender, SelectionChangedEventArgs e)
         {
             DataModel.DatabaseView.OnSelectedGenresChanged();
@@ -236,6 +241,11 @@ namespace Auremo
         private void OnSelectedAlbumsOfSelectedGenresChanged(object sender, SelectionChangedEventArgs e)
         {
             DataModel.DatabaseView.OnSelectedAlbumsOfSelectedGenresChanged();
+        }
+
+        private void OnSelectedSongsOnSelectedAlbumsOfSelectedGenresChanged(object sender, SelectionChangedEventArgs e)
+        {
+            DataModel.DatabaseView.OnSelectedSongsOnSelectedAlbumsOfSelectedGenresChanged();
         }
 
         private void OnSelectedSavedPlaylistChanged(object sender, SelectionChangedEventArgs e)
