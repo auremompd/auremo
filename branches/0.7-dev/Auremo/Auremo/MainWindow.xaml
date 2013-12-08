@@ -540,6 +540,7 @@
                       AllowDrop="True"
                       SelectionChanged="OnSelectedPlaylistItemsChanged"
                       PreviewKeyDown="OnPlaylistViewKeyDown"
+                      TextInput="OnCollectionTextInput"
                       PreviewMouseLeftButtonDown="OnDataGridRowMouseDown"
                       MouseMove="OnMouseMoveDragDrop"
                       MouseLeftButtonUp="OnDataGridRowMouseUp"

@@ -51,6 +51,7 @@ namespace Auremo
         private string m_AutoSearchString = "";
         private DateTime m_TimeOfLastAutoSearch = DateTime.MinValue;
         private object m_LastAutoSearchSender = null;
+        private object m_LastLastAutoSearchHit = null;
 
         private const int m_AutoSearchMaxKeystrokeGap = 2500;
 
@@ -1568,8 +1569,22 @@ namespace Auremo
 
         private bool CollectionAutoSearch(object sender, char c)
         {
-            if (sender != m_LastAutoSearchSender || DateTime.Now.Subtract(m_TimeOfLastAutoSearch).TotalMilliseconds > m_AutoSearchMaxKeystrokeGap)
+            bool selectionUnchanged = false;
+
+            if (sender is DataGrid)
             {
+                DataGrid grid = sender as DataGrid;
+                selectionUnchanged = grid.SelectedItems.Count == 1 && grid.SelectedItem == m_LastLastAutoSearchHit;
+            }
+            else if (sender is TreeView)
+            {
+                TreeViewController controller = (sender as TreeView).Tag as TreeViewController;
+                selectionUnchanged = controller.MultiSelection.Count == 1 && controller.MultiSelection[0] == m_LastLastAutoSearchHit;
+            }
+
+            if (sender != m_LastAutoSearchSender || !selectionUnchanged || DateTime.Now.Subtract(m_TimeOfLastAutoSearch).TotalMilliseconds > m_AutoSearchMaxKeystrokeGap)
+            {
+                Debug.WriteLine("CollectionAutoSearch: reset");
                 m_AutoSearchString = "";
             }
 
@@ -1593,7 +1608,10 @@ namespace Auremo
             else
             {
                 m_TimeOfLastAutoSearch = DateTime.MinValue;
+                Debug.WriteLine("CollectionAutoSearch: marking for reset");
             }
+
+            Debug.WriteLine("CollectionAutoSearch: string = " + m_AutoSearchString + ", again = " + searchAgain);
 
             if (searchAgain)
             {
@@ -1601,15 +1619,19 @@ namespace Auremo
                 {
                     DataGrid grid = sender as DataGrid;
 
-                    foreach (object o in grid.Items)
+                    foreach (DataGridItem item in Utils.ToTypedList<DataGridItem>(grid.Items))
                     {
+                        object o = item.Content;
+
                         if (o is string && (o as string).ToLowerInvariant().StartsWith(m_AutoSearchString) ||
                            o is AlbumMetadata && (o as AlbumMetadata).Title.ToLowerInvariant().StartsWith(m_AutoSearchString) ||
                            o is Playable && (o as Playable).Title.ToLowerInvariant().StartsWith(m_AutoSearchString))
                         {
-                            grid.CurrentItem = o;
-                            grid.SelectedItem = o;
-                            grid.ScrollIntoView(o);
+                            grid.CurrentItem = item;
+                            grid.SelectedItem = item;
+                            grid.ScrollIntoView(item);
+                            m_LastLastAutoSearchHit = item;
+
                             return true;
                         }
                     }
@@ -1626,6 +1648,7 @@ namespace Auremo
                         item.IsSelected = true;
                         item.Controller.Current = item;
                         item.Controller.Pivot = item;
+                        m_LastLastAutoSearchHit = item;
 
                         return true;
                     }
