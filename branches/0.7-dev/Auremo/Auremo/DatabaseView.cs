@@ -414,14 +414,21 @@ namespace Auremo
 
         public void OnSelectedGenresChanged()
         {
-            AlbumsOfSelectedGenres.Clear();
+            ISet<AlbumMetadata> albums = new SortedSet<AlbumMetadata>();
 
             foreach (string genre in SelectedGenres)
             {
                 foreach (AlbumMetadata album in m_DataModel.Database.AlbumsByGenre(genre))
                 {
-                    AlbumsOfSelectedGenres.Add(new MusicCollectionItem(album, AlbumsOfSelectedGenres.Count));
+                    albums.Add(album);
                 }
+            }
+
+            AlbumsOfSelectedGenres.Clear();
+
+            foreach (AlbumMetadata album in albums)
+            {
+                AlbumsOfSelectedGenres.Add(new MusicCollectionItem(album, AlbumsOfSelectedGenres.Count));
             }
 
             NotifyPropertyChanged("SelectedGenres");
@@ -429,14 +436,25 @@ namespace Auremo
 
         public void OnSelectedAlbumsOfSelectedGenresChanged()
         {
-            SongsOnSelectedAlbumsOfSelectedGenres.Clear();
+            ISet<SongMetadata> songs = new SortedSet<SongMetadata>();
+            ISet<string> genres = new SortedSet<string>(SelectedGenres);
 
             foreach (AlbumMetadata album in SelectedAlbumsOfSelectedGenres)
             {
                 foreach (SongMetadata song in m_DataModel.Database.SongsByAlbum(album))
                 {
-                    SongsOnSelectedAlbumsOfSelectedGenres.Add(new MusicCollectionItem(song, SongsOnSelectedAlbumsOfSelectedGenres.Count));
+                    if (genres.Contains(song.Genre))
+                    {
+                        songs.Add(song);
+                    }
                 }
+            }
+
+            SongsOnSelectedAlbumsOfSelectedGenres.Clear();
+
+            foreach (SongMetadata song in songs)
+            {
+                SongsOnSelectedAlbumsOfSelectedGenres.Add(new MusicCollectionItem(song, SongsOnSelectedAlbumsOfSelectedGenres.Count));
             }
 
             NotifyPropertyChanged("SelectedAlbumsOfSelectedGenres");
