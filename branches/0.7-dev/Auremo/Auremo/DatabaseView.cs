@@ -58,9 +58,6 @@ namespace Auremo
             Artists = new ObservableCollection<MusicCollectionItem>();
             AlbumsBySelectedArtists = new ObservableCollection<MusicCollectionItem>();
             SongsOnSelectedAlbumsBySelectedArtists = new ObservableCollection<MusicCollectionItem>();
-            SelectedArtists = new ObservableCollection<MusicCollectionItem>();
-            SelectedAlbumsBySelectedArtists = new ObservableCollection<MusicCollectionItem>();
-            SelectedSongsOnSelectedAlbumsBySelectedArtists = new ObservableCollection<MusicCollectionItem>();
 
             Genres = new ObservableCollection<MusicCollectionItem>();
             AlbumsOfSelectedGenres = new ObservableCollection<MusicCollectionItem>();
@@ -262,108 +259,63 @@ namespace Auremo
             private set;
         }
 
-        public ObservableCollection<MusicCollectionItem> SelectedArtists
+        public IEnumerable<string> SelectedArtists
         {
-            get;
-            private set;
+            get
+            {
+                return CollectSelectedElements<string>(Artists);
+            }
         }
 
-        public ObservableCollection<MusicCollectionItem> SelectedAlbumsBySelectedArtists
+        public IEnumerable<AlbumMetadata> SelectedAlbumsBySelectedArtists
         {
-            get;
-            private set;
+            get
+            {
+                return CollectSelectedElements<AlbumMetadata>(AlbumsBySelectedArtists);
+            }
         }
 
-        public ObservableCollection<MusicCollectionItem> SelectedSongsOnSelectedAlbumsBySelectedArtists
+        public IEnumerable<SongMetadata> SelectedSongsOnSelectedAlbumsBySelectedArtists
         {
-            get;
-            private set;
+            get
+            {
+                return CollectSelectedElements<SongMetadata>(SongsOnSelectedAlbumsBySelectedArtists);
+            }
         }
 
         public void OnSelectedArtistsChanged()
         {
-            // Check is anything really changed to prevent infinite recursion.
-            ISet<string> currentlySelectedArtists = CollectSelectedElements<string>(Artists);
-            bool changed = currentlySelectedArtists.Count != SelectedArtists.Count;
-
-            if (!changed)
-            {
-                foreach (MusicCollectionItem artist in SelectedArtists)
-                {
-                    if (artist.IsSelected != currentlySelectedArtists.Contains(artist.Content as string))
-                    {
-                        changed = true;
-                        break;
-                    }
-                }
-
-                if (!changed)
-                {
-                    return;
-                }
-            }
-            
-            // Changes detected, proceed.
-            SelectedArtists.Clear();
             AlbumsBySelectedArtists.Clear();
-            SelectedAlbumsBySelectedArtists.Clear();
-            SongsOnSelectedAlbumsBySelectedArtists.Clear();
-            SelectedSongsOnSelectedAlbumsBySelectedArtists.Clear();
 
-            foreach (MusicCollectionItem artist in Artists)
+            foreach (string artist in SelectedArtists)
             {
-                if (artist.IsSelected)
+                foreach (AlbumMetadata album in m_DataModel.Database.AlbumsByArtist(artist))
                 {
-                    SelectedArtists.Add(new MusicCollectionItem(artist.Content, SelectedArtists.Count, true));
-
-                    foreach (AlbumMetadata album in m_DataModel.Database.AlbumsByArtist(artist.Content as string))
-                    {
-                        AlbumsBySelectedArtists.Add(new MusicCollectionItem(album, AlbumsBySelectedArtists.Count));
-                    }
+                    AlbumsBySelectedArtists.Add(new MusicCollectionItem(album, AlbumsBySelectedArtists.Count));
                 }
             }
+
+            NotifyPropertyChanged("SelectedArtists");
         }
 
         public void OnSelectedAlbumsBySelectedArtistsChanged()
         {
-            // Check is anything really changed to prevent infinite recursion.
-            ISet<AlbumMetadata> currentlySelectedAlbums = CollectSelectedElements<AlbumMetadata>(AlbumsBySelectedArtists);
-            bool changed = currentlySelectedAlbums.Count != SelectedAlbumsBySelectedArtists.Count;
-
-            if (!changed)
-            {
-                foreach (MusicCollectionItem album in SelectedAlbumsBySelectedArtists)
-                {
-                    if (album.IsSelected != currentlySelectedAlbums.Contains(album.Content as AlbumMetadata))
-                    {
-                        changed = true;
-                        break;
-                    }
-                }
-
-                if (!changed)
-                {
-                    return;
-                }
-            }
-            
-            // Changes detected, proceed.
-            SelectedAlbumsBySelectedArtists.Clear();
             SongsOnSelectedAlbumsBySelectedArtists.Clear();
-            SelectedSongsOnSelectedAlbumsBySelectedArtists.Clear();
 
-            foreach (MusicCollectionItem album in AlbumsBySelectedArtists)
+            foreach (AlbumMetadata album in SelectedAlbumsBySelectedArtists)
             {
-                if (album.IsSelected)
+                foreach (SongMetadata song in m_DataModel.Database.SongsByAlbum(album))
                 {
-                    SelectedAlbumsBySelectedArtists.Add(new MusicCollectionItem(album.Content, SelectedAlbumsBySelectedArtists.Count, true));
-
-                    foreach (SongMetadata song in m_DataModel.Database.SongsByAlbum(album.Content as AlbumMetadata))
-                    {
-                        SongsOnSelectedAlbumsBySelectedArtists.Add(new MusicCollectionItem(song, SongsOnSelectedAlbumsBySelectedArtists.Count));
-                    }
+                    SongsOnSelectedAlbumsBySelectedArtists.Add(new MusicCollectionItem(song, SongsOnSelectedAlbumsBySelectedArtists.Count));
                 }
             }
+
+            NotifyPropertyChanged("SelectedAlbumsBySelectedArtists");
+        }
+
+        public void OnSelectedSongsOnSelectedAlbumsBySelectedArtistsChanged()
+        {
+            NotifyPropertyChanged("SelectedSongsOnSelectedAlbumsBySelectedArtists");
         }
 
         public void ShowSongsInArtistList(IEnumerable<SongMetadata> selectedSongs)
@@ -436,55 +388,63 @@ namespace Auremo
             private set;
         }
 
+        public IEnumerable<string> SelectedGenres
+        {
+            get
+            {
+                return CollectSelectedElements<string>(Genres);
+            }
+        }
+
+        public IEnumerable<AlbumMetadata> SelectedAlbumsOfSelectedGenres
+        {
+            get
+            {
+                return CollectSelectedElements<AlbumMetadata>(AlbumsOfSelectedGenres);
+            }
+        }
+
+        public IEnumerable<SongMetadata> SelectedSongsOnSelectedAlbumsOfSelectedGenres
+        {
+            get
+            {
+                return CollectSelectedElements<SongMetadata>(SongsOnSelectedAlbumsOfSelectedGenres);
+            }
+        }
+
         public void OnSelectedGenresChanged()
         {
-            ISet<string> newSelectedGenres = CollectSelectedElements<string>(Genres);
+            AlbumsOfSelectedGenres.Clear();
 
-            if (!Utils.CollectionsAreEqual(newSelectedGenres, m_SelectedGenres))
+            foreach (string genre in SelectedGenres)
             {
-                m_SelectedGenres = newSelectedGenres;
-                m_SelectedAlbumsOfSelectedGenres.Clear();
-                AlbumsOfSelectedGenres.Clear();
-                SongsOnSelectedAlbumsOfSelectedGenres.Clear();
-
-                foreach (MusicCollectionItem genre in Genres)
+                foreach (AlbumMetadata album in m_DataModel.Database.AlbumsByGenre(genre))
                 {
-                    if (genre.IsSelected)
-                    {
-                        // TODO: this will add a single album multiple times if it contains songs
-                        // of multiple selected genres.
-                        foreach (AlbumMetadata album in m_DataModel.Database.AlbumsByGenre(genre.Content as string))
-                        {
-                            AlbumsOfSelectedGenres.Add(new MusicCollectionItem(album, AlbumsOfSelectedGenres.Count));
-                        }
-                    }
+                    AlbumsOfSelectedGenres.Add(new MusicCollectionItem(album, AlbumsOfSelectedGenres.Count));
                 }
             }
+
+            NotifyPropertyChanged("SelectedGenres");
         }
 
         public void OnSelectedAlbumsOfSelectedGenresChanged()
         {
-            ISet<AlbumMetadata> currentlySelectedAlbums = CollectSelectedElements<AlbumMetadata>(AlbumsOfSelectedGenres);
+            SongsOnSelectedAlbumsOfSelectedGenres.Clear();
 
-            if (!Utils.CollectionsAreEqual(currentlySelectedAlbums, m_SelectedAlbumsOfSelectedGenres))
+            foreach (AlbumMetadata album in SelectedAlbumsOfSelectedGenres)
             {
-                m_SelectedAlbumsOfSelectedGenres = currentlySelectedAlbums;
-                SongsOnSelectedAlbumsOfSelectedGenres.Clear();
-
-                foreach (MusicCollectionItem album in AlbumsOfSelectedGenres)
+                foreach (SongMetadata song in m_DataModel.Database.SongsByAlbum(album))
                 {
-                    if (album.IsSelected)
-                    {
-                        foreach (SongMetadata song in m_DataModel.Database.SongsByAlbum(album.Content as AlbumMetadata))
-                        {
-                            if (m_SelectedGenres.Contains(song.Genre))
-                            {
-                                SongsOnSelectedAlbumsOfSelectedGenres.Add(new MusicCollectionItem(song, SongsOnSelectedAlbumsOfSelectedGenres.Count));
-                            }
-                        }
-                    }
+                    SongsOnSelectedAlbumsOfSelectedGenres.Add(new MusicCollectionItem(song, SongsOnSelectedAlbumsOfSelectedGenres.Count));
                 }
             }
+
+            NotifyPropertyChanged("SelectedAlbumsOfSelectedGenres");
+        }
+
+        public void OnSelectedSongsOnSelectedAlbumsOfSelectedGenresChanged()
+        {
+            NotifyPropertyChanged("SelectedSongsOnSelectedAlbumsOfSelectedGenres");
         }
 
         public void ShowSongsInGenreList(IEnumerable<SongMetadata> selectedSongs)
