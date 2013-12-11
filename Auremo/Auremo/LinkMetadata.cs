@@ -72,14 +72,6 @@ namespace Auremo
             }
         }
 
-        public bool IsSoundCloud
-        {
-            get
-            {
-                return false;
-            }
-        }
-
         public string DisplayName
         {
             get
