@@ -152,9 +152,8 @@
                         <Border Grid.Row="1" Grid.ColumnSpan="2" Margin="0,2" BorderThickness="1" BorderBrush="{StaticResource PassiveGenericBorderBrush}" Background="{StaticResource ListBackgroundBrush}">
                             <StackPanel Orientation="Vertical">
                                 <StackPanel Orientation="Horizontal" Margin="1,2,0,0">
-                                    <CheckBox Content="Local" IsChecked="{Binding Path=AdvancedSearch.IncludeLocal,Mode=TwoWay}" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                                    <CheckBox Content="Spotify" IsChecked="{Binding Path=AdvancedSearch.IncludeSpotify,Mode=TwoWay}" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                                    <CheckBox Content="SoundCloud" IsChecked="{Binding Path=AdvancedSearch.IncludeSoundCloud,Mode=TwoWay}" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                    <CheckBox Content="Local" IsChecked="{Binding Path=AdvancedSearch.IncludeLocal,Mode=TwoWay}" VerticalAlignment="Center"/>
+                                    <CheckBox Content="Spotify" IsChecked="{Binding Path=AdvancedSearch.IncludeSpotify,Mode=TwoWay}" VerticalAlignment="Center" Margin="15,0"/>
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal" Margin="1,2,0,2">
                                     <RadioButton Content="Any" IsChecked="{Binding Path=AdvancedSearch.SearchByAny,Mode=TwoWay}" Margin="0,0,10,0"/>

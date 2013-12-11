@@ -44,7 +44,6 @@ namespace Auremo
         private DateNormalizer m_DateNormalizer = null;
         private bool m_IncludeLocal = true;
         private bool m_IncludeSpotify = true;
-        private bool m_IncludeSoundCloud = true;
         private SearchType m_SearchType = SearchType.Any;
         IDictionary<string, IDictionary<string, IDictionary<int, SongMetadata>>> m_ResultSorter = new SortedDictionary<string, IDictionary<string, IDictionary<int, SongMetadata>>>();
 
@@ -97,22 +96,6 @@ namespace Auremo
                 {
                     m_IncludeSpotify = value;
                     NotifyPropertyChanged("IncludeSpotify");
-                }
-            }
-        }
-
-        public bool IncludeSoundCloud
-        {
-            get
-            {
-                return m_IncludeSoundCloud;
-            }
-            set
-            {
-                if (m_IncludeSoundCloud != value)
-                {
-                    m_IncludeSoundCloud = value;
-                    NotifyPropertyChanged("IncludeSoundCloud");
                 }
             }
         }
@@ -200,8 +183,7 @@ namespace Auremo
         private bool IncludeSongInResults(SongMetadata song)
         {
             return song.IsLocal && IncludeLocal ||
-                song.IsSpotify && IncludeSpotify ||
-                song.IsSoundCloud && IncludeSpotify;
+                song.IsSpotify && IncludeSpotify;
         }
     }
 }
