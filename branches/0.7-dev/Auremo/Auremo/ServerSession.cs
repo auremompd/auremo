@@ -104,9 +104,19 @@ namespace Auremo
                 {
                     m_State = value;
                     NotifyPropertyChanged("State");
+                    NotifyPropertyChanged("IsConnected");
                 }
             }
         }
+
+        public bool IsConnected
+        {
+            get
+            {
+                return State == SessionState.Connected;
+            }
+        }
+
 
         public string StateDescription
         {
