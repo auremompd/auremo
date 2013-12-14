@@ -367,7 +367,7 @@ namespace Auremo
 
         private void Send(MPDCommand command)
         {
-            if (m_SessionThread != null)
+            if (m_SessionThread != null || m_State == SessionState.Connected)
             {
                 m_SessionThread.Send(command);
             }
