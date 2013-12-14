@@ -181,7 +181,7 @@
                                         Go
                                         <!--Path Data="M 0,0 7,5 0,10" StrokeThickness="0" Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Button}, Path=Foreground}" Stretch="None"/-->
                                     </Button>
-                                    <!--TextBlock Name="m_AdvancedSearchBoxHint" Grid.Row="3" Style="{StaticResource TextBoxHintTextStyle}" Margin="10,6,0,0" Text="Type search terms here." IsEnabled="{Binding ElementName=m_AdvancedSearchBox, Path=Text.Length, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}" FontSize="16"/-->
+                                    <TextBlock Style="{StaticResource TextBoxHintTextStyle}" Text="Type search terms here." IsEnabled="{Binding ElementName=m_AdvancedSearchBox, Path=Text.Length, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}" Grid.Row="3" Margin="10,6,0,0" FontSize="16"/>
                                 </Grid>
                             </StackPanel>
                             
