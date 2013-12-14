@@ -38,6 +38,8 @@ namespace Auremo
         private bool m_Terminating = false;
         private ManualResetEvent m_ThreadEvent = new ManualResetEvent(false);
         private Queue<MPDCommand> m_CommandQueue = new Queue<MPDCommand>();
+        private bool m_StatusUpdateEnqueued = false;
+        private bool m_StatsUpdateEnqueued = false;
         private int m_ReconnectInterval = 0;
         private int m_Timeout = 0;
         private TcpClient m_Connection = null;
@@ -80,6 +82,7 @@ namespace Auremo
         {
             while (!Terminating)
             {
+                SetInitialState();
                 Connect();
                 ExecuteCommands();
                 Close();
@@ -128,6 +131,17 @@ namespace Auremo
                 m_CommandQueue.Enqueue(command);
                 m_ThreadEvent.Set();
             }
+        }
+
+        private void SetInitialState()
+        {
+            m_CommandQueue.Clear();
+            m_StatusUpdateEnqueued = false;
+            m_StatsUpdateEnqueued = false;
+            m_ResponseLines.Clear();
+            m_CurrentResponse.Clear();
+            m_CurrentSongList.Clear();
+            m_CharsLeftFromLastBuffer = "";
         }
 
         private void Connect()
@@ -219,8 +233,15 @@ namespace Auremo
                     }
                     else
                     {
-                        SendCommand(command.FullSyntax);
-                        ReceiveResponse(command);
+                        bool optimizeOut = false;
+                        optimizeOut = optimizeOut || (command.Op == "status" && m_StatusUpdateEnqueued);
+                        optimizeOut = optimizeOut || (command.Op == "stats" && m_StatsUpdateEnqueued);
+
+                        if (!optimizeOut)
+                        {
+                            SendCommand(command.FullSyntax);
+                            ReceiveResponse(command);
+                        }
                     }
                 }
             }
@@ -328,7 +349,7 @@ namespace Auremo
                         Callback(m_DataModel.CurrentSong.OnCurrentSongResponseReceived);
                         m_CurrentSongList.Clear();
                     }
-                    // TODO: remove the latter when Mopidy starts supporting the latter.
+                    // TODO: remove the latter when Mopidy starts supporting the former.
                     else if (command.Op == "listallinfo" || command.Op == "mopidylistallinfokludge")
                     {
                         ParseSongList();
