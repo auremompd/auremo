@@ -149,6 +149,7 @@
                                 </ContextMenu>
                             </DataGrid.ContextMenu>
                         </DataGrid>
+                        <TextBlock Grid.Row="0" Style="{StaticResource CollectionHintTextStyle}" Text="No search results." IsEnabled="{Binding Path=AdvancedSearch.SearchResults.Count, Converter={StaticResource EqualsConverter}, ConverterParameter=0, Mode=OneWay}"/>
                         <Border Grid.Row="1" Grid.ColumnSpan="2" Margin="0,2" BorderThickness="1" BorderBrush="{StaticResource PassiveGenericBorderBrush}" Background="{StaticResource ListBackgroundBrush}">
                             <StackPanel Orientation="Vertical">
                                 <StackPanel Orientation="Horizontal" Margin="1,2,0,0">
