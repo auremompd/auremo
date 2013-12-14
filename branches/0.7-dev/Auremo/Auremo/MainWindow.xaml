@@ -14,6 +14,7 @@
         <l:IntToBoolConverter x:Key="IntToBoolConverter"/>
         <l:NegateBoolConverter x:Key="NegateBoolConverter"/>
         <l:EqualsConverter x:Key="EqualsConverter"/>
+        <l:BooleanAndConverter x:Key="BooleanAndConverter"/>
     </Window.Resources>
     <Window.ToolTip>
         <ToolTip Name="m_MousePointerHint"
@@ -153,14 +154,14 @@
                         <Border Grid.Row="1" Grid.ColumnSpan="2" Margin="0,2" BorderThickness="1" BorderBrush="{StaticResource PassiveGenericBorderBrush}" Background="{StaticResource ListBackgroundBrush}">
                             <StackPanel Orientation="Vertical">
                                 <StackPanel Orientation="Horizontal" Margin="1,2,0,0">
-                                    <CheckBox Content="Local" IsChecked="{Binding Path=AdvancedSearch.IncludeLocal,Mode=TwoWay}" VerticalAlignment="Center"/>
-                                    <CheckBox Content="Spotify" IsChecked="{Binding Path=AdvancedSearch.IncludeSpotify,Mode=TwoWay}" VerticalAlignment="Center" Margin="15,0"/>
+                                    <CheckBox Content="Local" IsChecked="{Binding Path=AdvancedSearch.IncludeLocal, Mode=TwoWay}" IsEnabled="{Binding Path=ServerSession.IsConnected}" VerticalAlignment="Center"/>
+                                    <CheckBox Content="Spotify" IsChecked="{Binding Path=AdvancedSearch.IncludeSpotify, Mode=TwoWay}" IsEnabled="{Binding Path=ServerSession.IsConnected}" VerticalAlignment="Center" Margin="15,0"/>
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal" Margin="1,2,0,2">
-                                    <RadioButton Content="Any" IsChecked="{Binding Path=AdvancedSearch.SearchByAny,Mode=TwoWay}" Margin="0,0,10,0"/>
-                                    <RadioButton Content="Artist" IsChecked="{Binding Path=AdvancedSearch.SearchByArtist,Mode=TwoWay}" Margin="0,0,10,0"/>
-                                    <RadioButton Content="Album" IsChecked="{Binding Path=AdvancedSearch.SearchByAlbum,Mode=TwoWay}" Margin="0,0,10,0"/>
-                                    <RadioButton Content="Title" IsChecked="{Binding Path=AdvancedSearch.SearchByTitle,Mode=TwoWay}" Margin="0,0,10,0"/>
+                                    <RadioButton Content="Any" IsChecked="{Binding Path=AdvancedSearch.SearchByAny, Mode=TwoWay}" IsEnabled="{Binding Path=ServerSession.IsConnected}" Margin="0,0,10,0"/>
+                                    <RadioButton Content="Artist" IsChecked="{Binding Path=AdvancedSearch.SearchByArtist, Mode=TwoWay}" IsEnabled="{Binding Path=ServerSession.IsConnected}" Margin="0,0,10,0"/>
+                                    <RadioButton Content="Album" IsChecked="{Binding Path=AdvancedSearch.SearchByAlbum, Mode=TwoWay}" IsEnabled="{Binding Path=ServerSession.IsConnected}" Margin="0,0,10,0"/>
+                                    <RadioButton Content="Title" IsChecked="{Binding Path=AdvancedSearch.SearchByTitle, Mode=TwoWay}" IsEnabled="{Binding Path=ServerSession.IsConnected}" Margin="0,0,10,0"/>
                                 </StackPanel>
                                 <Grid Margin="0,2,0,0">
                                     <Grid.ColumnDefinitions>
@@ -169,7 +170,14 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBox Name="m_AdvancedSearchBox" Style="{StaticResource TextBoxStyle}" Height="30" FontSize="15" VerticalContentAlignment="Bottom" Margin="2,0,2,0"
                                              IsEnabled="{Binding Path=ServerSession.IsConnected}" IsEnabledChanged="OnSearchBoxEnabledChanged"/>
-                                    <Button Name="m_AdvancedSearchButton" IsDefault="True" Style="{StaticResource ActionButtonStyle}" Grid.Column="1" Width="30" Height="30" Margin="0,2,2,3" IsEnabled="{Binding ElementName=m_AdvancedSearchBox, Path=Text.Length, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}" Click="OnAdvancedSearchClicked">
+                                    <Button Name="m_AdvancedSearchButton" IsDefault="True" Style="{StaticResource ActionButtonStyle}" Grid.Column="1" Width="30" Height="30" Margin="0,2,2,3"
+                                            Click="OnAdvancedSearchClicked">
+                                        <Button.IsEnabled>
+                                            <MultiBinding Converter="{StaticResource BooleanAndConverter}">
+                                                <Binding ElementName="m_AdvancedSearchBox" Path="Text.Length" Converter="{StaticResource IntToBoolConverter}"/>
+                                                <Binding Path="ServerSession.IsConnected"/>
+                                            </MultiBinding>
+                                        </Button.IsEnabled>
                                         Go
                                         <!--Path Data="M 0,0 7,5 0,10" StrokeThickness="0" Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Button}, Path=Foreground}" Stretch="None"/-->
                                     </Button>
