@@ -115,11 +115,39 @@ namespace Auremo
         
         private void SetInitialWindowState()
         {
+            int x = Settings.Default.WindowX;
+            int y = Settings.Default.WindowY;
+            int w = Settings.Default.WindowW;
+            int h = Settings.Default.WindowH;
+
+            w = w >= (int)MinWidth ? w : (int)MinWidth;
+            h = h >= (int)MinHeight ? h : (int)MinHeight;
+
+            if (x < SystemParameters.VirtualScreenWidth && x + w > 0 && y < SystemParameters.VirtualScreenHeight && y + h > 0)
+            {
+                Left = x;
+                Top = y;
+                Width = w;
+                Height = h;
+            }
+
             Show();
 
             if (!Settings.Default.InitialSetupDone)
             {
                 BringUpSettingsWindow();
+            }
+        }
+
+        private void SaveWindowState()
+        {
+            if (Left < SystemParameters.VirtualScreenWidth && Left + Width > 0 && Top < SystemParameters.VirtualScreenHeight && Top + Height > 0)
+            {
+                Settings.Default.WindowX = (int)Left;
+                Settings.Default.WindowY = (int)Top;
+                Settings.Default.WindowW = (int)Width;
+                Settings.Default.WindowH = (int)Height;
+                Settings.Default.Save();
             }
         }
 
@@ -332,6 +360,8 @@ namespace Auremo
                 m_AboutWindow.Close();
                 m_AboutWindow = null;
             }
+
+            SaveWindowState();
         }
 
         #endregion
