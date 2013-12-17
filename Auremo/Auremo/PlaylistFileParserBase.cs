@@ -62,30 +62,24 @@ namespace Auremo
             }
         }
 
-        protected char Peek
+        protected char Peek()
         {
-            get
+            if (AtEnd)
             {
-                if (AtEnd)
-                {
-                    throw new ParseError();
-                }
-
-                return m_Input[m_InputPosition];
+                throw new ParseError();
             }
+
+            return m_Input[m_InputPosition];
         }
 
-        protected char PeekLowercase
+        protected char PeekLowercase()
         {
-            get
+            if (AtEnd)
             {
-                if (AtEnd)
-                {
-                    throw new ParseError();
-                }
-
-                return m_InputAsLowercase[m_InputPosition];
+                throw new ParseError();
             }
+
+            return m_InputAsLowercase[m_InputPosition];
         }
 
         protected void ConsumeLiteral(string literal)
@@ -97,7 +91,7 @@ namespace Auremo
 
             foreach (char c in literal.ToLowerInvariant())
             {
-                if (PeekLowercase != c)
+                if (PeekLowercase() != c)
                 {
                     throw new ParseError();
                 }
@@ -109,10 +103,12 @@ namespace Auremo
         protected string GetRestOfLine()
         {
             int startPosition = m_InputPosition;
+            char next = Peek();
 
-            while (!AtEnd && Peek != '\r' && Peek != '\n')
+            while (!AtEnd && next != '\r' && next != '\n')
             {
                 m_InputPosition += 1;
+                next = Peek();
             }
 
             string result = m_Input.Substring(startPosition, m_InputPosition - startPosition);
@@ -126,7 +122,7 @@ namespace Auremo
 
             while (whitespace && !AtEnd)
             {
-                char c = Peek;
+                char c = Peek();
                 whitespace = c == ' ' || c == '\r' || c == '\n' || c == '\t';
 
                 if (whitespace)
