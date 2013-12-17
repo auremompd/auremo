@@ -74,7 +74,7 @@ namespace Auremo
             string path = null;
             string label = null;
 
-            if (m_ExtendedFormat && Peek == '#')
+            if (m_ExtendedFormat && Peek() == '#')
             {
                 ConsumeLiteral("#EXTINF:");
                 IgnoreUntil(',');
@@ -99,7 +99,7 @@ namespace Auremo
 
         private void IgnoreUntil(char c)
         {
-            while (Peek != c)
+            while (Peek() != c)
             {
                 m_InputPosition += 1;
             }

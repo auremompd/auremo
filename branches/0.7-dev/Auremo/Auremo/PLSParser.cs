@@ -139,7 +139,7 @@ namespace Auremo
         {
             int startPosition = m_InputPosition;
 
-            while (!AtEnd && PeekLowercase != '=')
+            while (!AtEnd && PeekLowercase() != '=')
             {
                 m_InputPosition += 1;
             }
