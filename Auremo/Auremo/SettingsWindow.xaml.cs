@@ -55,7 +55,7 @@ namespace Auremo
         {
             ClampTextBoxContent(m_PortEntry, 1, 6600, 65536);
             ClampTextBoxContent(m_UpdateIntervalEntry, 100, 500, 5000);
-            ClampTextBoxContent(m_NetworkTimeoutEntry, 1, 600, 10);
+            ClampTextBoxContent(m_NetworkTimeoutEntry, 1, 10, 600);
             ClampTextBoxContent(m_ReconnectIntervalEntry, 0, 10, 3600);
             ClampTextBoxContent(m_WheelVolumeStepEntry, 0, 5, 100);
             ClampTextBoxContent(m_WheelSongPositioningPercentEntry, 0, 5, 100);
