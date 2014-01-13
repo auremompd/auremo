@@ -55,6 +55,9 @@ namespace Auremo
             m_DataModel = dataModel;
             SearchResults = new ObservableCollection<MusicCollectionItem>();
             SelectedSearchResults = new ObservableCollection<MusicCollectionItem>();
+
+            m_DataModel.ServerSession.PropertyChanged += new PropertyChangedEventHandler(OnServerSessionPropertyChanged);
+
             m_Searcher = new QuickSearchThread(this, m_DataModel.Database);
             m_Thread = new Thread(new ThreadStart(m_Searcher.Start));
             m_Thread.Name = "QuickSearch thread";
@@ -167,5 +170,18 @@ namespace Auremo
 
             return false;
         }
+
+        private void OnServerSessionPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "State")
+            {
+                if (m_DataModel.ServerSession.State != ServerSession.SessionState.Connected)
+                {
+                    SearchString = "";
+                    SearchResults.Clear();
+                }
+            }
+        }
+
     }
 }
