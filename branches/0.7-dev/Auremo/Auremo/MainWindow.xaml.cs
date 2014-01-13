@@ -1357,7 +1357,7 @@ namespace Auremo
 
         private void DeleteSelectedStreams()
         {
-            DataModel.StreamsCollection.Delete(Utils.ToTypedList<StreamMetadata>(m_StreamsView.SelectedItems));
+            DataModel.StreamsCollection.Delete(Utils.ToTypedList<MusicCollectionItem>(m_StreamsView.SelectedItems));
         }
 
         #endregion

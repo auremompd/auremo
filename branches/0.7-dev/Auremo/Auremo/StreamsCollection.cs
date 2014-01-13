@@ -102,7 +102,13 @@ namespace Auremo
             }
             else
             {
-                store.DeleteFile(m_Filename);
+                try
+                {
+                    store.DeleteFile(m_Filename);
+                }
+                catch (Exception)
+                {
+                }
             }
 
             store.Close();
@@ -137,28 +143,35 @@ namespace Auremo
             return allSucceeded;
         }
         
-        public bool Delete(StreamMetadata stream)
+        public bool Delete(MusicCollectionItem item)
         {
-            if (DeleteWithoutNotification(stream))
+            if (item != null && item.Content is StreamMetadata)
             {
-                Save();
-                UpdateStreamsView();
-                return true;
+                StreamMetadata stream = item.Content as StreamMetadata;
+
+                if (DeleteWithoutNotification(stream))
+                {
+                    Save();
+                    UpdateStreamsView();
+                    return true;
+                }
             }
-            else
-            {
-                return false;
-            }
+            
+            return false;
         }
         
-        public bool Delete(IEnumerable<StreamMetadata> streams)
+        public bool Delete(IEnumerable<MusicCollectionItem> items)
         {
             bool allSucceeded = true;
 
-            foreach (StreamMetadata stream in streams)
+            foreach (MusicCollectionItem item in items)
             {
-                bool succeeded = DeleteWithoutNotification(stream);
-                allSucceeded &= succeeded;
+                if (item != null && item.Content is StreamMetadata)
+                {
+                    StreamMetadata stream = item.Content as StreamMetadata;
+                    bool succeeded = DeleteWithoutNotification(stream);
+                    allSucceeded &= succeeded;
+                }
             }
 
             Save();
