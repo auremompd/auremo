@@ -157,8 +157,22 @@ namespace Auremo
                 {
                     m_Parent.OnThreadStateChanged(ServerSession.SessionState.Connecting);
                     m_Parent.OnThreadMessage("Connecting to " + Host + ":" + Port + ".");
-                    m_Connection.Connect(Host, Port);
-                    m_Stream = m_Connection.GetStream();
+                    IAsyncResult connectResult = m_Connection.BeginConnect(Host, Port, null, null);
+
+                    while (!connectResult.IsCompleted && !Terminating)
+                    {
+                        Thread.Sleep(100);
+                    }
+
+                    if (Terminating)
+                    {
+                        m_Connection = null;
+                    }
+                    else
+                    {
+                        m_Connection.EndConnect(connectResult);
+                        m_Stream = m_Connection.GetStream();
+                    }
                 }
                 catch (Exception e)
                 {
