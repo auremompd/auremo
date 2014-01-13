@@ -1220,7 +1220,7 @@ namespace Auremo
 
         #region Specialized events for individual controls
 
-        private void OnSearchBoxEnabledChanged(object sender, DependencyPropertyChangedEventArgs e)
+        private void OnQuickSearchBoxEnabledChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             if (m_QuickSearchBox.IsEnabled)
             {
@@ -1228,12 +1228,17 @@ namespace Auremo
             }
         }
 
+        private void OnAdvancedSearchBoxEnabledChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (m_AdvancedSearchBox.IsEnabled)
+            {
+                m_AdvancedSearchBox.Focus();
+            }
+        }
+
         private void OnAdvancedSearchClicked(object sender, RoutedEventArgs e)
         {
-            if (m_AdvancedSearchBox.Text.Length > 0)
-            {
-                DataModel.AdvancedSearch.Search(m_AdvancedSearchBox.Text);
-            }
+            DataModel.AdvancedSearch.Search();
         }
 
         #region Streams collection
