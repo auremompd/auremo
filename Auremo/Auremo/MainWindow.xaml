@@ -114,8 +114,8 @@
                         </DataGrid>
                         <TextBlock Name="m_SearchResultsHint" Grid.Row="0" Style="{StaticResource CollectionHintTextStyle}" Text="No search results." IsEnabled="{Binding Path=QuickSearch.SearchResults.Count, Converter={StaticResource EqualsConverter}, ConverterParameter=0, Mode=OneWay}"/>
                         <TextBox Name="m_QuickSearchBox" Grid.Row="1" Style="{StaticResource TextBoxStyle}" Margin="0,10,0,0" Height="28" FontSize="15" VerticalContentAlignment="Center"
-                                 Text="{Binding Path=QuickSearch.SearchString, Mode=TwoWay}"
-                                 IsEnabled="{Binding Path=ServerSession.IsConnected}" IsEnabledChanged="OnSearchBoxEnabledChanged"/>
+                                 Text="{Binding Path=QuickSearch.SearchString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 IsEnabled="{Binding Path=ServerSession.IsConnected}" IsEnabledChanged="OnQuickSearchBoxEnabledChanged"/>
                         <TextBlock Name="m_SearchBoxHint" Grid.Row="1" Style="{StaticResource TextBoxHintTextStyle}" Margin="10,6,0,0" Text="Type here to start searching." IsEnabled="{Binding Path=QuickSearch.SearchString.Length, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}" FontSize="16"/>
                     </Grid>
                 </TabItem>
@@ -170,7 +170,8 @@
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBox Name="m_AdvancedSearchBox" Style="{StaticResource TextBoxStyle}" Height="30" FontSize="15" VerticalContentAlignment="Bottom" Margin="2,0,2,0"
-                                             IsEnabled="{Binding Path=ServerSession.IsConnected}" IsEnabledChanged="OnSearchBoxEnabledChanged"/>
+                                             Text="{Binding Path=AdvancedSearch.SearchString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             IsEnabled="{Binding Path=ServerSession.IsConnected}" IsEnabledChanged="OnAdvancedSearchBoxEnabledChanged"/>
                                     <Button Name="m_AdvancedSearchButton" IsDefault="True" Style="{StaticResource ActionButtonStyle}" Grid.Column="1" Width="30" Height="30" Margin="0,2,2,3"
                                             Click="OnAdvancedSearchClicked">
                                         <Button.IsEnabled>
@@ -185,10 +186,7 @@
                                     <TextBlock Style="{StaticResource TextBoxHintTextStyle}" Text="Type search terms here." IsEnabled="{Binding ElementName=m_AdvancedSearchBox, Path=Text.Length, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}" Grid.Row="3" Margin="10,6,0,0" FontSize="16"/>
                                 </Grid>
                             </StackPanel>
-                            
                         </Border>
-                        
-                        
                     </Grid>
                 </TabItem>
                 <TabItem Name="m_ArtistListTab" Header="Artist list">

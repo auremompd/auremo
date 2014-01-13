@@ -45,7 +45,8 @@ namespace Auremo
         private bool m_IncludeLocal = true;
         private bool m_IncludeSpotify = true;
         private SearchType m_SearchType = SearchType.Any;
-        IDictionary<string, IDictionary<string, IDictionary<int, SongMetadata>>> m_ResultSorter = new SortedDictionary<string, IDictionary<string, IDictionary<int, SongMetadata>>>();
+        string m_SearchString = "";
+        IList<Playable> m_UnfilteredSearchResults = new List<Playable>();
 
         public AdvancedSearch(DataModel dataModel)
         {
@@ -53,13 +54,37 @@ namespace Auremo
             string[] dateFormat = { "YYYY" };
             m_DateNormalizer = new DateNormalizer(dateFormat);
             SearchResults = new ObservableCollection<MusicCollectionItem>();
+
+            m_DataModel.ServerSession.PropertyChanged += new PropertyChangedEventHandler(OnServerSessionPropertyChanged);
         }
 
-        public void Search(string what)
+        public string SearchString
         {
-            SearchResults.Clear();
-            string type = m_SearchType.ToString().ToLowerInvariant();
-            m_DataModel.ServerSession.Search(type, what);
+            get
+            {
+                return m_SearchString;
+            }
+            set
+            {
+                if (value != m_SearchString)
+                {
+                    m_SearchString = value;
+                    NotifyPropertyChanged("SearchString");
+                }
+            }
+        }
+
+        public void Search()
+        {
+            string search = SearchString.Trim();
+
+            if (search.Length > 0)
+            {
+                m_UnfilteredSearchResults.Clear();
+                SearchResults.Clear();
+                string type = m_SearchType.ToString().ToLowerInvariant();
+                m_DataModel.ServerSession.Search(type, SearchString);
+            }
         }
 
         public IList<MusicCollectionItem> SearchResults
@@ -80,6 +105,7 @@ namespace Auremo
                 {
                     m_IncludeLocal = value;
                     NotifyPropertyChanged("IncludeLocal");
+                    FilterSearchResults();
                 }
             }
         }
@@ -96,6 +122,7 @@ namespace Auremo
                 {
                     m_IncludeSpotify = value;
                     NotifyPropertyChanged("IncludeSpotify");
+                    FilterSearchResults();
                 }
             }
         }
@@ -164,10 +191,9 @@ namespace Auremo
             }
         }
 
-
         public void OnSearchResponseReceived(IEnumerable<MPDSongResponseBlock> response)
         {
-            m_ResultSorter.Clear();
+            m_UnfilteredSearchResults.Clear();
 
             foreach (MPDSongResponseBlock item in response)
             {
@@ -175,15 +201,39 @@ namespace Auremo
 
                 if (playable != null && !(playable is UnknownPlayable))
                 {
+                    m_UnfilteredSearchResults.Add(playable);
+                }
+            }
+
+            FilterSearchResults();
+        }
+
+        private void FilterSearchResults()
+        {
+            SearchResults.Clear();
+
+            foreach (Playable playable in m_UnfilteredSearchResults)
+            {
+                bool playableIsLocal = playable is SongMetadata && (playable as SongMetadata).IsLocal;
+
+                if (playableIsLocal && IncludeLocal || !playableIsLocal && IncludeSpotify)
+                {
                     SearchResults.Add(new MusicCollectionItem(playable, SearchResults.Count));
                 }
             }
         }
 
-        private bool IncludeSongInResults(SongMetadata song)
+        private void OnServerSessionPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            return song.IsLocal && IncludeLocal ||
-                song.IsSpotify && IncludeSpotify;
+            if (e.PropertyName == "State")
+            {
+                if (m_DataModel.ServerSession.State != ServerSession.SessionState.Connected)
+                {
+                    SearchString = "";
+                    m_UnfilteredSearchResults.Clear();
+                    SearchResults.Clear();
+                }
+            }
         }
     }
 }
