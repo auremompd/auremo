@@ -887,7 +887,7 @@ namespace Auremo
                 }
                 else if (item is Playable)
                 {
-                    result.Append((item as Playable).Title);
+                    result.Append((item as Playable).DisplayName);
                 }
             }
 
