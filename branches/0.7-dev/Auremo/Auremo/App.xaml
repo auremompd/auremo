@@ -10,6 +10,7 @@
                 <ResourceDictionary Source="WPFResources/ScrollBarStyle.xaml"/>
                 <ResourceDictionary Source="WPFResources/ScrollViewerStyle.xaml"/>
                 <ResourceDictionary Source="WPFResources/ActionButtonStyle.xaml"/>
+                <ResourceDictionary Source="WPFResources/ButtonGlyphStyle.xaml"/>
                 <ResourceDictionary Source="WPFResources/ContextMenuStyle.xaml"/>
                 <ResourceDictionary Source="WPFResources/CopyableTextBlockStyle.xaml"/>
                 <ResourceDictionary Source="WPFResources/MainMenuStyle.xaml"/>
