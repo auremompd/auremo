@@ -91,6 +91,8 @@ namespace Auremo
 
         private void SetUpDataBindings()
         {
+            NameScope.SetNameScope(m_QuickSearchResultsViewContextMenu, NameScope.GetNameScope(this));
+            NameScope.SetNameScope(m_AdvancedSearchResultsViewContextMenu, NameScope.GetNameScope(this));
             NameScope.SetNameScope(m_StreamsViewContextMenu, NameScope.GetNameScope(this));
             NameScope.SetNameScope(m_SavedPlaylistsViewContextMenu, NameScope.GetNameScope(this));
             DataContext = DataModel;
@@ -241,11 +243,6 @@ namespace Auremo
         #endregion
 
         #region Selection notifications to data model
-
-        private void OnSelectedSearchResultsChanged(object sender, SelectionChangedEventArgs e)
-        {
-            DataModel.QuickSearch.UpdateSelectedSearchResults();
-        }
 
         private void OnSelectedArtistsChanged(object sender, SelectionChangedEventArgs e)
         {
