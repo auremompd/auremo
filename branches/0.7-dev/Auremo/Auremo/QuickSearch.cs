@@ -54,7 +54,6 @@ namespace Auremo
         {
             m_DataModel = dataModel;
             SearchResults = new ObservableCollection<MusicCollectionItem>();
-            SelectedSearchResults = new ObservableCollection<MusicCollectionItem>();
 
             m_DataModel.ServerSession.PropertyChanged += new PropertyChangedEventHandler(OnServerSessionPropertyChanged);
 
@@ -96,25 +95,6 @@ namespace Auremo
         {
             get;
             private set;
-        }
-
-        public IList<MusicCollectionItem> SelectedSearchResults
-        {
-            get;
-            private set;
-        }
-
-        public void UpdateSelectedSearchResults()
-        {
-            SelectedSearchResults.Clear();
-
-            foreach (MusicCollectionItem item in SearchResults)
-            {
-                if (item.IsSelected)
-                {
-                    SelectedSearchResults.Add(item);
-                }
-            }
         }
 
         public void Terminate()

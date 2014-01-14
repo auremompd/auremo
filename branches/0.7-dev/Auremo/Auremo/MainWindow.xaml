@@ -90,7 +90,6 @@
                         <DataGrid Name="m_QuickSearchResultsView"
                                   Style="{StaticResource MusicCollectionDataGridStyle}"
                                   ItemsSource="{Binding Path=QuickSearch.SearchResults}"
-                                  SelectionChanged="OnSelectedSearchResultsChanged"
                                   PreviewKeyDown="OnMusicCollectionDataGridKeyDown"
                                   PreviewMouseLeftButtonDown="OnDataGridRowMouseDown"
                                   TextInput="OnCollectionTextInput"
@@ -103,10 +102,10 @@
                                 <DataGridTextColumn Header="Album" MinWidth="60" Width="*" Binding="{Binding Path=Content.Album}"/>
                             </DataGrid.Columns>
                             <DataGrid.ContextMenu>
-                                <ContextMenu Name="m_SearchResultsViewContextMenu">
-                                    <MenuItem Header="Add to playlist as last" Click="OnAddToPlaylistAsLastClicked" IsEnabled="{Binding Path=QuickSearch.SelectedSearchResults.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
-                                    <MenuItem Header="Add to playlist as next" Click="OnAddToPlaylistAsNextClicked" IsEnabled="{Binding Path=QuickSearch.SelectedSearchResults.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
-                                    <MenuItem Header="Play this" Click="OnPlayThisClicked" IsEnabled="{Binding Path=QuickSearch.SelectedSearchResults.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
+                                <ContextMenu Name="m_QuickSearchResultsViewContextMenu">
+                                    <MenuItem Header="Add to playlist as last" Click="OnAddToPlaylistAsLastClicked" IsEnabled="{Binding ElementName=m_QuickSearchResultsView, Path=SelectedItems.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
+                                    <MenuItem Header="Add to playlist as next" Click="OnAddToPlaylistAsNextClicked" IsEnabled="{Binding ElementName=m_QuickSearchResultsView, Path=SelectedItems.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
+                                    <MenuItem Header="Play this" Click="OnPlayThisClicked" IsEnabled="{Binding ElementName=m_QuickSearchResultsView, Path=SelectedItems.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
                                     <Separator/>
                                     <MenuItem Header="Rescan music collection" Click="OnRescanMusicCollectionClicked" IsEnabled="{Binding Path=ServerSession.IsConnected}"/>
                                 </ContextMenu>
@@ -145,9 +144,9 @@
                             </DataGrid.Columns>
                             <DataGrid.ContextMenu>
                                 <ContextMenu Name="m_AdvancedSearchResultsViewContextMenu">
-                                    <MenuItem Header="Add to playlist as last" Click="OnAddToPlaylistAsLastClicked" IsEnabled="{Binding Path=AdvancedSearch.SelectedSearchResults.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
-                                    <MenuItem Header="Add to playlist as next" Click="OnAddToPlaylistAsNextClicked" IsEnabled="{Binding Path=AdvancedSearch.SelectedSearchResults.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
-                                    <MenuItem Header="Play this" Click="OnPlayThisClicked" IsEnabled="{Binding Path=AdvancedSearch.SelectedSearchResults.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
+                                    <MenuItem Header="Add to playlist as last" Click="OnAddToPlaylistAsLastClicked" IsEnabled="{Binding ElementName=m_AdvancedSearchResultsView, Path=SelectedItems.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
+                                    <MenuItem Header="Add to playlist as next" Click="OnAddToPlaylistAsNextClicked" IsEnabled="{Binding ElementName=m_AdvancedSearchResultsView, Path=SelectedItems.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
+                                    <MenuItem Header="Play this" Click="OnPlayThisClicked" IsEnabled="{Binding ElementName=m_AdvancedSearchResultsView, Path=SelectedItems.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
                                 </ContextMenu>
                             </DataGrid.ContextMenu>
                         </DataGrid>
