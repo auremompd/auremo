@@ -149,10 +149,10 @@
         </ScrollViewer>
         <Border Grid.Row="2" BorderBrush="{StaticResource SeparatorBorderBrush}" BorderThickness="0,1,0,0" Margin="0,5,0,0">
             <DockPanel LastChildFill="False"  VerticalAlignment="Bottom">
-                <Button Name="m_CancelButton" Style="{StaticResource ActionButtonStyle}" Content="Cancel" Width="90" Margin="4" DockPanel.Dock="Right" Click="OnCancelClicked"/>
+                <Button Name="m_CancelButton" IsCancel="True" Style="{StaticResource ActionButtonStyle}" Content="Cancel" Width="90" Margin="4" DockPanel.Dock="Right" Click="OnCancelClicked"/>
                 <Button Name="m_RevertButton" Style="{StaticResource ActionButtonStyle}" Content="Revert" Width="90" Margin="4" DockPanel.Dock="Right" Click="OnRevertClicked"/>
                 <Button Name="m_ApplyButton" Style="{StaticResource ActionButtonStyle}" Content="Apply" Width="90" Margin="4" DockPanel.Dock="Right" Click="OnApplyClicked"/>
-                <Button Name="m_OKButton" Style="{StaticResource ActionButtonStyle}" Content="OK" Width="90" Margin="4" DockPanel.Dock="Right" Click="OnOKClicked"/>
+                <Button Name="m_OKButton" IsDefault="True" Style="{StaticResource ActionButtonStyle}" Content="OK" Width="90" Margin="4" DockPanel.Dock="Right" Click="OnOKClicked"/>
             </DockPanel>
         </Border>
     </Grid>
