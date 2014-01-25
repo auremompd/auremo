@@ -106,14 +106,32 @@ namespace Auremo
             {
                 try
                 {
-                    T item = (T)o;
+                    result.Add((T)o);
                 }
                 catch (Exception)
                 {
                     throw new Exception("ToTypedList: attempted to cast " + o.GetType().ToString() + " to " + typeof(T).ToString() + ".");
                 }
-                
-                result.Add((T)o);
+            }
+
+            return result;
+        }
+
+        public static IList<T> ToContentList<T>(System.Collections.IEnumerable source)
+        {
+            IList<MusicCollectionItem> collectionItems = ToTypedList<MusicCollectionItem>(source);
+            IList<T> result = new List<T>();
+
+            foreach (MusicCollectionItem item in collectionItems)
+            {
+                try
+                {
+                    result.Add((T)item.Content);
+                }
+                catch (Exception)
+                {
+                    throw new Exception("ToTypedList: attempted to cast " + item.Content.GetType().ToString() + " to " + typeof(T).ToString() + ".");
+                }
             }
 
             return result;
