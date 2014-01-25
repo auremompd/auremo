@@ -60,7 +60,8 @@ namespace Auremo
             string[] dateFormats = { "YYYY" };
             DateNormalizer = new DateNormalizer(dateFormats);
 
-            m_DataModel.ServerSession.PropertyChanged += new PropertyChangedEventHandler(OnServerSessionPropertyChanged);
+            m_DataModel.ServerSession.PropertyChanged += new PropertyChangedEventHandler(OnServerPropertyChanged);
+            m_DataModel.ServerStatus.PropertyChanged += new PropertyChangedEventHandler(OnServerPropertyChanged);
         }
 
         public void ClearCollection()
@@ -374,9 +375,9 @@ namespace Auremo
             }
         }
 
-        private void OnServerSessionPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void OnServerPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "State")
+            if (e.PropertyName == "State" || e.PropertyName == "DatabaseUpdateTime")
             {
                 if (m_DataModel.ServerSession.State == ServerSession.SessionState.Connected)
                 {
