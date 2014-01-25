@@ -1335,7 +1335,7 @@ namespace Auremo
             if (dialogResult.HasValue && dialogResult.Value)
             {
                 string filename = dialog.FileName;
-                string playlist = PlaylistWriter.Write(Utils.ToTypedList<StreamMetadata>(m_StreamsView.SelectedItems));
+                string playlist = PlaylistWriter.Write(Utils.ToContentList<StreamMetadata>(m_StreamsView.SelectedItems));
 
                 if (playlist != null)
                 {
@@ -1348,7 +1348,7 @@ namespace Auremo
         {
             if (m_StreamsView.SelectedItems.Count == 1)
             {
-                StartRenameStreamQuery(m_StreamsView.SelectedItem as StreamMetadata);
+                StartRenameStreamQuery((m_StreamsView.SelectedItem as MusicCollectionItem).Content as StreamMetadata);
             }
         }
 
