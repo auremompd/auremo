@@ -99,6 +99,7 @@ namespace Auremo
                 string playlist = PlaylistWriter.Write(m_StreamsByLabel.Values);
                 byte[] data = System.Text.Encoding.UTF8.GetBytes(playlist);
                 file.Write(data, 0, data.Length);
+                file.Close();
             }
             else
             {
