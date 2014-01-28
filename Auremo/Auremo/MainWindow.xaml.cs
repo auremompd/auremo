@@ -1657,7 +1657,7 @@ namespace Auremo
 
                         if (o is string && (o as string).ToLowerInvariant().StartsWith(m_AutoSearchString) ||
                            o is AlbumMetadata && (o as AlbumMetadata).Title.ToLowerInvariant().StartsWith(m_AutoSearchString) ||
-                           o is Playable && (o as Playable).Title.ToLowerInvariant().StartsWith(m_AutoSearchString))
+                           o is Playable && (o as Playable).Title != null && (o as Playable).Title.ToLowerInvariant().StartsWith(m_AutoSearchString))
                         {
                             grid.CurrentItem = item;
                             grid.SelectedItem = item;
