@@ -715,7 +715,12 @@ namespace Auremo
                 }
                 else
                 {
-                    if (Keyboard.Modifiers == ModifierKeys.None)
+                    if (dataGrid.SelectionMode == DataGridSelectionMode.Single)
+                    {
+                        row.IsSelected = true;
+                        e.Handled = true;
+                    }
+                    else if (Keyboard.Modifiers == ModifierKeys.None)
                     {
                         if (row.IsSelected)
                         {
