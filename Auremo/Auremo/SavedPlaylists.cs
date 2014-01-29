@@ -43,6 +43,7 @@ namespace Auremo
         private DataModel m_DataModel = null;
         private IDictionary<string, IList<Playable>> m_Playlists = new SortedDictionary<string, IList<Playable>>();
         private IList<MusicCollectionItem> m_SelectedItemsOnSelectedPlaylist = new List<MusicCollectionItem>();
+        private string m_SelectedPlaylist = null;
         private string m_CurrentPlaylistName = "";
 
         public SavedPlaylists(DataModel dataModel)
@@ -57,8 +58,8 @@ namespace Auremo
 
         public void Clear()
         {
-            Playlists.Clear();
             m_Playlists.Clear();
+            Playlists.Clear();
         }
 
         public void Refresh()
@@ -69,14 +70,20 @@ namespace Auremo
         public void OnLsInfoResponseReceived(IEnumerable<MPDResponseLine> response)
         {
             Clear();
+            ISet<string> playlists = new SortedSet<string>();
 
             foreach (MPDResponseLine line in response)
             {
                 if (line.Key == MPDResponseLine.Keyword.Playlist)
                 {
+                    playlists.Add(line.Value);
                     m_DataModel.ServerSession.ListPlaylist(line.Value);
-                    Playlists.Add(line.Value);
                 }
+            }
+
+            foreach (string playlist in playlists)
+            {
+                Playlists.Add(playlist);
             }
         }
 
@@ -93,6 +100,11 @@ namespace Auremo
             }
 
             m_Playlists[argument] = playlist;
+
+            if (argument == SelectedPlaylist)
+            {
+                NotifyPropertyChanged("ItemsOnSelectedPlaylist");
+            }
         }
 
         public IList<string> Playlists
@@ -103,8 +115,13 @@ namespace Auremo
 
         public string SelectedPlaylist
         {
+            get
+            {
+                return m_SelectedPlaylist;
+            }
             set
             {
+                m_SelectedPlaylist = value;
                 ItemsOnSelectedPlaylist.Clear();
 
                 if (value != null && m_Playlists.ContainsKey(value))
