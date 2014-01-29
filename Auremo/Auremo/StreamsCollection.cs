@@ -42,7 +42,7 @@ namespace Auremo
 
         #endregion
 
-        private IDictionary<string, StreamMetadata> m_StreamsByLabel = new SortedDictionary<string, StreamMetadata>(StringComparer.CurrentCultureIgnoreCase);
+        private IDictionary<string, StreamMetadata> m_StreamsByLabel = new SortedDictionary<string, StreamMetadata>(StringComparer.CurrentCulture);
         const string m_Filename = "saved_streams.pls";
 
         public StreamsCollection()
