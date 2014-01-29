@@ -295,14 +295,14 @@ namespace Auremo
 
         private void OnKeyDown(object sender, KeyEventArgs e)
         {
-            if (!e.Handled)
+            if (!e.Handled && !m_Overlay.Active)
             {
                 if (e.Key == Key.MediaPreviousTrack)
                 {
                     Back();
                     e.Handled = true;
                 }
-                else if (e.Key == Key.Space && !m_QuickSearchBox.IsFocused && !m_AdvancedSearchBox.IsFocused && m_StringQueryOverlay.Visibility != Visibility.Visible && !AutoSearchInProgrss)
+                else if (e.Key == Key.Space && !m_QuickSearchBox.IsFocused && !m_AdvancedSearchBox.IsFocused && !AutoSearchInProgrss)
                 {
                     TogglePlayPause();
                     e.Handled = true;
@@ -1249,7 +1249,7 @@ namespace Auremo
         {
             if (e.Key == Key.F2 && m_StreamsView.SelectedItems.Count == 1)
             {
-                OnRenameSelectedStream();
+                StartRenameStreamQuery();
                 e.Handled = true;
             }
             else if (e.Key == Key.Delete)
@@ -1261,15 +1261,7 @@ namespace Auremo
 
         private void OnRenameSelectedStreamClicked(object sender, RoutedEventArgs e)
         {
-            OnRenameSelectedStream();
-        }
-
-        private void OnRenameStreamQueryFinished(bool succeeded, StreamMetadata stream, string newName)
-        {
-            if (succeeded)
-            {
-                DataModel.StreamsCollection.Rename(stream, newName);
-            }
+            StartRenameStreamQuery();
         }
 
         private void OnDeleteSelectedStreamsClicked(object sender, RoutedEventArgs e)
@@ -1280,15 +1272,6 @@ namespace Auremo
         private void OnAddStreamURLClicked(object sender, RoutedEventArgs e)
         {
             StartAddNewStreamQuery();
-        }
-
-        private void OnAddNewStreamQueryFinished(bool succeeded, string address, string label)
-        {
-            if (succeeded)
-            {
-                StreamMetadata stream = new StreamMetadata(address, label);
-                DataModel.StreamsCollection.Add(stream);
-            }
         }
 
         private void OnAddStreamsFromFileClicked(object sender, RoutedEventArgs e)
@@ -1346,14 +1329,6 @@ namespace Auremo
                 {
                     File.WriteAllText(filename, playlist);
                 }
-            }
-        }
-
-        private void OnRenameSelectedStream()
-        {
-            if (m_StreamsView.SelectedItems.Count == 1)
-            {
-                StartRenameStreamQuery((m_StreamsView.SelectedItem as MusicCollectionItem).Content as StreamMetadata);
             }
         }
 
@@ -1431,14 +1406,6 @@ namespace Auremo
             }
         }
 
-        private void OnRenameStreamQueryFinished(bool succeeded, string oldName, string newName)
-        {
-            if (succeeded)
-            {
-                DataModel.ServerSession.Rename(oldName, newName);
-                DataModel.SavedPlaylists.Refresh();
-            }
-        }
 
         private void OnDeleteSavedPlaylistClicked(object sender, RoutedEventArgs e)
         {
@@ -1542,18 +1509,7 @@ namespace Auremo
         {
             StartAddNewPlaylistAsQuery(DataModel.SavedPlaylists.CurrentPlaylistName);
         }
-
-        private void OnAddNewPlaylistAsQueryFinished(bool succeeded, string playlistName)
-        {
-            if (succeeded)
-            {
-                DataModel.SavedPlaylists.CurrentPlaylistName = playlistName;
-                DataModel.ServerSession.Rm(DataModel.SavedPlaylists.CurrentPlaylistName);
-                DataModel.ServerSession.Save(DataModel.SavedPlaylists.CurrentPlaylistName);
-                DataModel.SavedPlaylists.Refresh();
-            }
-        }
-        
+       
         private void OnDedupPlaylistViewClicked(object sender, RoutedEventArgs e)
         {
             ISet<string> songPathsOnPlaylist = new SortedSet<string>();
@@ -1621,7 +1577,6 @@ namespace Auremo
 
             if (sender != m_LastAutoSearchSender || !selectionUnchanged || DateTime.Now.Subtract(m_TimeOfLastAutoSearch).TotalMilliseconds > m_AutoSearchMaxKeystrokeGap)
             {
-                Debug.WriteLine("CollectionAutoSearch: reset");
                 m_AutoSearchString = "";
             }
 
@@ -1645,10 +1600,7 @@ namespace Auremo
             else
             {
                 m_TimeOfLastAutoSearch = DateTime.MinValue;
-                Debug.WriteLine("CollectionAutoSearch: marking for reset");
             }
-
-            Debug.WriteLine("CollectionAutoSearch: string = " + m_AutoSearchString + ", again = " + searchAgain);
 
             if (searchAgain)
             {
@@ -2214,145 +2166,111 @@ namespace Auremo
 
         #region Querying for a new stream address and name
 
-        string m_NewStreamAddress;
-
         private void StartAddNewStreamQuery()
         {
-            m_NewStreamAddress = "";
-            EnterStringQueryOverlay("Enter the address of the new stream:", "http://", OnAddStreamAddressOverlayReturned);
+            m_Overlay.Activate("Enter the address of the new stream:", "http://", OnAddStreamAddressOverlayReturned);
         }
         
-        private void OnAddStreamAddressOverlayReturned(bool okClicked, string streamAddress)
+        private void OnAddStreamAddressOverlayReturned(bool ok, string input)
         {
-            m_NewStreamAddress = streamAddress.Trim();
+            string address = input.Trim();
 
-            if (okClicked && m_NewStreamAddress != "")
+            if (ok && address.Length > 0)
             {
-                EnterStringQueryOverlay("Enter a name for this stream:", "", OnAddStreamNameOverlayReturned);
+                m_Overlay.Activate("Enter a name for this stream:", "", OnAddStreamNameOverlayReturned, address);
             }
             else
             {
-                m_NewStreamAddress = "";
-                OnAddNewStreamQueryFinished(false, null, null);
+                m_Overlay.Deactivate();
             }
         }
 
-        private void OnAddStreamNameOverlayReturned(bool okClicked, string streamName)
+        private void OnAddStreamNameOverlayReturned(bool ok, string input)
         {
-            string cleanedStreamName = streamName.Trim();
-            string newStreamAddress = m_NewStreamAddress;
-            m_NewStreamAddress = "";
-            OnAddNewStreamQueryFinished(okClicked && cleanedStreamName != "", newStreamAddress, cleanedStreamName);
+            string name = input.Trim();
+
+            if (ok && name.Length > 0)
+            {
+                StreamMetadata stream = new StreamMetadata(m_Overlay.Data as string, name);
+                DataModel.StreamsCollection.Add(stream);
+            }
+            
+            m_Overlay.Deactivate();
         }
 
         #endregion
 
         #region Querying for a new name for a stream
 
-        private StreamMetadata m_RenameStream = null;
-
-        private void StartRenameStreamQuery(StreamMetadata stream)
+        private void StartRenameStreamQuery()
         {
-            m_RenameStream = stream;
-            EnterStringQueryOverlay("New stream name:", stream.Label, OnRenameStreamOverlayReturned);
+            if (m_StreamsView.SelectedItems.Count == 1)
+            {
+                StreamMetadata stream = (m_StreamsView.SelectedItem as MusicCollectionItem).Content as StreamMetadata;
+                m_Overlay.Activate("New stream name:", stream.Label, OnRenameStreamOverlayReturned, stream);
+            }
         }
 
-        private void OnRenameStreamOverlayReturned(bool okClicked, string streamLabel)
+        private void OnRenameStreamOverlayReturned(bool ok, string input)
         {
-            StreamMetadata renameStream = m_RenameStream;
-            m_RenameStream = null;
-            string trimmedName = streamLabel.Trim();
-            OnRenameStreamQueryFinished(okClicked && trimmedName.Length > 0, renameStream, trimmedName);
+            string trimmedName = input.Trim();
+
+            if (ok && trimmedName.Length > 0)
+            {
+                DataModel.StreamsCollection.Rename(m_Overlay.Data as StreamMetadata, trimmedName);
+            }
+
+            m_Overlay.Deactivate();
         }
 
         #endregion
 
-        #region Querying for a new playlist name
+        #region Querying for a name for a new playlist
 
         private void StartAddNewPlaylistAsQuery(string currentPlaylistName)
         {
-            EnterStringQueryOverlay("Save this playlist on the server as:", currentPlaylistName, OnSavePlaylistAsOverlayReturned);
+            m_Overlay.Activate("Save this playlist on the server as:", currentPlaylistName, OnSavePlaylistAsOverlayReturned);
         }
 
-        private void OnSavePlaylistAsOverlayReturned(bool okClicked, string playlistName)
+        private void OnSavePlaylistAsOverlayReturned(bool ok, string input)
         {
-            string trimmedName = playlistName.Trim();
-            OnAddNewPlaylistAsQueryFinished(okClicked && trimmedName.Length > 0, trimmedName);
+            string trimmedName = input.Trim();
+
+            if (ok && trimmedName.Length > 0)
+            {
+                DataModel.SavedPlaylists.CurrentPlaylistName = trimmedName;
+                DataModel.ServerSession.Rm(DataModel.SavedPlaylists.CurrentPlaylistName);
+                DataModel.ServerSession.Save(DataModel.SavedPlaylists.CurrentPlaylistName);
+                DataModel.SavedPlaylists.Refresh();
+            }
+
+            m_Overlay.Deactivate();
         }
 
         #endregion
 
-        #region Querying for a new name for a saved playlist
-
-        private string m_OldSavedPlaylistName = null;
+        #region Querying for a new name for a previously saved playlist
 
         private void StartRenameSavedPlaylistQuery(string oldName)
         {
-            m_OldSavedPlaylistName = oldName;
-            EnterStringQueryOverlay("New playlist name:", oldName, OnRenameSavedPlaylistOverlayReturned);
+            m_Overlay.Activate("New playlist name:", oldName, OnRenameSavedPlaylistOverlayReturned, oldName);
         }
 
-        private void OnRenameSavedPlaylistOverlayReturned(bool okClicked, string newName)
+        private void OnRenameSavedPlaylistOverlayReturned(bool ok, string input)
         {
-            string oldName = m_OldSavedPlaylistName;
-            m_OldSavedPlaylistName = null;
-            string trimmedNewName = newName.Trim();
-            OnRenameStreamQueryFinished(okClicked && trimmedNewName.Length > 0, oldName, trimmedNewName);
+            string trimmedName = input.Trim();
+
+            if (ok && trimmedName.Length > 0)
+            {
+                DataModel.ServerSession.Rename(m_Overlay.Data as string, trimmedName);
+                DataModel.SavedPlaylists.CurrentPlaylistName = trimmedName;
+                DataModel.SavedPlaylists.Refresh();
+            }
+
+            m_Overlay.Deactivate();
         }
 
         #endregion
-
-        #endregion
-
-        #region String query overlay implementation
-
-        public delegate void StringQueryOverlayExitHandler(bool okClicked, string input);
-        StringQueryOverlayExitHandler m_StringQueryOverlayExitHandler = null;
-
-        private void EnterStringQueryOverlay(string caption, string defaultInput, StringQueryOverlayExitHandler handler)
-        {
-            m_StringQueryOverlayExitHandler = handler;
-            m_StringQueryOverlayCaption.Text = caption;
-            m_StringQueryOverlayInput.Text = defaultInput == null ? "" : defaultInput;
-            m_StringQueryOverlay.Visibility = Visibility.Visible;
-            m_StringQueryOverlayInput.CaretIndex = m_StringQueryOverlayInput.Text.Length;
-            m_StringQueryOverlayInput.Focus();
-        }
-
-        private void ExitStringQueryOverlay()
-        {
-            m_StringQueryOverlay.Visibility = Visibility.Collapsed;
-            m_StringQueryOverlayExitHandler = null;
-        }
-
-        private void OnStringQueryOverlayButtonClicked(object sender, RoutedEventArgs e)
-        {
-            StringQueryOverlayExitHandler currentHandler = m_StringQueryOverlayExitHandler;
-            ExitStringQueryOverlay();
-
-            if (currentHandler != null)
-            {
-                currentHandler(sender == m_StringQueryOverlayOK, m_StringQueryOverlayInput.Text);
-            }
-        }
-
-        private void m_StringQueryOverlayBackgroundClicked(object sender, MouseButtonEventArgs e)
-        {
-            StringQueryOverlayExitHandler currentHandler = m_StringQueryOverlayExitHandler;
-            ExitStringQueryOverlay();
-
-            if (currentHandler != null)
-            {
-                currentHandler(false, m_StringQueryOverlayInput.Text);
-            }
-
-            e.Handled = true;
-        }
-
-        private void m_StringQueryOverlayForegroundClicked(object sender, MouseButtonEventArgs e)
-        {
-            e.Handled = true;
-        }
 
         #endregion
 
