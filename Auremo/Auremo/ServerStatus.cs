@@ -125,7 +125,7 @@ namespace Auremo
 
                         if (parts.Length == 3)
                         {
-                            audioQuality = parts[0] + " kHz, " + parts[1] + " bits per sample, ";
+                            audioQuality = parts[0] / 1000 + " kHz, " + parts[1] + " bits per sample, ";
 
                             if (parts[2] == 1)
                             {
