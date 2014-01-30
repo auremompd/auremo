@@ -96,7 +96,6 @@ namespace Auremo
             NameScope.SetNameScope(m_StreamsViewContextMenu, NameScope.GetNameScope(this));
             NameScope.SetNameScope(m_SavedPlaylistsViewContextMenu, NameScope.GetNameScope(this));
             DataContext = DataModel;
-            DataModel.ServerSession.PropertyChanged += new PropertyChangedEventHandler(OnServerSessionPropertyChanged);
             DataModel.ServerStatus.PropertyChanged += new PropertyChangedEventHandler(OnServerStatusPropertyChanged);
         }
 
@@ -180,23 +179,10 @@ namespace Auremo
 
         private void Update()
         {
-            DataModel.ServerStatus.Update();
-            DataModel.OutputCollection.Update();
-        }
-
-        private void OnServerSessionPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == "State")
+            if (DataModel.ServerSession.IsConnected)
             {
-                if (DataModel.ServerSession.State == ServerSession.SessionState.Connected)
-                {
-                    string password = Crypto.DecryptPassword(Settings.Default.Password);
-
-                    if (password.Length > 0)
-                    {
-                        DataModel.ServerSession.Password(password);
-                    }
-                }
+                DataModel.ServerStatus.Update();
+                DataModel.OutputCollection.Update();
             }
         }
 
