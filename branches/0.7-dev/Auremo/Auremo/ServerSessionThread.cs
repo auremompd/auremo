@@ -15,6 +15,7 @@
  * with Auremo. If not, see http://www.gnu.org/licenses/.
  */
 
+using Auremo.Properties;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -185,6 +186,8 @@ namespace Auremo
                 {
                     if (ParseBanner())
                     {
+                        // Send possible password before any other commands.
+                        SendPassword();
                         m_Parent.OnThreadStateChanged(ServerSession.SessionState.Connected);
                         m_Parent.OnThreadMessage("Connected to " + Host + ":" + Port + ".");
                     }
@@ -352,7 +355,7 @@ namespace Auremo
                     }
                     else
                     {
-                        m_Parent.OnThreadError(statusLine.Literal);
+                        m_Parent.OnThreadError(statusLine.Value);
                     }
                 }
                 else
@@ -566,6 +569,16 @@ namespace Auremo
             if (song.File != null)
             {
                 m_CurrentSongList.Add(song);
+            }
+        }
+
+        private void SendPassword()
+        {
+            string password = Crypto.DecryptPassword(Settings.Default.Password);
+
+            if (password.Length > 0)
+            {
+                Send(new MPDCommand("password", password));
             }
         }
 

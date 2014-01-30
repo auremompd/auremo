@@ -53,7 +53,7 @@ namespace Auremo
         {
             m_DataModel = dataModel;
             Reset();
-            m_DataModel.ServerSession.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(OnServerSessionPropertyChanged);         
+            m_DataModel.ServerSession.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(OnServerSessionPropertyChanged);
         }
 
         public void Update()
@@ -434,6 +434,10 @@ namespace Auremo
                 {
                     Reset();
                 }
+            }
+            else if (e.PropertyName == "ProtocolError")
+            {
+                ErrorMessage = "Error message from server: " + m_DataModel.ServerSession.ProtocolError;
             }
         }
 
