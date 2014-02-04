@@ -199,7 +199,7 @@ namespace Auremo
             }
             else if (e.PropertyName == "PlayPosition")
             {
-                OnPlayPositionChanged();
+                OnPlayPositionChangedOnServer();
             }
             else if (e.PropertyName == "Volume")
             {
@@ -209,12 +209,10 @@ namespace Auremo
             m_PropertyUpdateInProgress = false;
         }
 
-        private void OnPlayPositionChanged()
+        private void OnPlayPositionChangedOnServer()
         {
-            if (m_SeekBarPositionFromUser < 0)
+            if (!m_SeekBarIsBeingDragged)
             {
-                // The user is not dragging the slider, so set the
-                // values freely.
                 m_SeekBar.Value = DataModel.ServerStatus.PlayPosition;
                 m_PlayPosition.Content = Utils.IntToTimecode(DataModel.ServerStatus.PlayPosition);
             }
@@ -1839,32 +1837,23 @@ namespace Auremo
 
         #region Seek bar
 
-        private int m_SeekBarPositionFromUser = -1;
+        private bool m_SeekBarIsBeingDragged = false;
 
         private void OnSeekBarDragStart(object sender, MouseButtonEventArgs e)
         {
-            m_SeekBarPositionFromUser = 0;
+            m_SeekBarIsBeingDragged = true;
         }
 
-        private void OnSeekBarDrag(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void OnSeekBarValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            if (m_SeekBarPositionFromUser >= 0)
-            {
-                // The user is dragging the position slider, instead of the
-                // server just telling us what the current play position is.
-                m_SeekBarPositionFromUser = (int)e.NewValue;
-                m_PlayPosition.Content = Utils.IntToTimecode(m_SeekBarPositionFromUser);
-            }
+            m_PlayPosition.Content = Utils.IntToTimecode((int)m_SeekBar.Value);
         }
 
         private void OnSeekBarDragEnd(object sender, MouseButtonEventArgs e)
         {
-            if (m_SeekBarPositionFromUser >= 0)
-            {
-                DataModel.ServerSession.Seek(DataModel.ServerStatus.CurrentSongIndex, m_SeekBarPositionFromUser);
-                m_SeekBarPositionFromUser = -1;
-                Update();
-            }
+            m_SeekBarIsBeingDragged = false;
+            DataModel.ServerSession.Seek(DataModel.ServerStatus.CurrentSongIndex, (int)m_SeekBar.Value);
+            Update();
         }
 
         private void OnSeekBarMouseWheel(object sender, MouseWheelEventArgs e)
