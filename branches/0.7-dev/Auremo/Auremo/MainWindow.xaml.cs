@@ -195,6 +195,7 @@ namespace Auremo
                 if (!DataModel.ServerStatus.OK)
                 {
                     m_QuickSearchBox.Text = "";
+                    m_AdvancedSearchBox.Text = "";
                 }
             }
             else if (e.PropertyName == "PlayPosition")
@@ -286,7 +287,7 @@ namespace Auremo
                     Back();
                     e.Handled = true;
                 }
-                else if (e.Key == Key.Space && !m_QuickSearchBox.IsFocused && !m_AdvancedSearchBox.IsFocused && !AutoSearchInProgrss)
+                else if (e.Key == Key.Space && !m_QuickSearchBox.IsKeyboardFocused && !m_AdvancedSearchBox.IsKeyboardFocused && !AutoSearchInProgrss)
                 {
                     TogglePlayPause();
                     e.Handled = true;
@@ -1206,22 +1207,6 @@ namespace Auremo
 
         #region Specialized events for individual controls
 
-        private void OnQuickSearchBoxEnabledChanged(object sender, DependencyPropertyChangedEventArgs e)
-        {
-            if (m_QuickSearchBox.IsEnabled)
-            {
-                m_QuickSearchBox.Focus();
-            }
-        }
-
-        private void OnAdvancedSearchBoxEnabledChanged(object sender, DependencyPropertyChangedEventArgs e)
-        {
-            if (m_AdvancedSearchBox.IsEnabled)
-            {
-                m_AdvancedSearchBox.Focus();
-            }
-        }
-
         private void OnAdvancedSearchClicked(object sender, RoutedEventArgs e)
         {
             DataModel.AdvancedSearch.Search();
@@ -2079,7 +2064,7 @@ namespace Auremo
         private void ApplyTabVisibilitySettings()
         {
             m_QuickSearchTab.Visibility = Settings.Default.QuickSearchTabIsVisible ? Visibility.Visible : Visibility.Collapsed;
-            m_AdvancedSearch.Visibility = Settings.Default.AdvancedTabIsVisible ? Visibility.Visible : Visibility.Collapsed;
+            m_AdvancedSearchTab.Visibility = Settings.Default.AdvancedTabIsVisible ? Visibility.Visible : Visibility.Collapsed;
             m_ArtistListTab.Visibility = Settings.Default.ArtistListTabIsVisible ? Visibility.Visible : Visibility.Collapsed;
             m_ArtistTreeTab.Visibility = Settings.Default.ArtistTreeTabIsVisible ? Visibility.Visible : Visibility.Collapsed;
             m_GenreListTab.Visibility = Settings.Default.GenreListTabIsVisible ? Visibility.Visible : Visibility.Collapsed;
@@ -2120,8 +2105,8 @@ namespace Auremo
             }
             else if (Settings.Default.DefaultMusicCollectionTab == MusicCollectionTab.AdvancedSearchTab.ToString())
             {
-                m_AdvancedSearch.Visibility = System.Windows.Visibility.Visible;
-                m_AdvancedSearch.IsSelected = true;
+                m_AdvancedSearchTab.Visibility = System.Windows.Visibility.Visible;
+                m_AdvancedSearchTab.IsSelected = true;
             }
             else if (Settings.Default.DefaultMusicCollectionTab == MusicCollectionTab.StreamsTab.ToString())
             {
