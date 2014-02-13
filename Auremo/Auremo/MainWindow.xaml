@@ -80,7 +80,7 @@
                 <ColumnDefinition Width="10"/>
                 <ColumnDefinition Width="75*"/>
             </Grid.ColumnDefinitions>
-            <TabControl Name="m_CollectionBrowsingModes" Style="{StaticResource MusicCollectionTabControlStyle}" Grid.ColumnSpan="2" KeyboardNavigation.DirectionalNavigation="None">
+            <TabControl Name="m_CollectionBrowsingModes" Style="{StaticResource MusicCollectionTabControlStyle}" Grid.ColumnSpan="2" Focusable="False" KeyboardNavigation.DirectionalNavigation="None">
                 <TabItem Name="m_QuickSearchTab" Header="Quick search">
                     <Grid>
                         <Grid.RowDefinitions>
@@ -112,13 +112,19 @@
                             </DataGrid.ContextMenu>
                         </DataGrid>
                         <TextBlock Name="m_SearchResultsHint" Grid.Row="0" Style="{StaticResource CollectionHintTextStyle}" Text="No search results." IsEnabled="{Binding Path=QuickSearch.SearchResults.Count, Converter={StaticResource EqualsConverter}, ConverterParameter=0, Mode=OneWay}"/>
-                        <TextBox Name="m_QuickSearchBox" Grid.Row="1" Style="{StaticResource TextBoxStyle}" Margin="0,10,0,0" Height="28" FontSize="15" VerticalContentAlignment="Center"
-                                 Text="{Binding Path=QuickSearch.SearchString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                 IsEnabled="{Binding Path=ServerSession.IsConnected}" IsEnabledChanged="OnQuickSearchBoxEnabledChanged"/>
-                        <TextBlock Name="m_SearchBoxHint" Grid.Row="1" Style="{StaticResource TextBoxHintTextStyle}" Margin="10,6,0,0" Text="Type here to start searching." IsEnabled="{Binding Path=QuickSearch.SearchString.Length, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}" FontSize="16"/>
+                        <TextBox Name="m_QuickSearchBox" Style="{StaticResource TextBoxStyle}" Grid.Row="1" Margin="0,10,0,0" Height="28" FontSize="15" VerticalContentAlignment="Center"
+                                 Text="{Binding Path=QuickSearch.SearchString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                            <TextBox.IsEnabled>
+                                <MultiBinding Converter="{StaticResource BooleanAndConverter}">
+                                    <Binding ElementName="m_QuickSearchTab" Path="IsSelected"/>
+                                    <Binding Path="ServerSession.IsConnected"/>
+                                </MultiBinding>
+                            </TextBox.IsEnabled>
+                        </TextBox>
+                        <TextBlock Name="m_SearchBoxHint" Style="{StaticResource TextBoxHintTextStyle}" Grid.Row="1" Margin="10,6,0,0" Text="Type here to start searching." IsEnabled="{Binding Path=QuickSearch.SearchString.Length, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}" FontSize="16"/>
                     </Grid>
                 </TabItem>
-                <TabItem Name="m_AdvancedSearch" Header="Advanced search">
+                <TabItem Name="m_AdvancedSearchTab" Header="Advanced search">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
@@ -131,6 +137,7 @@
                         </Grid.ColumnDefinitions>
                         <DataGrid Name="m_AdvancedSearchResultsView"
                                   Style="{StaticResource MusicCollectionDataGridStyle}"
+                                  Grid.ColumnSpan="2"
                                   ItemsSource="{Binding Path=AdvancedSearch.SearchResults}"
                                   PreviewKeyDown="OnMusicCollectionDataGridKeyDown"
                                   PreviewMouseLeftButtonDown="OnDataGridRowMouseDown"
@@ -151,56 +158,58 @@
                             </DataGrid.ContextMenu>
                         </DataGrid>
                         <TextBlock Grid.Row="0" Style="{StaticResource CollectionHintTextStyle}" Text="No search results." IsEnabled="{Binding Path=AdvancedSearch.SearchResults.Count, Converter={StaticResource EqualsConverter}, ConverterParameter=0, Mode=OneWay}"/>
-                        <Border Grid.Row="1" Grid.ColumnSpan="2" Margin="0,2" BorderThickness="1" BorderBrush="{StaticResource PassiveGenericBorderBrush}" Background="{StaticResource ListBackgroundBrush}">
+                        
+                        <TextBox Name="m_AdvancedSearchBox" Style="{StaticResource TextBoxStyle}" Grid.Row="2" Height="28" Margin="0,10,0,0"
+                                 FontSize="15" VerticalContentAlignment="Bottom"
+                                 Text="{Binding Path=AdvancedSearch.SearchString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                            <TextBox.IsEnabled>
+                                <MultiBinding Converter="{StaticResource BooleanAndConverter}">
+                                    <Binding ElementName="m_AdvancedSearchTab" Path="IsSelected"/>
+                                    <Binding Path="ServerSession.IsConnected"/>
+                                </MultiBinding>
+                            </TextBox.IsEnabled>
+                        </TextBox>
+                        <TextBlock Style="{StaticResource TextBoxHintTextStyle}" Grid.Row="2" Margin="10,6,0,0" Text="Type search terms here." IsEnabled="{Binding ElementName=m_AdvancedSearchBox, Path=Text.Length, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}" FontSize="16"/>
+                        <Button Name="m_AdvancedSearchButton"
+                                Style="{StaticResource SearchButtonStyle}"
+                                Grid.Row="2" Grid.Column="1"
+                                IsDefault="True"
+                                Width="28" Height="28" Margin="5,10,0,0"
+                                Click="OnAdvancedSearchClicked">
+                            <Button.IsEnabled>
+                                <MultiBinding Converter="{StaticResource BooleanAndConverter}">
+                                    <Binding ElementName="m_AdvancedSearchBox" Path="Text.Length" Converter="{StaticResource IntToBoolConverter}"/>
+                                    <Binding Path="ServerSession.IsConnected"/>
+                                </MultiBinding>
+                            </Button.IsEnabled>
+                            <Grid>
+                                <Path Style="{StaticResource ButtonGlyphStyle}" Data="M 6,13 0,19 2,21 8,15 6,13"/>
+                                <Path Style="{StaticResource ButtonGlyphStyle}">
+                                    <Path.Data>
+                                        <CombinedGeometry GeometryCombineMode="Xor">
+                                            <CombinedGeometry.Geometry1>
+                                                <EllipseGeometry RadiusX="8" RadiusY="8" Center="13,8"/>
+                                            </CombinedGeometry.Geometry1>
+                                            <CombinedGeometry.Geometry2>
+                                                <EllipseGeometry RadiusX="6" RadiusY="6" Center="13,8"/>
+                                            </CombinedGeometry.Geometry2>
+                                        </CombinedGeometry>
+                                    </Path.Data>
+                                </Path>
+                            </Grid>
+                        </Button>
+                        <Border Grid.Row="1" Grid.ColumnSpan="2" Margin="0,10,0,0" BorderThickness="1" BorderBrush="{StaticResource PassiveGenericBorderBrush}" Background="{StaticResource ListBackgroundBrush}">
                             <StackPanel Orientation="Vertical">
-                                <StackPanel Orientation="Horizontal" Margin="1,2,0,0">
-                                    <CheckBox Content="Local" IsChecked="{Binding Path=AdvancedSearch.IncludeLocal, Mode=TwoWay}" IsEnabled="{Binding Path=ServerSession.IsConnected}" VerticalAlignment="Center"/>
-                                    <CheckBox Content="Spotify" IsChecked="{Binding Path=AdvancedSearch.IncludeSpotify, Mode=TwoWay}" IsEnabled="{Binding Path=ServerSession.IsConnected}" VerticalAlignment="Center" Margin="15,0"/>
+                                <StackPanel Orientation="Horizontal" Margin="2,2,0,0">
+                                    <CheckBox Content="Local" IsChecked="{Binding Path=AdvancedSearch.IncludeLocal, Mode=TwoWay}" IsEnabled="{Binding Path=ServerSession.IsConnected}"/>
+                                    <CheckBox Content="Spotify" IsChecked="{Binding Path=AdvancedSearch.IncludeSpotify, Mode=TwoWay}" IsEnabled="{Binding Path=ServerSession.IsConnected}" Margin="14,0"/>
                                 </StackPanel>
-                                <StackPanel Orientation="Horizontal" Margin="1,2,0,2">
-                                    <RadioButton Content="Any" IsChecked="{Binding Path=AdvancedSearch.SearchByAny, Mode=TwoWay}" IsEnabled="{Binding Path=ServerSession.IsConnected}" Margin="0,0,10,0"/>
-                                    <RadioButton Content="Artist" IsChecked="{Binding Path=AdvancedSearch.SearchByArtist, Mode=TwoWay}" IsEnabled="{Binding Path=ServerSession.IsConnected}" Margin="0,0,10,0"/>
-                                    <RadioButton Content="Album" IsChecked="{Binding Path=AdvancedSearch.SearchByAlbum, Mode=TwoWay}" IsEnabled="{Binding Path=ServerSession.IsConnected}" Margin="0,0,10,0"/>
-                                    <RadioButton Content="Title" IsChecked="{Binding Path=AdvancedSearch.SearchByTitle, Mode=TwoWay}" IsEnabled="{Binding Path=ServerSession.IsConnected}" Margin="0,0,10,0"/>
+                                <StackPanel Orientation="Horizontal" Margin="2,2,0,2">
+                                    <RadioButton Content="Any" IsChecked="{Binding Path=AdvancedSearch.SearchByAny, Mode=TwoWay}" IsEnabled="{Binding Path=ServerSession.IsConnected}"/>
+                                    <RadioButton Content="Artist" IsChecked="{Binding Path=AdvancedSearch.SearchByArtist, Mode=TwoWay}" IsEnabled="{Binding Path=ServerSession.IsConnected}" Margin="14,0,0,0"/>
+                                    <RadioButton Content="Album" IsChecked="{Binding Path=AdvancedSearch.SearchByAlbum, Mode=TwoWay}" IsEnabled="{Binding Path=ServerSession.IsConnected}" Margin="14,0,0,0"/>
+                                    <RadioButton Content="Title" IsChecked="{Binding Path=AdvancedSearch.SearchByTitle, Mode=TwoWay}" IsEnabled="{Binding Path=ServerSession.IsConnected}" Margin="14,0,0,0"/>
                                 </StackPanel>
-                                <Grid Margin="0,2,0,0">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBox Name="m_AdvancedSearchBox" Style="{StaticResource TextBoxStyle}" Height="30" FontSize="15" VerticalContentAlignment="Bottom" Margin="2,0,2,0"
-                                             Text="{Binding Path=AdvancedSearch.SearchString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                             IsEnabled="{Binding Path=ServerSession.IsConnected}" IsEnabledChanged="OnAdvancedSearchBoxEnabledChanged"/>
-                                    <Button Name="m_AdvancedSearchButton"
-                                            Style="{StaticResource SearchButtonStyle}"
-                                            IsDefault="True"
-                                            Grid.Column="1"
-                                            Width="30" Height="30" Margin="0,2,2,3"
-                                            Click="OnAdvancedSearchClicked">
-                                        <Button.IsEnabled>
-                                            <MultiBinding Converter="{StaticResource BooleanAndConverter}">
-                                                <Binding ElementName="m_AdvancedSearchBox" Path="Text.Length" Converter="{StaticResource IntToBoolConverter}"/>
-                                                <Binding Path="ServerSession.IsConnected"/>
-                                            </MultiBinding>
-                                        </Button.IsEnabled>
-                                        <Grid>
-                                            <Path Style="{StaticResource ButtonGlyphStyle}" Data="M 6,13 0,19 2,21 8,15 6,13"/>
-                                            <Path Style="{StaticResource ButtonGlyphStyle}">
-                                                <Path.Data>
-                                                    <CombinedGeometry GeometryCombineMode="Xor">
-                                                        <CombinedGeometry.Geometry1>
-                                                            <EllipseGeometry RadiusX="8" RadiusY="8" Center="13,8"/>
-                                                        </CombinedGeometry.Geometry1>
-                                                        <CombinedGeometry.Geometry2>
-                                                            <EllipseGeometry RadiusX="6" RadiusY="6" Center="13,8"/>
-                                                        </CombinedGeometry.Geometry2>
-                                                    </CombinedGeometry>
-                                                </Path.Data>
-                                            </Path>
-                                        </Grid>
-                                    </Button>
-                                    <TextBlock Style="{StaticResource TextBoxHintTextStyle}" Text="Type search terms here." IsEnabled="{Binding ElementName=m_AdvancedSearchBox, Path=Text.Length, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}" Grid.Row="3" Margin="10,6,0,0" FontSize="16"/>
-                                </Grid>
                             </StackPanel>
                         </Border>
                     </Grid>
