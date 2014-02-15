@@ -81,12 +81,23 @@ namespace Auremo
 
         private void Run()
         {
-            while (!Terminating)
+            try
             {
-                SetInitialState();
-                Connect();
-                ExecuteCommands();
-                Close();
+                while (!Terminating)
+                {
+                    SetInitialState();
+                    Connect();
+                    ExecuteCommands();
+                    Close();
+                }
+            }
+            catch (Exception e)
+            {
+                System.Windows.MessageBox.Show("Uncaught exception in Auremo.ServerSessionThread.\n" +
+                                               "Please take a screenshot of this message and send it to the developer.\n\n" +
+                                               e.ToString(),
+                                               "Auremo has crashed!");
+                throw e;
             }
         }
 
