@@ -24,6 +24,22 @@ namespace Auremo
 
         public void Start()
         {
+            try
+            {
+                Run();
+            }
+            catch (Exception e)
+            {
+                System.Windows.MessageBox.Show("Uncaught exception in Auremo.QuickSearchThread.\n" +
+                                               "Please take a screenshot of this message and send it to the developer.\n\n" +
+                                               e.ToString(),
+                                               "Auremo has crashed!");
+                throw e;
+            }
+        }
+
+        private void Run()
+        {
             IEnumerable<SongMetadata> allSongs = m_Database.Songs;
 
             string[] fragments = new string[0];
