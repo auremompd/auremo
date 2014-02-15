@@ -158,9 +158,8 @@
                             </DataGrid.ContextMenu>
                         </DataGrid>
                         <TextBlock Grid.Row="0" Style="{StaticResource CollectionHintTextStyle}" Text="No search results." IsEnabled="{Binding Path=AdvancedSearch.SearchResults.Count, Converter={StaticResource EqualsConverter}, ConverterParameter=0, Mode=OneWay}"/>
-                        
                         <TextBox Name="m_AdvancedSearchBox" Style="{StaticResource TextBoxStyle}" Grid.Row="2" Height="28" Margin="0,10,0,0"
-                                 FontSize="15" VerticalContentAlignment="Bottom"
+                                 FontSize="15" VerticalContentAlignment="Center"
                                  Text="{Binding Path=AdvancedSearch.SearchString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                             <TextBox.IsEnabled>
                                 <MultiBinding Converter="{StaticResource BooleanAndConverter}">
