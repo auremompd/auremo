@@ -48,7 +48,7 @@ namespace Auremo
         object m_Lock = new object();
         string m_SearchString = "";
         string[] m_SearchStringFragments = new string[0];
-        IList<IEnumerable<SongMetadata>> m_NewResults = new List<IEnumerable<SongMetadata>>();
+        volatile IList<IEnumerable<SongMetadata>> m_NewResults = new List<IEnumerable<SongMetadata>>();
 
         public QuickSearch(DataModel dataModel)
         {
