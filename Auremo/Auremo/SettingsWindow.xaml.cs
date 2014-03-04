@@ -227,8 +227,10 @@ namespace Auremo
 
         private void TabPreferencesSanityCheck(object sender, RoutedEventArgs e)
         {
-            if (m_SearchTabIsDefault.IsChecked.HasValue && m_SearchTabIsDefault.IsChecked.Value)
+            if (m_QuickSearchTabIsDefault.IsChecked.HasValue && m_QuickSearchTabIsDefault.IsChecked.Value)
                 m_QuickSearchTabIsVisible.IsChecked = true;
+            else if (m_AdvancedSearchTabIsDefault.IsChecked.HasValue && m_AdvancedSearchTabIsDefault.IsChecked.Value)
+                m_AdvancedSearchTabIsVisible.IsChecked = true;
             else if (m_ArtistListTabIsDefault.IsChecked.HasValue && m_ArtistListTabIsDefault.IsChecked.Value)
                 m_ArtistListTabIsVisible.IsChecked = true;
             else if (m_ArtistTreeTabIsDefault.IsChecked.HasValue && m_ArtistTreeTabIsDefault.IsChecked.Value)
@@ -239,8 +241,6 @@ namespace Auremo
                 m_GenreTreeTabIsVisible.IsChecked = true;
             else if (m_FilesystemTabIsDefault.IsChecked.HasValue && m_FilesystemTabIsDefault.IsChecked.Value)
                 m_FilesystemTabIsVisible.IsChecked = true;
-            else if (m_SpotifyTabIsDefault.IsChecked.HasValue && m_SpotifyTabIsDefault.IsChecked.Value)
-                m_AdvancedSearchTabIsVisible.IsChecked = true;
             else if (m_StreamsTabIsDefault.IsChecked.HasValue && m_StreamsTabIsDefault.IsChecked.Value)
                 m_StreamsTabIsVisible.IsChecked = true;
             else if (m_PlaylistsTabIsDefault.IsChecked.HasValue && m_PlaylistsTabIsDefault.IsChecked.Value)
@@ -254,7 +254,11 @@ namespace Auremo
 
         private MusicCollectionTab SelectedDefaultMusicCollectionTab()
         {
-            if (m_ArtistListTabIsDefault.IsChecked.HasValue && m_ArtistListTabIsDefault.IsChecked.Value)
+            if (m_QuickSearchTabIsDefault.IsChecked.HasValue && m_QuickSearchTabIsDefault.IsChecked.Value)
+                return MusicCollectionTab.QuickSearchTab;
+            else if (m_AdvancedSearchTabIsDefault.IsChecked.HasValue && m_AdvancedSearchTabIsDefault.IsChecked.Value)
+                return MusicCollectionTab.AdvancedSearchTab;
+            else if (m_ArtistListTabIsDefault.IsChecked.HasValue && m_ArtistListTabIsDefault.IsChecked.Value)
                 return MusicCollectionTab.ArtistListTab;
             else if (m_ArtistTreeTabIsDefault.IsChecked.HasValue && m_ArtistTreeTabIsDefault.IsChecked.Value)
                 return MusicCollectionTab.ArtistTreeTab;
@@ -264,8 +268,6 @@ namespace Auremo
                 return MusicCollectionTab.GenreTreeTab;
             else if (m_FilesystemTabIsDefault.IsChecked.HasValue && m_FilesystemTabIsDefault.IsChecked.Value)
                 return MusicCollectionTab.FilesystemTab;
-            else if (m_SpotifyTabIsDefault.IsChecked.HasValue && m_SpotifyTabIsDefault.IsChecked.Value)
-                return MusicCollectionTab.AdvancedSearchTab;
             else if (m_StreamsTabIsDefault.IsChecked.HasValue && m_StreamsTabIsDefault.IsChecked.Value)
                 return MusicCollectionTab.StreamsTab;
             else if (m_PlaylistsTabIsDefault.IsChecked.HasValue && m_PlaylistsTabIsDefault.IsChecked.Value)
@@ -276,13 +278,13 @@ namespace Auremo
 
         private void SelectDefaultMusicCollectionTab(string tab)
         {
-            m_SearchTabIsDefault.IsChecked = true;
+            m_QuickSearchTabIsDefault.IsChecked = tab == MusicCollectionTab.QuickSearchTab.ToString();
+            m_AdvancedSearchTabIsDefault.IsChecked = tab == MusicCollectionTab.AdvancedSearchTab.ToString();
             m_ArtistListTabIsDefault.IsChecked = tab == MusicCollectionTab.ArtistListTab.ToString();
             m_ArtistTreeTabIsDefault.IsChecked = tab == MusicCollectionTab.ArtistTreeTab.ToString();
             m_GenreListTabIsDefault.IsChecked = tab == MusicCollectionTab.GenreListTab.ToString();
             m_GenreTreeTabIsDefault.IsChecked = tab == MusicCollectionTab.GenreTreeTab.ToString();
             m_FilesystemTabIsDefault.IsChecked = tab == MusicCollectionTab.FilesystemTab.ToString();
-            m_SpotifyTabIsDefault.IsChecked = tab == MusicCollectionTab.AdvancedSearchTab.ToString();
             m_StreamsTabIsDefault.IsChecked = tab == MusicCollectionTab.StreamsTab.ToString();
             m_PlaylistsTabIsDefault.IsChecked = tab == MusicCollectionTab.PlaylistsTab.ToString();
         }
