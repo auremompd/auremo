@@ -59,6 +59,11 @@ namespace Auremo
 
                 if (!terminating)
                 {
+                    for (int i = 0; i < fragments.Count(); ++i)
+                    {
+                        fragments[i] = fragments[i].ToLower();
+                    }
+
                     IList<SongMetadata> newResults = new List<SongMetadata>();
 
                     if (searchChanged && fragments.Count() > 0)
