@@ -19,6 +19,7 @@ Suggestions are welcome! None of these features or software versions are being d
   * Remember window size, position and splitter states between restarts.
   * Add new columns to various data views. Audio quality, track number, album and song year, etc. Add options for hiding unwanted columns.
   * Add "view in artist/genre/filesystem tab" commands in the playlist's context menu.
+  * Add a song duration column to the playlist view and show a total playlist duration somewhere.
   * Add "all artists", "all albums" etc items in the relevant music collection views.
   * Add multi-language support. If you are a native speaker of a language for which you would be willing to provide a translation, please let us know. Translators Italian, Portuguese and German have already signed up.
 
