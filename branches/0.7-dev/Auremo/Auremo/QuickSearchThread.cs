@@ -72,7 +72,7 @@ namespace Auremo
                             for (int i = 0; i < fragments.Count() && allFragmentsMatch; ++i)
                             {
                                 string fragment = fragments[i];
-                                allFragmentsMatch = song.Artist.ToLower().Contains(fragment) || song.Album.ToLower().Contains(fragment) || song.Title.ToLower().Contains(fragment);
+                                allFragmentsMatch = Match(song.Artist, fragment) || Match(song.Album, fragment) || Match(song.Title, fragment);
                             }
 
                             if (allFragmentsMatch)
@@ -129,6 +129,16 @@ namespace Auremo
                 m_Terminating = true;
                 m_Event.Set();
             }
+        }
+
+        private static bool Match(string tag, string fragment)
+        {
+            if (tag == null)
+            {
+                return false;
+            }
+
+            return tag.ToLower().Contains(fragment);
         }
     }
 }
