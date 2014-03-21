@@ -95,6 +95,7 @@ namespace Auremo
             NameScope.SetNameScope(m_AdvancedSearchResultsViewContextMenu, NameScope.GetNameScope(this));
             NameScope.SetNameScope(m_StreamsViewContextMenu, NameScope.GetNameScope(this));
             NameScope.SetNameScope(m_SavedPlaylistsViewContextMenu, NameScope.GetNameScope(this));
+            NameScope.SetNameScope(m_PlaylistViewContextMenu, NameScope.GetNameScope(this));
             DataContext = DataModel;
             DataModel.ServerStatus.PropertyChanged += new PropertyChangedEventHandler(OnServerStatusPropertyChanged);
         }
