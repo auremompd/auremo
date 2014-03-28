@@ -17,6 +17,7 @@
         <l:EqualsConverter x:Key="EqualsConverter"/>
         <l:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <l:BooleanAndConverter x:Key="BooleanAndConverter"/>
+        <l:MultiBoolToVisibilityConverter x:Key="MultiBoolToVisibilityConverter"/>
     </Window.Resources>
     <Window.ToolTip>
         <ToolTip Name="m_MousePointerHint"
@@ -611,13 +612,22 @@
                         <MenuItem Header="Remove duplicate items" Click="OnDedupPlaylistViewClicked" IsEnabled="{Binding Path=Playlist.Items.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
                         <MenuItem Header="Shuffle" Click="OnShufflePlaylistClicked" IsEnabled="{Binding Path=Playlist.Items.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
                         <Separator/>
-                        <!-- TODO: Visible={Binding... -->
-                        <MenuItem Header="Show in Artist list" IsEnabled="{Binding Path=Playlist.NumberOfSelectedLocalSongs, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}" Visibility="{Binding ElementName=m_ArtistListTab,Path=IsVisible,Mode=OneWay,Converter={StaticResource BoolToVisibilityConverter}}" Click="OnShowInArtistsListClicked"/>
-                        <MenuItem Header="Show in Artist tree" IsEnabled="{Binding Path=Playlist.NumberOfSelectedLocalSongs, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}" Visibility="{Binding ElementName=m_ArtistTreeTab,Path=IsVisible,Mode=OneWay,Converter={StaticResource BoolToVisibilityConverter}}" Click="OnShowInArtistsTreeClicked"/>
-                        <MenuItem Header="Show in Genre list" IsEnabled="{Binding Path=Playlist.NumberOfSelectedLocalSongs, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}" Visibility="{Binding ElementName=m_GenreListTab,Path=IsVisible,Mode=OneWay,Converter={StaticResource BoolToVisibilityConverter}}" Click="OnShowInGenreListClicked"/>
-                        <MenuItem Header="Show in Genre tree" IsEnabled="{Binding Path=Playlist.NumberOfSelectedLocalSongs, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}" Visibility="{Binding ElementName=m_GenreTreeTab,Path=IsVisible,Mode=OneWay,Converter={StaticResource BoolToVisibilityConverter}}" Click="OnShowInGenreTreeClicked"/>
-                        <MenuItem Header="Show in Filesystem" IsEnabled="{Binding Path=Playlist.NumberOfSelectedLocalSongs, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}" Visibility="{Binding ElementName=m_FilesystemTab,Path=IsVisible,Mode=OneWay,Converter={StaticResource BoolToVisibilityConverter}}" Click="OnShowInFilesystemTreeClicked"/>
-                        <Separator/>
+                        <MenuItem Name="ShowInArtistListMenuItem" Header="Show in Artist list" IsEnabled="{Binding Path=Playlist.NumberOfSelectedLocalSongs, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}" Visibility="{Binding ElementName=m_ArtistListTab,Path=IsVisible,Mode=OneWay,Converter={StaticResource BoolToVisibilityConverter}}" Click="OnShowInArtistsListClicked"/>
+                        <MenuItem Name="ShowInArtistTreeMenuItem" Header="Show in Artist tree" IsEnabled="{Binding Path=Playlist.NumberOfSelectedLocalSongs, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}" Visibility="{Binding ElementName=m_ArtistTreeTab,Path=IsVisible,Mode=OneWay,Converter={StaticResource BoolToVisibilityConverter}}" Click="OnShowInArtistsTreeClicked"/>
+                        <MenuItem Name="ShowInGenreListMenuItem" Header="Show in Genre list" IsEnabled="{Binding Path=Playlist.NumberOfSelectedLocalSongs, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}" Visibility="{Binding ElementName=m_GenreListTab,Path=IsVisible,Mode=OneWay,Converter={StaticResource BoolToVisibilityConverter}}" Click="OnShowInGenreListClicked"/>
+                        <MenuItem Name="ShowInGenreTreeMenuItem" Header="Show in Genre tree" IsEnabled="{Binding Path=Playlist.NumberOfSelectedLocalSongs, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}" Visibility="{Binding ElementName=m_GenreTreeTab,Path=IsVisible,Mode=OneWay,Converter={StaticResource BoolToVisibilityConverter}}" Click="OnShowInGenreTreeClicked"/>
+                        <MenuItem Name="ShowInFilesystemMenuItem" Header="Show in Filesystem" IsEnabled="{Binding Path=Playlist.NumberOfSelectedLocalSongs, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}" Visibility="{Binding ElementName=m_FilesystemTab,Path=IsVisible,Mode=OneWay,Converter={StaticResource BoolToVisibilityConverter}}" Click="OnShowInFilesystemTreeClicked"/>
+                        <Separator>
+                            <Separator.Visibility>
+                                <MultiBinding Converter="{StaticResource MultiBoolToVisibilityConverter}">
+                                    <Binding ElementName="ShowInArtistListMenuItem" Path="IsVisible"/>
+                                    <Binding ElementName="ShowInArtistTreeMenuItem" Path="IsVisible"/>
+                                    <Binding ElementName="ShowInGenreListMenuItem" Path="IsVisible"/>
+                                    <Binding ElementName="ShowInGenreTreeMenuItem" Path="IsVisible"/>
+                                    <Binding ElementName="ShowInFilesystemMenuItem" Path="IsVisible"/>
+                                </MultiBinding>
+                            </Separator.Visibility>
+                        </Separator>
                         <MenuItem Header="Save playlist into collection as..." Click="OnSavePlaylistAsClicked" IsEnabled="{Binding Path=Playlist.Items.Count, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"/>
                     </ContextMenu>
                 </DataGrid.ContextMenu>
