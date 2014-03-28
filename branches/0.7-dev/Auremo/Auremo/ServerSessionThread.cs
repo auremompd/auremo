@@ -343,7 +343,6 @@ namespace Auremo
         {
             MPDResponseLine statusLine = GetResponseLine();
 
-            // TODO: FIXME: check the others for null too!
             while (statusLine != null && !statusLine.IsStatus)
             {
                 if (statusLine.Key != MPDResponseLine.Keyword.Unknown)
