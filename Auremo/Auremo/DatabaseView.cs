@@ -234,6 +234,7 @@ namespace Auremo
                 nextNodeID = AssignTreeViewNodeIDs(child, nextNodeID);
             }
 
+            node.HighestChildID = nextNodeID - 1;
             return nextNodeID;
         }
 
