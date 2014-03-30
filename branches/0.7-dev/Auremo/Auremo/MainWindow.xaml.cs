@@ -601,62 +601,6 @@ namespace Auremo
             DataModel.SavedPlaylists.Refresh();
         }
 
-        // TODO: move to proper location
-        private void OnShowInArtistsListClicked(object sender, RoutedEventArgs e)
-        {
-            IList<SongMetadata> selection = SelectedLocalSongsOnPlaylist();
-
-            if (selection.Count > 0)
-            {
-                DataModel.DatabaseView.ShowSongsInArtistList(selection);
-                m_ArtistListTab.IsSelected = true;
-            }
-        }
-
-        private void OnShowInArtistsTreeClicked(object sender, RoutedEventArgs e)
-        {
-            IList<SongMetadata> selection = SelectedLocalSongsOnPlaylist();
-
-            if (selection.Count > 0)
-            {
-                DataModel.DatabaseView.ShowSongsInArtistTree(selection);
-                m_ArtistTreeTab.IsSelected = true;
-            }
-        }
-
-        private void OnShowInGenreListClicked(object sender, RoutedEventArgs e)
-        {
-            IList<SongMetadata> selection = SelectedLocalSongsOnPlaylist();
-
-            if (selection.Count > 0)
-            {
-                DataModel.DatabaseView.ShowSongsInGenreList(selection);
-                m_GenreListTab.IsSelected = true;
-            }
-        }
-
-        private void OnShowInGenreTreeClicked(object sender, RoutedEventArgs e)
-        {
-            IList<SongMetadata> selection = SelectedLocalSongsOnPlaylist();
-
-            if (selection.Count > 0)
-            {
-                DataModel.DatabaseView.ShowSongsInGenreTree(selection);
-                m_GenreTreeTab.IsSelected = true;
-            }
-        }
-
-        private void OnShowInFilesystemTreeClicked(object sender, RoutedEventArgs e)
-        {
-            IList<SongMetadata> selection = SelectedLocalSongsOnPlaylist();
-
-            if (selection.Count > 0)
-            {
-                DataModel.DatabaseView.ShowSongsInDirectoryTree(selection);
-                m_FilesystemTab.IsSelected = true;
-            }
-        }
-
         private IList<SongMetadata> SelectedLocalSongsOnPlaylist()
         {
             IList<SongMetadata> result = new List<SongMetadata>();
@@ -1502,6 +1446,61 @@ namespace Auremo
         private void OnShufflePlaylistClicked(object sender, RoutedEventArgs e)
         {
             DataModel.ServerSession.Shuffle();
+        }
+
+        private void OnShowInArtistsListClicked(object sender, RoutedEventArgs e)
+        {
+            IList<SongMetadata> selection = SelectedLocalSongsOnPlaylist();
+
+            if (selection.Count > 0)
+            {
+                DataModel.DatabaseView.ShowSongsInArtistList(selection);
+                m_ArtistListTab.IsSelected = true;
+            }
+        }
+
+        private void OnShowInArtistsTreeClicked(object sender, RoutedEventArgs e)
+        {
+            IList<SongMetadata> selection = SelectedLocalSongsOnPlaylist();
+
+            if (selection.Count > 0)
+            {
+                DataModel.DatabaseView.ShowSongsInArtistTree(selection);
+                m_ArtistTreeTab.IsSelected = true;
+            }
+        }
+
+        private void OnShowInGenreListClicked(object sender, RoutedEventArgs e)
+        {
+            IList<SongMetadata> selection = SelectedLocalSongsOnPlaylist();
+
+            if (selection.Count > 0)
+            {
+                DataModel.DatabaseView.ShowSongsInGenreList(selection);
+                m_GenreListTab.IsSelected = true;
+            }
+        }
+
+        private void OnShowInGenreTreeClicked(object sender, RoutedEventArgs e)
+        {
+            IList<SongMetadata> selection = SelectedLocalSongsOnPlaylist();
+
+            if (selection.Count > 0)
+            {
+                DataModel.DatabaseView.ShowSongsInGenreTree(selection);
+                m_GenreTreeTab.IsSelected = true;
+            }
+        }
+
+        private void OnShowInFilesystemTreeClicked(object sender, RoutedEventArgs e)
+        {
+            IList<SongMetadata> selection = SelectedLocalSongsOnPlaylist();
+
+            if (selection.Count > 0)
+            {
+                DataModel.DatabaseView.ShowSongsInDirectoryTree(selection);
+                m_FilesystemTab.IsSelected = true;
+            }
         }
 
         private void DeleteSelectedItemsFromPlaylist()
