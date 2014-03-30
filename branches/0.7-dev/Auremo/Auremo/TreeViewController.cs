@@ -80,13 +80,13 @@ namespace Auremo
 
         private void SelectVisibleWithinRange(TreeViewNode node, int minID, int maxID)
         {
-            // TODO: there is plenty left to optimize here.
+            // TODO: optimize more.
             if (minID <= node.ID && node.ID <= maxID)
             {
                 node.IsMultiSelected = true;
             }
 
-            if (node.IsExpanded)
+            if (node.IsExpanded && node.ID <= maxID && node.HighestChildID >= minID)
             {
                 foreach (TreeViewNode child in node.Children)
                 {
