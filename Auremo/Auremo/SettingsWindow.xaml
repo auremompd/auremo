@@ -53,7 +53,7 @@
                     <Label Content="milliseconds (100 - 5000)" Style="{StaticResource OptionLabelStyle}"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Height="30">
-                    <Label Content="Reset connection if the server goes does not respond within" Style="{StaticResource OptionLabelStyle}" Width="350"/>
+                    <Label Content="Reset connection if the server does not respond within" Style="{StaticResource OptionLabelStyle}" Width="350"/>
                     <TextBox Name="m_NetworkTimeoutEntry" Text="10" Style="{StaticResource OptionTextBoxStyle}" Width="50" PreviewTextInput="OnNumericOptionPreviewTextInput" LostFocus="ValidateOptions"/>
                     <Label Content="seconds (1 - 600)" Style="{StaticResource OptionLabelStyle}"/>
                 </StackPanel>
