@@ -32,6 +32,7 @@ namespace Auremo
         public delegate void GenericResponseReceivedCallback(IEnumerable<MPDResponseLine> response);
         public delegate void GenericSingleArgumentResponseReceivedCallback(IEnumerable<MPDResponseLine> response, string argument);
         public delegate void SongListResponseReceivedCallback(IEnumerable<MPDSongResponseBlock> response);
+        public delegate void NamedSongListResponseReceivedCallback(string name, IEnumerable<MPDSongResponseBlock> response);
         private ServerSession m_Parent = null;
         private DataModel m_DataModel = null;
         private Thread m_Thread = null;
@@ -376,16 +377,18 @@ namespace Auremo
                         Callback(m_DataModel.CurrentSong.OnCurrentSongResponseReceived);
                         m_CurrentSongList.Clear();
                     }
-                    // TODO: remove the latter when Mopidy starts supporting the former.
+                    // TODO: remove the latter when Mopidy starts properly supporting the former.
                     else if (command.Op == "listallinfo" || command.Op == "mopidylistallinfokludge")
                     {
                         ParseSongList();
                         Callback(m_DataModel.Database.OnListAllInfoResponseReceived);
                         m_CurrentSongList.Clear();
                     }
-                    else if (command.Op == "listplaylist")
+                    else if (command.Op == "listplaylistinfo")
                     {
-                        Callback(m_DataModel.SavedPlaylists.OnListPlaylistResponseReceived, command.Argument1);
+                        ParseSongList();
+                        Callback(m_DataModel.SavedPlaylists.OnListPlaylistInfoResponseReceived, command.Argument1);
+                        m_CurrentSongList.Clear();
                     }
                     else if (command.Op == "lsinfo")
                     {
@@ -610,6 +613,11 @@ namespace Auremo
         private void Callback(SongListResponseReceivedCallback callback)
         {
             m_DataModel.MainWindow.Dispatcher.Invoke(callback, new object[] { m_CurrentSongList });
+        }
+
+        private void Callback(NamedSongListResponseReceivedCallback callback, string name)
+        {
+            m_DataModel.MainWindow.Dispatcher.Invoke(callback, new object[] { name, m_CurrentSongList });
         }
     }
 }

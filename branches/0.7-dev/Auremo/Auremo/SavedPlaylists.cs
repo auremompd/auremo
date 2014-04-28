@@ -77,7 +77,7 @@ namespace Auremo
                 if (line.Key == MPDResponseLine.Keyword.Playlist)
                 {
                     playlists.Add(line.Value);
-                    m_DataModel.ServerSession.ListPlaylist(line.Value);
+                    m_DataModel.ServerSession.ListPlaylistInfo(line.Value);
                 }
             }
 
@@ -87,21 +87,35 @@ namespace Auremo
             }
         }
 
-        public void OnListPlaylistResponseReceived(IEnumerable<MPDResponseLine> response, string argument)
+        public void OnListPlaylistInfoResponseReceived(string name, IEnumerable<MPDSongResponseBlock> response)
         {
             IList<Playable> playlist = new List<Playable>();
-            
-            foreach (MPDResponseLine line in response)
+
+            foreach (MPDSongResponseBlock block in response)
             {
-                if (line.Key == MPDResponseLine.Keyword.File)
+                Playable playable = block.ToPlayable(m_DataModel);
+
+                // If this is a stream that is in the collection, use the database version
+                // instead of the constructed one so we can display the user-set label.
+                if (playable is StreamMetadata)
                 {
-                    playlist.Add(GetPlayableByPath(line.Value));
+                    StreamMetadata stream = m_DataModel.StreamsCollection.StreamByPath(playable.Path);
+
+                    if (stream != null)
+                    {
+                        playable = stream;
+                    }
+                }
+
+                if (playable != null)
+                {
+                    playlist.Add(playable);
                 }
             }
 
-            m_Playlists[argument] = playlist;
+            m_Playlists[name] = playlist;
 
-            if (argument == SelectedPlaylist)
+            if (name == SelectedPlaylist)
             {
                 NotifyPropertyChanged("ItemsOnSelectedPlaylist");
             }

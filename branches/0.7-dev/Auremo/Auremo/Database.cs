@@ -19,7 +19,6 @@ using Auremo.Properties;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -57,8 +56,6 @@ namespace Auremo
             Artists = new List<string>();
             Genres = new List<string>();
             AlbumSortRule = new AlbumByDateComparer();
-            string[] dateFormats = { "YYYY" };
-            DateNormalizer = new DateNormalizer(dateFormats);
 
             m_DataModel.ServerSession.PropertyChanged += new PropertyChangedEventHandler(OnServerSessionPropertyChanged);
             m_DataModel.ServerStatus.PropertyChanged += new PropertyChangedEventHandler(OnServerStatusPropertyChanged);
@@ -205,24 +202,8 @@ namespace Auremo
             private set;
         }
 
-        public DateNormalizer DateNormalizer
-        {
-            get;
-            private set;
-        }
-
         private void ProcessSettings()
         {
-            StringCollection formatCollection = Settings.Default.AlbumDateFormats;
-            IList<string> formatList = new List<string>();
-
-            foreach (string format in formatCollection)
-            {
-                formatList.Add(format);
-            }
-
-            DateNormalizer = new DateNormalizer(formatList);
-
             if (Settings.Default.AlbumSortingMode == AlbumSortingMode.ByDate.ToString())
             {
                 AlbumSortRule = new AlbumByDateComparer();
@@ -242,7 +223,7 @@ namespace Auremo
         {
             foreach (MPDSongResponseBlock item in response)
             {
-                Playable playable = item.ToPlayable(DateNormalizer);
+                Playable playable = item.ToPlayable(m_DataModel);
 
                 if (playable != null && playable is SongMetadata)
                 {

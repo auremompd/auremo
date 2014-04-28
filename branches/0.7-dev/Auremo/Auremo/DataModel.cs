@@ -39,6 +39,8 @@ namespace Auremo
             CurrentSong = new CurrentSong(this);
             Playlist = new Playlist(this);
             OutputCollection = new OutputCollection(this);
+            CustomDateNormalizer = new DateNormalizer();
+            YearNormalizer = new DateNormalizer(new string[] {"YYYY"});
         }
 
         public MainWindow MainWindow
@@ -108,6 +110,18 @@ namespace Auremo
         }
         
         public OutputCollection OutputCollection
+        {
+            get;
+            private set;
+        }
+
+        public DateNormalizer CustomDateNormalizer
+        {
+            get;
+            private set;
+        }
+
+        public DateNormalizer YearNormalizer
         {
             get;
             private set;

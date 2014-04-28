@@ -28,8 +28,19 @@ namespace Auremo
     {
         List<DateTemplate> m_Templates = new List<DateTemplate>();
 
+        public DateNormalizer()
+        {
+        }
+
         public DateNormalizer(IEnumerable<string> formats)
         {
+            SetFormats(formats);
+        }
+
+        public void SetFormats(IEnumerable<string> formats)
+        {
+            m_Templates.Clear();
+
             foreach (string format in formats)
             {
                 m_Templates.Add(new DateTemplate(format));

@@ -19,6 +19,7 @@ using Microsoft.Win32;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -2043,6 +2044,16 @@ namespace Auremo
             ApplyTabVisibilitySettings();
             m_VolumeControl.IsEnabled = DataModel.ServerStatus.Volume.HasValue && Settings.Default.EnableVolumeControl;
             SetTimerInterval(Settings.Default.ViewUpdateInterval);
+
+            StringCollection formatCollection = Settings.Default.AlbumDateFormats;
+            IList<string> formatList = new List<string>();
+
+            foreach (string format in formatCollection)
+            {
+                formatList.Add(format);
+            }
+
+            DataModel.CustomDateNormalizer.SetFormats(formatList);
 
             if (reconnect)
             {

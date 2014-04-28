@@ -60,7 +60,7 @@ namespace Auremo
         {
             if (response.Count() > 0)
             {
-                m_CurrentPlayable = response.First().ToPlayable(m_DataModel.Database.DateNormalizer);
+                m_CurrentPlayable = response.First().ToPlayable(m_DataModel);
                 BuildDisplayString();
             }
         }

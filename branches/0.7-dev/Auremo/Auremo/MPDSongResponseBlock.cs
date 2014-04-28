@@ -41,7 +41,7 @@ namespace Auremo
             Track = -1;
         }
 
-        public Playable ToPlayable(DateNormalizer dateNormalizer)
+        public Playable ToPlayable(DataModel dataModel)
         {
             if (File == null)
             {
@@ -63,7 +63,7 @@ namespace Auremo
                 result.Album = Album == null ? "Unknown Album" : Album;
                 result.Length = Time;
                 result.Track = Track;
-                result.Date = dateNormalizer.Normalize(Date);
+                result.Date = result.IsLocal ? dataModel.CustomDateNormalizer.Normalize(Date) : dataModel.YearNormalizer.Normalize(Date);
 
                 if (Settings.Default.UseAlbumArtist && AlbumArtist != null)
                 {
@@ -93,7 +93,7 @@ namespace Auremo
                 result.Album = Album == null ? "Unknown Album" : Album;
                 result.Length = Time;
                 result.Track = Track;
-                result.Date = dateNormalizer.Normalize(Date);
+                result.Date = dataModel.YearNormalizer.Normalize(Date);
 
                 if (Settings.Default.UseAlbumArtist && AlbumArtist != null)
                 {
