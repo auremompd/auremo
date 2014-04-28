@@ -187,10 +187,10 @@ namespace Auremo
 
             foreach (MPDSongResponseBlock block in response)
             {
-                Playable playable = block.ToPlayable(m_DataModel.Database.DateNormalizer);
+                Playable playable = block.ToPlayable(m_DataModel);
 
-                // If this stream is in the collection, use the known version instead
-                // of the constructed one so we can display the user-set label.
+                // If this is a stream that is in the collection, use the database version
+                // instead of the constructed one so we can display the user-set label.
                 if (playable is StreamMetadata)
                 {
                     StreamMetadata stream = m_DataModel.StreamsCollection.StreamByPath(playable.Path);

@@ -197,7 +197,12 @@ namespace Auremo
 
         public void ListAllInfo()
         {
-            Send(new MPDCommand("listallinfo"));
+            //Send(new MPDCommand("listallinfo"));
+            // TODO: this is a kludge. Mopidy now seems to implement
+            // listallinfo, but it is too slow to be usable. Therefore
+            // we must pre-emptively fall back to search "any" ""
+            // for now.
+            Send(new MPDCommand());
         }
 
         #endregion
@@ -227,6 +232,11 @@ namespace Auremo
         public void DeleteId(int id)
         {
             Send(new MPDCommand("deleteid", id));
+        }
+
+        public void ListPlaylistInfo(string playlist)
+        {
+            Send(new MPDCommand("listplaylistinfo", playlist));
         }
 
         public void Load(string name)
@@ -272,11 +282,6 @@ namespace Auremo
         public void Shuffle()
         {
             Send(new MPDCommand("shuffle"));
-        }
-
-        public void ListPlaylist(string playlist)
-        {
-            Send(new MPDCommand("listplaylist", playlist));
         }
 
         #endregion

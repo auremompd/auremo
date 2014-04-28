@@ -197,7 +197,7 @@ namespace Auremo
 
             foreach (MPDSongResponseBlock item in response)
             {
-                Playable playable = item.ToPlayable(m_DateNormalizer);
+                Playable playable = item.ToPlayable(m_DataModel);
 
                 if (playable != null && !(playable is UnknownPlayable))
                 {
