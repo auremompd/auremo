@@ -40,8 +40,11 @@ namespace Auremo
 
         #endregion
 
-        public OutputCollection()
+        DataModel m_DataModel = null;
+
+        public OutputCollection(DataModel dataModel)
         {
+            m_DataModel = dataModel;
         }
 
         private IList<Output> m_Items = new ObservableCollection<Output>();
@@ -62,69 +65,56 @@ namespace Auremo
             }
         }
 
-        public void Update(ServerConnection connection)
+        public void Update()
         {
-            ServerResponse response = null;
-            bool ok = false;
+            m_DataModel.ServerSession.Outputs();
+        }
 
-            if (connection.IsConnected)
+        public void OnOutputsResponseReceived(IEnumerable<MPDResponseLine> response)
+        {
+            IList<Output> outputs = Parse(response);
+
+            if (outputs == null)
             {
-                response = Protocol.Outputs(connection);
-                ok = response != null && response.IsOK;
-            }
-
-            if (ok)
-            {
-                IList<Output> outputs = Parse(response);
-
-                if (outputs == null)
+                if (Items.Count > 0)
                 {
                     Items = new ObservableCollection<Output>();
-                }
-                else
-                {
-                    bool listIsStillValid = outputs.Count == Items.Count;
-
-                    for (int i = 0; listIsStillValid && i < Items.Count; ++i)
-                    {
-                        listIsStillValid = outputs[i].Name == Items[i].Name;
-                    }
-
-                    if (listIsStillValid)
-                    {
-                        for (int i = 0; i < Items.Count; ++i)
-                        {
-                            Items[i].IsEnabled = outputs[i].IsEnabled;
-                        }
-                    }
-                    else
-                    {
-                        Items = new ObservableCollection<Output>(outputs);
-                    }
                 }
             }
             else
             {
-                Items = new ObservableCollection<Output>();
+                bool listIsStillValid = outputs.Count == Items.Count;
+
+                for (int i = 0; listIsStillValid && i < Items.Count; ++i)
+                {
+                    listIsStillValid = outputs[i].Name == Items[i].Name;
+                }
+
+                if (listIsStillValid)
+                {
+                    for (int i = 0; i < Items.Count; ++i)
+                    {
+                        Items[i].IsEnabled = outputs[i].IsEnabled;
+                    }
+                }
+                else
+                {
+                    Items = new ObservableCollection<Output>(outputs);
+                }
             }
         }
 
-        private IList<Output> Parse(ServerResponse response)
+        private IList<Output> Parse(IEnumerable<MPDResponseLine> response)
         {
-            if (!response.IsOK)
-            {
-                return null;
-            }
-
             IList<Output> result = new List<Output>();
 
             int index = -1;
             string name = "";
             bool enabled = false;
 
-            foreach (ServerResponseLine line in response.ResponseLines)
+            foreach (MPDResponseLine line in response)
             {
-                if (line.Name == "outputid")
+                if (line.Key == MPDResponseLine.Keyword.OutputId)
                 {
                     int? parsed = Utils.StringToInt(line.Value);
 
@@ -137,11 +127,11 @@ namespace Auremo
                         index = parsed.Value;
                     }
                 }
-                else if (line.Name == "outputname")
+                else if (line.Key == MPDResponseLine.Keyword.OutputName)
                 {
                     name = line.Value;
                 }
-                else if (line.Name == "outputenabled")
+                else if (line.Key == MPDResponseLine.Keyword.OutputEnabled)
                 {
                     enabled = line.Value == "1";
                     result.Add(new Output(index, name, enabled));

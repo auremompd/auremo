@@ -19,23 +19,36 @@ using Auremo.Properties;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
 
 namespace Auremo
 {
-    public class Database
+    public class Database : INotifyPropertyChanged
     {
-        private DateNormalizer m_DateNormalizer = null;
+        #region INotifyPropertyChanged implementation
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChanged(string info)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(info));
+            }
+        }
+
+        #endregion
+
         private DataModel m_DataModel = null;
         private IDictionary<string, ISet<AlbumMetadata>> m_AlbumsByArtist = new SortedDictionary<string, ISet<AlbumMetadata>>();
         private IDictionary<string, IDictionary<string, AlbumMetadata>> m_AlbumsByArtistAndName = new SortedDictionary<string, IDictionary<string, AlbumMetadata>>();
         private IDictionary<string, ISet<AlbumMetadata>> m_AlbumsByGenre = new SortedDictionary<string, ISet<AlbumMetadata>>();
         private IDictionary<AlbumMetadata, ISet<string>> m_SongPathsByAlbum = new SortedDictionary<AlbumMetadata, ISet<string>>();
         private IDictionary<SongMetadata, AlbumMetadata> m_AlbumBySong = new SortedDictionary<SongMetadata, AlbumMetadata>();
-        private IDictionary<string, SongMetadata> m_SongInfo = new SortedDictionary<string, SongMetadata>(StringComparer.Ordinal);
+        private IDictionary<string, SongMetadata> m_LocalSongCollection = new SortedDictionary<string, SongMetadata>(StringComparer.Ordinal);
+        private IDictionary<string, SongMetadata> m_SpotifySongCollection = new SortedDictionary<string, SongMetadata>(StringComparer.Ordinal);
 
         public Database(DataModel dataModel)
         {
@@ -43,35 +56,46 @@ namespace Auremo
             Artists = new List<string>();
             Genres = new List<string>();
             AlbumSortRule = new AlbumByDateComparer();
+
+            m_DataModel.ServerSession.PropertyChanged += new PropertyChangedEventHandler(OnServerSessionPropertyChanged);
+            m_DataModel.ServerStatus.PropertyChanged += new PropertyChangedEventHandler(OnServerStatusPropertyChanged);
         }
 
-        public bool RefreshCollection()
+        public void ClearCollection()
         {
-            ProcessSettings();
-
             m_AlbumsByArtist.Clear();
             m_AlbumsByGenre.Clear();
-            m_SongPathsByAlbum = new SortedDictionary<AlbumMetadata, ISet<string>>(AlbumSortRule);
+            m_SongPathsByAlbum.Clear();
             m_AlbumBySong.Clear();
-            m_SongInfo.Clear();
+            m_LocalSongCollection.Clear();
+            m_SpotifySongCollection.Clear();
 
             Artists = new List<string>();
             Genres = new List<string>();
 
-            if (m_DataModel.ServerConnection.Status == ServerConnection.State.Connected)
-            {
-                PopulateSongInfo(m_DataModel.ServerConnection);
-                
-                PopulateArtists();
-                PopulateGenres();
-                                
-                PopulateAlbumsByArtist();
-                PopulateSongPathsByAlbum();
-                PopulateAlbumsBySong();
-                PopulateAlbumsByGenre();
-            }
+            NotifyPropertyChanged("Database");
+        }
 
-            return true;
+        public void RefreshCollection()
+        {
+            ProcessSettings();
+            m_SongPathsByAlbum = new SortedDictionary<AlbumMetadata, ISet<string>>(AlbumSortRule);
+            QuerySongInfo();
+        }
+
+        public void OnListAllInfoResponseReceived(IEnumerable<MPDSongResponseBlock> response)
+        {
+            ClearCollection();
+
+            PopulateSongInfo(response);
+            PopulateArtists();
+            PopulateGenres();
+            PopulateAlbumsByArtist();
+            PopulateSongPathsByAlbum();
+            PopulateAlbumsBySong();
+            PopulateAlbumsByGenre();
+
+            NotifyPropertyChanged("Database");
         }
 
         public IEnumerable<string> Artists
@@ -90,7 +114,7 @@ namespace Auremo
         {
             get
             {
-                return m_SongInfo.Values;
+                return m_LocalSongCollection.Values;
             }
         }
 
@@ -146,9 +170,9 @@ namespace Auremo
             {
                 foreach (string path in m_SongPathsByAlbum[byAlbum])
                 {
-                    if (m_SongInfo.ContainsKey(path))
+                    if (m_LocalSongCollection.ContainsKey(path))
                     {
-                        result.Add(m_SongInfo[path]);
+                        result.Add(m_LocalSongCollection[path]);
                     }
                 }
             }
@@ -160,7 +184,11 @@ namespace Auremo
         {
             SongMetadata result;
             
-            if (m_SongInfo.TryGetValue(path, out result))
+            if (m_LocalSongCollection.TryGetValue(path, out result))
+            {
+                return result;
+            }
+            else if (m_SpotifySongCollection.TryGetValue(path, out result))
             {
                 return result;
             }
@@ -176,16 +204,6 @@ namespace Auremo
 
         private void ProcessSettings()
         {
-            StringCollection formatCollection = Settings.Default.AlbumDateFormats;
-            IList<string> formatList = new List<string>();
-
-            foreach (string format in formatCollection)
-            {
-                formatList.Add(format);
-            }
-
-            m_DateNormalizer = new DateNormalizer(formatList);
-
             if (Settings.Default.AlbumSortingMode == AlbumSortingMode.ByDate.ToString())
             {
                 AlbumSortRule = new AlbumByDateComparer();
@@ -196,59 +214,35 @@ namespace Auremo
             }
         }
 
-        private void PopulateSongInfo(ServerConnection connection)
+        private void QuerySongInfo()
         {
-            ServerResponse response = Protocol.ListAllInfo(connection);
-
-            if (response != null && response.IsOK)
+            m_DataModel.ServerSession.ListAllInfo();
+        }
+            
+        private void PopulateSongInfo(IEnumerable<MPDSongResponseBlock> response)
+        {
+            foreach (MPDSongResponseBlock item in response)
             {
-                SongMetadata song = new SongMetadata();
+                Playable playable = item.ToPlayable(m_DataModel);
 
-                foreach (ServerResponseLine line in response.ResponseLines)
+                if (playable != null && playable is SongMetadata)
                 {
-                    if (line.Name == "file")
+                    SongMetadata song = playable as SongMetadata;
+
+                    if (song.IsSpotify)
                     {
-                        if (song.Path != null)
+                        if (!m_SpotifySongCollection.ContainsKey(song.Path))
                         {
-                            m_SongInfo.Add(song.Path, song);
+                            m_SpotifySongCollection.Add(song.Path, song);
                         }
-
-                        song = new SongMetadata();
-                        song.Path = line.Value;
                     }
-                    else if (line.Name == "Title")
+                    else if (song.IsLocal)
                     {
-                        song.Title = line.Value;
+                        if (!m_LocalSongCollection.ContainsKey(song.Path))
+                        {
+                            m_LocalSongCollection.Add(song.Path, song);
+                        }
                     }
-                    else if (line.Name == "Artist")
-                    {
-                        song.Artist = line.Value;
-                    }
-                    else if (line.Name == "Album")
-                    {
-                        song.Album = line.Value;
-                    }
-                    else if (line.Name == "Genre")
-                    {
-                        song.Genre = line.Value;
-                    }
-                    else if (line.Name == "Time")
-                    {
-                        song.Length = Utils.StringToInt(line.Value);
-                    }
-                    else if (line.Name == "Date")
-                    {
-                        song.Date = m_DateNormalizer.Normalize(line.Value);
-                    }
-                    else if (line.Name == "Track")
-                    {
-                        song.Track = Utils.StringToInt(line.Value);
-                    }
-                }
-
-                if (song.Path != null)
-                {
-                    m_SongInfo.Add(song.Path, song);
                 }
             }
         }
@@ -257,7 +251,7 @@ namespace Auremo
         {
             ISet<string> uniqueArtists = new SortedSet<string>();
 
-            foreach (SongMetadata song in m_SongInfo.Values)
+            foreach (SongMetadata song in m_LocalSongCollection.Values)
             {
                 uniqueArtists.Add(song.Artist);
             }
@@ -269,7 +263,7 @@ namespace Auremo
         {
             ISet<string> uniqueGenres = new SortedSet<string>();
 
-            foreach (SongMetadata song in m_SongInfo.Values)
+            foreach (SongMetadata song in m_LocalSongCollection.Values)
             {
                 uniqueGenres.Add(song.Genre);
             }
@@ -283,7 +277,7 @@ namespace Auremo
             // the last timestamp for each.
             IDictionary<string, IDictionary<string, string>> artistTitleAndDate = new SortedDictionary<string, IDictionary<string, string>>();
 
-            foreach (SongMetadata song in m_SongInfo.Values)
+            foreach (SongMetadata song in m_LocalSongCollection.Values)
             {
                 if (artistTitleAndDate.ContainsKey(song.Artist))
                 {
@@ -325,7 +319,7 @@ namespace Auremo
 
         private void PopulateSongPathsByAlbum()
         {
-            foreach (SongMetadata song in m_SongInfo.Values)
+            foreach (SongMetadata song in m_LocalSongCollection.Values)
             {
                 AlbumMetadata album = m_AlbumsByArtistAndName[song.Artist][song.Album];
 
@@ -351,7 +345,7 @@ namespace Auremo
 
         private void PopulateAlbumsByGenre()
         {
-            foreach (SongMetadata song in m_SongInfo.Values)
+            foreach (SongMetadata song in m_LocalSongCollection.Values)
             {
                 if (!m_AlbumsByGenre.ContainsKey(song.Genre))
                 {
@@ -359,6 +353,36 @@ namespace Auremo
                 }
 
                 m_AlbumsByGenre[song.Genre].Add(m_AlbumBySong[song]);
+            }
+        }
+
+        private void OnServerSessionPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "State")
+            {
+                if (m_DataModel.ServerSession.State == ServerSession.SessionState.Connected)
+                {
+                    RefreshCollection();
+                }
+                else
+                {
+                    ClearCollection();
+                }
+            }
+        }
+
+        private void OnServerStatusPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "DatabaseUpdateTime")
+            {
+                if (m_DataModel.ServerSession.State == ServerSession.SessionState.Connected)
+                {
+                    RefreshCollection();
+                }
+                else
+                {
+                    ClearCollection();
+                }
             }
         }
     }

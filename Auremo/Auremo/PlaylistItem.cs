@@ -23,7 +23,7 @@ using System.Text;
 
 namespace Auremo
 {
-    public class PlaylistItem : INotifyPropertyChanged
+    public class PlaylistItem : DataGridItem, INotifyPropertyChanged
     {
         #region INotifyPropertyChanged implementation
 
@@ -43,13 +43,24 @@ namespace Auremo
         #endregion
 
         private bool m_IsPlaying = false;
+        private bool m_IsPaused = false;
 
         public PlaylistItem()
         {
             Playable = null;
             Id = -1;
             Position = -1;
+            IsSelected = false;
             IsPlaying = false;
+            IsPaused = false;
+        }
+
+        public object Content
+        {
+            get
+            {
+                return Playable;
+            }
         }
 
         public Playable Playable
@@ -70,6 +81,12 @@ namespace Auremo
             set;
         }
 
+        public bool IsSelected
+        {
+            get;
+            set;
+        }
+
         public bool IsPlaying
         {
             get
@@ -82,6 +99,22 @@ namespace Auremo
                 {
                     m_IsPlaying = value;
                     NotifyPropertyChanged("IsPlaying");
+                }
+            }
+        }
+
+        public bool IsPaused
+        {
+            get
+            {
+                return m_IsPaused;
+            }
+            set
+            {
+                if (m_IsPaused != value)
+                {
+                    m_IsPaused = value;
+                    NotifyPropertyChanged("IsPaused");
                 }
             }
         }

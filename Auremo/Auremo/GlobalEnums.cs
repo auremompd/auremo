@@ -30,7 +30,8 @@ namespace Auremo
 
     public enum MusicCollectionTab
     {
-        SearchTab,
+        QuickSearchTab,
+        AdvancedSearchTab,
         ArtistListTab,
         ArtistTreeTab,
         GenreListTab,
@@ -45,5 +46,13 @@ namespace Auremo
         Append,
         AddAsNext,
         ReplaceAndPlay
+    }
+
+    public enum SearchType
+    {
+        Any,
+        Artist,
+        Album,
+        Title
     }
 }

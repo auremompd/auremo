@@ -22,49 +22,61 @@ using System.Text;
 
 namespace Auremo
 {
-    public class ServerResponseLine
+    public class LinkMetadata : Playable
     {
-        int m_NameValueBorder = -1;
-
-        public ServerResponseLine(string line)
+        public LinkMetadata()
         {
-            Full = line;
-            m_NameValueBorder = Full.IndexOf(':');
         }
 
-        public string Full
+        public string Path
         {
             get;
-            private set;
+            set;
         }
 
-        public string Name
+        public string Title
+        {
+            get;
+            set;
+        }
+
+        public string Artist
         {
             get
             {
-                if (m_NameValueBorder >= 0)
-                {
-                    return Full.Substring(0, m_NameValueBorder);
-                }
-                else
-                {
-                    return null;
-                }
+                return "";
             }
         }
 
-        public string Value
+        public string Album
         {
             get
             {
-                if (m_NameValueBorder >= 0 && Full.Length > m_NameValueBorder + 2)
-                {
-                    return Full.Substring(m_NameValueBorder + 2);
-                }
-                else
-                {
-                    return null;
-                }
+                return "";
+            }
+        }
+
+        public bool IsLocal
+        {
+            get
+            {
+                return Path.StartsWith("local:");
+            }
+        }
+
+        public bool IsSpotify
+        {
+            get
+            {
+                return Path.StartsWith("spotify:");
+            }
+        }
+
+        public string DisplayName
+        {
+            get
+            {
+                return Title;
             }
         }
     }

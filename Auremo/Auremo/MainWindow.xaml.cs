@@ -19,6 +19,7 @@ using Microsoft.Win32;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -51,10 +52,10 @@ namespace Auremo
         private string m_AutoSearchString = "";
         private DateTime m_TimeOfLastAutoSearch = DateTime.MinValue;
         private object m_LastAutoSearchSender = null;
+        private object m_LastLastAutoSearchHit = null;
 
         private const int m_AutoSearchMaxKeystrokeGap = 2500;
 
-        private const string AddSearchResults = "add_search_results";
         private const string AddArtists = "add_artists";
         private const string AddGenres = "add_genres";
         private const string AddAlbums = "add_albums";
@@ -86,13 +87,16 @@ namespace Auremo
 
         private void InitializeComplexObjects()
         {
-            DataModel = new DataModel();
+            DataModel = new DataModel(this);
         }
 
         private void SetUpDataBindings()
         {
+            NameScope.SetNameScope(m_QuickSearchResultsViewContextMenu, NameScope.GetNameScope(this));
+            NameScope.SetNameScope(m_AdvancedSearchResultsViewContextMenu, NameScope.GetNameScope(this));
             NameScope.SetNameScope(m_StreamsViewContextMenu, NameScope.GetNameScope(this));
             NameScope.SetNameScope(m_SavedPlaylistsViewContextMenu, NameScope.GetNameScope(this));
+            NameScope.SetNameScope(m_PlaylistViewContextMenu, NameScope.GetNameScope(this));
             DataContext = DataModel;
             DataModel.ServerStatus.PropertyChanged += new PropertyChangedEventHandler(OnServerStatusPropertyChanged);
         }
@@ -111,63 +115,42 @@ namespace Auremo
             SetTimerInterval(interval);
             m_Timer.Start();
         }
-
-        private void SetOnlineMode(bool to)
-        {
-            m_OnlineMode = to;
-
-            if (m_OnlineMode)
-            {
-                ConnectTo(Settings.Default.Server, Settings.Default.Port);
-            }
-            else
-            {
-                Disconnect();
-            }
-        }
-
-        private void ConnectTo(string host, int port)
-        {
-            DataModel.ServerConnection.SetHost(host, port);
-            DataModel.ServerConnection.StartConnecting();
-            SetTimerInterval(100); // Run with tight frequency until connected.
-        }
-
-        private void DoPostConnectInit()
-        {
-            string password = Crypto.DecryptPassword(Settings.Default.Password);
-
-            if (password.Length > 0)
-            {
-                Protocol.Password(DataModel.ServerConnection, password);
-            }
-            
-            DataModel.Database.RefreshCollection();
-            DataModel.DatabaseView.RefreshCollection();
-            DataModel.SavedPlaylists.Refresh(DataModel.ServerConnection);
-            SetTimerInterval(Settings.Default.ViewUpdateInterval); // Normal operation.
-        }
-
-        private void Disconnect()
-        {
-            if (DataModel.ServerConnection.Status == ServerConnection.State.Connected)
-            {
-                Protocol.Close(DataModel.ServerConnection);
-            }
-
-            DataModel.ServerConnection.Disconnect();
-            DataModel.Database.RefreshCollection();
-            DataModel.DatabaseView.RefreshCollection();
-            DataModel.SavedPlaylists.Refresh(DataModel.ServerConnection);
-        }
-
+        
         private void SetInitialWindowState()
         {
+            int x = Settings.Default.WindowX;
+            int y = Settings.Default.WindowY;
+            int w = Settings.Default.WindowW;
+            int h = Settings.Default.WindowH;
+
+            w = w >= (int)MinWidth ? w : (int)MinWidth;
+            h = h >= (int)MinHeight ? h : (int)MinHeight;
+
+            if (x < SystemParameters.VirtualScreenWidth && x + w > 0 && y < SystemParameters.VirtualScreenHeight && y + h > 0)
+            {
+                Left = x;
+                Top = y;
+                Width = w;
+                Height = h;
+            }
+
             Show();
 
             if (!Settings.Default.InitialSetupDone)
             {
                 BringUpSettingsWindow();
+            }
+        }
+
+        private void SaveWindowState()
+        {
+            if (Left < SystemParameters.VirtualScreenWidth && Left + Width > 0 && Top < SystemParameters.VirtualScreenHeight && Top + Height > 0)
+            {
+                Settings.Default.WindowX = (int)Left;
+                Settings.Default.WindowY = (int)Top;
+                Settings.Default.WindowW = (int)Width;
+                Settings.Default.WindowH = (int)Height;
+                Settings.Default.Save();
             }
         }
 
@@ -180,41 +163,29 @@ namespace Auremo
             m_Timer.Interval = new TimeSpan(0, 0, 0, 0, interval);
         }
 
-        public void OnTimerTick(Object sender, EventArgs e)
+        private void OnTimerTick(Object sender, EventArgs e)
         {
+            UpdateConnection();
             Update();
+        }
+
+        private void UpdateConnection()
+        {
+            DataModel.ServerSession.DoCleanup();
+
+            if (m_OnlineMode && DataModel.ServerSession.State == ServerSession.SessionState.Disconnected)
+            {
+                DataModel.ServerSession.Connect(Settings.Default.Server, Settings.Default.Port);
+            }
         }
 
         private void Update()
         {
-            if (DataModel.ServerConnection.Status == ServerConnection.State.Connecting)
+            if (DataModel.ServerSession.IsConnected)
             {
-                if (DataModel.ServerConnection.IsReadyToConnect)
-                {
-                    ServerResponse banner = DataModel.ServerConnection.FinishConnecting();
-
-                    if (banner != null && banner.IsOK)
-                    {
-                        DoPostConnectInit();
-                    }
-                    else
-                    {
-                        Disconnect();
-                    }
-                }
+                DataModel.ServerStatus.Update();
+                DataModel.OutputCollection.Update();
             }
-            else if (DataModel.ServerConnection.Status == ServerConnection.State.Disconnected)
-            {
-                if (m_OnlineMode &&
-                    Settings.Default.ReconnectInterval > 0 &&
-                    DataModel.ServerConnection.TimeSinceDisconnect.TotalSeconds >= Settings.Default.ReconnectInterval)
-                {
-                    ConnectTo(Settings.Default.Server, Settings.Default.Port);
-                }
-            }
-
-            DataModel.ServerStatus.Update(DataModel.ServerConnection);
-            DataModel.OutputCollection.Update(DataModel.ServerConnection);
         }
 
         private void OnServerStatusPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -225,32 +196,26 @@ namespace Auremo
             {
                 if (!DataModel.ServerStatus.OK)
                 {
-                    m_SearchBox.Text = "";
+                    m_QuickSearchBox.Text = "";
+                    m_AdvancedSearchBox.Text = "";
                 }
             }
             else if (e.PropertyName == "PlayPosition")
             {
-                OnPlayPositionChanged();
+                OnPlayPositionChangedOnServer();
             }
             else if (e.PropertyName == "Volume")
             {
                 OnVolumeChanged();
             }
-            else if (e.PropertyName == "DatabaseUpdateTime")
-            {
-                DataModel.Database.RefreshCollection();
-                DataModel.DatabaseView.RefreshCollection();
-            }
 
             m_PropertyUpdateInProgress = false;
         }
 
-        private void OnPlayPositionChanged()
+        private void OnPlayPositionChangedOnServer()
         {
-            if (m_SeekBarPositionFromUser < 0)
+            if (!m_SeekBarIsBeingDragged)
             {
-                // The user is not dragging the slider, so set the
-                // values freely.
                 m_SeekBar.Value = DataModel.ServerStatus.PlayPosition;
                 m_PlayPosition.Content = Utils.IntToTimecode(DataModel.ServerStatus.PlayPosition);
             }
@@ -266,43 +231,34 @@ namespace Auremo
 
         #region Selection notifications to data model
 
-        private void OnSelectedSearchResultsChanged(object sender, SelectedCellsChangedEventArgs e)
-        {
-            DataModel.DatabaseView.SelectedSearchResults = SearchResultsCellsToObjects();
-        }
-
         private void OnSelectedArtistsChanged(object sender, SelectionChangedEventArgs e)
         {
-            DataModel.DatabaseView.SelectedArtists = Utils.ToTypedList<string>(m_ArtistsView.SelectedItems);
-            m_AlbumsBySelectedArtistsView.SelectedIndex = -1;
+           DataModel.DatabaseView.OnSelectedArtistsChanged();
         }
 
         private void OnSelectedAlbumsBySelectedArtistsChanged(object sender, SelectionChangedEventArgs e)
         {
-            DataModel.DatabaseView.SelectedAlbumsBySelectedArtists = Utils.ToTypedList<AlbumMetadata>(m_AlbumsBySelectedArtistsView.SelectedItems);
-            m_SongsOnSelectedAlbumsView.SelectedIndex = -1;
+            DataModel.DatabaseView.OnSelectedAlbumsBySelectedArtistsChanged();
         }
 
         private void OnSelectedSongsOnSelectedAlbumsBySelectedArtistsChanged(object sender, SelectionChangedEventArgs e)
         {
-            DataModel.DatabaseView.SelectedSongsOnSelectedAlbumsBySelectedArtists = Utils.ToTypedList<SongMetadata>(m_SongsOnSelectedAlbumsView.SelectedItems);
+            DataModel.DatabaseView.OnSelectedSongsOnSelectedAlbumsBySelectedArtistsChanged();
         }
 
         private void OnSelectedGenresChanged(object sender, SelectionChangedEventArgs e)
         {
-            DataModel.DatabaseView.SelectedGenres = Utils.ToTypedList<string>(m_GenresView.SelectedItems);
-            m_AlbumsOfSelectedGenresView.SelectedIndex = -1;
+            DataModel.DatabaseView.OnSelectedGenresChanged();
         }
 
         private void OnSelectedAlbumsOfSelectedGenresChanged(object sender, SelectionChangedEventArgs e)
         {
-            DataModel.DatabaseView.SelectedAlbumsOfSelectedGenres = Utils.ToTypedList<AlbumMetadata>(m_AlbumsOfSelectedGenresView.SelectedItems);
-            m_SongsOnSelectedAlbumsView.SelectedIndex = -1;
+            DataModel.DatabaseView.OnSelectedAlbumsOfSelectedGenresChanged();
         }
 
         private void OnSelectedSongsOnSelectedAlbumsOfSelectedGenresChanged(object sender, SelectionChangedEventArgs e)
         {
-            DataModel.DatabaseView.SelectedSongsOnSelectedAlbumsOfSelectedGenres = Utils.ToTypedList<SongMetadata>(m_SongsOnSelectedGenreAlbumsView.SelectedItems);
+            DataModel.DatabaseView.OnSelectedSongsOnSelectedAlbumsOfSelectedGenresChanged();
         }
 
         private void OnSelectedSavedPlaylistChanged(object sender, SelectionChangedEventArgs e)
@@ -312,12 +268,12 @@ namespace Auremo
 
         private void OnSelectedItemsOnSelectedSavedPlaylistChanged(object sender, SelectionChangedEventArgs e)
         {
-            DataModel.SavedPlaylists.SelectedItemsOnSelectedPlaylist = Utils.ToTypedList<Playable>(m_ItemsOnSelectedSavedPlaylistView.SelectedItems);
+            DataModel.SavedPlaylists.SelectedItemsOnSelectedPlaylist = Utils.ToTypedList<MusicCollectionItem>(m_ItemsOnSelectedSavedPlaylistView.SelectedItems);
         }
 
         private void OnSelectedPlaylistItemsChanged(object sender, SelectionChangedEventArgs e)
         {
-            DataModel.Playlist.SelectedItems = Utils.ToTypedList<PlaylistItem>(m_PlaylistView.SelectedItems);
+            DataModel.Playlist.OnSelectedItemsChanged(Utils.ToTypedList<PlaylistItem>(m_PlaylistView.SelectedItems));
         }
 
         #endregion
@@ -326,14 +282,14 @@ namespace Auremo
 
         private void OnKeyDown(object sender, KeyEventArgs e)
         {
-            if (!e.Handled)
+            if (!e.Handled && !m_Overlay.Active)
             {
                 if (e.Key == Key.MediaPreviousTrack)
                 {
                     Back();
                     e.Handled = true;
                 }
-                else if (e.Key == Key.Space && !m_SearchBox.IsFocused && m_StringQueryOverlay.Visibility != Visibility.Visible && !AutoSearchInProgrss)
+                else if (e.Key == Key.Space && !m_QuickSearchBox.IsKeyboardFocused && !m_AdvancedSearchBox.IsKeyboardFocused && !AutoSearchInProgrss)
                 {
                     TogglePlayPause();
                     e.Handled = true;
@@ -368,8 +324,8 @@ namespace Auremo
 
         private void OnExit(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            DataModel.CollectionSearch.Terminate();
-            Disconnect();
+            DataModel.QuickSearch.Terminate();
+            DataModel.ServerSession.Disconnect();
 
             if (m_SettingsWindow != null)
             {
@@ -388,6 +344,8 @@ namespace Auremo
                 m_AboutWindow.Close();
                 m_AboutWindow = null;
             }
+
+            SaveWindowState();
         }
 
         #endregion
@@ -406,22 +364,30 @@ namespace Auremo
 
         private void OnConnectClicked(object sender, RoutedEventArgs e)
         {
-            SetOnlineMode(true);
+            m_OnlineMode = true;
+            DataModel.ServerSession.Disconnect();
+
+            if (DataModel.ServerSession.State == ServerSession.SessionState.Disconnected)
+            {
+                DataModel.ServerSession.Connect(Settings.Default.Server, Settings.Default.Port);
+            }
         }
 
         private void OnDisconnectClicked(object sender, RoutedEventArgs e)
         {
-            SetOnlineMode(false);
+            m_OnlineMode = false;
+            DataModel.ServerSession.Disconnect();
         }
 
         private void OnResetConnectionClicked(object sender, RoutedEventArgs e)
         {
-            if (m_OnlineMode)
-            {
-                SetOnlineMode(false);
-            }
+            m_OnlineMode = true;
+            DataModel.ServerSession.Disconnect();
 
-            SetOnlineMode(true);
+            if (DataModel.ServerSession.State == ServerSession.SessionState.Disconnected)
+            {
+                DataModel.ServerSession.Connect(Settings.Default.Server, Settings.Default.Port);
+            }
         }
 
         private void OnEnableDisbaleOutput(object sender, RoutedEventArgs e)
@@ -431,11 +397,11 @@ namespace Auremo
 
             if (output.IsEnabled)
             {
-                Protocol.DisableOutput(DataModel.ServerConnection, output.Index);
+                DataModel.ServerSession.DisableOutput(output.Index);
             }
             else
             {
-                Protocol.EnableOutput(DataModel.ServerConnection, output.Index);
+                DataModel.ServerSession.EnableOutput(output.Index);
             }
 
             Update();
@@ -463,6 +429,19 @@ namespace Auremo
 
         #region Key, mouse and menu events common to multiple controls
 
+        private void OnAlbumsOfSelectedGenresViewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (!e.Handled)
+            {
+                if (e.Key == Key.Enter)
+                {
+                    DataGrid grid = sender as DataGrid;
+                    SendItemsToPlaylist(sender, Utils.ToTypedList<object>(m_SongsOnSelectedGenreAlbumsView.Items));
+                    e.Handled = true;
+                }
+            }
+        }
+
         private void OnMusicCollectionDataGridKeyDown(object sender, KeyEventArgs e)
         {
             if (!e.Handled)
@@ -470,7 +449,17 @@ namespace Auremo
                 if (e.Key == Key.Enter)
                 {
                     DataGrid grid = sender as DataGrid;
-                    SendItemsToPlaylist(sender, Utils.ToTypedList<object>(grid.SelectedItems));
+
+                    if (grid == m_AlbumsOfSelectedGenresView)
+                    {
+                        // Filter album contents by selected genres.
+                        SendItemsToPlaylist(sender, Utils.ToTypedList<object>(m_SongsOnSelectedGenreAlbumsView.Items));
+                    }
+                    else
+                    {
+                        SendItemsToPlaylist(sender, Utils.ToTypedList<object>(grid.SelectedItems));
+                    }
+                    
                     e.Handled = true;
                 }
                 else if (sender == m_StreamsView)
@@ -482,7 +471,7 @@ namespace Auremo
 
         private void SendItemsToPlaylist(object sourceControl, IEnumerable<object> items)
         {
-            bool stringsAreArtists = sourceControl == m_SearchResultsView || sourceControl == m_ArtistsView;
+            bool stringsAreArtists = sourceControl == m_ArtistsView;
 
             if (Settings.Default.SendToPlaylistMethod == SendToPlaylistMethod.AddAsNext.ToString())
             {
@@ -490,9 +479,9 @@ namespace Auremo
             }
             else if (Settings.Default.SendToPlaylistMethod == SendToPlaylistMethod.ReplaceAndPlay.ToString())
             {
-                Protocol.Clear(DataModel.ServerConnection);
+                DataModel.ServerSession.Clear();
                 AddObjectsToPlaylist(items, stringsAreArtists, 0);
-                Protocol.Play(DataModel.ServerConnection);
+                DataModel.ServerSession.Play();
             }
             else // Assume SendToPlaylistMethod.Append as the default
             {
@@ -510,6 +499,21 @@ namespace Auremo
             }
         }
 
+        private void OnAlbumsOfSelectedGenresViewDoubleClicked(object sender, MouseButtonEventArgs e)
+        {
+            // Filter album contents by selected genres.
+            if (!e.Handled)
+            {
+                DataGridRow row = DataGridRowBeingClicked(m_AlbumsOfSelectedGenresView, e);
+
+                if (row != null)
+                {
+                    SendItemsToPlaylist(sender, Utils.ToTypedList<SongMetadata>(m_SongsOnSelectedGenreAlbumsView.Items));
+                    e.Handled = true;
+                }
+            }
+        }
+
         private void OnMusicCollectionDataGridDoubleClicked(object sender, MouseButtonEventArgs e)
         {
             if (!e.Handled)
@@ -519,9 +523,18 @@ namespace Auremo
 
                 if (row != null)
                 {
-                    IList<object> item = new List<object>();
-                    item.Add(row.Item);
-                    SendItemsToPlaylist(sender, item);
+                    if (grid == m_AlbumsOfSelectedGenresView)
+                    {
+                        // Filter album contents by selected genres.
+                        SendItemsToPlaylist(sender, Utils.ToTypedList<object>(m_SongsOnSelectedGenreAlbumsView.Items));
+                    }
+                    else
+                    {
+                        IList<object> item = new List<object>();
+                        item.Add(row.Item);
+                        SendItemsToPlaylist(sender, item);
+                    }
+                    
                     e.Handled = true;
                 }
             }
@@ -539,47 +552,74 @@ namespace Auremo
 
         public void OnPlayThisClicked(object sender, RoutedEventArgs e)
         {
-            Protocol.Clear(DataModel.ServerConnection);
+            DataModel.ServerSession.Clear();
             AddToPlaylistContextMenuViaContextMenu(sender, 0);
-            Protocol.Play(DataModel.ServerConnection);
+            DataModel.ServerSession.Play();
         }
 
         public void AddToPlaylistContextMenuViaContextMenu(object sender, int insertPosition)
         {
             MenuItem menuItem = sender as MenuItem;
             ContextMenu menu = menuItem.Parent as ContextMenu;
-            UIElement element = menu.PlacementTarget;
+            UIElement senderView = menu.PlacementTarget;
             int position = insertPosition;
 
-            if (element is DataGrid)
+            if (senderView == m_AlbumsOfSelectedGenresView)
             {
-                DataGrid list = element as DataGrid;
-                bool selectionMayIncludeArtists = list != m_GenresView;
-                AddObjectsToPlaylist(Utils.ToTypedList<object>(list.SelectedItems), selectionMayIncludeArtists, position);
+                // Filter album contents by selected genres.
+                AddObjectsToPlaylist(Utils.ToTypedList<object>(m_SongsOnSelectedGenreAlbumsView.Items), false, position);
             }
-            else if (element is TreeView)
+            else if (senderView is DataGrid)
             {
-                TreeViewController controller = TreeViewControllerOf(element as TreeView);
+                DataGrid list = senderView as DataGrid;
+                bool stringsAreArtists = list == m_ArtistsView;
+                AddObjectsToPlaylist(Utils.ToTypedList<object>(list.SelectedItems), stringsAreArtists, position);
+            }
+            else if (senderView is TreeView)
+            {
+                TreeViewController controller = TreeViewControllerOf(senderView as TreeView);
                 ISet<SongMetadataTreeViewNode> selection = controller.Songs;
 
                 if (selection != null)
                 {
                     foreach (SongMetadataTreeViewNode node in selection)
                     {
-                        position = AddSongToPlaylist(node.Song, position);
+                        position = AddPlayableToPlaylist(node.Song, position);
                     }
                 }
             }
+
+            Update();
         }
 
         public void OnRescanMusicCollectionClicked(object sender, RoutedEventArgs e)
         {
-            Protocol.Update(DataModel.ServerConnection);
+            DataModel.ServerSession.Update();
         }
 
         public void OnRescanPlaylistsCollectionClicked(object sender, RoutedEventArgs e)
         {
-            DataModel.SavedPlaylists.Refresh(DataModel.ServerConnection);
+            DataModel.SavedPlaylists.Refresh();
+        }
+
+        private IList<SongMetadata> SelectedLocalSongsOnPlaylist()
+        {
+            IList<SongMetadata> result = new List<SongMetadata>();
+
+            foreach (PlaylistItem selectedItem in m_PlaylistView.SelectedItems)
+            {
+                if (selectedItem.Content is SongMetadata)
+                {
+                    SongMetadata song = selectedItem.Content as SongMetadata;
+
+                    if (song.IsLocal)
+                    {
+                        result.Add(selectedItem.Content as SongMetadata);
+                    }
+                }
+            }
+
+            return result;
         }
 
         #endregion
@@ -595,14 +635,23 @@ namespace Auremo
             {
                 DataGridRow row = DataGridRowBeingClicked(dataGrid, e);
 
-                if (Keyboard.Modifiers == ModifierKeys.None)
+                if (row == null)
                 {
-                    if (row == null)
+                    if (ViewBackgroundWasClicked(dataGrid, e) && Keyboard.Modifiers == ModifierKeys.None)
                     {
                         dataGrid.UnselectAll();
                         dataGrid.CurrentItem = null;
+                        e.Handled = true;
                     }
-                    else
+                }
+                else
+                {
+                    if (dataGrid.SelectionMode == DataGridSelectionMode.Single)
+                    {
+                        row.IsSelected = true;
+                        e.Handled = true;
+                    }
+                    else if (Keyboard.Modifiers == ModifierKeys.None)
                     {
                         if (row.IsSelected)
                         {
@@ -616,10 +665,7 @@ namespace Auremo
 
                         dataGrid.CurrentItem = row.Item;
                     }
-                }
-                else if (Keyboard.Modifiers == ModifierKeys.Shift)
-                {
-                    if (row != null)
+                    else if (Keyboard.Modifiers == ModifierKeys.Shift)
                     {
                         if (dataGrid.CurrentItem == null)
                         {
@@ -629,34 +675,30 @@ namespace Auremo
                         }
                         else
                         {
-                            int startIndex = (dataGrid.ItemContainerGenerator.ContainerFromItem(dataGrid.CurrentItem) as DataGridRow).GetIndex();
-                            int endIndex = row.GetIndex();
-                            dataGrid.UnselectAll();
-
+                            int startIndex = (dataGrid.CurrentItem as DataGridItem).Position;
+                            int endIndex = (row.Item as DataGridItem).Position;
                             int minIndex = Math.Min(startIndex, endIndex);
                             int maxIndex = Math.Max(startIndex, endIndex);
 
-                            for (int i = minIndex; i <= maxIndex; ++i)
+                            foreach (object o in dataGrid.Items)
                             {
-                                (dataGrid.ItemContainerGenerator.ContainerFromIndex(i) as DataGridRow).IsSelected = true;
+                                DataGridItem item = o as DataGridItem;
+                                item.IsSelected = item.Position >= minIndex && item.Position <= maxIndex;
                             }
                         }
                     }
-                }
-                else if (Keyboard.Modifiers == ModifierKeys.Control)
-                {
-                    if (row != null)
+                    else if (Keyboard.Modifiers == ModifierKeys.Control)
                     {
                         dataGrid.CurrentItem = row.Item;
                         row.IsSelected = !row.IsSelected;
                         e.Handled = true;
                     }
-                }
 
-                if (row != null && row.IsSelected)
-                {
-                    m_DragSource = dataGrid;
-                    m_DragStartPosition = e.GetPosition(null);
+                    if (row.IsSelected)
+                    {
+                        m_DragSource = dataGrid;
+                        m_DragStartPosition = e.GetPosition(null);
+                    }
                 }
             }
         }
@@ -683,111 +725,6 @@ namespace Auremo
             }
         }
 
-        private void OnDataGridCellMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            DataGrid dataGrid = sender as DataGrid;
-            dataGrid.Focus();
-            
-            if (e.ClickCount == 1)
-            {
-                DataGridCell cell = DataGridCellBeingClicked(dataGrid, e);
-
-                if (Keyboard.Modifiers == ModifierKeys.None)
-                {
-                    if (cell == null)
-                    {
-                        dataGrid.UnselectAllCells();
-                        dataGrid.CurrentCell = new DataGridCellInfo();
-                    }
-                    else
-                    {
-                        if (cell.IsSelected)
-                        {
-                            e.Handled = true;
-                        }
-                        else
-                        {
-                            dataGrid.UnselectAllCells();
-                            cell.IsSelected = true;
-                        }
-
-                        dataGrid.CurrentCell = new DataGridCellInfo(cell);
-                        cell.IsSelected = true;
-                    }
-                }
-                else if (Keyboard.Modifiers == ModifierKeys.Shift)
-                {
-                    if (cell != null)
-                    {
-                        if (!dataGrid.CurrentCell.IsValid)
-                        {
-                            dataGrid.UnselectAllCells();
-                            cell.IsSelected = true;
-                            dataGrid.CurrentCell = new DataGridCellInfo(cell);
-                        }
-                        else
-                        {
-                            int startRowIndex = (dataGrid.ItemContainerGenerator.ContainerFromItem(dataGrid.CurrentCell.Item) as DataGridRow).GetIndex();
-                            int endRowIndex = (dataGrid.ItemContainerGenerator.ContainerFromItem(new DataGridCellInfo(cell).Item) as DataGridRow).GetIndex();
-                            int startColumnIndex = dataGrid.CurrentCell.Column.DisplayIndex;
-                            int endColumnIndex = cell.Column.DisplayIndex;
-
-                            dataGrid.UnselectAllCells();
-
-                            int minRowIndex = Math.Min(startRowIndex, endRowIndex);
-                            int maxRowIndex = Math.Max(startRowIndex, endRowIndex);
-                            int minColumnIndex = Math.Min(startColumnIndex, endColumnIndex);
-                            int maxColumnIndex = Math.Max(startColumnIndex, endColumnIndex);
-
-                            for (int y = minRowIndex; y <= maxRowIndex; ++y)
-                            {
-                                DataGridRow row = dataGrid.ItemContainerGenerator.ContainerFromIndex(y) as DataGridRow;
-
-                                for (int x = minColumnIndex; x <= maxColumnIndex; ++x)
-                                {
-                                    (dataGrid.ColumnFromDisplayIndex(x).GetCellContent(row).Parent as DataGridCell).IsSelected = true;
-                                }
-                            }
-                        }
-                    }
-                }
-                else if (Keyboard.Modifiers == ModifierKeys.Control)
-                {
-                    if (cell != null)
-                    {
-                        cell.IsSelected = !cell.IsSelected;
-                    }
-                }
-
-                if (cell != null && cell.IsSelected)
-                {
-                    m_DragSource = dataGrid;
-                    m_DragStartPosition = e.GetPosition(null);
-                }
-
-                e.Handled = cell != null;
-            }
-        }
-
-        private void OnDataGridCellMouseUp(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ClickCount == 1)
-            {
-                DataGrid dataGrid = sender as DataGrid;
-                DataGridCell cell = DataGridCellBeingClicked(dataGrid, e);
-
-                if (cell != null && Keyboard.Modifiers == ModifierKeys.None)
-                {
-                    dataGrid.UnselectAllCells();
-                    cell.IsSelected = true;
-                }
-
-                m_DragSource = null;
-                m_DragStartPosition = null;
-                e.Handled = cell != null;
-            }
-        }
-
         private void OnMouseMoveDragDrop(object sender, MouseEventArgs e)
         {
             if (m_DragStartPosition.HasValue && m_DragSource != null)
@@ -804,88 +741,23 @@ namespace Auremo
                     // this will do for now.
                     IList<object> payload = new List<object>();
 
-                    if (m_DragSource == m_SearchResultsView)
+                    if (m_DragSource == m_AlbumsOfSelectedGenresView)
                     {
-                        IList<object> itemsToAdd = new List<object>();
-
-                        foreach (DataGridCellInfo cell in m_SearchResultsView.SelectedCells)
+                        // Filter album contents by selected genres.
+                        foreach (MusicCollectionItem item in m_SongsOnSelectedGenreAlbumsView.Items)
                         {
-                            itemsToAdd.Add(SearchResultCellContent(cell));
+                            payload.Add(item.Content);
                         }
-
-                        ISet<string> artistsToAdd = new SortedSet<string>();
-                        ISet<AlbumMetadata> albumsToAdd = new SortedSet<AlbumMetadata>(DataModel.Database.AlbumSortRule);
-                        ISet<SongMetadata> songsToAdd = new SortedSet<SongMetadata>();
-
-                        foreach (object item in itemsToAdd)
+                    }
+                    else if (m_DragSource == m_SavedPlaylistsView)
+                    {
+                        payload.Add(m_SavedPlaylistsView.SelectedItem);
+                    }
+                    else if (m_DragSource == m_PlaylistView)
+                    {
+                        foreach (object o in m_PlaylistView.SelectedItems)
                         {
-                            if (item is string)
-                            {
-                                artistsToAdd.Add(item as string);
-                            }
-                            else if (item is AlbumMetadata)
-                            {
-                                albumsToAdd.Add(item as AlbumMetadata);
-                            }
-                            else if (item is SongMetadata)
-                            {
-                                songsToAdd.Add(item as SongMetadata);
-                            }
-                        }
-
-                        // Make an effort to not add anything twice, even if it is selected
-                        // multiple times directly (as in the same artist on multiple lines)
-                        // or indirectly (as in a song and the album to which it belongs).
-                        foreach (AlbumMetadata album in new SortedSet<AlbumMetadata>(albumsToAdd, DataModel.Database.AlbumSortRule))
-                        {
-                            if (artistsToAdd.Contains(album.Artist))
-                            {
-                                albumsToAdd.Remove(album);
-                            }
-                        }
-
-                        foreach (SongMetadata song in new SortedSet<SongMetadata>(songsToAdd))
-                        {
-                            if (artistsToAdd.Contains(song.Artist) || albumsToAdd.Contains(DataModel.Database.AlbumOfSong(song)))
-                            {
-                                songsToAdd.Remove(song);
-                            }
-                        }
-
-                        ISet<string> artistsAlreadyAdded = new SortedSet<string>();
-                        ISet<AlbumMetadata> albumsAlreadyAdded = new SortedSet<AlbumMetadata>(DataModel.Database.AlbumSortRule);
-
-                        foreach (object item in itemsToAdd)
-                        {
-                            if (item is string)
-                            {
-                                string artist = item as string;
-
-                                if (artistsToAdd.Contains(artist) && !artistsAlreadyAdded.Contains(artist))
-                                {
-                                    payload.Add(item);
-                                    artistsAlreadyAdded.Add(artist);
-                                }
-                            }
-                            else if (item is AlbumMetadata)
-                            {
-                                AlbumMetadata album = item as AlbumMetadata;
-
-                                if (albumsToAdd.Contains(album) && !albumsAlreadyAdded.Contains(album))
-                                {
-                                    payload.Add(item);
-                                    albumsAlreadyAdded.Add(album);
-                                }
-                            }
-                            else if (item is SongMetadata)
-                            {
-                                SongMetadata song = item as SongMetadata;
-
-                                if (songsToAdd.Contains(song))
-                                {
-                                    payload.Add(item);
-                                }
-                            }
+                            payload.Add(o as PlaylistItem);
                         }
                     }
                     else if (m_DragSource is DataGrid)
@@ -894,7 +766,7 @@ namespace Auremo
 
                         foreach (object o in source.SelectedItems)
                         {
-                            payload.Add(o);
+                            payload.Add((o as MusicCollectionItem).Content);
                         }
                     }
                     else if (m_DragSource is TreeView)
@@ -951,7 +823,7 @@ namespace Auremo
                 }
                 else if (item is Playable)
                 {
-                    result.Append((item as Playable).Title);
+                    result.Append((item as Playable).DisplayName);
                 }
             }
 
@@ -992,13 +864,6 @@ namespace Auremo
                         if (row == null)
                         {
                             DataGridRow lastItem = m_PlaylistView.ItemContainerGenerator.ContainerFromIndex(m_PlaylistView.Items.Count - 1) as DataGridRow;
-
-                            if (lastItem == null)
-                            {
-                                // TODO: this is null sometimes. No idea why.
-                                return;
-                            }
-
                             Rect bounds = VisualTreeHelper.GetDescendantBounds(lastItem);
                             GeneralTransform transform = lastItem.TransformToAncestor(m_PlaylistView);
                             Point bottomOfItem = transform.Transform(bounds.BottomLeft);
@@ -1053,11 +918,11 @@ namespace Auremo
 
                         if (item.Position < targetRow)
                         {
-                            Protocol.MoveId(DataModel.ServerConnection, item.Id, targetRow - 1);
+                            DataModel.ServerSession.MoveId(item.Id, targetRow - 1);
                         }
                         else
                         {
-                            Protocol.MoveId(DataModel.ServerConnection, item.Id, targetRow++);
+                            DataModel.ServerSession.MoveId(item.Id, targetRow++);
                         }
                     }
                 }
@@ -1068,7 +933,7 @@ namespace Auremo
                         targetRow = AddObjectToPlaylist(o, false, targetRow);
                     }
                 }
-                else if (data == AddSearchResults || data == AddArtists || data == AddAlbums || data == AddSongs || data == AddStreams || data == AddPlaylistItems)
+                else if (data == AddArtists || data == AddAlbums || data == AddSongs || data == AddStreams || data == AddPlaylistItems)
                 {
                     foreach (object o in m_DragDropPayload)
                     {
@@ -1098,9 +963,10 @@ namespace Auremo
 
             if (item == null)
             {
-                if (!TreeViewExpanderBeingClicked(tree, e))
+                if (ViewBackgroundWasClicked(tree, e))
                 {
                     (tree.Tag as TreeViewController).ClearMultiSelection();
+                    e.Handled = true;
                 }
             }
             else if (item.Header is TreeViewNode)
@@ -1287,22 +1153,9 @@ namespace Auremo
 
         #region Specialized events for individual controls
 
-        private void OnSearchResultsViewDoubleClicked(object sender, MouseButtonEventArgs e)
+        private void OnAdvancedSearchClicked(object sender, RoutedEventArgs e)
         {
-            SendItemsToPlaylist(sender, SearchResultsCellsToObjects());
-        }
-
-        private void OnSearchBoxEnabledChanged(object sender, DependencyPropertyChangedEventArgs e)
-        {
-            if (m_SearchBox.IsEnabled)
-            {
-                m_SearchBox.Focus();
-            }
-        }
-
-        private void OnSearchBoxTextChanged(object sender, TextChangedEventArgs e)
-        {
-            DataModel.CollectionSearch.SearchString = m_SearchBox.Text;
+            DataModel.AdvancedSearch.Search();
         }
 
         #region Streams collection
@@ -1311,7 +1164,7 @@ namespace Auremo
         {
             if (e.Key == Key.F2 && m_StreamsView.SelectedItems.Count == 1)
             {
-                OnRenameSelectedStream();
+                StartRenameStreamQuery();
                 e.Handled = true;
             }
             else if (e.Key == Key.Delete)
@@ -1323,15 +1176,7 @@ namespace Auremo
 
         private void OnRenameSelectedStreamClicked(object sender, RoutedEventArgs e)
         {
-            OnRenameSelectedStream();
-        }
-
-        private void OnRenameStreamQueryFinished(bool succeeded, StreamMetadata stream, string newName)
-        {
-            if (succeeded)
-            {
-                DataModel.StreamsCollection.Rename(stream, newName);
-            }
+            StartRenameStreamQuery();
         }
 
         private void OnDeleteSelectedStreamsClicked(object sender, RoutedEventArgs e)
@@ -1342,15 +1187,6 @@ namespace Auremo
         private void OnAddStreamURLClicked(object sender, RoutedEventArgs e)
         {
             StartAddNewStreamQuery();
-        }
-
-        private void OnAddNewStreamQueryFinished(bool succeeded, string address, string name)
-        {
-            if (succeeded)
-            {
-                StreamMetadata stream = new StreamMetadata(address, name);
-                DataModel.StreamsCollection.Add(stream);
-            }
         }
 
         private void OnAddStreamsFromFileClicked(object sender, RoutedEventArgs e)
@@ -1402,7 +1238,7 @@ namespace Auremo
             if (dialogResult.HasValue && dialogResult.Value)
             {
                 string filename = dialog.FileName;
-                string playlist = PlaylistWriter.Write(Utils.ToTypedList<StreamMetadata>(m_StreamsView.SelectedItems));
+                string playlist = PlaylistWriter.Write(Utils.ToContentList<StreamMetadata>(m_StreamsView.SelectedItems));
 
                 if (playlist != null)
                 {
@@ -1411,17 +1247,9 @@ namespace Auremo
             }
         }
 
-        private void OnRenameSelectedStream()
-        {
-            if (m_StreamsView.SelectedItems.Count == 1)
-            {
-                StartRenameStreamQuery(m_StreamsView.SelectedItem as StreamMetadata);
-            }
-        }
-
         private void DeleteSelectedStreams()
         {
-            DataModel.StreamsCollection.Delete(Utils.ToTypedList<StreamMetadata>(m_StreamsView.SelectedItems));
+            DataModel.StreamsCollection.Delete(Utils.ToTypedList<MusicCollectionItem>(m_StreamsView.SelectedItems));
         }
 
         #endregion
@@ -1472,8 +1300,8 @@ namespace Auremo
 
         private void LoadSavedPlaylist(string name)
         {
-            Protocol.Clear(DataModel.ServerConnection);
-            Protocol.Load(DataModel.ServerConnection, name);
+            DataModel.ServerSession.Clear();
+            DataModel.ServerSession.Load(name);
             DataModel.SavedPlaylists.CurrentPlaylistName = name;
             Update();
         }
@@ -1493,14 +1321,6 @@ namespace Auremo
             }
         }
 
-        private void OnRenameStreamQueryFinished(bool succeeded, string oldName, string newName)
-        {
-            if (succeeded)
-            {
-                Protocol.Rename(DataModel.ServerConnection, oldName, newName);
-                DataModel.SavedPlaylists.Refresh(DataModel.ServerConnection);
-            }
-        }
 
         private void OnDeleteSavedPlaylistClicked(object sender, RoutedEventArgs e)
         {
@@ -1513,8 +1333,8 @@ namespace Auremo
 
             if (selectedPlaylist != null)
             {
-                Protocol.Rm(DataModel.ServerConnection, selectedPlaylist as string);
-                DataModel.SavedPlaylists.Refresh(DataModel.ServerConnection);
+                DataModel.ServerSession.Rm(selectedPlaylist as string);
+                DataModel.SavedPlaylists.Refresh();
             }
         }
 
@@ -1537,7 +1357,7 @@ namespace Auremo
                         if (o is PlaylistItem)
                         {
                             PlaylistItem item = o as PlaylistItem;
-                            Protocol.PlayId(DataModel.ServerConnection, item.Id);
+                            DataModel.ServerSession.PlayId(item.Id);
                             Update();
                         }
 
@@ -1559,14 +1379,14 @@ namespace Auremo
             if (row != null)
             {
                 PlaylistItem item = row.Item as PlaylistItem;
-                Protocol.PlayId(DataModel.ServerConnection, item.Id);
+                DataModel.ServerSession.PlayId(item.Id);
                 Update();
             }
         }
 
         private void OnClearPlaylistViewClicked(object sender, RoutedEventArgs e)
         {
-            Protocol.Clear(DataModel.ServerConnection);
+            DataModel.ServerSession.Clear();
             DataModel.SavedPlaylists.CurrentPlaylistName = "";
             Update();
         }
@@ -1592,7 +1412,7 @@ namespace Auremo
                 {
                     if (!keepItems.Contains(item.Id))
                     {
-                        Protocol.DeleteId(DataModel.ServerConnection, item.Id);
+                        DataModel.ServerSession.DeleteId(item.Id);
                     }
                 }
 
@@ -1604,18 +1424,7 @@ namespace Auremo
         {
             StartAddNewPlaylistAsQuery(DataModel.SavedPlaylists.CurrentPlaylistName);
         }
-
-        private void OnAddNewPlaylistAsQueryFinished(bool succeeded, string playlistName)
-        {
-            if (succeeded)
-            {
-                DataModel.SavedPlaylists.CurrentPlaylistName = playlistName;
-                Protocol.Rm(DataModel.ServerConnection, DataModel.SavedPlaylists.CurrentPlaylistName);
-                Protocol.Save(DataModel.ServerConnection, DataModel.SavedPlaylists.CurrentPlaylistName);
-                DataModel.SavedPlaylists.Refresh(DataModel.ServerConnection);
-            }
-        }
-        
+       
         private void OnDedupPlaylistViewClicked(object sender, RoutedEventArgs e)
         {
             ISet<string> songPathsOnPlaylist = new SortedSet<string>();
@@ -1631,13 +1440,68 @@ namespace Auremo
 
             foreach (int id in playlistIDsOfDuplicates)
             {
-                Protocol.DeleteId(DataModel.ServerConnection, id);
+                DataModel.ServerSession.DeleteId(id);
             }
         }
 
         private void OnShufflePlaylistClicked(object sender, RoutedEventArgs e)
         {
-            Protocol.Shuffle(DataModel.ServerConnection);
+            DataModel.ServerSession.Shuffle();
+        }
+
+        private void OnShowInArtistsListClicked(object sender, RoutedEventArgs e)
+        {
+            IList<SongMetadata> selection = SelectedLocalSongsOnPlaylist();
+
+            if (selection.Count > 0)
+            {
+                DataModel.DatabaseView.ShowSongsInArtistList(selection);
+                m_ArtistListTab.IsSelected = true;
+            }
+        }
+
+        private void OnShowInArtistsTreeClicked(object sender, RoutedEventArgs e)
+        {
+            IList<SongMetadata> selection = SelectedLocalSongsOnPlaylist();
+
+            if (selection.Count > 0)
+            {
+                DataModel.DatabaseView.ShowSongsInArtistTree(selection);
+                m_ArtistTreeTab.IsSelected = true;
+            }
+        }
+
+        private void OnShowInGenreListClicked(object sender, RoutedEventArgs e)
+        {
+            IList<SongMetadata> selection = SelectedLocalSongsOnPlaylist();
+
+            if (selection.Count > 0)
+            {
+                DataModel.DatabaseView.ShowSongsInGenreList(selection);
+                m_GenreListTab.IsSelected = true;
+            }
+        }
+
+        private void OnShowInGenreTreeClicked(object sender, RoutedEventArgs e)
+        {
+            IList<SongMetadata> selection = SelectedLocalSongsOnPlaylist();
+
+            if (selection.Count > 0)
+            {
+                DataModel.DatabaseView.ShowSongsInGenreTree(selection);
+                m_GenreTreeTab.IsSelected = true;
+            }
+        }
+
+        private void OnShowInFilesystemTreeClicked(object sender, RoutedEventArgs e)
+        {
+            IList<SongMetadata> selection = SelectedLocalSongsOnPlaylist();
+
+            if (selection.Count > 0)
+            {
+                DataModel.DatabaseView.ShowSongsInDirectoryTree(selection);
+                m_FilesystemTab.IsSelected = true;
+            }
         }
 
         private void DeleteSelectedItemsFromPlaylist()
@@ -1647,7 +1511,7 @@ namespace Auremo
                 if (o is PlaylistItem)
                 {
                     PlaylistItem item = o as PlaylistItem;
-                    Protocol.DeleteId(DataModel.ServerConnection, item.Id);
+                    DataModel.ServerSession.DeleteId(item.Id);
                 }
             }
 
@@ -1668,7 +1532,20 @@ namespace Auremo
 
         private bool CollectionAutoSearch(object sender, char c)
         {
-            if (sender != m_LastAutoSearchSender || DateTime.Now.Subtract(m_TimeOfLastAutoSearch).TotalMilliseconds > m_AutoSearchMaxKeystrokeGap)
+            bool selectionUnchanged = false;
+
+            if (sender is DataGrid)
+            {
+                DataGrid grid = sender as DataGrid;
+                selectionUnchanged = grid.SelectedItems.Count == 1 && grid.SelectedItem == m_LastLastAutoSearchHit;
+            }
+            else if (sender is TreeView)
+            {
+                TreeViewController controller = (sender as TreeView).Tag as TreeViewController;
+                selectionUnchanged = controller.MultiSelection.Count == 1 && controller.MultiSelection[0] == m_LastLastAutoSearchHit;
+            }
+
+            if (sender != m_LastAutoSearchSender || !selectionUnchanged || DateTime.Now.Subtract(m_TimeOfLastAutoSearch).TotalMilliseconds > m_AutoSearchMaxKeystrokeGap)
             {
                 m_AutoSearchString = "";
             }
@@ -1701,15 +1578,19 @@ namespace Auremo
                 {
                     DataGrid grid = sender as DataGrid;
 
-                    foreach (object o in grid.Items)
+                    foreach (DataGridItem item in Utils.ToTypedList<DataGridItem>(grid.Items))
                     {
+                        object o = item.Content;
+
                         if (o is string && (o as string).ToLowerInvariant().StartsWith(m_AutoSearchString) ||
                            o is AlbumMetadata && (o as AlbumMetadata).Title.ToLowerInvariant().StartsWith(m_AutoSearchString) ||
-                           o is Playable && (o as Playable).Title.ToLowerInvariant().StartsWith(m_AutoSearchString))
+                           o is Playable && (o as Playable).Title != null && (o as Playable).Title.ToLowerInvariant().StartsWith(m_AutoSearchString))
                         {
-                            grid.CurrentItem = o;
-                            grid.SelectedItem = o;
-                            grid.ScrollIntoView(o);
+                            grid.CurrentItem = item;
+                            grid.SelectedItem = item;
+                            grid.ScrollIntoView(item);
+                            m_LastLastAutoSearchHit = item;
+
                             return true;
                         }
                     }
@@ -1726,6 +1607,7 @@ namespace Auremo
                         item.IsSelected = true;
                         item.Controller.Current = item;
                         item.Controller.Pivot = item;
+                        m_LastLastAutoSearchHit = item;
 
                         return true;
                     }
@@ -1781,7 +1663,11 @@ namespace Auremo
 
         private void AddObjectToPlaylist(object o, bool stringsAreArtists)
         {
-            if (o is string)
+            if (o is MusicCollectionItem)
+            {
+                AddObjectToPlaylist((o as MusicCollectionItem).Content, stringsAreArtists);
+            }
+            else if (o is string)
             {
                 if (stringsAreArtists)
                 {
@@ -1796,13 +1682,9 @@ namespace Auremo
             {
                 AddAlbumToPlaylist(o as AlbumMetadata);
             }
-            else if (o is SongMetadata)
+            else if (o is Playable)
             {
-                AddSongToPlaylist(o as SongMetadata);
-            }
-            else if (o is StreamMetadata)
-            {
-                AddStreamToPlaylist(o as StreamMetadata);
+                AddPlayableToPlaylist(o as Playable);
             }
         }
 
@@ -1811,7 +1693,11 @@ namespace Auremo
         // the last item.
         private int AddObjectToPlaylist(object o, bool stringsAreArtists, int firstPosition)
         {
-            if (o is string)
+            if (o is MusicCollectionItem)
+            {
+                AddObjectToPlaylist((o as MusicCollectionItem).Content, stringsAreArtists, firstPosition);
+            }
+            else if (o is string)
             {
                 if (stringsAreArtists)
                 {
@@ -1826,13 +1712,9 @@ namespace Auremo
             {
                 return AddAlbumToPlaylist(o as AlbumMetadata, firstPosition);
             }
-            else if (o is SongMetadata)
+            else if (o is Playable)
             {
-                return AddSongToPlaylist(o as SongMetadata, firstPosition);
-            }
-            else if (o is StreamMetadata)
-            {
-                return AddStreamToPlaylist(o as StreamMetadata, firstPosition);
+                return AddPlayableToPlaylist(o as Playable, firstPosition);
             }
 
             return firstPosition;
@@ -1862,7 +1744,7 @@ namespace Auremo
         {
             foreach (AlbumMetadata album in DataModel.Database.AlbumsByGenre(genre))
             {
-                AddAlbumToPlaylist(album);
+                AddGenreFilteredAlbumToPlaylist(album, genre);
             }
         }
 
@@ -1872,7 +1754,7 @@ namespace Auremo
 
             foreach (AlbumMetadata album in DataModel.Database.AlbumsByGenre(genre))
             {
-                position = AddAlbumToPlaylist(album, position);
+                position = AddGenreFilteredAlbumToPlaylist(album, genre, position);
             }
 
             return position;
@@ -1882,7 +1764,7 @@ namespace Auremo
         {
             foreach (SongMetadata song in DataModel.Database.SongsByAlbum(album))
             {
-                AddSongToPlaylist(song);
+                AddPlayableToPlaylist(song);
             }
         }
 
@@ -1892,31 +1774,46 @@ namespace Auremo
 
             foreach (SongMetadata song in DataModel.Database.SongsByAlbum(album))
             {
-                position = AddSongToPlaylist(song, position);
+                position = AddPlayableToPlaylist(song, position);
             }
 
             return position;
         }
 
-        private void AddSongToPlaylist(SongMetadata song)
+        private void AddGenreFilteredAlbumToPlaylist(AlbumMetadata album, string genre)
         {
-            Protocol.Add(DataModel.ServerConnection, song.Path);
+            foreach (SongMetadata song in DataModel.Database.SongsByAlbum(album))
+            {
+                if (song.Genre == genre)
+                {
+                    AddPlayableToPlaylist(song);
+                }
+            }
         }
 
-        private int AddSongToPlaylist(SongMetadata song, int position)
+        private int AddGenreFilteredAlbumToPlaylist(AlbumMetadata album, string genre, int firstPosition)
         {
-            Protocol.AddId(DataModel.ServerConnection, song.Path, position);
-            return position + 1;
+            int position = firstPosition;
+
+            foreach (SongMetadata song in DataModel.Database.SongsByAlbum(album))
+            {
+                if (song.Genre == genre)
+                {
+                    position = AddPlayableToPlaylist(song, position);
+                }
+            }
+
+            return position;
         }
 
-        private void AddStreamToPlaylist(StreamMetadata stream)
+        private void AddPlayableToPlaylist(Playable playable)
         {
-            Protocol.Add(DataModel.ServerConnection, stream.Path);
+            DataModel.ServerSession.Add(playable.Path);
         }
 
-        private int AddStreamToPlaylist(StreamMetadata stream, int position)
+        private int AddPlayableToPlaylist(Playable playable, int position)
         {
-            Protocol.AddId(DataModel.ServerConnection, stream.Path, position);
+            DataModel.ServerSession.AddId(playable.Path, position);
             return position + 1;
         }
 
@@ -1926,32 +1823,23 @@ namespace Auremo
 
         #region Seek bar
 
-        private int m_SeekBarPositionFromUser = -1;
+        private bool m_SeekBarIsBeingDragged = false;
 
         private void OnSeekBarDragStart(object sender, MouseButtonEventArgs e)
         {
-            m_SeekBarPositionFromUser = 0;
+            m_SeekBarIsBeingDragged = true;
         }
 
-        private void OnSeekBarDrag(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void OnSeekBarValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            if (m_SeekBarPositionFromUser >= 0)
-            {
-                // The user is dragging the position slider, instead of the
-                // server just telling us what the current play position is.
-                m_SeekBarPositionFromUser = (int)e.NewValue;
-                m_PlayPosition.Content = Utils.IntToTimecode(m_SeekBarPositionFromUser);
-            }
+            m_PlayPosition.Content = Utils.IntToTimecode((int)m_SeekBar.Value);
         }
 
         private void OnSeekBarDragEnd(object sender, MouseButtonEventArgs e)
         {
-            if (m_SeekBarPositionFromUser >= 0)
-            {
-                Protocol.Seek(DataModel.ServerConnection, DataModel.ServerStatus.CurrentSongIndex, m_SeekBarPositionFromUser);
-                m_SeekBarPositionFromUser = -1;
-                Update();
-            }
+            m_SeekBarIsBeingDragged = false;
+            DataModel.ServerSession.Seek(DataModel.ServerStatus.CurrentSongIndex, (int)m_SeekBar.Value);
+            Update();
         }
 
         private void OnSeekBarMouseWheel(object sender, MouseWheelEventArgs e)
@@ -1980,7 +1868,7 @@ namespace Auremo
 
             if (newPosition != currentPosition)
             {
-                Protocol.Seek(DataModel.ServerConnection, DataModel.ServerStatus.CurrentSongIndex, newPosition);
+                DataModel.ServerSession.Seek(DataModel.ServerStatus.CurrentSongIndex, newPosition);
                 Update();
             }
         }
@@ -2026,14 +1914,7 @@ namespace Auremo
             if (!m_PropertyUpdateInProgress && !m_VolumeRestoreInProgress)
             {
                 // Volume slider is actually moving because the user is moving it.
-                ServerResponse response = Protocol.SetVol(DataModel.ServerConnection, (int)e.NewValue);
-
-                if (response != null && response.IsACK)
-                {
-                    m_VolumeRestoreInProgress = true;
-                    m_VolumeControl.Value = e.OldValue;
-                    m_VolumeRestoreInProgress = false;
-                }
+                DataModel.ServerSession.SetVol((int)e.NewValue);
             }
         }
 
@@ -2051,13 +1932,13 @@ namespace Auremo
 
         private void OnToggleRandomClicked(object sender, RoutedEventArgs e)
         {
-            Protocol.Random(DataModel.ServerConnection, !DataModel.ServerStatus.IsOnRandom);
+            DataModel.ServerSession.Random(!DataModel.ServerStatus.IsOnRandom);
             Update();
         }
 
         private void OnToggleRepeatClicked(object sender, RoutedEventArgs e)
         {
-            Protocol.Repeat(DataModel.ServerConnection, !DataModel.ServerStatus.IsOnRepeat);
+            DataModel.ServerSession.Repeat(!DataModel.ServerStatus.IsOnRepeat);
             Update();
         }
 
@@ -2067,19 +1948,19 @@ namespace Auremo
 
         private void Back()
         {
-            Protocol.Previous(DataModel.ServerConnection);
+            DataModel.ServerSession.Previous();
             Update();
         }
 
         private void Play()
         {
-            Protocol.Play(DataModel.ServerConnection);
+            DataModel.ServerSession.Play();
             Update();
         }
 
         private void Pause()
         {
-            Protocol.Pause(DataModel.ServerConnection);
+            DataModel.ServerSession.Pause();
             Update();
         }
 
@@ -2089,11 +1970,11 @@ namespace Auremo
             {
                 if (DataModel.ServerStatus.IsPlaying)
                 {
-                    Protocol.Pause(DataModel.ServerConnection);
+                    DataModel.ServerSession.Pause();
                 }
                 else
                 {
-                    Protocol.Play(DataModel.ServerConnection);
+                    DataModel.ServerSession.Play();
                 }
             }
 
@@ -2102,13 +1983,13 @@ namespace Auremo
 
         private void Stop()
         {
-            Protocol.Stop(DataModel.ServerConnection);
+            DataModel.ServerSession.Stop();
             Update();
         }
 
         private void Skip()
         {
-            Protocol.Next(DataModel.ServerConnection);
+            DataModel.ServerSession.Next();
             Update();
         }
                 
@@ -2122,7 +2003,7 @@ namespace Auremo
 
                 if (newVolume != currentVolume)
                 {
-                    Protocol.SetVol(DataModel.ServerConnection, newVolume);
+                    DataModel.ServerSession.SetVol(newVolume);
                     Update();
                 }
             }
@@ -2138,7 +2019,7 @@ namespace Auremo
 
                 if (newVolume != currentVolume)
                 {
-                    Protocol.SetVol(DataModel.ServerConnection, newVolume);
+                    DataModel.ServerSession.SetVol(newVolume);
                     Update();
                 }
             }
@@ -2150,7 +2031,7 @@ namespace Auremo
 
         private void OnUpdateCollectionClicked(object sender, RoutedEventArgs e)
         {
-            Protocol.Update(DataModel.ServerConnection);
+            DataModel.ServerSession.Update();
         }
         
         #endregion
@@ -2164,13 +2045,23 @@ namespace Auremo
             m_VolumeControl.IsEnabled = DataModel.ServerStatus.Volume.HasValue && Settings.Default.EnableVolumeControl;
             SetTimerInterval(Settings.Default.ViewUpdateInterval);
 
+            StringCollection formatCollection = Settings.Default.AlbumDateFormats;
+            IList<string> formatList = new List<string>();
+
+            foreach (string format in formatCollection)
+            {
+                formatList.Add(format);
+            }
+
+            DataModel.CustomDateNormalizer.SetFormats(formatList);
+
             if (reconnect)
             {
-                Disconnect();
+                DataModel.ServerSession.Disconnect();
 
                 if (m_OnlineMode)
                 {
-                    ConnectTo(Settings.Default.Server, Settings.Default.Port);
+                    DataModel.ServerSession.Connect(Settings.Default.Server, Settings.Default.Port);
                 }
             }
         }
@@ -2178,12 +2069,13 @@ namespace Auremo
         private void ApplyInitialSettings()
         {
             ApplyTabVisibilitySettings();
-            SetOnlineMode(true);
+            DataModel.ServerSession.Connect(Settings.Default.Server, Settings.Default.Port);
         }
 
         private void ApplyTabVisibilitySettings()
         {
-            m_SearchTab.Visibility = Settings.Default.SearchTabIsVisible ? Visibility.Visible : Visibility.Collapsed;
+            m_QuickSearchTab.Visibility = Settings.Default.QuickSearchTabIsVisible ? Visibility.Visible : Visibility.Collapsed;
+            m_AdvancedSearchTab.Visibility = Settings.Default.AdvancedTabIsVisible ? Visibility.Visible : Visibility.Collapsed;
             m_ArtistListTab.Visibility = Settings.Default.ArtistListTabIsVisible ? Visibility.Visible : Visibility.Collapsed;
             m_ArtistTreeTab.Visibility = Settings.Default.ArtistTreeTabIsVisible ? Visibility.Visible : Visibility.Collapsed;
             m_GenreListTab.Visibility = Settings.Default.GenreListTabIsVisible ? Visibility.Visible : Visibility.Collapsed;
@@ -2192,10 +2084,10 @@ namespace Auremo
             m_StreamsTab.Visibility = Settings.Default.StreamsTabIsVisible ? Visibility.Visible : Visibility.Collapsed;
             m_PlaylistsTab.Visibility = Settings.Default.PlaylistsTabIsVisible ? Visibility.Visible : Visibility.Collapsed;
 
-            if (Settings.Default.DefaultMusicCollectionTab == MusicCollectionTab.SearchTab.ToString())
+            if (Settings.Default.DefaultMusicCollectionTab == MusicCollectionTab.QuickSearchTab.ToString())
             {
-                m_SearchTab.Visibility = System.Windows.Visibility.Visible;
-                m_SearchTab.IsSelected = true;
+                m_QuickSearchTab.Visibility = System.Windows.Visibility.Visible;
+                m_QuickSearchTab.IsSelected = true;
             }
             else if (Settings.Default.DefaultMusicCollectionTab == MusicCollectionTab.ArtistListTab.ToString())
             {
@@ -2222,6 +2114,11 @@ namespace Auremo
                 m_FilesystemTab.Visibility = System.Windows.Visibility.Visible;
                 m_FilesystemTab.IsSelected = true;
             }
+            else if (Settings.Default.DefaultMusicCollectionTab == MusicCollectionTab.AdvancedSearchTab.ToString())
+            {
+                m_AdvancedSearchTab.Visibility = System.Windows.Visibility.Visible;
+                m_AdvancedSearchTab.IsSelected = true;
+            }
             else if (Settings.Default.DefaultMusicCollectionTab == MusicCollectionTab.StreamsTab.ToString())
             {
                 m_StreamsTab.Visibility = System.Windows.Visibility.Visible;
@@ -2240,145 +2137,111 @@ namespace Auremo
 
         #region Querying for a new stream address and name
 
-        string m_NewStreamAddress;
-
         private void StartAddNewStreamQuery()
         {
-            m_NewStreamAddress = "";
-            EnterStringQueryOverlay("Enter the address of the new stream:", "http://", OnAddStreamAddressOverlayReturned);
+            m_Overlay.Activate("Enter the address of the new stream:", "http://", OnAddStreamAddressOverlayReturned);
         }
         
-        private void OnAddStreamAddressOverlayReturned(bool okClicked, string streamAddress)
+        private void OnAddStreamAddressOverlayReturned(bool ok, string input)
         {
-            m_NewStreamAddress = streamAddress.Trim();
+            string address = input.Trim();
 
-            if (okClicked && m_NewStreamAddress != "")
+            if (ok && address.Length > 0)
             {
-                EnterStringQueryOverlay("Enter a name for this stream:", "", OnAddStreamNameOverlayReturned);
+                m_Overlay.Activate("Enter a name for this stream:", "", OnAddStreamNameOverlayReturned, address);
             }
             else
             {
-                m_NewStreamAddress = "";
-                OnAddNewStreamQueryFinished(false, null, null);
+                m_Overlay.Deactivate();
             }
         }
 
-        private void OnAddStreamNameOverlayReturned(bool okClicked, string streamName)
+        private void OnAddStreamNameOverlayReturned(bool ok, string input)
         {
-            string cleanedStreamName = streamName.Trim();
-            string newStreamAddress = m_NewStreamAddress;
-            m_NewStreamAddress = "";
-            OnAddNewStreamQueryFinished(okClicked && cleanedStreamName != "", newStreamAddress, cleanedStreamName);
+            string name = input.Trim();
+
+            if (ok && name.Length > 0)
+            {
+                StreamMetadata stream = new StreamMetadata(m_Overlay.Data as string, name);
+                DataModel.StreamsCollection.Add(stream);
+            }
+            
+            m_Overlay.Deactivate();
         }
 
         #endregion
 
         #region Querying for a new name for a stream
 
-        private StreamMetadata m_RenameStream = null;
-
-        private void StartRenameStreamQuery(StreamMetadata stream)
+        private void StartRenameStreamQuery()
         {
-            m_RenameStream = stream;
-            EnterStringQueryOverlay("New stream name:", stream.Title, OnRenameStreamOverlayReturned);
+            if (m_StreamsView.SelectedItems.Count == 1)
+            {
+                StreamMetadata stream = (m_StreamsView.SelectedItem as MusicCollectionItem).Content as StreamMetadata;
+                m_Overlay.Activate("New stream name:", stream.Label, OnRenameStreamOverlayReturned, stream);
+            }
         }
 
-        private void OnRenameStreamOverlayReturned(bool okClicked, string streamName)
+        private void OnRenameStreamOverlayReturned(bool ok, string input)
         {
-            StreamMetadata renameStream = m_RenameStream;
-            m_RenameStream = null;
-            string trimmedName = streamName.Trim();
-            OnRenameStreamQueryFinished(okClicked && trimmedName.Length > 0, renameStream, trimmedName);
+            string trimmedName = input.Trim();
+
+            if (ok && trimmedName.Length > 0)
+            {
+                DataModel.StreamsCollection.Rename(m_Overlay.Data as StreamMetadata, trimmedName);
+            }
+
+            m_Overlay.Deactivate();
         }
 
         #endregion
 
-        #region Querying for a new playlist name
+        #region Querying for a name for a new playlist
 
         private void StartAddNewPlaylistAsQuery(string currentPlaylistName)
         {
-            EnterStringQueryOverlay("Save this playlist on the server as:", currentPlaylistName, OnSavePlaylistAsOverlayReturned);
+            m_Overlay.Activate("Save this playlist on the server as:", currentPlaylistName, OnSavePlaylistAsOverlayReturned);
         }
 
-        private void OnSavePlaylistAsOverlayReturned(bool okClicked, string playlistName)
+        private void OnSavePlaylistAsOverlayReturned(bool ok, string input)
         {
-            string trimmedName = playlistName.Trim();
-            OnAddNewPlaylistAsQueryFinished(okClicked && trimmedName.Length > 0, trimmedName);
+            string trimmedName = input.Trim();
+
+            if (ok && trimmedName.Length > 0)
+            {
+                DataModel.SavedPlaylists.CurrentPlaylistName = trimmedName;
+                DataModel.ServerSession.Rm(DataModel.SavedPlaylists.CurrentPlaylistName);
+                DataModel.ServerSession.Save(DataModel.SavedPlaylists.CurrentPlaylistName);
+                DataModel.SavedPlaylists.Refresh();
+            }
+
+            m_Overlay.Deactivate();
         }
 
         #endregion
 
-        #region Querying for a new name for a saved playlist
-
-        private string m_OldSavedPlaylistName = null;
+        #region Querying for a new name for a previously saved playlist
 
         private void StartRenameSavedPlaylistQuery(string oldName)
         {
-            m_OldSavedPlaylistName = oldName;
-            EnterStringQueryOverlay("New playlist name:", oldName, OnRenameSavedPlaylistOverlayReturned);
+            m_Overlay.Activate("New playlist name:", oldName, OnRenameSavedPlaylistOverlayReturned, oldName);
         }
 
-        private void OnRenameSavedPlaylistOverlayReturned(bool okClicked, string newName)
+        private void OnRenameSavedPlaylistOverlayReturned(bool ok, string input)
         {
-            string oldName = m_OldSavedPlaylistName;
-            m_OldSavedPlaylistName = null;
-            string trimmedNewName = newName.Trim();
-            OnRenameStreamQueryFinished(okClicked && trimmedNewName.Length > 0, oldName, trimmedNewName);
+            string trimmedName = input.Trim();
+
+            if (ok && trimmedName.Length > 0)
+            {
+                DataModel.ServerSession.Rename(m_Overlay.Data as string, trimmedName);
+                DataModel.SavedPlaylists.CurrentPlaylistName = trimmedName;
+                DataModel.SavedPlaylists.Refresh();
+            }
+
+            m_Overlay.Deactivate();
         }
 
         #endregion
-
-        #endregion
-
-        #region String query overlay implementation
-
-        public delegate void StringQueryOverlayExitHandler(bool okClicked, string input);
-        StringQueryOverlayExitHandler m_StringQueryOverlayExitHandler = null;
-
-        private void EnterStringQueryOverlay(string caption, string defaultInput, StringQueryOverlayExitHandler handler)
-        {
-            m_StringQueryOverlayExitHandler = handler;
-            m_StringQueryOverlayCaption.Text = caption;
-            m_StringQueryOverlayInput.Text = defaultInput == null ? "" : defaultInput;
-            m_StringQueryOverlay.Visibility = Visibility.Visible;
-            m_StringQueryOverlayInput.CaretIndex = m_StringQueryOverlayInput.Text.Length;
-            m_StringQueryOverlayInput.Focus();
-        }
-
-        private void ExitStringQueryOverlay()
-        {
-            m_StringQueryOverlay.Visibility = Visibility.Collapsed;
-            m_StringQueryOverlayExitHandler = null;
-        }
-
-        private void OnStringQueryOverlayButtonClicked(object sender, RoutedEventArgs e)
-        {
-            StringQueryOverlayExitHandler currentHandler = m_StringQueryOverlayExitHandler;
-            ExitStringQueryOverlay();
-
-            if (currentHandler != null)
-            {
-                currentHandler(sender == m_StringQueryOverlayOK, m_StringQueryOverlayInput.Text);
-            }
-        }
-
-        private void m_StringQueryOverlayBackgroundClicked(object sender, MouseButtonEventArgs e)
-        {
-            StringQueryOverlayExitHandler currentHandler = m_StringQueryOverlayExitHandler;
-            ExitStringQueryOverlay();
-
-            if (currentHandler != null)
-            {
-                currentHandler(false, m_StringQueryOverlayInput.Text);
-            }
-
-            e.Handled = true;
-        }
-
-        private void m_StringQueryOverlayForegroundClicked(object sender, MouseButtonEventArgs e)
-        {
-            e.Handled = true;
-        }
 
         #endregion
 
@@ -2421,10 +2284,6 @@ namespace Auremo
         {
             if (m_AboutWindow == null)
             {
-                Assembly assembly = Assembly.GetExecutingAssembly();
-                Stream stream = assembly.GetManifestResourceStream("Auremo.Text.AUTHORS.txt");
-                StreamReader reader = new StreamReader(stream, Encoding.UTF8);
-                string about = reader.ReadToEnd();
                 m_AboutWindow = new AboutWindow(this);
             }
             else
@@ -2454,36 +2313,6 @@ namespace Auremo
         #endregion
 
         #region Miscellaneous helper functions
-
-        private object SearchResultCellContent(DataGridCellInfo cell)
-        {
-            // Is this really the best way to find which column this is?
-            // It seems contrived, but DataGridCellInfo seems to contain
-            // very little usable information.
-            const int songColumnDisplayIndex = 0;
-            const int artistColumnDisplayIndex = 1;
-            const int albumColumnDisplayIndex = 2;
-
-            CollectionSearch.SearchResultTuple result = (CollectionSearch.SearchResultTuple)(cell.Item);
-
-            if (result != null)
-            {
-                if (cell.Column.DisplayIndex == artistColumnDisplayIndex)
-                {
-                    return result.Artist;
-                }
-                else if (cell.Column.DisplayIndex == albumColumnDisplayIndex)
-                {
-                    return result.Album;
-                }
-                else if (cell.Column.DisplayIndex == songColumnDisplayIndex)
-                {
-                    return result.Song;
-                }
-            }
-
-            return null;
-        }
         
         private DataGridRow DataGridRowBeingClicked(DataGrid grid, MouseButtonEventArgs e)
         {
@@ -2498,30 +2327,6 @@ namespace Auremo
                     if (component is DataGridRow)
                     {
                         return (DataGridRow)component;
-                    }
-                    else
-                    {
-                        component = VisualTreeHelper.GetParent(component);
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        private DataGridCell DataGridCellBeingClicked(DataGrid grid, MouseButtonEventArgs e)
-        {
-            HitTestResult hit = VisualTreeHelper.HitTest(grid, e.GetPosition(grid));
-
-            if (hit != null)
-            {
-                DependencyObject component = (DependencyObject)hit.VisualHit;
-
-                while (component != null)
-                {
-                    if (component is DataGridCell)
-                    {
-                        return (DataGridCell)component;
                     }
                     else
                     {
@@ -2560,45 +2365,36 @@ namespace Auremo
             return null;
         }
 
-        private bool TreeViewExpanderBeingClicked(TreeView tree, MouseButtonEventArgs e)
+        private bool ViewBackgroundWasClicked(Control control, MouseButtonEventArgs e)
         {
-            HitTestResult hit = VisualTreeHelper.HitTest(tree, e.GetPosition(tree));
-            return hit != null && hit.VisualHit is System.Windows.Shapes.Path;
-        }
+            HitTestResult hit = VisualTreeHelper.HitTest(control, e.GetPosition(control));
 
-        private IList<object> SearchResultsCellsToObjects()
-        {
-            // Is this really the best way to find which column this is?
-            // It seems contrived, but DataGridCellInfo seems to contain
-            // very little usable information.
-            const int songColumnDisplayIndex = 0;
-            const int artistColumnDisplayIndex = 1;
-            const int albumColumnDisplayIndex = 2;
-
-            IList<object> result = new List<object>();
-
-            foreach (DataGridCellInfo cell in m_SearchResultsView.SelectedCells)
+            if (hit != null)
             {
-                CollectionSearch.SearchResultTuple searchResult = (CollectionSearch.SearchResultTuple)(cell.Item);
+                DependencyObject component = (DependencyObject)hit.VisualHit;
 
-                if (searchResult != null)
+                while (component != null)
                 {
-                    if (cell.Column.DisplayIndex == artistColumnDisplayIndex)
+                    // The expander button in a tree view or the scrollbar of
+                    // any view -> stop here. There must be other such end
+                    // conditions, so this is by no means a generally corrent
+                    // solution. It's good enough here though.
+                    if (component is ToggleButton || component is ScrollBar || component is Thumb)
                     {
-                        result.Add(searchResult.Artist);
+                        return false;
                     }
-                    else if (cell.Column.DisplayIndex == albumColumnDisplayIndex)
+                    else if (component is ItemsControl)
                     {
-                        result.Add(searchResult.Album);
+                        return true;
                     }
-                    else if (cell.Column.DisplayIndex == songColumnDisplayIndex)
+                    else
                     {
-                        result.Add(searchResult.Song);
+                        component = VisualTreeHelper.GetParent(component);
                     }
                 }
             }
 
-            return result;
+            return false;
         }
 
         private TreeViewController TreeViewControllerOf(TreeView tree)
@@ -2643,11 +2439,7 @@ namespace Auremo
 
         private string GetDragDropDataString(object dragSource)
         {
-            if (dragSource == m_SearchResultsView)
-            {
-                return AddSearchResults;
-            }
-            else if (dragSource == m_ArtistsView)
+            if (dragSource == m_ArtistsView)
             {
                 return AddArtists;
             }
@@ -2659,7 +2451,7 @@ namespace Auremo
             {
                 return AddAlbums;
             }
-            else if (dragSource == m_SongsOnSelectedAlbumsView || dragSource == m_SongsOnSelectedGenreAlbumsView)
+            else if (dragSource == m_QuickSearchResultsView || dragSource == m_AdvancedSearchResultsView || dragSource == m_SongsOnSelectedAlbumsView || dragSource == m_SongsOnSelectedGenreAlbumsView)
             {
                 return AddSongs;
             }

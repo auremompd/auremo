@@ -22,7 +22,7 @@ using System.Text;
 
 namespace Auremo
 {
-    public class AlbumMetadata
+    public class AlbumMetadata : IComparable
     {
         public AlbumMetadata(string artist, string albumTitle, string date)
         {
@@ -60,6 +60,27 @@ namespace Auremo
         public override string ToString()
         {
             return Artist + ": " + Title;
+        }
+
+        public int CompareTo(object o)
+        {
+            if (o is AlbumMetadata)
+            {
+                AlbumMetadata rhs = o as AlbumMetadata;
+
+                if (Artist != rhs.Artist)
+                {
+                    return StringComparer.Ordinal.Compare(Artist, rhs.Artist);
+                }
+                else
+                {
+                    return StringComparer.Ordinal.Compare(Title, rhs.Title);
+                }
+            }
+            else
+            {
+                throw new Exception("SongMetadata: attempt to compare to an incompatible object");
+            }
         }
     }
 }

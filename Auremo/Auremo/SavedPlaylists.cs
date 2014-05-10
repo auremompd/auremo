@@ -42,59 +42,82 @@ namespace Auremo
 
         private DataModel m_DataModel = null;
         private IDictionary<string, IList<Playable>> m_Playlists = new SortedDictionary<string, IList<Playable>>();
-        private IList<Playable> m_SelectedItemsOnSelectedPlaylist = new List<Playable>();
+        private IList<MusicCollectionItem> m_SelectedItemsOnSelectedPlaylist = new List<MusicCollectionItem>();
+        private string m_SelectedPlaylist = null;
         private string m_CurrentPlaylistName = "";
 
         public SavedPlaylists(DataModel dataModel)
         {
             m_DataModel = dataModel;
             Playlists = new ObservableCollection<string>();
-            ItemsOnSelectedPlaylist = new ObservableCollection<Playable>();
-            SelectedItemsOnSelectedPlaylist = new ObservableCollection<Playable>();
+            ItemsOnSelectedPlaylist = new ObservableCollection<MusicCollectionItem>();
+            SelectedItemsOnSelectedPlaylist = new ObservableCollection<MusicCollectionItem>();
+
+            m_DataModel.ServerSession.PropertyChanged += new PropertyChangedEventHandler(OnServerSessionPropertyChanged);
         }
 
-        public void Refresh(ServerConnection connection)
+        public void Clear()
         {
             m_Playlists.Clear();
+            Playlists.Clear();
+        }
 
-            if (connection.Status == ServerConnection.State.Connected)
+        public void Refresh()
+        {
+            m_DataModel.ServerSession.LsInfo();
+        }
+
+        public void OnLsInfoResponseReceived(IEnumerable<MPDResponseLine> response)
+        {
+            Clear();
+            ISet<string> playlists = new SortedSet<string>();
+
+            foreach (MPDResponseLine line in response)
             {
-                ServerResponse lsInfoResponse = Protocol.LsInfo(connection);
-
-                if (lsInfoResponse.IsOK)
+                if (line.Key == MPDResponseLine.Keyword.Playlist)
                 {
-                    foreach (ServerResponseLine line in lsInfoResponse.ResponseLines)
-                    {
-                        if (line.Name == "playlist")
-                        {
-                            m_Playlists.Add(line.Value, new List<Playable>());
-                        }
-                    }
-
-                    foreach (string playlistName in m_Playlists.Keys)
-                    {
-                        IList<Playable> contents = m_Playlists[playlistName];
-                        ServerResponse listPlaylistResponse = Protocol.ListPlaylist(connection, playlistName);
-
-                        if (listPlaylistResponse.IsOK)
-                        {
-                            foreach (ServerResponseLine line in listPlaylistResponse.ResponseLines)
-                            {
-                                if (line.Name == "file")
-                                {
-                                    contents.Add(GetPlayableByPath(line.Value));
-                                }
-                            }
-                        }
-                    }
+                    playlists.Add(line.Value);
+                    m_DataModel.ServerSession.ListPlaylistInfo(line.Value);
                 }
             }
 
-            Playlists.Clear();
-
-            foreach (string name in m_Playlists.Keys)
+            foreach (string playlist in playlists)
             {
-                Playlists.Add(name);
+                Playlists.Add(playlist);
+            }
+        }
+
+        public void OnListPlaylistInfoResponseReceived(string name, IEnumerable<MPDSongResponseBlock> response)
+        {
+            IList<Playable> playlist = new List<Playable>();
+
+            foreach (MPDSongResponseBlock block in response)
+            {
+                Playable playable = block.ToPlayable(m_DataModel);
+
+                // If this is a stream that is in the collection, use the database version
+                // instead of the constructed one so we can display the user-set label.
+                if (playable is StreamMetadata)
+                {
+                    StreamMetadata stream = m_DataModel.StreamsCollection.StreamByPath(playable.Path);
+
+                    if (stream != null)
+                    {
+                        playable = stream;
+                    }
+                }
+
+                if (playable != null)
+                {
+                    playlist.Add(playable);
+                }
+            }
+
+            m_Playlists[name] = playlist;
+
+            if (name == SelectedPlaylist)
+            {
+                NotifyPropertyChanged("ItemsOnSelectedPlaylist");
             }
         }
 
@@ -106,27 +129,32 @@ namespace Auremo
 
         public string SelectedPlaylist
         {
+            get
+            {
+                return m_SelectedPlaylist;
+            }
             set
             {
+                m_SelectedPlaylist = value;
                 ItemsOnSelectedPlaylist.Clear();
 
                 if (value != null && m_Playlists.ContainsKey(value))
                 {
                     foreach (Playable playable in m_Playlists[value])
                     {
-                        ItemsOnSelectedPlaylist.Add(playable);
+                        ItemsOnSelectedPlaylist.Add(new MusicCollectionItem(playable, ItemsOnSelectedPlaylist.Count));
                     }
                 }
             }
         }
 
-        public ObservableCollection<Playable> ItemsOnSelectedPlaylist
+        public ObservableCollection<MusicCollectionItem> ItemsOnSelectedPlaylist
         {
             get;
             private set;
         }
 
-        public IList<Playable> SelectedItemsOnSelectedPlaylist
+        public IList<MusicCollectionItem> SelectedItemsOnSelectedPlaylist
         {
             get
             {
@@ -195,6 +223,21 @@ namespace Auremo
             }
 
             return new UnknownPlayable(path);
+        }
+
+        private void OnServerSessionPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "State")
+            {
+                if (m_DataModel.ServerSession.State == ServerSession.SessionState.Connected)
+                {
+                    Refresh();
+                }
+                else if (m_DataModel.ServerSession.State == ServerSession.SessionState.Disconnected)
+                {
+                    Clear();
+                }
+            }
         }
     }
 }

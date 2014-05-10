@@ -9,7 +9,7 @@
                 <ControlTemplate TargetType="{x:Type TabControl}">
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="140"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <TabPanel Name="HeaderPanel"

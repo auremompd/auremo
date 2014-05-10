@@ -50,6 +50,7 @@ namespace Auremo
             Children = new ObservableCollection<TreeViewNode>();
             Controller = controller;
             ID = -1;
+            HighestChildID = -1;
         }
 
         public TreeViewNode Root
@@ -166,6 +167,12 @@ namespace Auremo
         }
 
         public int ID
+        {
+            get;
+            set;
+        }
+
+        public int HighestChildID
         {
             get;
             set;

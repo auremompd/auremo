@@ -71,5 +71,13 @@ namespace Auremo
                 return null;
             }
         }
+
+        public string DisplayName
+        {
+            get
+            {
+                return Title;
+            }
+        }
     }
 }
