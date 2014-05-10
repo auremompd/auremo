@@ -81,8 +81,8 @@ namespace Auremo
         }
 
         // TODO: this is a kludge to allow the formulation of the Mopidy
-        // listallinfo equivalent. It should be removed when Moopidy adds
-        // support for the proper command.
+        // listallinfo equivalent. It should be removed when Mopidy's
+        // implementation of listallinfo is fast enough for practical purposes.
         public MPDCommand()
         {
             Op = "mopidylistallinfokludge";
