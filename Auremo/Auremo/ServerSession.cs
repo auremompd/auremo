@@ -44,8 +44,11 @@ namespace Auremo
         private DataModel m_DataModel = null;
         private ServerSessionThread m_SessionThread = null;
         private SessionState m_State = SessionState.Disconnected;
-        private string m_StateDescription = "";
-        private string m_ProtocolError = "";
+        private string m_Host = "";
+        private int m_Port = -1;
+        private string m_StatusMessage = "Initializing.";
+        private string m_ActivityDescription = "";
+        private string m_ErrorMessage = "";
 
         private delegate void ThreadMessage(string message);
         private delegate void ThreadState(SessionState state);
@@ -70,6 +73,8 @@ namespace Auremo
                 return false;
             }
 
+            m_Host = host;
+            m_Port = port;
             m_SessionThread = new ServerSessionThread(this, m_DataModel, host, port, 1000 * Settings.Default.NetworkTimeout, Settings.Default.ReconnectInterval);
             m_SessionThread.Start();
             return true;
@@ -105,6 +110,7 @@ namespace Auremo
                     m_State = value;
                     NotifyPropertyChanged("State");
                     NotifyPropertyChanged("IsConnected");
+                    UpdateStatusMessage();
                 }
             }
         }
@@ -118,52 +124,116 @@ namespace Auremo
         }
 
 
-        public string StateDescription
-        {
-            get
-            {
-                return m_StateDescription;
-            }
-            set
-            {
-                if (value != m_StateDescription)
-                {
-                    m_StateDescription = value;
-                    NotifyPropertyChanged("StateDescription");
-                }
-            }
-        }
 
-        public string ProtocolError
-        {
-            get
-            {
-                return m_ProtocolError;
-            }
-            set
-            {
-                if (value != m_ProtocolError)
-                {
-                    m_ProtocolError = value;
-                    NotifyPropertyChanged("ProtocolError");
-                }
-            }
-        }
-
-        public void OnThreadStateChanged(SessionState state)
+        public void OnConnectionStateChanged(SessionState state)
         {
             m_DataModel.MainWindow.Dispatcher.Invoke(new ThreadState((SessionState s) => { State = s; }), state);
         }
 
-        public void OnThreadMessage(string message)
+        public void OnActivityChanged(string activity)
         {
-            m_DataModel.MainWindow.Dispatcher.Invoke(new ThreadMessage((string m) => { StateDescription = m; }), message);
+            m_DataModel.MainWindow.Dispatcher.Invoke(new ThreadMessage((string a) => { ActivityDescription = a; }), activity);
         }
 
-        public void OnThreadError(string error)
+        public void OnErrorMessageChanged(string error)
         {
-            m_DataModel.MainWindow.Dispatcher.Invoke(new ThreadMessage((string e) => { ProtocolError = e; }), error);
+            m_DataModel.MainWindow.Dispatcher.Invoke(new ThreadMessage((string e) => { ErrorMessage = e; }), error);
         }
+
+        #region Status message construction
+
+        public string StatusMessage
+        {
+            get
+            {
+                return m_StatusMessage;
+            }
+            set
+            {
+                if (value != m_StatusMessage)
+                {
+                    m_StatusMessage = value;
+                    NotifyPropertyChanged("StatusMessage");
+                }
+            }
+        }
+
+        private string ConnectionState
+        {
+            get
+            {
+                if (m_Host == "")
+                {
+                    return ""; // Not initialized yet, most likely.
+                }
+                else if (m_State == SessionState.Connecting)
+                {
+                    return "Connecting to " + m_Host + ":" + m_Port + ".";
+                }
+                else if (m_State == SessionState.Connected)
+                {
+                    return "Connected to " + m_Host + ":" + m_Port + ".";
+                }
+                else if (m_State == SessionState.Disconnecting)
+                {
+                    return "Disconnecting from " + m_Host + ":" + m_Port + ".";
+                }
+                else
+                {
+                    return "Disconnected from " + m_Host + ":" + m_Port + ".";
+                }
+            }
+        }
+
+        private string ActivityDescription
+        {
+            get
+            {
+                return m_ActivityDescription;
+            }
+            set
+            {
+                if (value != m_ActivityDescription)
+                {
+                    m_ActivityDescription = value;
+                    UpdateStatusMessage();
+                }
+            }
+        }
+
+        private string ErrorMessage
+        {
+            get
+            {
+                return m_ErrorMessage;
+            }
+            set
+            {
+                if (value != m_ErrorMessage)
+                {
+                    m_ErrorMessage = value;
+                    UpdateStatusMessage();
+                }
+            }
+        }
+
+        private void UpdateStatusMessage()
+        {
+            if (ErrorMessage.Length > 0)
+            {
+                StatusMessage = ErrorMessage;
+            }
+            else if (ActivityDescription.Length > 0)
+            {
+                StatusMessage = ActivityDescription;
+            }
+            else
+            {
+                StatusMessage = ConnectionState;
+            }
+        }
+
+        #endregion
 
         #region Protocol commands
 

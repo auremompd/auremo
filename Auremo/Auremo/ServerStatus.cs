@@ -435,10 +435,6 @@ namespace Auremo
                     Reset();
                 }
             }
-            else if (e.PropertyName == "ProtocolError")
-            {
-                ErrorMessage = "Error message from server: " + m_DataModel.ServerSession.ProtocolError;
-            }
         }
 
         private void Reset()
