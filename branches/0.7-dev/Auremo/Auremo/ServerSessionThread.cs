@@ -46,7 +46,7 @@ namespace Auremo
         private int m_Timeout = 0;
         private TcpClient m_Connection = null;
         private NetworkStream m_Stream = null;
-        private int m_ReceiveBufferSize = 16384;
+        private const int m_ReceiveBufferSize = 16384;
         private byte[] m_ReceiveBuffer = null;
         private int m_ReceiveBufferPosition = 0;
         private int m_BytesInBuffer = 0;
@@ -102,13 +102,13 @@ namespace Auremo
             }
         }
 
-        public string Host
+        private string Host
         {
             get;
             set;
         }
 
-        public int Port
+        private int Port
         {
             get;
             set;
@@ -168,8 +168,8 @@ namespace Auremo
 
                 try
                 {
-                    m_Parent.OnThreadStateChanged(ServerSession.SessionState.Connecting);
-                    m_Parent.OnThreadMessage("Connecting to " + Host + ":" + Port + ".");
+                    m_Parent.OnConnectionStateChanged(ServerSession.SessionState.Connecting);
+                    m_Parent.OnActivityChanged("");
                     IAsyncResult connectResult = m_Connection.BeginConnect(Host, Port, null, null);
 
                     while (!connectResult.IsCompleted && !Terminating)
@@ -200,8 +200,8 @@ namespace Auremo
                     {
                         // Send possible password before any other commands.
                         SendPassword();
-                        m_Parent.OnThreadStateChanged(ServerSession.SessionState.Connected);
-                        m_Parent.OnThreadMessage("Connected to " + Host + ":" + Port + ".");
+                        m_Parent.OnConnectionStateChanged(ServerSession.SessionState.Connected);
+                        m_Parent.OnActivityChanged("");
                     }
                     else
                     {
@@ -212,7 +212,7 @@ namespace Auremo
 
                 if (m_Connection == null)
                 {
-                    m_Parent.OnThreadMessage("Connecting to " + Host + ":" + Port + " failed.");
+                    m_Parent.OnActivityChanged("Connecting to " + Host + ":" + Port + " failed.");
 
                     if (fatal)
                     {
@@ -262,6 +262,8 @@ namespace Auremo
                     }
                     else
                     {
+                        UpdateThreadMessage(command);
+
                         bool optimizeOut = false;
                         optimizeOut = optimizeOut || (command.Op == "status" && m_StatusUpdateEnqueued);
                         optimizeOut = optimizeOut || (command.Op == "stats" && m_StatsUpdateEnqueued);
@@ -280,14 +282,14 @@ namespace Auremo
         {
             if (Terminating)
             {
-                m_Parent.OnThreadStateChanged(ServerSession.SessionState.Disconnecting);
+                m_Parent.OnConnectionStateChanged(ServerSession.SessionState.Disconnecting);
             }
             else
             {
-                m_Parent.OnThreadStateChanged(ServerSession.SessionState.Connecting);
+                m_Parent.OnConnectionStateChanged(ServerSession.SessionState.Connecting);
             }
 
-            m_Parent.OnThreadMessage("Disconnected from " + Host + ":" + Port + ".");
+            m_Parent.OnActivityChanged("Disconnected from " + Host + ":" + Port + ".");
 
             if (m_Connection != null)
             {
@@ -309,7 +311,7 @@ namespace Auremo
 
             if (banner == null)
             {
-                m_Parent.OnThreadError("The server banner is not valid; check settings.");
+                m_Parent.OnErrorMessageChanged("The server banner is not valid; check settings.");
                 return false;
             }
             else if (banner.Key == MPDResponseLine.Keyword.OK && banner.Value.StartsWith("MPD"))
@@ -318,7 +320,7 @@ namespace Auremo
             }
             else
             {
-                m_Parent.OnThreadError("Error from server: " + banner.Literal);
+                m_Parent.OnErrorMessageChanged("Error from server: " + banner.Literal);
                 return false;
             }
         }
@@ -366,7 +368,7 @@ namespace Auremo
                     }
                     else
                     {
-                        m_Parent.OnThreadError(statusLine.Value);
+                        m_Parent.OnErrorMessageChanged(statusLine.Value);
                     }
                 }
                 else
@@ -593,6 +595,26 @@ namespace Auremo
             {
                 Send(new MPDCommand("password", password));
             }
+        }
+
+        private void UpdateThreadMessage(MPDCommand command)
+        {
+            string message = "";
+
+            if (command.Op == "listallinfo" || command.Op == "mopidylistallinfokludge")
+            {
+                message = "Querying music database.";
+            }
+            else if (command.Op == "listplaylistinfo")
+            {
+                message = "Querying playlist " + command.Argument1 + "...";
+            }
+            else if (command.Op == "search")
+            {
+                message = "Searching for " + command.Argument2 + "...";
+            }
+
+            m_Parent.OnActivityChanged(message);
         }
 
         private void Callback(Action callback)
