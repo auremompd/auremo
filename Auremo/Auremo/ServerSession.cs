@@ -107,6 +107,7 @@ namespace Auremo
             {
                 if (value != m_State)
                 {
+                    ErrorMessage = "";
                     m_State = value;
                     NotifyPropertyChanged("State");
                     NotifyPropertyChanged("IsConnected");
@@ -122,8 +123,6 @@ namespace Auremo
                 return State == SessionState.Connected;
             }
         }
-
-
 
         public void OnConnectionStateChanged(SessionState state)
         {
