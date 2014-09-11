@@ -407,6 +407,18 @@ namespace Auremo
             Update();
         }
 
+        private void OnToggleSingleMode(object sender, RoutedEventArgs e)
+        {
+            DataModel.ServerSession.Single(!DataModel.ServerStatus.IsOnSingle);
+            Update();
+        }
+
+        private void OnToggleConsumeMode(object sender, RoutedEventArgs e)
+        {
+            DataModel.ServerSession.Consume(!DataModel.ServerStatus.IsOnConsume);
+            Update();
+        }
+
         private void OnViewLicenseClicked(object sender, RoutedEventArgs e)
         {
             BringUpLicenseWindow();

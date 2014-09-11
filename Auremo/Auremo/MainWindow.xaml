@@ -67,6 +67,10 @@
                     </DataTemplate>
                 </MenuItem.ItemTemplate>
             </MenuItem>
+            <MenuItem Name="m_ServerMenu" Header="Server">
+                <CheckBox Content="Single mode" IsEnabled="{Binding Path=ServerSession.IsConnected}" IsChecked="{Binding Path=ServerStatus.IsOnSingle, Mode=OneWay}" Click="OnToggleSingleMode"/>
+                <CheckBox Content="Consume mode" IsEnabled="{Binding Path=ServerSession.IsConnected}" IsChecked="{Binding Path=ServerStatus.IsOnConsume, Mode=OneWay}" Click="OnToggleConsumeMode"/>
+            </MenuItem>
             <MenuItem Header="Help">
                 <MenuItem Header="View license (GPL2)..." Click="OnViewLicenseClicked"/>
                 <MenuItem Header="About..." Click="OnAboutClicked"/>

@@ -110,6 +110,14 @@ namespace Auremo
                 {
                     IsOnRepeat = line.Value == "1";
                 }
+                else if (line.Key == MPDResponseLine.Keyword.Single)
+                {
+                    IsOnSingle = line.Value == "1";
+                }
+                else if (line.Key == MPDResponseLine.Keyword.Consume)
+                {
+                    IsOnConsume = line.Value == "1";
+                }
                 else if (line.Key == MPDResponseLine.Keyword.Audio)
                 {
                     if (line.Value == "0:?:0")
@@ -288,6 +296,40 @@ namespace Auremo
                 {
                     m_IsOnRandom = value;
                     NotifyPropertyChanged("IsOnRandom");
+                }
+            }
+        }
+
+        bool m_IsOnSingle = false;
+        public bool IsOnSingle
+        {
+            get
+            {
+                return m_IsOnSingle;
+            }
+            private set
+            {
+                if (value != m_IsOnSingle)
+                {
+                    m_IsOnSingle = value;
+                    NotifyPropertyChanged("IsOnSingle");
+                }
+            }
+        }
+
+        bool m_IsOnConsume = false;
+        public bool IsOnConsume
+        {
+            get
+            {
+                return m_IsOnConsume;
+            }
+            private set
+            {
+                if (value != m_IsOnConsume)
+                {
+                    m_IsOnConsume = value;
+                    NotifyPropertyChanged("IsOnConsume");
                 }
             }
         }
