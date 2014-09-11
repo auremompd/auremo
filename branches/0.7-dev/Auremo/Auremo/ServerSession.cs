@@ -437,6 +437,20 @@ namespace Auremo
 
         #endregion
 
+        #region Playback Options
+
+        public void Consume(bool on)
+        {
+            Send(new MPDCommand("consume", on ? "1" : "0"));
+        }
+
+        public void Single(bool on)
+        {
+            Send(new MPDCommand("single", on ? "1" : "0"));
+        }
+
+        #endregion
+
         #region Helpers
 
         private void Send(MPDCommand command)

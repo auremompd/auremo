@@ -27,7 +27,7 @@ namespace Auremo
         public enum Keyword
         {
             OK = 0, ACK,
-            State, Volume, Playlist, Song, Time, Random, Repeat, Audio, Error,
+            State, Volume, Playlist, Song, Time, Random, Repeat, Single, Consume, Audio, Error,
             File, Name, Title, Artist, AlbumArtist, Album, Genre, Date, Track, Id, Pos,
             DbUpdate,
             OutputId, OutputName, OutputEnabled,
@@ -38,7 +38,7 @@ namespace Auremo
         private string[] KeywordSpelling =
         {
             "ok", "ack",
-            "state", "volume", "playlist", "song", "time", "random", "repeat", "audio", "error",
+            "state", "volume", "playlist", "song", "time", "random", "repeat", "single", "consume", "audio", "error",
             "file", "name", "title", "artist", "albumartist", "album", "genre", "date", "track", "id", "pos",
             "db_update",
             "outputid", "outputname", "outputenabled"
