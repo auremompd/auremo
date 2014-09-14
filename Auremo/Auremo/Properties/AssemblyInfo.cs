@@ -12,7 +12,7 @@ using System.Windows;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Auremo")]
-[assembly: AssemblyCopyright("Copyright © Mikko Teräs and Niilo Säämänen 2013")]
+[assembly: AssemblyCopyright("Copyright © Mikko Teräs and Niilo Säämänen 2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
