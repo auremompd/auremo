@@ -29,7 +29,7 @@
     <ProductName>Auremo</ProductName>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
     <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>0.6.1.0</ApplicationVersion>
+    <ApplicationVersion>0.7.0.0</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -122,10 +122,17 @@
     </Compile>
     <Compile Include="AlbumComparison.cs" />
     <Compile Include="AlbumMetadataTreeViewNode.cs" />
+    <Compile Include="LinkMetadata.cs" />
+    <Compile Include="MainWindowOverlay.xaml.cs">
+      <DependentUpon>MainWindowOverlay.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="MusicCollectionItem.cs" />
     <Compile Include="ConverterClasses.cs" />
+    <Compile Include="CurrentSong.cs" />
+    <Compile Include="DataGridItem.cs" />
     <Compile Include="GlobalEnums.cs" />
     <Compile Include="ArtistTreeViewNode.cs" />
-    <Compile Include="CollectionSearch.cs" />
+    <Compile Include="QuickSearch.cs" />
     <Compile Include="Crypto.cs" />
     <Compile Include="DatabaseView.cs" />
     <Compile Include="DataModel.cs" />
@@ -134,16 +141,18 @@
     <Compile Include="DirectoryTreeViewNode.cs" />
     <Compile Include="GenreTreeViewNode.cs" />
     <Compile Include="M3UParser.cs" />
+    <Compile Include="MPDCommand.cs" />
+    <Compile Include="MPDResponseLine.cs" />
+    <Compile Include="MPDSongResponseBlock.cs" />
     <Compile Include="Output.cs" />
     <Compile Include="OutputCollection.cs" />
     <Compile Include="Playable.cs" />
     <Compile Include="PlaylistFileParserBase.cs" />
     <Compile Include="PlaylistWriter.cs" />
-    <Compile Include="Protocol.cs" />
+    <Compile Include="QuickSearchThread.cs" />
     <Compile Include="SavedPlaylists.cs" />
-    <Compile Include="ServerConnection.cs" />
-    <Compile Include="ServerResponse.cs" />
-    <Compile Include="ServerResponseLine.cs" />
+    <Compile Include="ServerSession.cs" />
+    <Compile Include="ServerSessionThread.cs" />
     <Compile Include="ServerStatus.cs" />
     <Compile Include="SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
@@ -151,6 +160,7 @@
     <Compile Include="SongMetadata.cs" />
     <Compile Include="SongMetadataTreeViewNode.cs" />
     <Compile Include="PLSParser.cs" />
+    <Compile Include="AdvancedSearch.cs" />
     <Compile Include="StickyButton.cs" />
     <Compile Include="StreamMetadata.cs" />
     <Compile Include="StreamsCollection.cs" />
@@ -179,6 +189,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="MainWindowOverlay.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="SettingsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -191,11 +205,23 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="WPFResources\ButtonGlyphStyle.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="WPFResources\CollectionHintTextStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="WPFResources\SearchButtonStyle.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="WPFResources\ContextMenuStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WPFResources\CopyableTextBlockStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -234,10 +260,6 @@
     <Page Include="WPFResources\ScrollViewerStyle.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </Page>
-    <Page Include="WPFResources\SearchResultsDataGridStyle.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="WPFResources\TabControlStyle.xaml">
       <SubType>Designer</SubType>
@@ -280,7 +302,6 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Text\AUTHORS.txt" />
     <EmbeddedResource Include="Text\LICENSE.txt" />
     <None Include="Text\README.txt" />
   </ItemGroup>
@@ -314,15 +335,14 @@
     <Resource Include="Graphics\Auremo_icon_48.png" />
     <Resource Include="Graphics\Auremo_icon_64.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Resources\" />
+  </ItemGroup>
   <ItemGroup>
     <Resource Include="Graphics\Auremo_icon.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Graphics\Auremo.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Icon48.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

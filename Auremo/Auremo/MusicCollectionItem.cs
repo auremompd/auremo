@@ -23,13 +23,10 @@ using System.Text;
 
 namespace Auremo
 {
-    public class PlaylistItem : DataGridItem, INotifyPropertyChanged
+    public class MusicCollectionItem : DataGridItem, INotifyPropertyChanged
     {
         #region INotifyPropertyChanged implementation
 
-        // At present only the IsPlaying property sends notifications.
-        // All other properties should be set to their final state
-        // before the playlist item is inserted into the ListView.
         public event PropertyChangedEventHandler PropertyChanged;
 
         private void NotifyPropertyChanged(string info)
@@ -42,34 +39,23 @@ namespace Auremo
 
         #endregion
 
-        private bool m_IsPlaying = false;
-        private bool m_IsPaused = false;
+        private bool m_IsSelected = false;
 
-        public PlaylistItem()
+        public MusicCollectionItem(object content, int position)
         {
-            Playable = null;
-            Id = -1;
-            Position = -1;
-            IsSelected = false;
-            IsPlaying = false;
-            IsPaused = false;
+            Content = content;
+            Position = position;
         }
 
+        public MusicCollectionItem(object content, int position, bool isSelected)
+        {
+            Content = content;
+            Position = position;
+            IsSelected = isSelected;
+        }
+
+        // TODO: there should be a common base class for genre/artist/album/song/stream, used here.
         public object Content
-        {
-            get
-            {
-                return Playable;
-            }
-        }
-
-        public Playable Playable
-        {
-            get;
-            set;
-        }
-
-        public int Id
         {
             get;
             set;
@@ -78,58 +64,45 @@ namespace Auremo
         public int Position
         {
             get;
-            set;
+            private set;
         }
 
         public bool IsSelected
         {
-            get;
-            set;
-        }
-
-        public bool IsPlaying
-        {
             get
             {
-                return m_IsPlaying;
+                return m_IsSelected;
             }
             set
             {
-                if (m_IsPlaying != value)
+                if (value != m_IsSelected)
                 {
-                    m_IsPlaying = value;
-                    NotifyPropertyChanged("IsPlaying");
+                    m_IsSelected = value;
+                    NotifyPropertyChanged("IsSelected");
                 }
-            }
-        }
-
-        public bool IsPaused
-        {
-            get
-            {
-                return m_IsPaused;
-            }
-            set
-            {
-                if (m_IsPaused != value)
-                {
-                    m_IsPaused = value;
-                    NotifyPropertyChanged("IsPaused");
-                }
-            }
-        }
-
-        public bool IsValid
-        {
-            get
-            {
-                return Playable != null && Id >= 0;
             }
         }
 
         public override string ToString()
         {
-            return Id + " - " + Playable.ToString();
+            if (Content is string)
+            {
+                return Content as string;
+            }
+            else if (Content is StreamMetadata)
+            {
+                return (Content as StreamMetadata).DisplayName;
+            }
+            else if (Content is Playable)
+            {
+                return (Content as Playable).Title;
+            }
+            else if (Content is AlbumMetadata)
+            {
+                return (Content as AlbumMetadata).Title;
+            }
+
+            return "???";
         }
     }
 }

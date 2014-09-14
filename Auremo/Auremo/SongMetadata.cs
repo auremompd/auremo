@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2013 Mikko Teräs and Niilo Säämänen.
+ * Copyright 2014 Mikko Teräs and Niilo Säämänen.
  *
  * This file is part of Auremo.
  *
@@ -19,48 +19,77 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Auremo
 {
     public class SongMetadata : Playable, IComparable
     {
+        private string m_Path = null;
+        private string m_PathTypePrefix = null; // This appears to be Mopidy-specific.
+
         public SongMetadata()
         {
-            Path = null;
+            Artist = "Unknown Artist";
+            Album = "Unknown Album";
+            Genre = "No Genre";
             Length = null;
             Track = null;
             Date = null;
-
-            Artist = "Unknown Artist";
-            Genre = "No Genre";
-            Album = "Unknown Album";
+            Directory = "";
+            Filename = "";
         }
 
         public string Path
         {
-            get;
-            set;
-        }
-
-        private string m_Title = "";
-
-        public string Title
-        {
             get
             {
-                if (m_Title.Length > 0)
-                {
-                    return m_Title;
-                }
-                else
-                {
-                    return Utils.SplitPath(Path).Item2;
-                }
+                return m_Path;
             }
             set
             {
-                m_Title = value;
+                m_Path = value;
+                string strippedPath = value;
+
+                if (strippedPath.StartsWith("local:track:"))
+                {
+                    m_PathTypePrefix = "local:track:";
+                    strippedPath = strippedPath.Substring(12);
+                }
+                else if (strippedPath.StartsWith("spotify:track:"))
+                {
+                    m_PathTypePrefix = "spotify:track:";
+                    strippedPath = strippedPath.Substring(14);
+                }
+
+                int lastSlash = strippedPath.LastIndexOf('/');
+
+                if (lastSlash >= 0)
+                {
+                    Directory = strippedPath.Substring(0, lastSlash);
+                    strippedPath = strippedPath.Substring(lastSlash + 1);
+                }
+
+                Filename = strippedPath;
             }
+        }
+
+        public string Directory
+        {
+            get;
+            private set;
+        }
+
+        public string Filename
+        {
+            get;
+            private set;
+        }
+
+        public string Title
+        {
+            get;
+            set;
         }
 
         public string Artist
@@ -104,6 +133,37 @@ namespace Auremo
             get
             {
                 return Utils.ExtractYearFromDateString(Date);
+            }
+        }
+
+        public bool IsLocal
+        {
+            get
+            {
+                return m_PathTypePrefix == null || m_PathTypePrefix == "local:track:";
+            }
+        }
+
+        public bool IsSpotify
+        {
+            get
+            {
+                return m_PathTypePrefix == "spotify:track:";
+            }
+        }
+
+        public string DisplayName
+        {
+            get
+            {
+                if (Title == null)
+                {
+                    return Filename;
+                }
+                else
+                {
+                    return Title;
+                }
             }
         }
 

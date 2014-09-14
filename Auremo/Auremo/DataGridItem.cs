@@ -22,37 +22,22 @@ using System.Text;
 
 namespace Auremo
 {
-    public enum AlbumSortingMode
+    public interface DataGridItem
     {
-        ByDate,
-        ByName
-    }
+        object Content
+        {
+            get;
+        }
 
-    public enum MusicCollectionTab
-    {
-        QuickSearchTab,
-        AdvancedSearchTab,
-        ArtistListTab,
-        ArtistTreeTab,
-        GenreListTab,
-        GenreTreeTab,
-        FilesystemTab,
-        StreamsTab,
-        PlaylistsTab
-    }
+        int Position
+        {
+            get;
+        }
 
-    public enum SendToPlaylistMethod
-    {
-        Append,
-        AddAsNext,
-        ReplaceAndPlay
-    }
-
-    public enum SearchType
-    {
-        Any,
-        Artist,
-        Album,
-        Title
+        bool IsSelected
+        {
+            get;
+            set;
+        }
     }
 }
