@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2013 Mikko Teräs and Niilo Säämänen.
+ * Copyright 2014 Mikko Teräs and Niilo Säämänen.
  *
  * This file is part of Auremo.
  *
@@ -55,6 +55,7 @@ namespace Auremo
         {
             ClampTextBoxContent(m_PortEntry, 1, 6600, 65536);
             ClampTextBoxContent(m_UpdateIntervalEntry, 100, 500, 5000);
+            ClampTextBoxContent(m_NetworkTimeoutEntry, 1, 10, 600);
             ClampTextBoxContent(m_ReconnectIntervalEntry, 0, 10, 3600);
             ClampTextBoxContent(m_WheelVolumeStepEntry, 0, 5, 100);
             ClampTextBoxContent(m_WheelSongPositioningPercentEntry, 0, 5, 100);
@@ -96,15 +97,19 @@ namespace Auremo
             m_PortEntry.Text = Settings.Default.Port.ToString();
             m_PasswordEntry.Password = Crypto.DecryptPassword(Settings.Default.Password);
             m_UpdateIntervalEntry.Text = Settings.Default.ViewUpdateInterval.ToString();
+            m_NetworkTimeoutEntry.Text = Settings.Default.NetworkTimeout.ToString();
+            m_ReconnectIntervalEntry.Text = Settings.Default.ReconnectInterval.ToString();
             m_WheelVolumeStepEntry.Text = Settings.Default.VolumeAdjustmentStep.ToString();
             m_WheelSongPositioningModeIsPercent.IsChecked = Settings.Default.MouseWheelAdjustsSongPositionInPercent;
             m_WheelSongPositioningModeIsSeconds.IsChecked = !m_WheelSongPositioningModeIsPercent.IsChecked;
             m_WheelSongPositioningPercentEntry.Text = Settings.Default.MouseWheelAdjustsSongPositionPercentBy.ToString();
             m_WheelSongPositioningSecondsEntry.Text = Settings.Default.MouseWheelAdjustsSongPositionSecondsBy.ToString();
             m_EnableVolumeControl.IsChecked = Settings.Default.EnableVolumeControl;
+            m_UseAlbumArtist.IsChecked = Settings.Default.UseAlbumArtist;
             m_SortAlbumsByDate.IsChecked = Settings.Default.AlbumSortingMode == AlbumSortingMode.ByDate.ToString();
             m_SortAlbumsByName.IsChecked = m_SortAlbumsByDate.IsChecked != true;
-            m_SearchTabIsVisible.IsChecked = Settings.Default.SearchTabIsVisible;
+            m_QuickSearchTabIsVisible.IsChecked = Settings.Default.QuickSearchTabIsVisible;
+            m_AdvancedSearchTabIsVisible.IsChecked = Settings.Default.AdvancedTabIsVisible;
             m_ArtistListTabIsVisible.IsChecked = Settings.Default.ArtistListTabIsVisible;
             m_ArtistTreeTabIsVisible.IsChecked = Settings.Default.ArtistTreeTabIsVisible;
             m_GenreListTabIsVisible.IsChecked = Settings.Default.GenreListTabIsVisible;
@@ -143,6 +148,7 @@ namespace Auremo
                 m_ServerEntry.Text != Settings.Default.Server ||
                 port != Settings.Default.Port ||
                 password != Settings.Default.Password ||
+                m_UseAlbumArtist.IsChecked != Settings.Default.UseAlbumArtist ||
                 albumSortingMode.ToString() != Settings.Default.AlbumSortingMode ||
                 m_DateFormatsEntry.Text != StringCollectionAsString(Settings.Default.AlbumDateFormats);
 
@@ -150,19 +156,23 @@ namespace Auremo
             Settings.Default.Port = port;
             Settings.Default.Password = password;
             Settings.Default.ViewUpdateInterval = Utils.StringToInt(m_UpdateIntervalEntry.Text, 500);
+            Settings.Default.NetworkTimeout = Utils.StringToInt(m_NetworkTimeoutEntry.Text, 10);
+            Settings.Default.ReconnectInterval = Utils.StringToInt(m_ReconnectIntervalEntry.Text, 10);
             Settings.Default.VolumeAdjustmentStep = Utils.StringToInt(m_WheelVolumeStepEntry.Text, 5);
             Settings.Default.MouseWheelAdjustsSongPositionInPercent = m_WheelSongPositioningModeIsPercent.IsChecked.Value;
             Settings.Default.MouseWheelAdjustsSongPositionPercentBy = Utils.StringToInt(m_WheelSongPositioningPercentEntry.Text, 5);
             Settings.Default.MouseWheelAdjustsSongPositionSecondsBy = Utils.StringToInt(m_WheelSongPositioningSecondsEntry.Text, 5);
             Settings.Default.EnableVolumeControl = m_EnableVolumeControl.IsChecked == true;
+            Settings.Default.UseAlbumArtist = m_UseAlbumArtist.IsChecked == true;
             Settings.Default.AlbumSortingMode = albumSortingMode.ToString();
             Settings.Default.AlbumDateFormats = StringAsStringCollection(m_DateFormatsEntry.Text);
-            Settings.Default.SearchTabIsVisible = m_SearchTabIsVisible.IsChecked == true;
+            Settings.Default.QuickSearchTabIsVisible = m_QuickSearchTabIsVisible.IsChecked == true;
             Settings.Default.ArtistListTabIsVisible = m_ArtistListTabIsVisible.IsChecked == true;
             Settings.Default.ArtistTreeTabIsVisible = m_ArtistTreeTabIsVisible.IsChecked == true;
             Settings.Default.GenreListTabIsVisible = m_GenreListTabIsVisible.IsChecked == true;
             Settings.Default.GenreTreeTabIsVisible = m_GenreTreeTabIsVisible.IsChecked == true;
             Settings.Default.FilesystemTabIsVisible = m_FilesystemTabIsVisible.IsChecked == true;
+            Settings.Default.AdvancedTabIsVisible = m_AdvancedSearchTabIsVisible.IsChecked == true;
             Settings.Default.StreamsTabIsVisible = m_StreamsTabIsVisible.IsChecked == true;
             Settings.Default.PlaylistsTabIsVisible = m_PlaylistsTabIsVisible.IsChecked == true;
             Settings.Default.DefaultMusicCollectionTab = SelectedDefaultMusicCollectionTab().ToString();
@@ -181,9 +191,7 @@ namespace Auremo
             }
 
             Settings.Default.InitialSetupDone = true;
-
             Settings.Default.Save();
-
             m_Parent.SettingsChanged(reconnectNeeded);
         }
 
@@ -219,8 +227,10 @@ namespace Auremo
 
         private void TabPreferencesSanityCheck(object sender, RoutedEventArgs e)
         {
-            if (m_SearchTabIsDefault.IsChecked.HasValue && m_SearchTabIsDefault.IsChecked.Value)
-                m_SearchTabIsVisible.IsChecked = true;
+            if (m_QuickSearchTabIsDefault.IsChecked.HasValue && m_QuickSearchTabIsDefault.IsChecked.Value)
+                m_QuickSearchTabIsVisible.IsChecked = true;
+            else if (m_AdvancedSearchTabIsDefault.IsChecked.HasValue && m_AdvancedSearchTabIsDefault.IsChecked.Value)
+                m_AdvancedSearchTabIsVisible.IsChecked = true;
             else if (m_ArtistListTabIsDefault.IsChecked.HasValue && m_ArtistListTabIsDefault.IsChecked.Value)
                 m_ArtistListTabIsVisible.IsChecked = true;
             else if (m_ArtistTreeTabIsDefault.IsChecked.HasValue && m_ArtistTreeTabIsDefault.IsChecked.Value)
@@ -244,7 +254,11 @@ namespace Auremo
 
         private MusicCollectionTab SelectedDefaultMusicCollectionTab()
         {
-            if (m_ArtistListTabIsDefault.IsChecked.HasValue && m_ArtistListTabIsDefault.IsChecked.Value)
+            if (m_QuickSearchTabIsDefault.IsChecked.HasValue && m_QuickSearchTabIsDefault.IsChecked.Value)
+                return MusicCollectionTab.QuickSearchTab;
+            else if (m_AdvancedSearchTabIsDefault.IsChecked.HasValue && m_AdvancedSearchTabIsDefault.IsChecked.Value)
+                return MusicCollectionTab.AdvancedSearchTab;
+            else if (m_ArtistListTabIsDefault.IsChecked.HasValue && m_ArtistListTabIsDefault.IsChecked.Value)
                 return MusicCollectionTab.ArtistListTab;
             else if (m_ArtistTreeTabIsDefault.IsChecked.HasValue && m_ArtistTreeTabIsDefault.IsChecked.Value)
                 return MusicCollectionTab.ArtistTreeTab;
@@ -259,12 +273,13 @@ namespace Auremo
             else if (m_PlaylistsTabIsDefault.IsChecked.HasValue && m_PlaylistsTabIsDefault.IsChecked.Value)
                 return MusicCollectionTab.PlaylistsTab;
 
-            return MusicCollectionTab.SearchTab;
+            return MusicCollectionTab.QuickSearchTab;
         }
 
         private void SelectDefaultMusicCollectionTab(string tab)
         {
-            m_SearchTabIsDefault.IsChecked = true;
+            m_QuickSearchTabIsDefault.IsChecked = tab == MusicCollectionTab.QuickSearchTab.ToString();
+            m_AdvancedSearchTabIsDefault.IsChecked = tab == MusicCollectionTab.AdvancedSearchTab.ToString();
             m_ArtistListTabIsDefault.IsChecked = tab == MusicCollectionTab.ArtistListTab.ToString();
             m_ArtistTreeTabIsDefault.IsChecked = tab == MusicCollectionTab.ArtistTreeTab.ToString();
             m_GenreListTabIsDefault.IsChecked = tab == MusicCollectionTab.GenreListTab.ToString();

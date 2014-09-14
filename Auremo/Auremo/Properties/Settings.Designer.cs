@@ -184,12 +184,12 @@ namespace Auremo.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool SearchTabIsVisible {
+        public bool QuickSearchTabIsVisible {
             get {
-                return ((bool)(this["SearchTabIsVisible"]));
+                return ((bool)(this["QuickSearchTabIsVisible"]));
             }
             set {
-                this["SearchTabIsVisible"] = value;
+                this["QuickSearchTabIsVisible"] = value;
             }
         }
         
@@ -298,6 +298,90 @@ namespace Auremo.Properties {
             }
             set {
                 this["SendToPlaylistMethod"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("10")]
+        public int NetworkTimeout {
+            get {
+                return ((int)(this["NetworkTimeout"]));
+            }
+            set {
+                this["NetworkTimeout"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool AdvancedTabIsVisible {
+            get {
+                return ((bool)(this["AdvancedTabIsVisible"]));
+            }
+            set {
+                this["AdvancedTabIsVisible"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool UseAlbumArtist {
+            get {
+                return ((bool)(this["UseAlbumArtist"]));
+            }
+            set {
+                this["UseAlbumArtist"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int WindowX {
+            get {
+                return ((int)(this["WindowX"]));
+            }
+            set {
+                this["WindowX"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int WindowY {
+            get {
+                return ((int)(this["WindowY"]));
+            }
+            set {
+                this["WindowY"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("960")]
+        public int WindowW {
+            get {
+                return ((int)(this["WindowW"]));
+            }
+            set {
+                this["WindowW"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("590")]
+        public int WindowH {
+            get {
+                return ((int)(this["WindowH"]));
+            }
+            set {
+                this["WindowH"] = value;
             }
         }
     }

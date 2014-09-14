@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2013 Mikko Teräs and Niilo Säämänen.
+ * Copyright 2014 Mikko Teräs and Niilo Säämänen.
  *
  * This file is part of Auremo.
  *
@@ -28,8 +28,19 @@ namespace Auremo
     {
         List<DateTemplate> m_Templates = new List<DateTemplate>();
 
+        public DateNormalizer()
+        {
+        }
+
         public DateNormalizer(IEnumerable<string> formats)
         {
+            SetFormats(formats);
+        }
+
+        public void SetFormats(IEnumerable<string> formats)
+        {
+            m_Templates.Clear();
+
             foreach (string format in formats)
             {
                 m_Templates.Add(new DateTemplate(format));
@@ -38,13 +49,16 @@ namespace Auremo
 
         public string Normalize(string date)
         {
-            foreach (DateTemplate template in m_Templates)
+            if (date != null)
             {
-                string result = template.TryToParseDate(date);
-
-                if (result != null)
+                foreach (DateTemplate template in m_Templates)
                 {
-                    return result;
+                    string result = template.TryToParseDate(date);
+
+                    if (result != null)
+                    {
+                        return result;
+                    }
                 }
             }
 

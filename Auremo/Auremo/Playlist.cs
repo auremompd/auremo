@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2013 Mikko Teräs and Niilo Säämänen.
+ * Copyright 2014 Mikko Teräs and Niilo Säämänen.
  *
  * This file is part of Auremo.
  *
@@ -42,11 +42,15 @@ namespace Auremo
 
         DataModel m_DataModel = null;
         PlaylistItem m_ItemMarkedAsCurrent = null;
+        int m_NumberOfSelectedLocalSongs = 0;
+        int m_NumberOfSelectedSpotifySongs = 0;
+        int m_NumberOfSelectedStreams = 0;
 
         public Playlist(DataModel dataModel)
         {
             m_DataModel = dataModel;
             Items = new ObservableCollection<PlaylistItem>();
+            SelectedItems = new ObservableCollection<PlaylistItem>();
             m_DataModel.ServerStatus.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(OnServerStatusPropertyChanged);
         }
 
@@ -56,22 +60,10 @@ namespace Auremo
             private set;
         }
 
-        private IList<PlaylistItem> m_SelectedItems = new ObservableCollection<PlaylistItem>();
         public IList<PlaylistItem> SelectedItems
         {
-            get
-            {
-                return m_SelectedItems;
-            }
-            set
-            {
-                m_SelectedItems.Clear();
-
-                foreach (PlaylistItem item in value)
-                {
-                    m_SelectedItems.Add(item);
-                }
-            }
+            get;
+            private set;
         }
 
         public string PlayStatusDescription
@@ -80,11 +72,103 @@ namespace Auremo
             private set;
         }
 
+        public int NumberOfSelectedLocalSongs
+        {
+            get
+            {
+                return m_NumberOfSelectedLocalSongs;
+            }
+            private set
+            {
+                if (m_NumberOfSelectedLocalSongs != value)
+                {
+                    m_NumberOfSelectedLocalSongs = value;
+                    NotifyPropertyChanged("NumberOfSelectedLocalSongs");
+                }
+            }
+        }
+
+        public int NumberOfSelectedSpotifySongs
+        {
+            get
+            {
+                return m_NumberOfSelectedSpotifySongs;
+            }
+            private set
+            {
+                if (m_NumberOfSelectedSpotifySongs != value)
+                {
+                    m_NumberOfSelectedSpotifySongs = value;
+                    NotifyPropertyChanged("NumberOfSelectedSpotifySongs");
+                }
+            }
+        }
+
+        public int NumberOfSelectedStreams
+        {
+            get
+            {
+                return m_NumberOfSelectedStreams;
+            }
+            private set
+            {
+                if (m_NumberOfSelectedStreams != value)
+                {
+                    m_NumberOfSelectedStreams = value;
+                    NotifyPropertyChanged("NumberOfSelectedStreams");
+                }
+            }
+        }
+
+        public void OnSelectedItemsChanged(IEnumerable<PlaylistItem> selection)
+        {
+            SelectedItems.Clear();
+            int localSongs = 0;
+            int spotifySongs = 0;
+            int streams = 0;
+
+            foreach (PlaylistItem item in selection)
+            {
+                SelectedItems.Add(item);
+
+                if (item.Content is SongMetadata)
+                {
+                    SongMetadata song = item.Content as SongMetadata;
+
+                    if (song.IsLocal)
+                    {
+                        localSongs += 1;
+                    }
+                    else if (song.IsSpotify)
+                    {
+                        spotifySongs += 1;
+                    }
+                }
+                else if (item.Content is StreamMetadata)
+                {
+                    streams += 1;
+                }
+            }
+
+            NumberOfSelectedLocalSongs = localSongs;
+            NumberOfSelectedSpotifySongs = spotifySongs;
+            NumberOfSelectedStreams = streams;
+        }
+
         private void OnServerStatusPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "PlaylistVersion")
             {
-                UpdateItems();
+                if (m_DataModel.ServerStatus.PlaylistVersion >= 0)
+                {
+                    UpdateItems();
+                }
+                else
+                {
+                    Items.Clear();
+                }
+
+                UpdateCurrentSong();
             }
             else if (e.PropertyName == "CurrentSongIndex" || e.PropertyName == "State")
             {
@@ -94,46 +178,37 @@ namespace Auremo
 
         private void UpdateItems()
         {
+            m_DataModel.ServerSession.PlaylistInfo();
+        }
+
+        public void OnPlaylistInfoResponseReceived(IEnumerable<MPDSongResponseBlock> response)
+        {
             Items.Clear();
-            m_ItemMarkedAsCurrent = null;
 
-            if (!m_DataModel.ServerStatus.OK)
-                return;
-
-            ServerResponse response = Protocol.PlaylistInfo(m_DataModel.ServerConnection);
-
-            if (response == null || !response.IsOK)
-                return;
-
-            PlaylistItem item = new PlaylistItem();
-
-            foreach (ServerResponseLine line in response.ResponseLines)
+            foreach (MPDSongResponseBlock block in response)
             {
-                if (line.Name == "file")
+                Playable playable = block.ToPlayable(m_DataModel);
+
+                // If this is a stream that is in the collection, use the database version
+                // instead of the constructed one so we can display the user-set label.
+                if (playable is StreamMetadata)
                 {
-                    if (item.IsValid)
+                    StreamMetadata stream = m_DataModel.StreamsCollection.StreamByPath(playable.Path);
+
+                    if (stream != null)
                     {
-                        Items.Add(item);
+                        playable = stream;
                     }
+                }
 
-                    item = new PlaylistItem();
-                    item.Playable = PlayableByPath(line.Value);
-                }
-                else if (line.Name == "Id")
+                if (playable != null)
                 {
-                    int? id = Utils.StringToInt(line.Value);
-                    item.Id = id.HasValue ? id.Value : -1;
+                    PlaylistItem item = new PlaylistItem();
+                    item.Id = block.Id;
+                    item.Position = block.Pos;
+                    item.Playable = playable;
+                    Items.Add(item);
                 }
-                else if (line.Name == "Pos")
-                {
-                    int? position = Utils.StringToInt(line.Value);
-                    item.Position = position.HasValue ? position.Value : -1;
-                }
-            }
-
-            if (item.IsValid)
-            {
-                Items.Add(item);
             }
 
             UpdateCurrentSong();
@@ -141,73 +216,20 @@ namespace Auremo
 
         private void UpdateCurrentSong()
         {
-            PlaylistItem itemToMarkCurrent = null;
-
-            if (m_DataModel.ServerStatus.OK && 
-                (m_DataModel.ServerStatus.IsPaused || m_DataModel.ServerStatus.IsPlaying) &&
-                m_DataModel.ServerStatus.CurrentSongIndex >= 0 &&
-                m_DataModel.ServerStatus.CurrentSongIndex < Items.Count)
+            if (m_ItemMarkedAsCurrent != null)
             {
-                itemToMarkCurrent = Items[m_DataModel.ServerStatus.CurrentSongIndex];
+                m_ItemMarkedAsCurrent.IsPlaying = false;
+                m_ItemMarkedAsCurrent.IsPaused = false;
             }
 
-            if (itemToMarkCurrent != m_ItemMarkedAsCurrent)
+            int current = m_DataModel.ServerStatus.CurrentSongIndex;
+
+            if (current >= 0 && current < Items.Count)
             {
-                if (m_ItemMarkedAsCurrent != null)
-                {
-                    m_ItemMarkedAsCurrent.IsPlaying = false;
-                }
-
-                m_ItemMarkedAsCurrent = itemToMarkCurrent;
-
-                if (m_ItemMarkedAsCurrent != null)
-                {
-                    m_ItemMarkedAsCurrent.IsPlaying = true;
-                }
+                m_ItemMarkedAsCurrent = Items[current];
+                m_ItemMarkedAsCurrent.IsPlaying = m_DataModel.ServerStatus.IsPlaying;
+                m_ItemMarkedAsCurrent.IsPaused = m_DataModel.ServerStatus.IsPaused;
             }
-
-            if (!m_DataModel.ServerStatus.OK)
-            {
-                PlayStatusDescription = "";
-            }
-            else if (m_ItemMarkedAsCurrent == null || m_DataModel.ServerStatus.IsStopped)
-            {
-                PlayStatusDescription = "Stopped.";
-            }
-            else
-            {
-                string status = m_DataModel.ServerStatus.IsPlaying ? "Playing " : "Paused - ";
-
-                if (m_ItemMarkedAsCurrent.Playable is SongMetadata)
-                {
-                    status += 
-                          m_ItemMarkedAsCurrent.Playable.Artist + ": " +
-                          m_ItemMarkedAsCurrent.Playable.Title + " (" +
-                          m_ItemMarkedAsCurrent.Playable.Album;
-
-                    if (m_ItemMarkedAsCurrent.Playable is SongMetadata)
-                    {
-                        SongMetadata song = (SongMetadata)m_ItemMarkedAsCurrent.Playable;
-
-                        if (song.Year != null)
-                        {
-                            status += ", " + song.Year;
-                        }
-                    }
-
-                    status += ").";
-                }
-                else
-                {
-                    status =
-                         (m_DataModel.ServerStatus.IsPlaying ? "Playing " : "Paused - ") +
-                          m_ItemMarkedAsCurrent.Playable.Title + ".";
-                }
-
-                PlayStatusDescription = status;
-            }
-
-            NotifyPropertyChanged("PlayStatusDescription");
         }
 
         private Playable PlayableByPath(string path)

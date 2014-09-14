@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2013 Mikko Teräs and Niilo Säämänen.
+ * Copyright 2014 Mikko Teräs and Niilo Säämänen.
  *
  * This file is part of Auremo.
  *
@@ -72,14 +72,14 @@ namespace Auremo
         private void ParseEntry()
         {
             string path = null;
-            string title = null;
+            string label = null;
 
-            if (m_ExtendedFormat && Peek == '#')
+            if (m_ExtendedFormat && Peek() == '#')
             {
                 ConsumeLiteral("#EXTINF:");
                 IgnoreUntil(',');
                 ConsumeLiteral(",");
-                title = GetRestOfLine();
+                label = GetRestOfLine();
                 ConsumeWhitespace();
             }
 
@@ -88,18 +88,18 @@ namespace Auremo
 
             if (path != "")
             {
-                if (title == null)
+                if (label == null)
                 {
-                    title = path;
+                    label = path;
                 }
 
-                m_ParsedStreams.Add(new StreamMetadata(path, title));
+                m_ParsedStreams.Add(new StreamMetadata(path, label));
             }
         }
 
         private void IgnoreUntil(char c)
         {
-            while (Peek != c)
+            while (Peek() != c)
             {
                 m_InputPosition += 1;
             }

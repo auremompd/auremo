@@ -44,7 +44,7 @@
   &lt;string&gt;YYYY&lt;/string&gt;
 &lt;/ArrayOfString&gt;</Value>
     </Setting>
-    <Setting Name="SearchTabIsVisible" Type="System.Boolean" Scope="User">
+    <Setting Name="QuickSearchTabIsVisible" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="ArtistListTabIsVisible" Type="System.Boolean" Scope="User">
@@ -73,6 +73,27 @@
     </Setting>
     <Setting Name="SendToPlaylistMethod" Type="System.String" Scope="User">
       <Value Profile="(Default)">Append</Value>
+    </Setting>
+    <Setting Name="NetworkTimeout" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">10</Value>
+    </Setting>
+    <Setting Name="AdvancedTabIsVisible" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="UseAlbumArtist" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="WindowX" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="WindowY" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="WindowW" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">960</Value>
+    </Setting>
+    <Setting Name="WindowH" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">590</Value>
     </Setting>
   </Settings>
 </SettingsFile>

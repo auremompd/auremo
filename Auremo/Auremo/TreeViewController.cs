@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2013 Mikko Teräs and Niilo Säämänen.
+ * Copyright 2014 Mikko Teräs and Niilo Säämänen.
  *
  * This file is part of Auremo.
  *
@@ -31,6 +31,14 @@ namespace Auremo
         {
             m_RootLevelNodes = rootLevelNodes;
             MultiSelection = new ObservableCollection<TreeViewNode>();
+        }
+
+        public IEnumerable<TreeViewNode> RootLevelNodes
+        {
+            get
+            {
+                return m_RootLevelNodes;
+            }
         }
 
         public TreeViewNode FirstNode
@@ -72,13 +80,13 @@ namespace Auremo
 
         private void SelectVisibleWithinRange(TreeViewNode node, int minID, int maxID)
         {
-            // TODO: there is plenty left to optimize here.
+            // TODO: optimize more.
             if (minID <= node.ID && node.ID <= maxID)
             {
                 node.IsMultiSelected = true;
             }
 
-            if (node.IsExpanded)
+            if (node.IsExpanded && node.ID <= maxID && node.HighestChildID >= minID)
             {
                 foreach (TreeViewNode child in node.Children)
                 {
