@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2013 Mikko Teräs and Niilo Säämänen.
+ * Copyright 2014 Mikko Teräs and Niilo Säämänen.
  *
  * This file is part of Auremo.
  *
@@ -106,14 +106,32 @@ namespace Auremo
             {
                 try
                 {
-                    T item = (T)o;
+                    result.Add((T)o);
                 }
                 catch (Exception)
                 {
                     throw new Exception("ToTypedList: attempted to cast " + o.GetType().ToString() + " to " + typeof(T).ToString() + ".");
                 }
-                
-                result.Add((T)o);
+            }
+
+            return result;
+        }
+
+        public static IList<T> ToContentList<T>(System.Collections.IEnumerable source)
+        {
+            IList<MusicCollectionItem> collectionItems = ToTypedList<MusicCollectionItem>(source);
+            IList<T> result = new List<T>();
+
+            foreach (MusicCollectionItem item in collectionItems)
+            {
+                try
+                {
+                    result.Add((T)item.Content);
+                }
+                catch (Exception)
+                {
+                    throw new Exception("ToTypedList: attempted to cast " + item.Content.GetType().ToString() + " to " + typeof(T).ToString() + ".");
+                }
             }
 
             return result;
@@ -129,6 +147,21 @@ namespace Auremo
             {
                 return date.Substring(0, 4);
             }
+        }
+
+        public static bool CollectionsAreEqual<T>(IEnumerable<T> lhs, IEnumerable<T> rhs) where T : IComparable
+        {
+            IEnumerator<T> left = lhs.GetEnumerator();
+            IEnumerator<T> right = rhs.GetEnumerator();
+            bool equal = lhs.Count() == rhs.Count();
+
+            while (equal && left.MoveNext())
+            {
+                right.MoveNext();
+                equal = left.Current.CompareTo(right.Current) == 0;
+            }
+
+            return equal;
         }
     }
 }

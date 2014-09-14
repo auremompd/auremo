@@ -295,6 +295,15 @@
 
     <SolidColorBrush x:Key="MusicSliderKnobActiveBorderGlowBrush" Color="#66AC4AB5"/>
 
+    <SolidColorBrush x:Key="SliderThumbStrokeBrush" Color="#999999"/>
+    
+    <LinearGradientBrush x:Key="GrooveBackgroundBrush" StartPoint="0,0" EndPoint="0,1">
+        <LinearGradientBrush.GradientStops>
+            <GradientStop Color="#000000" Offset="0"/>
+            <GradientStop Color="#A0A0A0" Offset="1"/>
+        </LinearGradientBrush.GradientStops>
+    </LinearGradientBrush>
+
     <!-- Drop & drop -->
 
     <SolidColorBrush x:Key="ToolTipBackgroundBrush" Color="#B0B0B0B0"/>

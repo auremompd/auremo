@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2013 Mikko Teräs and Niilo Säämänen.
+ * Copyright 2014 Mikko Teräs and Niilo Säämänen.
  *
  * This file is part of Auremo.
  *
@@ -39,43 +39,88 @@ namespace Auremo
 
         #endregion
 
-        public StreamMetadata(string path, string title)
+        private string m_Path = null;
+        private string m_Label = null;
+        private string m_Title = null;
+        private string m_Name = null;
+
+        public StreamMetadata(string path, string label)
         {
             Path = path;
-            Title = title;
+            Label = label;
         }
 
         public string Path
         {
-            get;
-            set;
+            get
+            {
+                return m_Path;
+            }
+            set
+            {
+                if (value != m_Path)
+                {
+                    m_Path = value;
+                    NotifyPropertyChanged("Path");
+                    NotifyPropertyChanged("DisplayName");
+                }
+            }
         }
 
-        private string m_Title = null;
+        /// The stream descriptor exctracted from the M3U/PLS file or
+        /// given by the user otherwise.
+        public string Label
+        {
+            get
+            {
+                return m_Label;
+            }
+            set
+            {
+                if (value != m_Label)
+                {
+                    m_Label = value;
+                    NotifyPropertyChanged("Label");
+                    NotifyPropertyChanged("DisplayName");
+                }
+            }
+        }
 
+        /// The stream descriptor of the stream as given in a MPD resonse.
+        public string Name
+        {
+            get
+            {
+                return m_Name;
+            }
+            set
+            {
+                if (value != m_Name)
+                {
+                    m_Name = value;
+                    NotifyPropertyChanged("Name");
+                    NotifyPropertyChanged("DisplayName");
+                }
+            }
+        }
+
+        /// The track descriptor of the stream as given in a MPD resonse.
         public string Title
         {
             get
             {
-                if (m_Title == null)
-                {
-                    return Path;
-                }
-                else
-                {
-                    return m_Title;
-                }
+                return m_Title;
             }
             set
             {
-                if (m_Title != value)
+                if (value != m_Title)
                 {
                     m_Title = value;
                     NotifyPropertyChanged("Title");
                 }
             }
         }
-
+  
         public string Artist
         {
             get
@@ -97,6 +142,25 @@ namespace Auremo
             get
             {
                 return null;
+            }
+        }
+
+        public string DisplayName
+        {
+            get
+            {
+                if (Label != null)
+                {
+                    return Label;
+                }
+                else if (Name != null)
+                {
+                    return Name;
+                }
+                else
+                {
+                    return Path;
+                }
             }
         }
 

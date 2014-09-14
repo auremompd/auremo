@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2013 Mikko Teräs and Niilo Säämänen.
+ * Copyright 2014 Mikko Teräs and Niilo Säämänen.
  *
  * This file is part of Auremo.
  *
@@ -39,6 +39,7 @@ namespace Auremo
 
         #endregion
 
+        private DataModel m_DataModel = null;
         private bool m_OK = false;
         private int? m_Volume = null;
         private int m_PlaylistVersion = -1;
@@ -48,182 +49,133 @@ namespace Auremo
         private string m_State = "";
         private int m_DatabaseUpdateTime = 0;
 
-        public ServerStatus()
+        public ServerStatus(DataModel dataModel)
         {
+            m_DataModel = dataModel;
             Reset();
+            m_DataModel.ServerSession.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(OnServerSessionPropertyChanged);
         }
 
-        public void Update(ServerConnection connection)
+        public void Update()
         {
-            ReadStatus(connection);
-            ReadStats(connection);
+            m_DataModel.ServerSession.Status();
+            m_DataModel.ServerSession.Stats();
         }
 
-        private void ReadStatus(ServerConnection connection)
+        public void OnStatusResponseReceived(IEnumerable<MPDResponseLine> response)
         {
-            ServerResponse response = null;
-            bool ok = false;
+            // Not all the values checked for below are always
+            // present. Handle them specially so that defaults
+            // can be provided.
+            int currentSongIndex = -1;
+            int playPosition = 0;
+            int songLength = 0;
+            string audioQuality = "";
+            string errorMessage = "";
 
-            if (connection != null && connection.Status == ServerConnection.State.Connected)
+            foreach (MPDResponseLine line in response)
             {
-                response = Protocol.Status(connection);
-                ok = response != null && response.IsOK;
-            }
-
-            if (!ok && m_OK)
-            {
-                // The server disappeared.
-                Reset();
-            }
-
-            m_OK = ok;
-
-            if (m_OK)
-            {
-                // Not all the values checked for below are always
-                // present. Handle them specially so that defaults
-                // can be provided.
-                int currentSongIndex = -1;
-                int playPosition = 0;
-                int songLength = 0;
-                string audioQuality = "";
-                string errorMessage = "";
-
-                foreach (ServerResponseLine line in response.ResponseLines)
+                if (line.Key == MPDResponseLine.Keyword.State)
                 {
-                    if (line.Name == "state")
-                    {
-                        if (m_State != line.Value)
-                        {
-                            State = line.Value;
-                        }
-                    }
-                    else if (line.Name == "volume")
-                    {
-                        int? volume = Utils.StringToInt(line.Value);
+                    State = line.Value;
+                }
+                else if (line.Key == MPDResponseLine.Keyword.Volume)
+                {
+                    int? vol = line.IntValue;
+                    Volume = vol >= 0 && vol <= 100 ? vol : null;
+                }
+                else if (line.Key == MPDResponseLine.Keyword.Playlist)
+                {
+                    PlaylistVersion = line.IntValue;
+                }
+                else if (line.Key == MPDResponseLine.Keyword.Song)
+                {
+                    currentSongIndex = line.IntValue;
+                }
+                else if (line.Key == MPDResponseLine.Keyword.Time)
+                {
+                    int[] parts = line.IntListValue;
 
-                        if (volume == null || volume.Value < 0 || volume > 100)
-                        {
-                            Volume = null;
-                        }
-                        else
-                        {
-                            Volume = volume;
-                        }
-                    }
-                    else if (line.Name == "playlist")
+                    if (parts.Length == 2 && parts[0] >= 0 && parts[1] >= 0)
                     {
-                        int? version = Utils.StringToInt(line.Value);
-                        PlaylistVersion = version.HasValue ? version.Value : -1;
+                        playPosition = parts[0];
+                        songLength = parts[1];
                     }
-                    else if (line.Name == "song")
+                }
+                else if (line.Key == MPDResponseLine.Keyword.Random)
+                {
+                    IsOnRandom = line.Value == "1";
+                }
+                else if (line.Key == MPDResponseLine.Keyword.Repeat)
+                {
+                    IsOnRepeat = line.Value == "1";
+                }
+                else if (line.Key == MPDResponseLine.Keyword.Single)
+                {
+                    IsOnSingle = line.Value == "1";
+                }
+                else if (line.Key == MPDResponseLine.Keyword.Consume)
+                {
+                    IsOnConsume = line.Value == "1";
+                }
+                else if (line.Key == MPDResponseLine.Keyword.Audio)
+                {
+                    if (line.Value == "0:?:0")
                     {
-                        int? index = Utils.StringToInt(line.Value);
-                        currentSongIndex = index.HasValue ? index.Value : -1;
+                        // A little kludge to preserve the previous audio
+                        // quality text during song changes instead of
+                        // flashing "0 kHz ? bps 0 channels" for a moment.
+                        audioQuality = AudioQuality;
                     }
-                    else if (line.Name == "time")
+                    else
                     {
-                        string[] pieces = line.Value.Split(':');
+                        int[] parts = line.IntListValue;
 
-                        if (pieces.Length == 2)
+                        if (parts.Length == 3)
                         {
-                            int? position = Utils.StringToInt(pieces[0]);
-                            int? length = Utils.StringToInt(pieces[1]);
+                            audioQuality = parts[0] / 1000 + " kHz, " + parts[1] + " bits per sample, ";
 
-                            if (position.HasValue && length.HasValue)
+                            if (parts[2] == 1)
                             {
-                                playPosition = position.Value;
-                                songLength = length.Value;
+                                audioQuality += "mono";
                             }
-                        }
-                    }
-                    else if (line.Name == "random")
-                    {
-                        IsOnRandom = line.Value == "1";
-                    }
-                    else if (line.Name == "repeat")
-                    {
-                        IsOnRepeat = line.Value == "1";
-                    }
-                    else if (line.Name == "audio")
-                    {
-                        if (line.Value == "0:?:0")
-                        {
-                            // A little kludge to preserve the previous audio
-                            // quality text during song changes instead of
-                            // flashing "0 kHz ? bps 0 channels" for a moment.
-                            audioQuality = AudioQuality;
-                        }
-                        else
-                        {
-                            string[] parts = line.Value.Split(':');
-
-                            if (parts.Length == 3)
+                            else if (parts[2] == 2)
                             {
-                                audioQuality = parts[0] + " kHz, " + parts[1] + " bits per sample, ";
-
-                                if (parts[2] == "1")
-                                {
-                                    audioQuality += "mono";
-                                }
-                                else if (parts[2] == "2")
-                                {
-                                    audioQuality += "stereo";
-                                }
-                                else
-                                {
-                                    audioQuality += parts[2] + " channels";
-                                }
+                                audioQuality += "stereo";
                             }
                             else
                             {
-                                AudioQuality = "";
+                                audioQuality += parts[2] + " channels";
                             }
                         }
-                    }
-                    else if (line.Name == "error")
-                    {
-                        errorMessage = "Error: " + line.Value;
+                        else
+                        {
+                            AudioQuality = "";
+                        }
                     }
                 }
-
-                CurrentSongIndex = currentSongIndex;
-                PlayPosition = playPosition;
-                SongLength = songLength;
-                AudioQuality = audioQuality;
-                ErrorMessage = errorMessage;
+                else if (line.Key == MPDResponseLine.Keyword.Error)
+                {
+                    errorMessage = "Error: " + line.Value;
+                }
             }
+
+            CurrentSongIndex = currentSongIndex;
+            PlayPosition = playPosition;
+            SongLength = songLength;
+            AudioQuality = audioQuality;
+            ErrorMessage = errorMessage;
         }
 
-        private void ReadStats(ServerConnection connection)
+        public void OnStatsResponseReceived(IEnumerable<MPDResponseLine> response)
         {
-            ServerResponse response = null;
-            bool ok = false;
-
-            if (connection != null && connection.Status == ServerConnection.State.Connected)
+            foreach (MPDResponseLine line in response)
             {
-                response = Protocol.Stats(connection);
-                ok = response != null && response.IsOK;
-            }
-
-            if (!ok && m_OK)
-            {
-                // The server disappeared.
-                Reset();
-            }
-
-            m_OK = ok;
-
-            if (m_OK)
-            {
-                foreach (ServerResponseLine line in response.ResponseLines)
+                if (line.Key == MPDResponseLine.Keyword.DbUpdate)
                 {
-                    if (line.Name == "db_update")
-                    {
-                        int? time = Utils.StringToInt(line.Value);
-                        DatabaseUpdateTime = time.HasValue ? time.Value : -1;
-                        return; // We're not interested in anything else right now.
-                    }
+                    DatabaseUpdateTime = line.IntValue;
+                    // We're not interested in anything else right now.
+                    return;
                 }
             }
         }
@@ -344,6 +296,40 @@ namespace Auremo
                 {
                     m_IsOnRandom = value;
                     NotifyPropertyChanged("IsOnRandom");
+                }
+            }
+        }
+
+        bool m_IsOnSingle = false;
+        public bool IsOnSingle
+        {
+            get
+            {
+                return m_IsOnSingle;
+            }
+            private set
+            {
+                if (value != m_IsOnSingle)
+                {
+                    m_IsOnSingle = value;
+                    NotifyPropertyChanged("IsOnSingle");
+                }
+            }
+        }
+
+        bool m_IsOnConsume = false;
+        public bool IsOnConsume
+        {
+            get
+            {
+                return m_IsOnConsume;
+            }
+            private set
+            {
+                if (value != m_IsOnConsume)
+                {
+                    m_IsOnConsume = value;
+                    NotifyPropertyChanged("IsOnConsume");
                 }
             }
         }
@@ -478,6 +464,21 @@ namespace Auremo
             }
         }
 
+        private void OnServerSessionPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "State")
+            {
+                if (m_DataModel.ServerSession.State == ServerSession.SessionState.Connected)
+                {
+                    Update();
+                }
+                else
+                {
+                    Reset();
+                }
+            }
+        }
+
         private void Reset()
         {
             OK = false;
@@ -486,12 +487,9 @@ namespace Auremo
             CurrentSongIndex = -1;
             PlayPosition = 0;
             SongLength = 0;
-            IsPlaying = false;
-            IsPaused = false;
-            IsStopped = false;
             IsOnRandom = false;
             IsOnRepeat = false;
-            State = "";
+            State = "stop";
             DatabaseUpdateTime = 0;
             AudioQuality = "";
             ErrorMessage = "";

@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2013 Mikko Teräs and Niilo Säämänen.
+ * Copyright 2014 Mikko Teräs and Niilo Säämänen.
  *
  * This file is part of Auremo.
  *
@@ -42,16 +42,16 @@ namespace Auremo
 
         #endregion
 
-        private IDictionary<string, StreamMetadata> m_StreamsByTitle = new SortedDictionary<string, StreamMetadata>(StringComparer.CurrentCultureIgnoreCase);
+        private IDictionary<string, StreamMetadata> m_StreamsByLabel = new SortedDictionary<string, StreamMetadata>(StringComparer.CurrentCulture);
         const string m_Filename = "saved_streams.pls";
 
         public StreamsCollection()
         {
-            Streams = new ObservableCollection<StreamMetadata>();
+            Streams = new ObservableCollection<MusicCollectionItem>();
             Load();
         }
 
-        public IList<StreamMetadata> Streams
+        public IList<MusicCollectionItem> Streams
         {
             get;
             private set;
@@ -59,7 +59,7 @@ namespace Auremo
 
         public void Load()
         {
-            m_StreamsByTitle.Clear();
+            m_StreamsByLabel.Clear();
             IsolatedStorageFile store = IsolatedStorageFile.GetStore(IsolatedStorageScope.User | IsolatedStorageScope.Assembly | IsolatedStorageScope.Domain, null, null);
 
             if (store.FileExists(m_Filename))
@@ -93,16 +93,23 @@ namespace Auremo
         {
             IsolatedStorageFile store = IsolatedStorageFile.GetStore(IsolatedStorageScope.User | IsolatedStorageScope.Assembly | IsolatedStorageScope.Domain, null, null);
 
-            if (m_StreamsByTitle.Count > 0)
+            if (m_StreamsByLabel.Count > 0)
             {
                 IsolatedStorageFileStream file = store.OpenFile(m_Filename, System.IO.FileMode.Create);
-                string playlist = PlaylistWriter.Write(m_StreamsByTitle.Values);
+                string playlist = PlaylistWriter.Write(m_StreamsByLabel.Values);
                 byte[] data = System.Text.Encoding.UTF8.GetBytes(playlist);
                 file.Write(data, 0, data.Length);
+                file.Close();
             }
             else
             {
-                store.DeleteFile(m_Filename);
+                try
+                {
+                    store.DeleteFile(m_Filename);
+                }
+                catch (Exception)
+                {
+                }
             }
 
             store.Close();
@@ -137,28 +144,35 @@ namespace Auremo
             return allSucceeded;
         }
         
-        public bool Delete(StreamMetadata stream)
+        public bool Delete(MusicCollectionItem item)
         {
-            if (DeleteWithoutNotification(stream))
+            if (item != null && item.Content is StreamMetadata)
             {
-                Save();
-                UpdateStreamsView();
-                return true;
+                StreamMetadata stream = item.Content as StreamMetadata;
+
+                if (DeleteWithoutNotification(stream))
+                {
+                    Save();
+                    UpdateStreamsView();
+                    return true;
+                }
             }
-            else
-            {
-                return false;
-            }
+            
+            return false;
         }
         
-        public bool Delete(IEnumerable<StreamMetadata> streams)
+        public bool Delete(IEnumerable<MusicCollectionItem> items)
         {
             bool allSucceeded = true;
 
-            foreach (StreamMetadata stream in streams)
+            foreach (MusicCollectionItem item in items)
             {
-                bool succeeded = DeleteWithoutNotification(stream);
-                allSucceeded &= succeeded;
+                if (item != null && item.Content is StreamMetadata)
+                {
+                    StreamMetadata stream = item.Content as StreamMetadata;
+                    bool succeeded = DeleteWithoutNotification(stream);
+                    allSucceeded &= succeeded;
+                }
             }
 
             Save();
@@ -166,17 +180,17 @@ namespace Auremo
             return allSucceeded;
         }
         
-        public bool Rename(StreamMetadata stream, string newName)
+        public bool Rename(StreamMetadata stream, string newLabel)
         {
-            if (m_StreamsByTitle.ContainsKey(newName))
+            if (m_StreamsByLabel.ContainsKey(newLabel))
             {
                 return false;
             }
             else
             {
-                m_StreamsByTitle.Remove(stream.Title);
-                stream.Title = newName;
-                m_StreamsByTitle.Add(stream.Title, stream);
+                m_StreamsByLabel.Remove(stream.Label);
+                stream.Label = newLabel;
+                m_StreamsByLabel.Add(stream.Label, stream);
                 Save();
                 UpdateStreamsView();
                 return true;
@@ -185,7 +199,7 @@ namespace Auremo
 
         public StreamMetadata StreamByPath(string path)
         {
-            foreach (StreamMetadata stream in m_StreamsByTitle.Values)
+            foreach (StreamMetadata stream in m_StreamsByLabel.Values)
             {
                 if (stream.Path == path)
                 {
@@ -198,20 +212,20 @@ namespace Auremo
 
         private bool AddWithoutNotification(StreamMetadata stream)
         {
-            if (m_StreamsByTitle.ContainsKey(stream.Title))
+            if (m_StreamsByLabel.ContainsKey(stream.Label))
             {
                 return false;
             }
 
-            m_StreamsByTitle.Add(stream.Title, stream);
+            m_StreamsByLabel.Add(stream.Label, stream);
             return true;
         }
 
         private bool DeleteWithoutNotification(StreamMetadata stream)
         {
-            if (m_StreamsByTitle.ContainsKey(stream.Title))
+            if (m_StreamsByLabel.ContainsKey(stream.Label))
             {
-                m_StreamsByTitle.Remove(stream.Title);
+                m_StreamsByLabel.Remove(stream.Label);
                 return true;    
             }
 
@@ -222,9 +236,9 @@ namespace Auremo
         {
             Streams.Clear();
 
-            foreach (StreamMetadata stream in m_StreamsByTitle.Values)
+            foreach (StreamMetadata stream in m_StreamsByLabel.Values)
             {
-                Streams.Add(stream);
+                Streams.Add(new MusicCollectionItem(stream, Streams.Count));
             }
         }
     }

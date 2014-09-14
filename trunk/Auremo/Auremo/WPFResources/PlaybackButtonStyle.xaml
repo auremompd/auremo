@@ -15,7 +15,6 @@
                 <ControlTemplate TargetType="{x:Type Button}">
                     <Border x:Name="GlowBorder" BorderThickness="8" BorderBrush="{StaticResource PlaybackButtonPassiveBorderGlowBrush}" CornerRadius="30">
                         <Border x:Name="BevelBorder"
-                                TextBlock.Foreground="{TemplateBinding Foreground}"
                                 CornerRadius="30"
                                 BorderThickness="2"
                                 BorderBrush="{StaticResource PlaybackButtonNormalBevelBrush}"
@@ -86,5 +85,4 @@
             </Setter.Value>
         </Setter>
     </Style>
-
 </ResourceDictionary>

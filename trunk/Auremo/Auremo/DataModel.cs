@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2013 Mikko Teräs and Niilo Säämänen.
+ * Copyright 2014 Mikko Teräs and Niilo Säämänen.
  *
  * This file is part of Auremo.
  *
@@ -25,20 +25,31 @@ namespace Auremo
 {
     public class DataModel
     {
-        public DataModel()
+        public DataModel(MainWindow mainWindow)
         {
-            ServerConnection = new ServerConnection();
-            ServerStatus = new ServerStatus();
+            MainWindow = mainWindow;
+            ServerSession = new ServerSession(this);
+            ServerStatus = new ServerStatus(this);
             Database = new Database(this);
-            CollectionSearch = new CollectionSearch(this);
+            QuickSearch = new QuickSearch(this);
+            AdvancedSearch = new AdvancedSearch(this);
             DatabaseView = new DatabaseView(this);
             StreamsCollection = new StreamsCollection();
             SavedPlaylists = new SavedPlaylists(this);
+            CurrentSong = new CurrentSong(this);
             Playlist = new Playlist(this);
-            OutputCollection = new OutputCollection();
+            OutputCollection = new OutputCollection(this);
+            CustomDateNormalizer = new DateNormalizer();
+            YearNormalizer = new DateNormalizer(new string[] {"YYYY"});
         }
 
-        public ServerConnection ServerConnection
+        public MainWindow MainWindow
+        {
+            get;
+            private set;
+        }
+
+        public ServerSession ServerSession
         {
             get;
             private set;
@@ -56,7 +67,13 @@ namespace Auremo
             private set;
         }
 
-        public CollectionSearch CollectionSearch
+        public QuickSearch QuickSearch
+        {
+            get;
+            private set;
+        }
+
+        public AdvancedSearch AdvancedSearch
         {
             get;
             private set;
@@ -86,7 +103,25 @@ namespace Auremo
             private set;
         }
 
+        public CurrentSong CurrentSong
+        {
+            get;
+            private set;
+        }
+        
         public OutputCollection OutputCollection
+        {
+            get;
+            private set;
+        }
+
+        public DateNormalizer CustomDateNormalizer
+        {
+            get;
+            private set;
+        }
+
+        public DateNormalizer YearNormalizer
         {
             get;
             private set;

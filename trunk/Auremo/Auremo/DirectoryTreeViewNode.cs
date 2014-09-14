@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2013 Mikko Teräs and Niilo Säämänen.
+ * Copyright 2014 Mikko Teräs and Niilo Säämänen.
  *
  * This file is part of Auremo.
  *
@@ -35,6 +35,38 @@ namespace Auremo
             m_DirectoryName = name;
         }
 
+        public string DirectoryName
+        {
+            get
+            {
+                return m_DirectoryName;
+            }
+        }
+
+        public string FullPath
+        {
+            get
+            {
+                if (Parent == null)
+                {
+                    return "";
+                }
+                else
+                {
+                    string root = Parent.ToString();
+
+                    if (root == "")
+                    {
+                        return m_DirectoryName;
+                    }
+                    else
+                    {
+                        return root + "/" + m_DirectoryName;
+                    }
+                }
+            }
+        }
+
         public override string DisplayString
         {
             get
@@ -45,14 +77,7 @@ namespace Auremo
 
         public override string ToString()
         {
-            if (Parent == null)
-            {
-                return "";
-            }
-            else
-            {
-                return Parent.ToString() + "/" + m_DirectoryName;
-            }
+            return FullPath;
         }
     }
 }
