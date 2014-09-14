@@ -1,6 +1,19 @@
 Version history
 ===============
 
+Auremo 0.7.0
+------------
+
+ * Reimplement networking subsystem, improving performance and error resilience.
+ * Improve Mopidy support.
+ * Add Advanced Search tab, rename former Search tab to Quick Search.
+ * Add "show in" functions into the playlist view's context menu.
+ * Add support for single and consume modes.
+ * Add rudimentary support for AlbumArtist tag.
+ * Make status bar messages more informative.
+ * Released on 14th September 2014.
+
+
 Auremo 0.6.1
 ------------
 
