@@ -99,22 +99,22 @@ namespace Auremo
             {
                 if (m_CurrentPlayable == null)
                 {
-                    DisplayString = "Playing.";
+                    DisplayString = "Playing. " + m_DataModel.ServerStatus.AudioQuality;
                 }
                 else
                 {
-                    DisplayString = "Playing " + CurrentPlayableToString() + ".";
+                    DisplayString = "Playing " + CurrentPlayableToString() + ". " + m_DataModel.ServerStatus.AudioQuality;
                 }
             }
             else if (m_DataModel.ServerStatus.IsPaused)
             {
                 if (m_CurrentPlayable == null)
                 {
-                    DisplayString = "Paused.";
+                    DisplayString = "Paused. " + m_DataModel.ServerStatus.AudioQuality;
                 }
                 else
                 {
-                    DisplayString = "Paused " + CurrentPlayableToString() + ".";
+                    DisplayString = "Paused " + CurrentPlayableToString() + ". " + m_DataModel.ServerStatus.AudioQuality;
                 }
             }
             else if (m_DataModel.ServerStatus.IsStopped)

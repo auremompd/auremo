@@ -690,17 +690,12 @@
             </Grid>
         </Border>
         <Border Grid.Row="4" BorderBrush="{StaticResource SeparatorBorderBrush}" BorderThickness="0,1,0,0" Grid.ColumnSpan="2">
-            <StatusBar Padding="20,0" Background="{StaticResource WindowBackgroundBrush}" Height="50">
+            <StatusBar Padding="5,0" Background="{StaticResource WindowBackgroundBrush}" Height="30">
                 <StatusBarItem HorizontalAlignment="Left">
-                    <StackPanel>
-                        <TextBox Style="{StaticResource CopyableTextBlockStyle}" Text="{Binding Path=CurrentSong.DisplayString, Mode=OneWay}" Padding="2"/>
-                        <TextBox Style="{StaticResource CopyableTextBlockStyle}" Text="{Binding Path=ServerStatus.AudioQuality, Mode=OneWay}" Padding="2"/>
-                    </StackPanel>
+                    <TextBox Style="{StaticResource CopyableTextBlockStyle}" Text="{Binding Path=CurrentSong.DisplayString, Mode=OneWay}"/>
                 </StatusBarItem>
                 <StatusBarItem HorizontalAlignment="Right">
-                    <StackPanel>
-                        <TextBox Style="{StaticResource CopyableTextBlockStyle}" Text="{Binding Path=ServerSession.StatusMessage, Mode=OneWay}" HorizontalAlignment="Right" VerticalAlignment="Top" Padding="2"/>
-                    </StackPanel>
+                    <TextBox Style="{StaticResource CopyableTextBlockStyle}" Text="{Binding Path=ServerSession.StatusMessage, Mode=OneWay}" HorizontalAlignment="Right" VerticalAlignment="Top"/>
                 </StatusBarItem>
             </StatusBar>
         </Border>
