@@ -25,14 +25,18 @@ namespace Auremo
 {
     public class SongMetadata : Playable, IComparable
     {
+        public static readonly string UnknownArtist = "Unknown Artist";
+        public static readonly string UnknownAlbum = "Unknown Album";
+        public static readonly string UnknownGenre = "No Genre";
+        
         private string m_Path = null;
         private string m_PathTypePrefix = null; // This appears to be Mopidy-specific.
 
         public SongMetadata()
         {
-            Artist = "Unknown Artist";
-            Album = "Unknown Album";
-            Genre = "No Genre";
+            Artist = UnknownArtist;
+            Album = UnknownAlbum;
+            Genre = UnknownGenre;
             Length = null;
             Track = null;
             Date = null;

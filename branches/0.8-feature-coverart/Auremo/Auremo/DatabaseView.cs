@@ -187,14 +187,17 @@ namespace Auremo
             IDictionary<string, TreeViewNode> directoryLookup = new SortedDictionary<string, TreeViewNode>();
             directoryLookup[rootNode.DisplayString] = rootNode;
 
+            int leafCount = 0;
+
             foreach (SongMetadata song in m_DataModel.Database.Songs)
             {
                 TreeViewNode parent = FindDirectoryNode(song.Directory, directoryLookup, rootNode);
                 SongMetadataTreeViewNode leaf = new SongMetadataTreeViewNode(song.Filename, song, parent, DirectoryTreeController);
                 parent.AddChild(leaf);
+                ++leafCount;
             }
 
-            AssignTreeViewNodeIDs(rootNode, 0);
+            int finalID = AssignTreeViewNodeIDs(rootNode, 0);
             
             if (rootNode.Children.Count > 0)
             {

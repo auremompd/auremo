@@ -36,6 +36,7 @@ namespace Auremo
             DatabaseView = new DatabaseView(this);
             StreamsCollection = new StreamsCollection();
             SavedPlaylists = new SavedPlaylists(this);
+            CoverArtRepository = new CoverArtRepository(this);
             CurrentSong = new CurrentSong(this);
             Playlist = new Playlist(this);
             OutputCollection = new OutputCollection(this);
@@ -98,6 +99,12 @@ namespace Auremo
         }
 
         public Playlist Playlist
+        {
+            get;
+            private set;
+        }
+
+        public CoverArtRepository CoverArtRepository
         {
             get;
             private set;

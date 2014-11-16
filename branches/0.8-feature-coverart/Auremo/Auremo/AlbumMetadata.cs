@@ -17,18 +17,37 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Windows.Media;
 
 namespace Auremo
 {
-    public class AlbumMetadata : IComparable
+    public class AlbumMetadata : IComparable, INotifyPropertyChanged
     {
+        #region INotifyPropertyChanged implementation
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChanged(string info)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(info));
+            }
+        }
+
+        #endregion
+
+        private ImageSource m_Cover;
+
         public AlbumMetadata(string artist, string albumTitle, string date)
         {
             Artist = artist;
             Title = albumTitle;
             Date = date;
+            Cover = null;
         }
 
         public string Artist
@@ -54,6 +73,22 @@ namespace Auremo
             get
             {
                 return Utils.ExtractYearFromDateString(Date);
+            }
+        }
+
+        public ImageSource Cover
+        {
+            get
+            {
+                return m_Cover;
+            }
+            set
+            {
+                if (value != m_Cover)
+                {
+                    m_Cover = value;
+                    NotifyPropertyChanged("Cover");
+                }
             }
         }
 
