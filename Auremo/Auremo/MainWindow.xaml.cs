@@ -40,6 +40,7 @@ namespace Auremo
     public partial class MainWindow : Window
     {
         private SettingsWindow m_SettingsWindow = null;
+        private CoverArtManager m_CoverArtManagerWindow = null;
         private TextWindow m_LicenseWindow = null;
         private AboutWindow m_AboutWindow = null;
         private DispatcherTimer m_Timer = null;
@@ -324,6 +325,7 @@ namespace Auremo
 
         private void OnExit(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            DataModel.CoverArtRepository.Terminate();
             DataModel.QuickSearch.Terminate();
             DataModel.ServerSession.Disconnect();
 
@@ -355,6 +357,11 @@ namespace Auremo
         private void OnEditSettingsClicked(object sender, RoutedEventArgs e)
         {
             BringUpSettingsWindow();
+        }
+
+        private void OnCoverArtManagerClicked(object sender, RoutedEventArgs e)
+        {
+            BringUpCoverArtManager();
         }
 
         private void OnExitClicked(object sender, RoutedEventArgs e)
@@ -2271,6 +2278,20 @@ namespace Auremo
             }
 
             m_SettingsWindow.Show();
+        }
+
+        private void BringUpCoverArtManager()
+        {
+            if (m_CoverArtManagerWindow == null)
+            {
+                m_CoverArtManagerWindow = new CoverArtManager(this);
+            }
+            else
+            {
+                m_CoverArtManagerWindow.Visibility = Visibility.Visible;
+            }
+
+            m_CoverArtManagerWindow.Show();
         }
 
         private void BringUpLicenseWindow()

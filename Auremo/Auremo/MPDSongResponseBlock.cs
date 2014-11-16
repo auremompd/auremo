@@ -59,8 +59,8 @@ namespace Auremo
                 SongMetadata result = new SongMetadata();
                 result.Path = File;
                 result.Title = Title;
-                result.Genre = Genre == null ? "No Genre" : Genre;
-                result.Album = Album == null ? "Unknown Album" : Album;
+                result.Genre = Genre == null ? SongMetadata.UnknownGenre : Genre;
+                result.Album = Album == null ? SongMetadata.UnknownAlbum : Album;
                 result.Length = Time;
                 result.Track = Track;
                 result.Date = result.IsLocal ? dataModel.CustomDateNormalizer.Normalize(Date) : dataModel.YearNormalizer.Normalize(Date);
@@ -71,7 +71,7 @@ namespace Auremo
                 }
                 else
                 {
-                    result.Artist = Artist == null ? "Unknown Artist" : Artist;
+                    result.Artist = Artist == null ? SongMetadata.UnknownArtist : Artist;
                 }
 
                 return result;
@@ -89,8 +89,8 @@ namespace Auremo
                 SongMetadata result = new SongMetadata();
                 result.Path = File;
                 result.Title = Title;
-                result.Genre = Genre == null ? "No Genre" : Genre;
-                result.Album = Album == null ? "Unknown Album" : Album;
+                result.Genre = Genre == null ? SongMetadata.UnknownGenre : Genre;
+                result.Album = Album == null ? SongMetadata.UnknownAlbum : Album;
                 result.Length = Time;
                 result.Track = Track;
                 result.Date = dataModel.YearNormalizer.Normalize(Date);
@@ -101,7 +101,7 @@ namespace Auremo
                 }
                 else
                 {
-                    result.Artist = Artist == null ? "Unknown Artist" : Artist;
+                    result.Artist = Artist == null ? SongMetadata.UnknownArtist : Artist;
                 }
 
                 return result;

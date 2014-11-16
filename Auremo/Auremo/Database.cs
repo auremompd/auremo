@@ -118,6 +118,24 @@ namespace Auremo
             }
         }
 
+        public IEnumerable<AlbumMetadata> Albums
+        {
+            get
+            {
+                IList<AlbumMetadata> result = new List<AlbumMetadata>();
+
+                foreach (IEnumerable<AlbumMetadata> albums in m_AlbumsByArtist.Values)
+                {
+                    foreach (AlbumMetadata album in albums)
+                    {
+                        result.Add(album);
+                    }
+                }
+
+                return result;
+            }
+        }
+
         public ISet<AlbumMetadata> AlbumsByArtist(string artist)
         {
             ISet<AlbumMetadata> result = new SortedSet<AlbumMetadata>(AlbumSortRule);
@@ -313,6 +331,7 @@ namespace Auremo
                     AlbumMetadata node = new AlbumMetadata(artist, album, titleAndDate[album]);
                     albumsByArtist.Add(node);
                     albumsByArtistAndName[album] = node;
+                    // m_DataModel.CoverArtRepository.SetCoverOfAlbum(node);
                 }
             }
         }

@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Windows.Media;
 
 namespace Auremo
 {
@@ -41,12 +42,18 @@ namespace Auremo
 
         private DataModel m_DataModel = null;
         private string m_DisplayString = "";
-        private Playable m_CurrentPlayable = null;
+        private Playable m_CurrentlyPlaying = null;
+        private AlbumMetadata m_CurrentAlbum = null;
+        private AlbumMetadata m_UnknownAlbum = null;
 
         public CurrentSong(DataModel dataModel)
         {
             m_DataModel = dataModel;
             m_DataModel.ServerStatus.PropertyChanged += new PropertyChangedEventHandler(OnServerStatusPropertyChanged);
+            
+            m_UnknownAlbum = new AlbumMetadata(SongMetadata.UnknownArtist, SongMetadata.UnknownAlbum, null);
+            m_DataModel.CoverArtRepository.SetCoverOfAlbum(m_UnknownAlbum);
+
             Update();
             BuildDisplayString();
         }
@@ -60,8 +67,52 @@ namespace Auremo
         {
             if (response.Count() > 0)
             {
-                m_CurrentPlayable = response.First().ToPlayable(m_DataModel);
+                CurrentlyPlaying = response.First().ToPlayable(m_DataModel);
+
+                if (CurrentlyPlaying is SongMetadata)
+                {
+                    AlbumMetadata album = m_DataModel.Database.AlbumOfSong(CurrentlyPlaying as SongMetadata);
+                    CurrentAlbum = album == null ? m_UnknownAlbum : album;
+                    m_DataModel.CoverArtRepository.SetCoverOfAlbum(album);
+                }
+                else
+                {
+                    CurrentAlbum = m_UnknownAlbum;
+                }
+
                 BuildDisplayString();
+            }
+        }
+
+        public Playable CurrentlyPlaying
+        {
+            get
+            {
+                return m_CurrentlyPlaying;
+            }
+            private set
+            {
+                if (value != m_CurrentlyPlaying)
+                {
+                    m_CurrentlyPlaying = value;
+                    NotifyPropertyChanged("CurrentlyPlaying");
+                }
+            }
+        }
+
+        public AlbumMetadata CurrentAlbum
+        {
+            get
+            {
+                return m_CurrentAlbum;
+            }
+            private set
+            {
+                if (value != m_CurrentAlbum)
+                {
+                    m_CurrentAlbum = value;
+                    NotifyPropertyChanged("CurrentAlbum");
+                }
             }
         }
 
@@ -97,7 +148,7 @@ namespace Auremo
         {
             if (m_DataModel.ServerStatus.IsPlaying)
             {
-                if (m_CurrentPlayable == null)
+                if (m_CurrentlyPlaying == null)
                 {
                     DisplayString = "Playing. " + m_DataModel.ServerStatus.AudioQuality;
                 }
@@ -108,7 +159,7 @@ namespace Auremo
             }
             else if (m_DataModel.ServerStatus.IsPaused)
             {
-                if (m_CurrentPlayable == null)
+                if (m_CurrentlyPlaying == null)
                 {
                     DisplayString = "Paused. " + m_DataModel.ServerStatus.AudioQuality;
                 }
@@ -125,23 +176,23 @@ namespace Auremo
 
         private string CurrentPlayableToString()
         {
-            if (m_CurrentPlayable is SongMetadata)
+            if (m_CurrentlyPlaying is SongMetadata)
             {
                 return CurrentSongToString();
             }
-            else if (m_CurrentPlayable is StreamMetadata)
+            else if (m_CurrentlyPlaying is StreamMetadata)
             {
                 return CurrentStreamToString();
             }
             else
             {
-                return m_CurrentPlayable.Path;
+                return m_CurrentlyPlaying.Path;
             }
         }
 
         private string CurrentSongToString()
         {
-            SongMetadata song = m_CurrentPlayable as SongMetadata;
+            SongMetadata song = m_CurrentlyPlaying as SongMetadata;
             StringBuilder result = new StringBuilder(); 
 
             result.Append(song.Artist);
@@ -163,7 +214,7 @@ namespace Auremo
 
         private string CurrentStreamToString()
         {
-            StreamMetadata stream = m_CurrentPlayable as StreamMetadata;
+            StreamMetadata stream = m_CurrentlyPlaying as StreamMetadata;
             StringBuilder result = new StringBuilder();
 
             if (stream.Title != null)
