@@ -360,16 +360,7 @@ namespace Auremo
             {
                 if (statusLine.Key == MPDResponseLine.Keyword.ACK)
                 {
-                    if (command.Op == "listallinfo" && statusLine.Value.Contains("Not implemented"))
-                    {
-                        // TODO: this is a workaround for Mopidy not implementing listallinfo.
-                        // It can hopefully removed later.
-                        Send(new MPDCommand());
-                    }
-                    else
-                    {
-                        m_Parent.OnErrorMessageChanged(statusLine.Value);
-                    }
+                    m_Parent.OnErrorMessageChanged(statusLine.Value);
                 }
                 else
                 {
@@ -379,8 +370,7 @@ namespace Auremo
                         Callback(m_DataModel.CurrentSong.OnCurrentSongResponseReceived);
                         m_CurrentSongList.Clear();
                     }
-                    // TODO: remove the latter when Mopidy starts properly supporting the former.
-                    else if (command.Op == "listallinfo" || command.Op == "mopidylistallinfokludge")
+                    else if (command.Op == "listallinfo")
                     {
                         ParseSongList();
                         Callback(m_DataModel.Database.OnListAllInfoResponseReceived);
@@ -601,7 +591,7 @@ namespace Auremo
         {
             string message = "";
 
-            if (command.Op == "listallinfo" || command.Op == "mopidylistallinfokludge")
+            if (command.Op == "listallinfo")
             {
                 message = "Querying music database.";
             }
