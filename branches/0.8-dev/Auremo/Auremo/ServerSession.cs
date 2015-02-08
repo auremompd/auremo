@@ -266,12 +266,7 @@ namespace Auremo
 
         public void ListAllInfo()
         {
-            //Send(new MPDCommand("listallinfo"));
-            // TODO: this is a kludge. Mopidy now seems to implement
-            // listallinfo, but it is too slow to be usable. Therefore
-            // we must pre-emptively fall back to search "any" ""
-            // for now.
-            Send(new MPDCommand());
+            Send(new MPDCommand("listallinfo"));
         }
 
         #endregion
