@@ -47,7 +47,7 @@ namespace Auremo
             {
                 return null;
             }
-            else if (File.ToLowerInvariant().StartsWith("http:"))
+            else if (File.ToLowerInvariant().StartsWith("http:") || File.ToLowerInvariant().StartsWith("https:"))
             {
                 StreamMetadata result = new StreamMetadata(File, Name);
                 result.Name = Name;
